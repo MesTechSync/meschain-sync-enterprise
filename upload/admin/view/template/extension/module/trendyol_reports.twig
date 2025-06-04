@@ -1,0 +1,599 @@
+{#
+  trendyol_reports.twig
+  Amaç: Trendyol modülünün raporlama arayüz şablonu.
+  Standart: Her değişiklikte log tutulmalı (trendyol_view.log).
+#}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-export" data-toggle="tooltip" title="{{ button_export }}" class="btn btn-success"><i class="fa fa-download"></i> {{ button_export }}</button>
+        <button type="button" id="button-refresh" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-primary"><i class="fa fa-refresh"></i></button>
+      </div>
+      <h1>{{ heading_title }} - {{ text_reports }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-filter"></i> {{ text_filter }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <label class="control-label" for="input-date-start">{{ text_date_start }}</label>
+                  <div class="input-group date">
+                    <input type="text" name="filter_date_start" value="{{ filter_date_start }}" placeholder="{{ text_date_start }}" data-date-format="YYYY-MM-DD" id="input-date-start" class="form-control" />
+                    <span class="input-group-btn">
+                      <button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <label class="control-label" for="input-date-end">{{ text_date_end }}</label>
+                  <div class="input-group date">
+                    <input type="text" name="filter_date_end" value="{{ filter_date_end }}" placeholder="{{ text_date_end }}" data-date-format="YYYY-MM-DD" id="input-date-end" class="form-control" />
+                    <span class="input-group-btn">
+                      <button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <label class="control-label" for="input-report-type">{{ text_report_type }}</label>
+                  <select name="report_type" id="input-report-type" class="form-control">
+                    <option value="sales">{{ text_sales_report }}</option>
+                    <option value="products">{{ text_product_report }}</option>
+                    <option value="performance">{{ text_performance_report }}</option>
+                    <option value="comparison">{{ text_comparison_report }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-12">
+                <button type="button" id="button-filter" class="btn btn-primary pull-right"><i class="fa fa-filter"></i> {{ button_filter }}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sales Reports Tab -->
+    <div class="panel panel-default" id="tab-sales-report">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-bar-chart"></i> {{ text_sales_report }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div id="sales-chart" style="width: 100%; height: 300px;"></div>
+          </div>
+          <div class="col-md-6">
+            <div id="sales-pie-chart" style="width: 100%; height: 300px;"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <td class="text-left">{{ column_date }}</td>
+                    <td class="text-right">{{ column_orders }}</td>
+                    <td class="text-right">{{ column_products }}</td>
+                    <td class="text-right">{{ column_total }}</td>
+                    <td class="text-right">{{ column_shipping }}</td>
+                    <td class="text-right">{{ column_tax }}</td>
+                    <td class="text-right">{{ column_commission }}</td>
+                    <td class="text-right">{{ column_net }}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if sales_data %}
+                    {% for sale in sales_data %}
+                    <tr>
+                      <td class="text-left">{{ sale.date }}</td>
+                      <td class="text-right">{{ sale.orders }}</td>
+                      <td class="text-right">{{ sale.products }}</td>
+                      <td class="text-right">{{ sale.total }}</td>
+                      <td class="text-right">{{ sale.shipping }}</td>
+                      <td class="text-right">{{ sale.tax }}</td>
+                      <td class="text-right">{{ sale.commission }}</td>
+                      <td class="text-right">{{ sale.net }}</td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td class="text-center" colspan="8">{{ text_no_results }}</td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Product Reports Tab -->
+    <div class="panel panel-default" id="tab-product-report" style="display: none;">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-cubes"></i> {{ text_product_report }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div id="product-chart" style="width: 100%; height: 300px;"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <td class="text-left">{{ column_product }}</td>
+                    <td class="text-left">{{ column_model }}</td>
+                    <td class="text-right">{{ column_quantity }}</td>
+                    <td class="text-right">{{ column_total }}</td>
+                    <td class="text-right">{{ column_commission }}</td>
+                    <td class="text-right">{{ column_net }}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if product_data %}
+                    {% for product in product_data %}
+                    <tr>
+                      <td class="text-left">{{ product.name }}</td>
+                      <td class="text-left">{{ product.model }}</td>
+                      <td class="text-right">{{ product.quantity }}</td>
+                      <td class="text-right">{{ product.total }}</td>
+                      <td class="text-right">{{ product.commission }}</td>
+                      <td class="text-right">{{ product.net }}</td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td class="text-center" colspan="6">{{ text_no_results }}</td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Performance Reports Tab -->
+    <div class="panel panel-default" id="tab-performance-report" style="display: none;">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-tachometer"></i> {{ text_performance_report }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div id="performance-chart" style="width: 100%; height: 300px;"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="panel panel-primary">
+              <div class="panel-heading">{{ text_conversion_rate }}</div>
+              <div class="panel-body">
+                <h1 class="text-center">{{ performance_data.conversion_rate }}%</h1>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-success">
+              <div class="panel-heading">{{ text_average_order }}</div>
+              <div class="panel-body">
+                <h1 class="text-center">{{ performance_data.average_order }}</h1>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-info">
+              <div class="panel-heading">{{ text_return_rate }}</div>
+              <div class="panel-body">
+                <h1 class="text-center">{{ performance_data.return_rate }}%</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Comparison Reports Tab -->
+    <div class="panel panel-default" id="tab-comparison-report" style="display: none;">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-exchange"></i> {{ text_comparison_report }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div id="comparison-chart" style="width: 100%; height: 400px;"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <td class="text-left">{{ column_metric }}</td>
+                    <td class="text-center">{{ column_trendyol }}</td>
+                    <td class="text-center">{{ column_n11 }}</td>
+                    <td class="text-center">{{ column_opencart }}</td>
+                    <td class="text-center">{{ column_other }}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if comparison_data %}
+                    {% for row in comparison_data %}
+                    <tr>
+                      <td class="text-left">{{ row.metric }}</td>
+                      <td class="text-center">{{ row.trendyol }}</td>
+                      <td class="text-center">{{ row.n11 }}</td>
+                      <td class="text-center">{{ row.opencart }}</td>
+                      <td class="text-center">{{ row.other }}</td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td class="text-center" colspan="5">{{ text_no_results }}</td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script type="text/javascript"><!--
+$('#button-filter').on('click', function() {
+  var url = '';
+
+  var filter_date_start = $('input[name=\'filter_date_start\']').val();
+  if (filter_date_start) {
+    url += '&filter_date_start=' + encodeURIComponent(filter_date_start);
+  }
+
+  var filter_date_end = $('input[name=\'filter_date_end\']').val();
+  if (filter_date_end) {
+    url += '&filter_date_end=' + encodeURIComponent(filter_date_end);
+  }
+  
+  var report_type = $('#input-report-type').val();
+  url += '&report_type=' + encodeURIComponent(report_type);
+  
+  // Show/hide report tabs based on selection
+  $('#tab-sales-report, #tab-product-report, #tab-performance-report, #tab-comparison-report').hide();
+  $('#tab-' + report_type + '-report').show();
+
+  $.ajax({
+    url: 'index.php?route=extension/module/trendyol/get_report_data&user_token={{ user_token }}' + url,
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-filter').button('loading');
+    },
+    complete: function() {
+      $('#button-filter').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json.error) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json.success) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        
+        // Update charts and tables based on report type
+        if (report_type === 'sales') {
+          updateSalesReport(json.data);
+        } else if (report_type === 'products') {
+          updateProductReport(json.data);
+        } else if (report_type === 'performance') {
+          updatePerformanceReport(json.data);
+        } else if (report_type === 'comparison') {
+          updateComparisonReport(json.data);
+        }
+      }
+      
+      $('html, body').animate({ scrollTop: 0 }, 'slow');
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+// Handle export button
+$('#button-export').on('click', function() {
+  var report_type = $('#input-report-type').val();
+  var filter_date_start = $('input[name=\'filter_date_start\']').val();
+  var filter_date_end = $('input[name=\'filter_date_end\']').val();
+  
+  var url = 'index.php?route=extension/module/trendyol/export_report&user_token={{ user_token }}';
+  url += '&report_type=' + encodeURIComponent(report_type);
+  
+  if (filter_date_start) {
+    url += '&filter_date_start=' + encodeURIComponent(filter_date_start);
+  }
+  
+  if (filter_date_end) {
+    url += '&filter_date_end=' + encodeURIComponent(filter_date_end);
+  }
+  
+  window.location = url;
+});
+
+// Update the sales report chart and table
+function updateSalesReport(data) {
+  // Update table data
+  var html = '';
+  
+  if (data.sales && data.sales.length > 0) {
+    for (var i = 0; i < data.sales.length; i++) {
+      html += '<tr>';
+      html += '  <td class="text-left">' + data.sales[i].date + '</td>';
+      html += '  <td class="text-right">' + data.sales[i].orders + '</td>';
+      html += '  <td class="text-right">' + data.sales[i].products + '</td>';
+      html += '  <td class="text-right">' + data.sales[i].total + '</td>';
+      html += '  <td class="text-right">' + data.sales[i].shipping + '</td>';
+      html += '  <td class="text-right">' + data.sales[i].tax + '</td>';
+      html += '  <td class="text-right">' + data.sales[i].commission + '</td>';
+      html += '  <td class="text-right">' + data.sales[i].net + '</td>';
+      html += '</tr>';
+    }
+  } else {
+    html += '<tr><td class="text-center" colspan="8">{{ text_no_results }}</td></tr>';
+  }
+  
+  $('#tab-sales-report table tbody').html(html);
+  
+  // Create sales chart
+  if (data.chart) {
+    var ctx = document.getElementById('sales-chart').getContext('2d');
+    if (window.salesChart) {
+      window.salesChart.destroy();
+    }
+    
+    window.salesChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.chart.labels,
+        datasets: [{
+          label: '{{ text_sales }}',
+          data: data.chart.values,
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+    
+    // Create pie chart for sales distribution
+    var pieCtx = document.getElementById('sales-pie-chart').getContext('2d');
+    if (window.salesPieChart) {
+      window.salesPieChart.destroy();
+    }
+    
+    window.salesPieChart = new Chart(pieCtx, {
+      type: 'pie',
+      data: {
+        labels: data.pie.labels,
+        datasets: [{
+          data: data.pie.values,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true
+      }
+    });
+  }
+}
+
+// Update the product report chart and table
+function updateProductReport(data) {
+  // Update table data
+  var html = '';
+  
+  if (data.products && data.products.length > 0) {
+    for (var i = 0; i < data.products.length; i++) {
+      html += '<tr>';
+      html += '  <td class="text-left">' + data.products[i].name + '</td>';
+      html += '  <td class="text-left">' + data.products[i].model + '</td>';
+      html += '  <td class="text-right">' + data.products[i].quantity + '</td>';
+      html += '  <td class="text-right">' + data.products[i].total + '</td>';
+      html += '  <td class="text-right">' + data.products[i].commission + '</td>';
+      html += '  <td class="text-right">' + data.products[i].net + '</td>';
+      html += '</tr>';
+    }
+  } else {
+    html += '<tr><td class="text-center" colspan="6">{{ text_no_results }}</td></tr>';
+  }
+  
+  $('#tab-product-report table tbody').html(html);
+  
+  // Create product chart
+  if (data.chart) {
+    var ctx = document.getElementById('product-chart').getContext('2d');
+    if (window.productChart) {
+      window.productChart.destroy();
+    }
+    
+    window.productChart = new Chart(ctx, {
+      type: 'horizontalBar',
+      data: {
+        labels: data.chart.labels,
+        datasets: [{
+          label: '{{ text_sales }}',
+          data: data.chart.values,
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        scales: {
+          x: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  }
+}
+
+// Update the performance report
+function updatePerformanceReport(data) {
+  // Update performance metrics
+  if (data.performance) {
+    $('#tab-performance-report .panel-primary .panel-body h1').text(data.performance.conversion_rate + '%');
+    $('#tab-performance-report .panel-success .panel-body h1').text(data.performance.average_order);
+    $('#tab-performance-report .panel-info .panel-body h1').text(data.performance.return_rate + '%');
+  }
+  
+  // Create performance chart
+  if (data.chart) {
+    var ctx = document.getElementById('performance-chart').getContext('2d');
+    if (window.performanceChart) {
+      window.performanceChart.destroy();
+    }
+    
+    window.performanceChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.chart.labels,
+        datasets: data.chart.datasets
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  }
+}
+
+// Update the comparison report
+function updateComparisonReport(data) {
+  // Update table data
+  var html = '';
+  
+  if (data.comparison && data.comparison.length > 0) {
+    for (var i = 0; i < data.comparison.length; i++) {
+      html += '<tr>';
+      html += '  <td class="text-left">' + data.comparison[i].metric + '</td>';
+      html += '  <td class="text-center">' + data.comparison[i].trendyol + '</td>';
+      html += '  <td class="text-center">' + data.comparison[i].n11 + '</td>';
+      html += '  <td class="text-center">' + data.comparison[i].opencart + '</td>';
+      html += '  <td class="text-center">' + data.comparison[i].other + '</td>';
+      html += '</tr>';
+    }
+  } else {
+    html += '<tr><td class="text-center" colspan="5">{{ text_no_results }}</td></tr>';
+  }
+  
+  $('#tab-comparison-report table tbody').html(html);
+  
+  // Create comparison chart
+  if (data.chart) {
+    var ctx = document.getElementById('comparison-chart').getContext('2d');
+    if (window.comparisonChart) {
+      window.comparisonChart.destroy();
+    }
+    
+    window.comparisonChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.chart.labels,
+        datasets: data.chart.datasets
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  }
+}
+
+$('.date').datetimepicker({
+  language: '{{ datepicker }}',
+  pickTime: false
+});
+
+// Show the initial report (sales)
+$('#tab-sales-report').show();
+
+// Initial load of report data
+$('#button-filter').trigger('click');
+//--></script>
+
+{{ footer }} 

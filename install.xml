@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>MesChain-Sync: Pazarama &amp; Çiçek Sepeti Integration</name>
+    <code>meschain_pazarama_ciceksepeti</code>
+    <version>1.0.0</version>
+    <author>MesChain Development Team</author>
+    <link>https://www.meschain.com</link>
+    <description>Professional marketplace integration for Pazarama and Çiçek Sepeti with OpenCart 3.0.4.0</description>
+    
+    <file path="admin/controller/startup/startup.php">
+        <operation>
+            <search><![CDATA[$this->load->controller('common/header');]]></search>
+            <add position="before"><![CDATA[
+                // MesChain-Sync initialization
+                if (file_exists(DIR_SYSTEM . 'library/meschain/logger.php')) {
+                    require_once(DIR_SYSTEM . 'library/meschain/logger.php');
+                }
+            ]]></add>
+        </operation>
+    </file>
+    
+    <file path="admin/view/template/common/column_left.twig">
+        <operation>
+            <search><![CDATA[<ul class="nav nav-pills nav-stacked">]]></search>
+            <add position="after"><![CDATA[
+                {% if meschain_menu %}
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-toggle="collapse" data-target="#meschain-menu" aria-expanded="false">
+                        <i class="fas fa-sync-alt"></i> MesChain-Sync
+                        <span class="float-right">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </a>
+                    <div class="collapse" id="meschain-menu">
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ meschain_sync_url }}" class="nav-link">
+                                    <i class="fas fa-cog"></i> {{ text_meschain_sync }}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ trendyol_url }}" class="nav-link">
+                                    <i class="fas fa-shopping-bag"></i> Trendyol
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ n11_url }}" class="nav-link">
+                                    <i class="fas fa-store"></i> N11
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ amazon_url }}" class="nav-link">
+                                    <i class="fab fa-amazon"></i> Amazon
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ hepsiburada_url }}" class="nav-link">
+                                    <i class="fas fa-shopping-cart"></i> Hepsiburada
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ ozon_url }}" class="nav-link">
+                                    <i class="fas fa-globe"></i> Ozon
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ pazarama_url }}" class="nav-link">
+                                    <i class="fas fa-shopping-basket"></i> Pazarama
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ ciceksepeti_url }}" class="nav-link">
+                                    <i class="fas fa-leaf"></i> Çiçek Sepeti
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ ebay_url }}" class="nav-link">
+                                    <i class="fab fa-ebay"></i> eBay
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                {% endif %}
+            ]]></add>
+        </operation>
+    </file>
+    
+</modification> 

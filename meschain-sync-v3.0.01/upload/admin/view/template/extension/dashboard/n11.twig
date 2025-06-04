@@ -1,0 +1,136 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-shopping-cart"></i> {{ heading_title }}</h3>
+  </div>
+  <div class="panel-body">
+    <div id="n11-orders-stats" style="min-height: 250px;">
+      <div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+  // Ajax ile n11 sipariş verilerini getir
+  function getN11OrderStats() {
+    $('#n11-orders-stats').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+    
+    $.ajax({
+      url: 'index.php?route=extension/dashboard/n11/dashboard&user_token={{ user_token }}',
+      dataType: 'json',
+      success: function(json) {
+        if (json.error) {
+          $('#n11-orders-stats').html('<div class="alert alert-danger">' + json.error + '</div>');
+        } else if (json.connection) {
+          html = '<div class="row">';
+          
+          // Sipariş sayıları
+          html += '<div class="col-xs-12">';
+          html += '<div class="row">';
+          
+          // Toplam siparişler
+          html += '<div class="col-sm-3 col-xs-6 text-center">';
+          html += '<div class="well"><h2>' + json.total_orders + '</h2><small>{{ text_all }}</small></div>';
+          html += '</div>';
+          
+          // Bugün gelen siparişler
+          html += '<div class="col-sm-3 col-xs-6 text-center">';
+          html += '<div class="well"><h2>' + json.today_orders + '</h2><small>{{ text_today }}</small></div>';
+          html += '</div>';
+          
+          // Bu hafta gelen siparişler
+          html += '<div class="col-sm-3 col-xs-6 text-center">';
+          html += '<div class="well"><h2>' + json.week_orders + '</h2><small>{{ text_week }}</small></div>';
+          html += '</div>';
+          
+          // Bu ay gelen siparişler
+          html += '<div class="col-sm-3 col-xs-6 text-center">';
+          html += '<div class="well"><h2>' + json.month_orders + '</h2><small>{{ text_month }}</small></div>';
+          html += '</div>';
+          
+          html += '</div>';
+          html += '</div>';
+          
+          // Durum bilgileri
+          html += '<div class="col-xs-12">';
+          html += '<div class="row">';
+          
+          // Yeni siparişler
+          html += '<div class="col-sm-3 col-xs-6 text-center">';
+          html += '<div class="well bg-primary"><h4>' + (json.status_counts.New || 0) + '</h4><small>{{ text_new_orders }}</small></div>';
+          html += '</div>';
+          
+          // Kargoya verilenler
+          html += '<div class="col-sm-3 col-xs-6 text-center">';
+          html += '<div class="well bg-warning"><h4>' + (json.status_counts.Shipped || 0) + '</h4><small>{{ text_shipped }}</small></div>';
+          html += '</div>';
+          
+          // Tamamlananlar
+          html += '<div class="col-sm-3 col-xs-6 text-center">';
+          html += '<div class="well bg-success"><h4>' + (json.status_counts.Delivered || 0) + '</h4><small>{{ text_completed }}</small></div>';
+          html += '</div>';
+          
+          // İptal edilenler
+          html += '<div class="col-sm-3 col-xs-6 text-center">';
+          html += '<div class="well bg-danger"><h4>' + ((json.status_counts.Cancelled || 0) + (json.status_counts.Rejected || 0)) + '</h4><small>{{ text_cancelled }}</small></div>';
+          html += '</div>';
+          
+          html += '</div>';
+          html += '</div>';
+          
+          // Son siparişler
+          html += '<div class="col-xs-12">';
+          html += '<h4>{{ text_latest }}</h4>';
+          
+          if (json.latest_orders && json.latest_orders.length > 0) {
+            html += '<div class="table-responsive">';
+            html += '<table class="table table-bordered table-hover">';
+            html += '<thead><tr>';
+            html += '<td>{{ text_order_number }}</td>';
+            html += '<td>{{ text_status }}</td>';
+            html += '<td>{{ text_date }}</td>';
+            html += '<td>{{ text_total }}</td>';
+            html += '<td>{{ text_view_order }}</td>';
+            html += '</tr></thead>';
+            html += '<tbody>';
+            
+            for (i = 0; i < json.latest_orders.length; i++) {
+              html += '<tr>';
+              html += '<td>' + json.latest_orders[i].order_number + '</td>';
+              html += '<td><span class="label label-' + json.latest_orders[i].status.color + '">' + json.latest_orders[i].status.name + '</span></td>';
+              html += '<td>' + json.latest_orders[i].date_added + '</td>';
+              html += '<td>' + json.latest_orders[i].total + '</td>';
+              html += '<td><a href="' + json.latest_orders[i].view + '" data-toggle="tooltip" title="{{ text_view_order }}" class="btn btn-info btn-xs"><i class="fa fa-eye"></i></a></td>';
+              html += '</tr>';
+            }
+            
+            html += '</tbody></table>';
+            html += '</div>';
+          } else {
+            html += '<div class="alert alert-info">{{ text_no_results }}</div>';
+          }
+          
+          html += '</div>';
+          html += '</div>';
+          
+          // View all orders link
+          html += '<div class="text-right"><a href="{{ n11_orders }}" class="btn btn-primary">{{ text_view }}</a></div>';
+          
+          $('#n11-orders-stats').html(html);
+        } else {
+          $('#n11-orders-stats').html('<div class="alert alert-warning">{{ text_no_connection }}</div>');
+        }
+      },
+      error: function(xhr, ajaxOptions, thrownError) {
+        $('#n11-orders-stats').html('<div class="alert alert-danger">' + thrownError + '</div>');
+      }
+    });
+  }
+  
+  getN11OrderStats();
+  
+  // Her 60 saniyede bir yenile
+  setInterval(function() {
+    getN11OrderStats();
+  }, 60000);
+});
+</script> 

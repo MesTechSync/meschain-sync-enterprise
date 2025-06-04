@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Dashboard - MesChain-Sync</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .devops-theme { 
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 50%, #4338CA 100%);
+            color: white;
+        }
+        .devops-card { 
+            border-left: 5px solid #6366F1;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .devops-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+        }
+        .devops-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366F1, #4F46E5, #4338CA, #3730A3, #6366F1);
+            animation: devopsGradient 3s ease-in-out infinite;
+        }
+        @keyframes devopsGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .devops-icon {
+            font-size: 2.5rem;
+            color: #6366F1;
+            margin-bottom: 15px;
+            animation: devopsPulse 2s ease-in-out infinite;
+        }
+        @keyframes devopsPulse {
+            0%, 100% { transform: scale(1); color: #6366F1; }
+            50% { transform: scale(1.1); color: #4F46E5; }
+        }
+        .devops-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #818CF8, #6366F1);
+            animation: devopsBlink 2s infinite;
+        }
+        @keyframes devopsBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.3); }
+        }
+        .pipeline-center {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .pipeline-header {
+            background: linear-gradient(45deg, #6366F1, #4F46E5);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: between;
+        }
+        .pipelines-list {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+        .pipeline-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .pipeline-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .pipeline-item.success {
+            border-left-color: #10B981;
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+        }
+        .pipeline-item.running {
+            border-left-color: #3B82F6;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.05));
+        }
+        .pipeline-item.failed {
+            border-left-color: #EF4444;
+            background: linear-gradient(45deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.05));
+        }
+        .pipeline-item.pending {
+            border-left-color: #F59E0B;
+            background: linear-gradient(45deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.05));
+        }
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+        }
+        .status-success { background: #10B981; }
+        .status-running { background: #3B82F6; }
+        .status-failed { background: #EF4444; }
+        .status-pending { background: #F59E0B; }
+        .devops-badge {
+            background: linear-gradient(45deg, #6366F1, #4F46E5);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+        }
+        .metric-display {
+            font-weight: bold;
+            color: #6366F1;
+            font-size: 1.2rem;
+        }
+        .devops-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .devops-healthy {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        .devops-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+        .devops-critical {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+        .realtime-indicator {
+            background: linear-gradient(45deg, #6366F1, #4F46E5);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            animation: realtimePulse 2s ease-in-out infinite;
+        }
+        @keyframes realtimePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .infrastructure-panel {
+            background: linear-gradient(45deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.1));
+            border: 1px solid #6366F1;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .infra-btn {
+            background: linear-gradient(45deg, #6366F1, #4F46E5);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .infra-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        .container-monitoring {
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border: 1px solid #10B981;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .container-btn {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .container-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .chart-container::before {
+            content: '⚙️ REAL-TIME';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: linear-gradient(45deg, #6366F1, #4F46E5);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .deployment-center {
+            background: rgba(245, 158, 11, 0.1);
+            border: 2px solid #F59E0B;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            animation: deploymentGlow 4s ease-in-out infinite;
+        }
+        @keyframes deploymentGlow {
+            0%, 100% { border-color: #F59E0B; }
+            50% { border-color: #D97706; }
+        }
+        .deploy-btn {
+            background: linear-gradient(45deg, #F59E0B, #D97706);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .deploy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+        .environment-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .env-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .env-btn.active {
+            border-color: #6366F1;
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366F1;
+        }
+        .env-btn:hover {
+            border-color: #6366F1;
+            transform: translateY(-2px);
+        }
+        .pipeline-stage {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+        .stage-build { background: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+        .stage-test { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+        .stage-deploy { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .stage-monitor { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg devops-theme shadow-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-cogs me-2"></i>
+                DevOps Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <span class="devops-status devops-healthy" id="devops-status">
+                        <span class="devops-indicator"></span>
+                        CI/CD: <span id="devops-status-text">Operational</span>
+                    </span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- DevOps Statistics -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card devops-card h-100">
+                    <div class="devops-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-rocket devops-icon"></i>
+                        <h5 class="card-title">Deployments</h5>
+                        <h2 id="total-deployments" class="display-6">247</h2>
+                        <div class="mt-2">
+                            <small>Success: <span id="success-deployments" class="metric-display">239</span></small>
+                            <div class="realtime-indicator mt-2">ACTIVE</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card devops-card h-100">
+                    <div class="devops-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-layer-group devops-icon"></i>
+                        <h5 class="card-title">Containers</h5>
+                        <h2 id="active-containers" class="display-6">124</h2>
+                        <div class="mt-2">
+                            <small>Running: <span id="running-containers" class="metric-display">118</span></small>
+                            <div class="realtime-indicator mt-2">SCALED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card devops-card h-100">
+                    <div class="devops-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock devops-icon"></i>
+                        <h5 class="card-title">Build Time</h5>
+                        <h2 id="avg-build-time" class="display-6">4.2min</h2>
+                        <div class="mt-2">
+                            <small>Fastest: <span id="fastest-build" class="metric-display">2.1min</span></small>
+                            <div class="realtime-indicator mt-2">OPTIMIZED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card devops-card h-100">
+                    <div class="devops-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-percentage devops-icon"></i>
+                        <h5 class="card-title">Success Rate</h5>
+                        <h2 id="success-rate" class="display-6">96.8%</h2>
+                        <div class="mt-2">
+                            <small>Failed: <span id="failed-deployments" class="metric-display">8</span></small>
+                            <div class="realtime-indicator mt-2">STABLE</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- CI/CD Pipeline Center -->
+                <div class="pipeline-center">
+                    <div class="pipeline-header">
+                        <div>
+                            <h5 class="mb-0">
+                                <i class="fas fa-project-diagram me-2"></i>
+                                CI/CD Pipeline Management
+                            </h5>
+                            <small>Real-time pipeline monitoring & execution</small>
+                        </div>
+                        <div class="ms-auto">
+                            <span class="devops-badge">🚀 Active Pipelines</span>
+                        </div>
+                    </div>
+                    
+                    <div class="pipelines-list" id="pipelines-list">
+                        <!-- Pipelines will be loaded here dynamically -->
+                    </div>
+                </div>
+
+                <!-- DevOps Analytics Charts -->
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line text-primary me-2"></i>
+                            DevOps Performance Analytics (Son 7 Gün)
+                        </h5>
+                        <span class="devops-badge">Real-time Data</span>
+                    </div>
+                    <canvas id="devopsChart" height="300"></canvas>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Environment Management -->
+                <div class="card devops-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-server me-2"></i>
+                            Environment Management
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="environment-selector">
+                            <div class="env-btn active" data-env="dev">Dev</div>
+                            <div class="env-btn" data-env="staging">Staging</div>
+                            <div class="env-btn" data-env="prod">Production</div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small>Environment Health:</small>
+                            <strong class="float-end text-success" id="env-health">Healthy</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Active Services:</small>
+                            <strong class="float-end" id="active-services">23</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>CPU Usage:</small>
+                            <strong class="float-end" id="env-cpu">34.2%</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Memory Usage:</small>
+                            <strong class="float-end" id="env-memory">67.8%</strong>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="deployToEnvironment()">
+                                <i class="fas fa-rocket me-2"></i>Deploy to Environment
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="exportDevOpsReport()">
+                                <i class="fas fa-download me-2"></i>Export Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Infrastructure as Code -->
+                <div class="infrastructure-panel">
+                    <h6><i class="fas fa-code me-2"></i>Infrastructure as Code</h6>
+                    <p class="mb-3">Terraform & CloudFormation management</p>
+                    <div class="mb-3">
+                        <div class="mb-2">
+                            <small>Terraform Modules:</small>
+                            <strong class="float-end" id="terraform-modules">47</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>CloudFormation Stacks:</small>
+                            <strong class="float-end" id="cloudformation-stacks">23</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Infrastructure Drift:</small>
+                            <strong class="float-end text-success" id="infrastructure-drift">None</strong>
+                        </div>
+                    </div>
+                    <button class="infra-btn w-100" onclick="manageInfrastructure()">
+                        Manage Infrastructure
+                    </button>
+                </div>
+
+                <!-- Container Monitoring -->
+                <div class="container-monitoring">
+                    <h6><i class="fab fa-docker me-2"></i>Container Orchestration</h6>
+                    <p class="mb-3">Docker & Kubernetes monitoring</p>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="docker-monitoring" checked>
+                            <label class="form-check-label" for="docker-monitoring">
+                                Docker Monitoring
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="k8s-monitoring" checked>
+                            <label class="form-check-label" for="k8s-monitoring">
+                                Kubernetes Monitoring
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto-scaling" checked>
+                            <label class="form-check-label" for="auto-scaling">
+                                Auto Scaling
+                            </label>
+                        </div>
+                    </div>
+                    <button class="container-btn w-100" onclick="manageContainers()">
+                        Manage Containers
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deployment Center -->
+        <div class="row mt-4" id="deployment-center">
+            <div class="col-12">
+                <div class="deployment-center">
+                    <div class="text-center">
+                        <h4 class="text-warning mb-3">
+                            <i class="fas fa-rocket me-2"></i>
+                            DEPLOYMENT CENTER
+                        </h4>
+                        <p class="mb-4">Production deployment operations & release management</p>
+                        <button class="deploy-btn me-3" onclick="initiateDeployment('production')">
+                            DEPLOY TO PRODUCTION
+                        </button>
+                        <button class="deploy-btn" onclick="initiateDeployment('rollback')">
+                            ROLLBACK DEPLOYMENT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- DevOps Management JavaScript -->
+    <script src="devops_management.js"></script>
+    
+    <!-- Initialize DevOps Management -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DevOps Management Dashboard'u başlat
+            window.devopsManagement = new DevOpsManagement();
+            
+            console.log('⚙️ DevOps Dashboard başlatıldı');
+        });
+    </script>
+</body>
+</html> 

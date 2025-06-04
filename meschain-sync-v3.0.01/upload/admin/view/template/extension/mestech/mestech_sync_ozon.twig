@@ -1,0 +1,117 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-ozon" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1><i class="fa fa-globe"></i> Ozon API Ayarları</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> Ozon API Ayarları</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-ozon" class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-client-id">İstemci ID</label>
+            <div class="col-sm-10">
+              <input type="text" name="mestech_mestech_sync_ozon_client_id" value="{{ mestech_mestech_sync_ozon_client_id }}" placeholder="İstemci ID" id="input-client-id" class="form-control" />
+              <small class="form-text text-muted">Ozon Seller API'den aldığınız Client ID'yi giriniz.</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-api-key">API Anahtarı</label>
+            <div class="col-sm-10">
+              <input type="text" name="mestech_mestech_sync_ozon_api_key" value="{{ mestech_mestech_sync_ozon_api_key }}" placeholder="API Anahtarı" id="input-api-key" class="form-control" />
+              <small class="form-text text-muted">Ozon Seller API'den aldığınız API Key'i giriniz.</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">API Test</label>
+            <div class="col-sm-10">
+              <div class="btn-group">
+                <button type="button" id="button-test-connection" class="btn btn-info"><i class="fa fa-check"></i> Bağlantıyı Test Et</button>
+              </div>
+              <div id="test-connection-result" class="mt-2"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-info-circle"></i> Ozon API Bilgileri</h3>
+      </div>
+      <div class="panel-body">
+        <div class="alert alert-info">
+          <h4>Ozon API Erişimi Hakkında</h4>
+          <p>Ozon API erişimi için aşağıdaki adımları izlemeniz gerekmektedir:</p>
+          <ol>
+            <li>Ozon Seller hesabınıza giriş yapın.</li>
+            <li>Ayarlar bölümüne gidin.</li>
+            <li>API Erişimi sekmesini seçin.</li>
+            <li>Yeni API anahtarı oluşturun.</li>
+            <li>Client ID ve API Key bilgilerini alın.</li>
+            <li>Bu bilgileri yukarıdaki forma girin ve kaydedin.</li>
+          </ol>
+          <p>API erişimi hakkında daha fazla bilgi için <a href="https://seller.ozon.ru/settings/api-keys" target="_blank">Ozon Seller API Dokümanları</a> sayfasını ziyaret edebilirsiniz.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+$('#button-test-connection').on('click', function() {
+  var clientId = $('input[name="mestech_mestech_sync_ozon_client_id"]').val();
+  var apiKey = $('input[name="mestech_mestech_sync_ozon_api_key"]').val();
+  
+  if (!clientId || !apiKey) {
+    $('#test-connection-result').html('<div class="alert alert-danger">Tüm alanları doldurun.</div>');
+    return;
+  }
+  
+  $('#test-connection-result').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Bağlantı test ediliyor...</div>');
+  
+  $.ajax({
+    url: 'index.php?route=extension/mestech/mestech_sync/test_ozon_connection&user_token={{ user_token }}',
+    type: 'post',
+    data: {
+      client_id: clientId,
+      api_key: apiKey
+    },
+    dataType: 'json',
+    success: function(json) {
+      if (json.success) {
+        $('#test-connection-result').html('<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + json.message + '</div>');
+      } else {
+        $('#test-connection-result').html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json.message + '</div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      $('#test-connection-result').html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Bağlantı hatası: ' + thrownError + '</div>');
+    }
+  });
+});
+//--></script>
+
+{{ footer }} 

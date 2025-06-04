@@ -1,0 +1,430 @@
+{#
+  trendyol_dashboard.twig
+  Amaç: Trendyol modülünün dashboard arayüz şablonu.
+  Standart: Her değişiklikte log tutulmalı (trendyol_view.log).
+#}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ sync_products }}" data-toggle="tooltip" title="{{ button_sync_products }}" class="btn btn-primary"><i class="fa fa-refresh"></i> {{ button_sync_products }}</a>
+        <a href="{{ get_orders }}" data-toggle="tooltip" title="{{ button_get_orders }}" class="btn btn-info"><i class="fa fa-download"></i> {{ button_get_orders }}</a>
+        <a href="{{ update_stock }}" data-toggle="tooltip" title="{{ button_update_stock }}" class="btn btn-success"><i class="fa fa-cubes"></i> {{ button_update_stock }}</a>
+        <a href="{{ update_prices }}" data-toggle="tooltip" title="{{ button_update_prices }}" class="btn btn-warning"><i class="fa fa-tag"></i> {{ button_update_prices }}</a>
+        <a href="{{ settings }}" data-toggle="tooltip" title="{{ button_settings }}" class="btn btn-default"><i class="fa fa-cog"></i> {{ button_settings }}</a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-shopping-cart"></i> {{ text_orders }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="text-center">
+              <h1>{{ total_orders }}</h1>
+              <p>{{ text_total_orders }}</p>
+              <a href="{{ orders_url }}" class="btn btn-info">{{ button_view_orders }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cubes"></i> {{ text_products }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="text-center">
+              <h1>{{ total_products }}</h1>
+              <p>{{ text_total_products }}</p>
+              <a href="{{ product_mapping_url }}" class="btn btn-primary">{{ button_product_mapping }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-money"></i> {{ text_revenue }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="text-center">
+              <h1>{{ total_revenue }}</h1>
+              <p>{{ text_total_revenue }}</p>
+              <a href="{{ reports_url }}" class="btn btn-success">{{ button_view_reports }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-pie-chart"></i> {{ text_performance }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="text-center">
+              <h1>{{ performance_rate }}%</h1>
+              <p>{{ text_performance_rate }}</p>
+              <a href="{{ test_connection }}" class="btn btn-warning">{{ button_test_connection }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_recent_orders }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <td>{{ column_order_id }}</td>
+                    <td>{{ column_customer }}</td>
+                    <td>{{ column_status }}</td>
+                    <td>{{ column_total }}</td>
+                    <td>{{ column_date_added }}</td>
+                    <td class="text-right">{{ column_action }}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if recent_orders %}
+                  {% for order in recent_orders %}
+                  <tr>
+                    <td>{{ order.order_id }}</td>
+                    <td>{{ order.customer }}</td>
+                    <td>{{ order.status }}</td>
+                    <td>{{ order.total }}</td>
+                    <td>{{ order.date_added }}</td>
+                    <td class="text-right">
+                      <a href="{{ order.view }}" data-toggle="tooltip" title="{{ button_view }}" class="btn btn-info"><i class="fa fa-eye"></i></a>
+                      {% if order.convert %}
+                      <a href="{{ order.convert }}" data-toggle="tooltip" title="{{ button_convert }}" class="btn btn-success"><i class="fa fa-exchange"></i></a>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  {% else %}
+                  <tr>
+                    <td class="text-center" colspan="6">{{ text_no_results }}</td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cog"></i> {{ text_api_settings }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="control-label">{{ entry_supplier_id }}</label>
+              <div class="input-group">
+                <input type="text" class="form-control" value="{{ module_trendyol_supplier_id }}" disabled>
+                <span class="input-group-btn">
+                  <a href="{{ settings }}" class="btn btn-primary">{{ button_edit }}</a>
+                </span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label">{{ entry_api_key }}</label>
+              <input type="text" class="form-control" value="{{ module_trendyol_api_key_masked }}" disabled>
+            </div>
+            <div class="form-group">
+              <label class="control-label">{{ entry_api_secret }}</label>
+              <input type="text" class="form-control" value="{{ module_trendyol_api_secret_masked }}" disabled>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-tasks"></i> {{ text_sync_status }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="control-label">{{ entry_last_product_sync }}</label>
+              <input type="text" class="form-control" value="{{ last_product_sync }}" disabled>
+            </div>
+            <div class="form-group">
+              <label class="control-label">{{ entry_last_order_sync }}</label>
+              <input type="text" class="form-control" value="{{ last_order_sync }}" disabled>
+            </div>
+            <div class="form-group">
+              <label class="control-label">{{ entry_last_stock_update }}</label>
+              <input type="text" class="form-control" value="{{ last_stock_update }}" disabled>
+            </div>
+            <div class="form-group">
+              <label class="control-label">{{ entry_last_price_update }}</label>
+              <input type="text" class="form-control" value="{{ last_price_update }}" disabled>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style type="text/css">
+.panel-green {
+  border-color: #5cb85c;
+}
+.panel-green .panel-heading {
+  border-color: #5cb85c;
+  color: white;
+  background-color: #5cb85c;
+}
+.panel-green a {
+  color: #5cb85c;
+}
+.panel-green a:hover {
+  color: #3d8b3d;
+}
+.panel-yellow {
+  border-color: #f0ad4e;
+}
+.panel-yellow .panel-heading {
+  border-color: #f0ad4e;
+  color: white;
+  background-color: #f0ad4e;
+}
+.panel-yellow a {
+  color: #f0ad4e;
+}
+.panel-yellow a:hover {
+  color: #df8a13;
+}
+.panel-red {
+  border-color: #d9534f;
+}
+.panel-red .panel-heading {
+  border-color: #d9534f;
+  color: white;
+  background-color: #d9534f;
+}
+.panel-red a {
+  color: #d9534f;
+}
+.panel-red a:hover {
+  color: #b52b27;
+}
+.huge {
+  font-size: 40px;
+}
+</style>
+
+<script type="text/javascript"><!--
+// Test API connection
+$('#button-test').on('click', function() {
+  $.ajax({
+    url: '{{ test_connection }}',
+    type: 'post',
+    data: {
+      'api_key': $('#input-api-key').val(),
+      'api_secret': $('#input-api-secret').val(),
+      'supplier_id': $('#input-supplier-id').val()
+    },
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-test').button('loading');
+    },
+    complete: function() {
+      $('#button-test').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+// Sync products
+$('#button-sync-products').on('click', function() {
+  $.ajax({
+    url: '{{ sync_products }}',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-sync-products').button('loading');
+    },
+    complete: function() {
+      $('#button-sync-products').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+// Get orders
+$('#button-get-orders').on('click', function() {
+  $.ajax({
+    url: '{{ get_orders }}',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-get-orders').button('loading');
+    },
+    complete: function() {
+      $('#button-get-orders').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+// Update stock
+$('#button-update-stock').on('click', function() {
+  $.ajax({
+    url: '{{ update_stock }}',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-update-stock').button('loading');
+    },
+    complete: function() {
+      $('#button-update-stock').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+// Update prices
+$('#button-update-prices').on('click', function() {
+  $.ajax({
+    url: '{{ update_prices }}',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-update-prices').button('loading');
+    },
+    complete: function() {
+      $('#button-update-prices').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+// Copy API credentials to clipboard
+$('#button-copy-api-key, #button-copy-api-secret, #button-copy-supplier-id').on('click', function() {
+  var inputId = '';
+  
+  if ($(this).attr('id') == 'button-copy-api-key') {
+    inputId = 'input-api-key';
+  } else if ($(this).attr('id') == 'button-copy-api-secret') {
+    inputId = 'input-api-secret';
+  } else if ($(this).attr('id') == 'button-copy-supplier-id') {
+    inputId = 'input-supplier-id';
+  }
+  
+  var copyText = document.getElementById(inputId);
+  copyText.select();
+  document.execCommand("copy");
+  
+  $(this).attr('title', 'Copied!').tooltip('fixTitle').tooltip('show');
+  
+  setTimeout(function() {
+    $('#button-copy-api-key, #button-copy-api-secret, #button-copy-supplier-id').attr('title', '{{ button_copy }}').tooltip('fixTitle');
+  }, 2000);
+});
+//--></script>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a href="{{ dashboard }}"><i class="fa fa-dashboard"></i> {{ text_dashboard }}</a></li>
+  <li><a href="{{ settings }}"><i class="fa fa-cog"></i> {{ text_settings }}</a></li>
+  <li><a href="{{ products }}"><i class="fa fa-cubes"></i> {{ text_products }}</a></li>
+  <li><a href="{{ orders }}"><i class="fa fa-shopping-cart"></i> {{ text_orders }}</a></li>
+  <li><a href="{{ reports }}"><i class="fa fa-bar-chart"></i> {{ text_reports }}</a></li>
+  <li><a href="{{ webhooks }}"><i class="fa fa-exchange"></i> {{ text_webhooks }}</a></li>
+  <li><a href="{{ logs }}"><i class="fa fa-file-text-o"></i> {{ text_logs }}</a></li>
+</ul>
+
+{{ footer }} 

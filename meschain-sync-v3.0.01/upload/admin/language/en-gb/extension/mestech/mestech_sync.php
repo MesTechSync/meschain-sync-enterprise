@@ -1,0 +1,2 @@
+$_['text_architecture']       = 'System Architecture';
+$_['text_architecture_desc']  = 'The MesChain-Sync extension integrates your OpenCart store with multiple marketplaces using a modular approach. Each marketplace module can be configured independently.'; 

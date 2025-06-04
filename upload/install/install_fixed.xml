@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  <name>MesChain Sync - Pazaryeri Entegrasyonu</name>
+  <code>meschain_sync_install</code>
+  <version>1.0.1</version>
+  <author>MesChain</author>
+  <link>https://meschain-sync.com</link>
+  <description>
+    MesChain Sync, OpenCart iÃ§in pazaryeri entegrasyonlarÄ± (Trendyol, n11, Amazon, eBay, Hepsiburada, Ozon) saÄŸlayan, 
+    mavi tonlu yÃ¶netici paneli, HTML duyuru sistemi ve ayrÄ± kullanÄ±cÄ± bilgi depolama ile Ã§oklu kullanÄ±cÄ± yÃ¶netimi sunan bir modÃ¼ldÃ¼r.
+  </description>
+  <file path="admin/controller/common/header.php">
+    <operation>
+      <search><![CDATA[$data['title'] = $this->document->getTitle();]]></search>
+      <add position="after"><![CDATA[
+        // MesChain Sync - Duyuru sistemi iÃ§in gerekli JS ve CSS dosyalarÄ±nÄ± yÃ¼kle
+        if ($this->user->hasPermission('access', 'extension/module/announcement')) {
+          $this->document->addScript('view/javascript/meschain/announcement.js');
+          $this->document->addStyle('view/stylesheet/meschain/announcement.css');
+        }
+      ]]></add>
+    </operation>
+  </file>
+  <file path="admin/view/template/common/header.twig">
+    <operation>
+      <search><![CDATA[</header>]]></search>
+      <add position="before"><![CDATA[
+        {% if announcement_enabled %}
+        <div id="meschain-announcements" style="display: none;">
+          <!-- Duyuru iÃ§eriÄŸi JavaScript ile doldurulacak -->
+        </div>
+        {% endif %}
+      ]]></add>
+    </operation>
+  </file>
+</modification> 

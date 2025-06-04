@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Support Dashboard - MesChain-Sync</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .support-theme { 
+            background: linear-gradient(135deg, #EC4899 0%, #DB2777 50%, #BE185D 100%);
+            color: white;
+        }
+        .support-card { 
+            border-left: 5px solid #EC4899;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(236, 72, 153, 0.2);
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .support-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(236, 72, 153, 0.3);
+        }
+        .support-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #EC4899, #DB2777, #BE185D, #9D174D, #EC4899);
+            animation: supportGradient 3s ease-in-out infinite;
+        }
+        @keyframes supportGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .support-icon {
+            font-size: 2.5rem;
+            color: #EC4899;
+            margin-bottom: 15px;
+            animation: supportPulse 2s ease-in-out infinite;
+        }
+        @keyframes supportPulse {
+            0%, 100% { transform: scale(1); color: #EC4899; }
+            50% { transform: scale(1.1); color: #DB2777; }
+        }
+        .support-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #F9A8D4, #EC4899);
+            animation: supportBlink 2s infinite;
+        }
+        @keyframes supportBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.3); }
+        }
+        .ticket-center {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .ticket-header {
+            background: linear-gradient(45deg, #EC4899, #DB2777);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: between;
+        }
+        .tickets-list {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+        .ticket-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .ticket-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .ticket-item.open {
+            border-left-color: #3B82F6;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.05));
+        }
+        .ticket-item.inprogress {
+            border-left-color: #F59E0B;
+            background: linear-gradient(45deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.05));
+        }
+        .ticket-item.resolved {
+            border-left-color: #10B981;
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+        }
+        .ticket-item.closed {
+            border-left-color: #6B7280;
+            background: linear-gradient(45deg, rgba(107, 114, 128, 0.05), rgba(75, 85, 99, 0.05));
+        }
+        .ticket-item.urgent {
+            border-left-color: #EF4444;
+            background: linear-gradient(45deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.05));
+        }
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+        }
+        .status-open { background: #3B82F6; }
+        .status-inprogress { background: #F59E0B; }
+        .status-resolved { background: #10B981; }
+        .status-closed { background: #6B7280; }
+        .status-urgent { background: #EF4444; }
+        .support-badge {
+            background: linear-gradient(45deg, #EC4899, #DB2777);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+        }
+        .metric-display {
+            font-weight: bold;
+            color: #EC4899;
+            font-size: 1.2rem;
+        }
+        .support-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .support-online {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        .support-busy {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+        .support-offline {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+        .realtime-indicator {
+            background: linear-gradient(45deg, #EC4899, #DB2777);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            animation: realtimePulse 2s ease-in-out infinite;
+        }
+        @keyframes realtimePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .livechat-panel {
+            background: linear-gradient(45deg, rgba(236, 72, 153, 0.1), rgba(219, 39, 119, 0.1));
+            border: 1px solid #EC4899;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .chat-btn {
+            background: linear-gradient(45deg, #EC4899, #DB2777);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .chat-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+        }
+        .knowledge-base {
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+            border: 1px solid #3B82F6;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .kb-btn {
+            background: linear-gradient(45deg, #3B82F6, #2563EB);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .kb-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .chart-container::before {
+            content: '🎧 REAL-TIME';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: linear-gradient(45deg, #EC4899, #DB2777);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .sla-monitor {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid #10B981;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            animation: slaGlow 4s ease-in-out infinite;
+        }
+        @keyframes slaGlow {
+            0%, 100% { border-color: #10B981; }
+            50% { border-color: #059669; }
+        }
+        .sla-btn {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .sla-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        .priority-selector {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .priority-btn {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        .priority-low { border-color: #10B981; background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .priority-medium { border-color: #F59E0B; background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+        .priority-high { border-color: #EF4444; background: rgba(239, 68, 68, 0.1); color: #EF4444; }
+        .priority-urgent { border-color: #DC2626; background: rgba(220, 38, 38, 0.1); color: #DC2626; }
+        .agent-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+        .agent-online { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .agent-busy { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+        .agent-away { background: rgba(107, 114, 128, 0.1); color: #6B7280; }
+        .satisfaction-meter {
+            background: linear-gradient(90deg, #EF4444 0%, #F59E0B 25%, #10B981 75%, #059669 100%);
+            height: 8px;
+            border-radius: 4px;
+            position: relative;
+            margin: 10px 0;
+        }
+        .satisfaction-indicator {
+            position: absolute;
+            top: -2px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid #EC4899;
+            border-radius: 50%;
+            transition: left 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg support-theme shadow-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-headset me-2"></i>
+                Customer Support Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <span class="support-status support-online" id="support-status">
+                        <span class="support-indicator"></span>
+                        Support: <span id="support-status-text">Online</span>
+                    </span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Support Statistics -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card support-card h-100">
+                    <div class="support-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-ticket-alt support-icon"></i>
+                        <h5 class="card-title">Active Tickets</h5>
+                        <h2 id="active-tickets" class="display-6">147</h2>
+                        <div class="mt-2">
+                            <small>Urgent: <span id="urgent-tickets" class="metric-display">12</span></small>
+                            <div class="realtime-indicator mt-2">LIVE</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card support-card h-100">
+                    <div class="support-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-users support-icon"></i>
+                        <h5 class="card-title">Online Agents</h5>
+                        <h2 id="online-agents" class="display-6">23</h2>
+                        <div class="mt-2">
+                            <small>Available: <span id="available-agents" class="metric-display">18</span></small>
+                            <div class="realtime-indicator mt-2">READY</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card support-card h-100">
+                    <div class="support-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock support-icon"></i>
+                        <h5 class="card-title">Avg Response</h5>
+                        <h2 id="avg-response" class="display-6">3.2min</h2>
+                        <div class="mt-2">
+                            <small>SLA: <span id="sla-compliance" class="metric-display">98.5%</span></small>
+                            <div class="realtime-indicator mt-2">TARGET</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card support-card h-100">
+                    <div class="support-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-smile support-icon"></i>
+                        <h5 class="card-title">CSAT Score</h5>
+                        <h2 id="csat-score" class="display-6">4.7/5</h2>
+                        <div class="mt-2">
+                            <small>NPS: <span id="nps-score" class="metric-display">+67</span></small>
+                            <div class="realtime-indicator mt-2">EXCELLENT</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Ticket Management Center -->
+                <div class="ticket-center">
+                    <div class="ticket-header">
+                        <div>
+                            <h5 class="mb-0">
+                                <i class="fas fa-tasks me-2"></i>
+                                Ticket Management Center
+                            </h5>
+                            <small>Real-time support ticket tracking & management</small>
+                        </div>
+                        <div class="ms-auto">
+                            <span class="support-badge">🎫 Active Support</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tickets-list" id="tickets-list">
+                        <!-- Tickets will be loaded here dynamically -->
+                    </div>
+                </div>
+
+                <!-- Support Analytics Charts -->
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-area text-primary me-2"></i>
+                            Support Performance Analytics (Son 7 Gün)
+                        </h5>
+                        <span class="support-badge">Real-time Data</span>
+                    </div>
+                    <canvas id="supportChart" height="300"></canvas>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Agent Performance -->
+                <div class="card support-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-tie me-2"></i>
+                            Agent Performance
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small>Top Performer:</small>
+                            <strong class="float-end text-success" id="top-agent">Sarah Wilson</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Tickets Resolved Today:</small>
+                            <strong class="float-end" id="tickets-resolved">47</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Average Handle Time:</small>
+                            <strong class="float-end" id="avg-handle-time">12.4min</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>First Contact Resolution:</small>
+                            <strong class="float-end" id="fcr-rate">89.2%</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Customer Rating:</small>
+                            <div class="satisfaction-meter">
+                                <div class="satisfaction-indicator" style="left: 78%;"></div>
+                            </div>
+                            <strong class="float-end text-success" id="agent-rating">4.8/5</strong>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="viewAgentDetails()">
+                                <i class="fas fa-chart-line me-2"></i>View Agent Details
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="exportSupportReport()">
+                                <i class="fas fa-download me-2"></i>Export Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Chat Integration -->
+                <div class="livechat-panel">
+                    <h6><i class="fas fa-comments me-2"></i>Live Chat Support</h6>
+                    <p class="mb-3">Real-time customer communication</p>
+                    <div class="mb-3">
+                        <div class="mb-2">
+                            <small>Active Chats:</small>
+                            <strong class="float-end" id="active-chats">34</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Queue Wait Time:</small>
+                            <strong class="float-end" id="queue-wait">2.1min</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Chat Satisfaction:</small>
+                            <strong class="float-end text-success" id="chat-satisfaction">94.7%</strong>
+                        </div>
+                    </div>
+                    <button class="chat-btn w-100" onclick="openLiveChat()">
+                        Open Live Chat Panel
+                    </button>
+                </div>
+
+                <!-- Knowledge Base -->
+                <div class="knowledge-base">
+                    <h6><i class="fas fa-book me-2"></i>Knowledge Base</h6>
+                    <p class="mb-3">FAQ & documentation management</p>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto-suggest" checked>
+                            <label class="form-check-label" for="auto-suggest">
+                                Auto Suggest Articles
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="ai-assist" checked>
+                            <label class="form-check-label" for="ai-assist">
+                                AI Assistant
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="smart-routing" checked>
+                            <label class="form-check-label" for="smart-routing">
+                                Smart Ticket Routing
+                            </label>
+                        </div>
+                    </div>
+                    <button class="kb-btn w-100" onclick="manageKnowledgeBase()">
+                        Manage Knowledge Base
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLA Monitor -->
+        <div class="row mt-4" id="sla-monitor">
+            <div class="col-12">
+                <div class="sla-monitor">
+                    <div class="text-center">
+                        <h4 class="text-success mb-3">
+                            <i class="fas fa-stopwatch me-2"></i>
+                            SLA PERFORMANCE MONITOR
+                        </h4>
+                        <p class="mb-4">Service Level Agreement tracking & compliance monitoring</p>
+                        <div class="row text-center mb-4">
+                            <div class="col-3">
+                                <strong class="d-block">Response Time</strong>
+                                <span class="text-success">3.2min / 5min</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Resolution Time</strong>
+                                <span class="text-success">2.4hrs / 4hrs</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Escalation Rate</strong>
+                                <span class="text-warning">8.5% / 10%</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">SLA Compliance</strong>
+                                <span class="text-success">98.5%</span>
+                            </div>
+                        </div>
+                        <button class="sla-btn me-3" onclick="viewSLADetails()">
+                            VIEW SLA DETAILS
+                        </button>
+                        <button class="sla-btn" onclick="configureSLA()">
+                            CONFIGURE SLA
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Support Management JavaScript -->
+    <script src="support_management.js"></script>
+    
+    <!-- Initialize Support Management -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Support Management Dashboard'u başlat
+            window.supportManagement = new SupportManagement();
+            
+            console.log('🎧 Customer Support Dashboard başlatıldı');
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,1058 @@
+{{ header }}{{ column_left }}
+
+<!-- Hepsiburada Modern Dashboard Styles -->
+<style>
+/* Hepsiburada Modern Dashboard CSS */
+:root {
+  --hb-orange: #FF6000;
+  --hb-orange-light: #FF8533;
+  --hb-orange-dark: #E55500;
+  --hb-dark: #2C2C2C;
+  --hb-white: #FFFFFF;
+  --hb-gray-light: #F8F9FA;
+  --hb-gray-medium: #6C757D;
+  --hb-gray-dark: #343A40;
+  --hb-success: #28A745;
+  --hb-warning: #FFC107;
+  --hb-danger: #DC3545;
+}
+
+.hb-dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: var(--hb-gray-light);
+  min-height: 100vh;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.hb-dashboard-header {
+  background: linear-gradient(135deg, var(--hb-orange) 0%, var(--hb-dark) 100%);
+  color: var(--hb-white);
+  padding: 32px;
+  border-radius: 16px;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 32px rgba(255, 96, 0, 0.15);
+}
+
+.hb-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hb-brand-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hb-logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hb-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--hb-white);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hb-orange);
+  font-size: 1.8rem;
+}
+
+.hb-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.04em;
+}
+
+.hb-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.hb-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.hb-sync-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.hb-status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--hb-success);
+  animation: hb-pulse 2s infinite;
+}
+
+@keyframes hb-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+.btn-hb-outline {
+  background: transparent;
+  color: var(--hb-white);
+  border: 2px solid var(--hb-white);
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-hb-outline:hover {
+  background: var(--hb-white);
+  color: var(--hb-orange);
+}
+
+.hb-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.hb-metric-card {
+  background: var(--hb-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-left: 5px solid var(--hb-orange);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.hb-metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(255, 96, 0, 0.15);
+}
+
+.hb-metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(45deg, rgba(255, 96, 0, 0.1), transparent);
+  border-radius: 0 16px 0 60px;
+}
+
+.hb-metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.hb-metric-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--hb-orange), var(--hb-orange-light));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hb-white);
+  font-size: 1.5rem;
+}
+
+.hb-metric-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--hb-gray-dark);
+  margin-bottom: 8px;
+  letter-spacing: -0.04em;
+}
+
+.hb-metric-label {
+  font-size: 1rem;
+  color: var(--hb-gray-medium);
+  margin-bottom: 12px;
+}
+
+.hb-metric-change {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.hb-metric-change.positive {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--hb-success);
+}
+
+.hb-metric-change.negative {
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--hb-danger);
+}
+
+.hb-analytics-section {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.hb-charts-container {
+  flex: 2;
+}
+
+.hb-chart-card {
+  background: var(--hb-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
+.hb-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--hb-gray-light);
+}
+
+.hb-chart-header h3 {
+  color: var(--hb-gray-dark);
+  font-weight: 700;
+  margin: 0;
+}
+
+.hb-period-selector {
+  background: var(--hb-white);
+  border: 2px solid var(--hb-orange);
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: var(--hb-orange);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hb-secondary-charts {
+  display: flex;
+  gap: 24px;
+}
+
+.hb-chart-card.hb-small {
+  flex: 1;
+  padding: 20px;
+}
+
+.hb-activity-section {
+  flex: 1;
+  background: var(--hb-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.hb-activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--hb-gray-light);
+}
+
+.hb-view-all {
+  background: transparent;
+  border: none;
+  color: var(--hb-orange);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.hb-activity-item {
+  display: flex;
+  align-items: start;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--hb-gray-light);
+}
+
+.hb-activity-item:last-child {
+  border-bottom: none;
+}
+
+.hb-activity-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--hb-orange);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hb-white);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.hb-activity-content {
+  flex: 1;
+}
+
+.hb-activity-text {
+  color: var(--hb-gray-dark);
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.hb-activity-time {
+  color: var(--hb-gray-medium);
+  font-size: 0.8rem;
+}
+
+.hb-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.hb-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 96, 0, 0.2), transparent);
+  animation: hb-shimmer 1.5s infinite;
+}
+
+@keyframes hb-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .hb-dashboard-container {
+    padding: 16px 12px;
+  }
+
+  .hb-dashboard-header {
+    padding: 16px;
+    text-align: center;
+  }
+
+  .hb-header-content {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .hb-metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .hb-analytics-section {
+    flex-direction: column;
+  }
+
+  .hb-secondary-charts {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .hb-title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hb-dashboard-container {
+    padding: 12px 8px;
+  }
+
+  .hb-title {
+    font-size: 1.5rem;
+  }
+
+  .hb-metric-card {
+    padding: 16px;
+    text-align: center;
+  }
+
+  .hb-chart-card {
+    padding: 16px;
+  }
+}
+</style>
+
+<div id="content">
+  <div class="hb-dashboard-container">
+    
+    <!-- Modern Hepsiburada Header -->
+    <div class="hb-dashboard-header">
+      <div class="hb-header-content">
+        <div class="hb-brand-section">
+          <div class="hb-logo">
+            <div class="hb-icon">
+              <i class="fas fa-shopping-bag"></i>
+            </div>
+            <h1 class="hb-title">Hepsiburada</h1>
+          </div>
+          <p class="hb-subtitle">Satış Performans Panosu</p>
+        </div>
+        
+        <div class="hb-header-controls">
+          <div class="hb-sync-status">
+            <span class="hb-status-indicator"></span>
+            <span class="hb-status-text">Senkronizasyon Aktif</span>
+          </div>
+          <div class="hb-refresh-button">
+            <a href="javascript:void(0)" onclick="refreshHepsiburadaData()" class="btn-hb-outline">
+              <i class="fas fa-sync-alt"></i> Yenile
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error/Success Messages -->
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <!-- Metrics Cards Grid -->
+    <div class="hb-metrics-section">
+      <div class="hb-metrics-grid" id="hbMetricsGrid">
+        <!-- Default metric cards (will be updated via AJAX) -->
+        <div class="hb-metric-card">
+          <div class="hb-metric-header">
+            <div class="hb-metric-icon">
+              <i class="fas fa-box"></i>
+            </div>
+          </div>
+          <div class="hb-metric-value">{{ product_count }}</div>
+          <div class="hb-metric-label">Toplam Ürün</div>
+          <div class="hb-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0%
+          </div>
+        </div>
+
+        <div class="hb-metric-card">
+          <div class="hb-metric-header">
+            <div class="hb-metric-icon">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+          </div>
+          <div class="hb-metric-value">{{ order_count }}</div>
+          <div class="hb-metric-label">Toplam Sipariş</div>
+          <div class="hb-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0%
+          </div>
+        </div>
+
+        <div class="hb-metric-card">
+          <div class="hb-metric-header">
+            <div class="hb-metric-icon">
+              <i class="fas fa-lira-sign"></i>
+            </div>
+          </div>
+          <div class="hb-metric-value">₺0</div>
+          <div class="hb-metric-label">Toplam Gelir</div>
+          <div class="hb-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0%
+          </div>
+        </div>
+
+        <div class="hb-metric-card">
+          <div class="hb-metric-header">
+            <div class="hb-metric-icon">
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+          <div class="hb-metric-value">0.0</div>
+          <div class="hb-metric-label">Ortalama Puan</div>
+          <div class="hb-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts and Analytics Section -->
+    <div class="hb-analytics-section">
+      <div class="hb-charts-container">
+        <div class="hb-chart-card">
+          <div class="hb-chart-header">
+            <h3>Satış Performansı</h3>
+            <div class="hb-chart-controls">
+              <select class="hb-period-selector" id="hbSalesPeriod">
+                <option value="daily">Günlük</option>
+                <option value="weekly" selected>Haftalık</option>
+                <option value="monthly">Aylık</option>
+              </select>
+            </div>
+          </div>
+          <div class="hb-chart-content">
+            <canvas id="hbSalesChart" width="800" height="300"></canvas>
+          </div>
+        </div>
+
+        <div class="hb-secondary-charts">
+          <div class="hb-chart-card hb-small">
+            <h4>Kategori Dağılımı</h4>
+            <canvas id="hbCategoryChart" width="300" height="200"></canvas>
+          </div>
+          <div class="hb-chart-card hb-small">
+            <h4>Sipariş Durumu</h4>
+            <canvas id="hbOrderStatusChart" width="300" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="hb-activity-section">
+        <div class="hb-activity-header">
+          <h3>Son Aktiviteler</h3>
+          <a href="{{ orders_url }}" class="hb-view-all">Tümünü Gör</a>
+        </div>
+        <div class="hb-activity-feed" id="hbActivityFeed">
+          <!-- Sample activity items -->
+          <div class="hb-activity-item">
+            <div class="hb-activity-icon">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="hb-activity-content">
+              <div class="hb-activity-text">Yeni sipariş alındı #HB001</div>
+              <div class="hb-activity-time">5 dakika önce</div>
+            </div>
+          </div>
+          
+          <div class="hb-activity-item">
+            <div class="hb-activity-icon">
+              <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="hb-activity-content">
+              <div class="hb-activity-text">Ürün fiyatları güncellendi</div>
+              <div class="hb-activity-time">15 dakika önce</div>
+            </div>
+          </div>
+          
+          <div class="hb-activity-item">
+            <div class="hb-activity-icon">
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="hb-activity-content">
+              <div class="hb-activity-text">Stok seviyeleri senkronize edildi</div>
+              <div class="hb-activity-time">30 dakika önce</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legacy Quick Actions for existing functionality -->
+    <div class="row" style="margin-top: 20px;">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cogs"></i> Hızlı İşlemler</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-3">
+                <a href="{{ sync_products }}" id="button-sync-products" class="btn btn-primary btn-lg btn-block">
+                  <i class="fa fa-refresh"></i> Ürün Senkronizasyonu
+                </a>
+              </div>
+              <div class="col-md-3">
+                <a href="{{ get_orders }}" id="button-get-orders" class="btn btn-success btn-lg btn-block">
+                  <i class="fa fa-download"></i> Sipariş Getir
+                </a>
+              </div>
+              <div class="col-md-3">
+                <a href="{{ update_stock }}" id="button-update-stock" class="btn btn-info btn-lg btn-block">
+                  <i class="fa fa-cubes"></i> Stok Güncelle
+                </a>
+              </div>
+              <div class="col-md-3">
+                <a href="{{ test_connection }}" id="button-test-connection" class="btn btn-warning btn-lg btn-block">
+                  <i class="fa fa-plug"></i> Bağlantı Testi
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script type="text/javascript">
+// Hepsiburada Dashboard JavaScript
+const HepsiburadaCharts = {
+  salesChart: null,
+  categoryChart: null,
+  orderStatusChart: null,
+
+  init() {
+    this.initSalesChart();
+    this.initCategoryChart();
+    this.initOrderStatusChart();
+    this.startRealTimeUpdates();
+  },
+
+  initSalesChart() {
+    const ctx = document.getElementById('hbSalesChart');
+    if (!ctx) return;
+    
+    this.salesChart = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'],
+        datasets: [{
+          label: 'Satış Geliri (₺)',
+          data: [1200, 1900, 3000, 5000, 2300, 3200, 4100],
+          backgroundColor: 'rgba(255, 96, 0, 0.1)',
+          borderColor: '#FF6000',
+          borderWidth: 4,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#FF6000',
+          pointBorderColor: '#FFFFFF',
+          pointBorderWidth: 3,
+          pointRadius: 8,
+          pointHoverRadius: 12,
+          pointHoverBackgroundColor: '#E55500',
+          pointHoverBorderColor: '#FFFFFF'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: '#2C2C2C',
+            titleColor: '#FFFFFF',
+            bodyColor: '#FFFFFF',
+            cornerRadius: 12,
+            displayColors: false,
+            titleFont: {
+              size: 16,
+              weight: 'bold'
+            },
+            bodyFont: {
+              size: 14
+            },
+            padding: 16,
+            callbacks: {
+              label: function(context) {
+                return `Satış: ₺${context.parsed.y.toLocaleString('tr-TR')}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false
+            },
+            ticks: {
+              color: '#6C757D',
+              font: {
+                size: 12,
+                weight: '500'
+              },
+              callback: function(value) {
+                return '₺' + value.toLocaleString('tr-TR');
+              }
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false
+            },
+            ticks: {
+              color: '#6C757D',
+              font: {
+                size: 12,
+                weight: '500'
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 2000,
+          easing: 'easeInOutQuart'
+        }
+      }
+    });
+  },
+
+  initCategoryChart() {
+    const ctx = document.getElementById('hbCategoryChart');
+    if (!ctx) return;
+    
+    this.categoryChart = new Chart(ctx.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Elektronik', 'Giyim', 'Ev & Yaşam', 'Kozmetik', 'Kitap', 'Diğer'],
+        datasets: [{
+          data: [35, 25, 15, 12, 8, 5],
+          backgroundColor: [
+            '#FF6000',
+            '#2C2C2C',
+            '#FF8533',
+            '#6C757D',
+            '#FFA366',
+            '#343A40'
+          ],
+          borderWidth: 0,
+          hoverBorderWidth: 4,
+          hoverBorderColor: '#FFFFFF'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle',
+              padding: 20,
+              font: {
+                size: 11,
+                weight: '500'
+              },
+              color: '#6C757D'
+            }
+          },
+          tooltip: {
+            backgroundColor: '#2C2C2C',
+            titleColor: '#FFFFFF',
+            bodyColor: '#FFFFFF',
+            cornerRadius: 8,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                const percentage = ((context.parsed / context.dataset.data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                return `${context.label}: ${percentage}%`;
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 1500,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  },
+
+  initOrderStatusChart() {
+    const ctx = document.getElementById('hbOrderStatusChart');
+    if (!ctx) return;
+    
+    this.orderStatusChart = new Chart(ctx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Beklemede', 'Hazırlanıyor', 'Kargoda', 'Teslim Edildi'],
+        datasets: [{
+          label: 'Sipariş Sayısı',
+          data: [15, 28, 42, 156],
+          backgroundColor: [
+            '#FFC107',
+            '#FF8533',
+            '#FF6000',
+            '#28A745'
+          ],
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: '#2C2C2C',
+            titleColor: '#FFFFFF',
+            bodyColor: '#FFFFFF',
+            cornerRadius: 8,
+            displayColors: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            },
+            ticks: {
+              color: '#6C757D',
+              font: {
+                size: 10
+              }
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              color: '#6C757D',
+              font: {
+                size: 10
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 1500,
+          easing: 'easeOutBounce'
+        }
+      }
+    });
+  },
+
+  startRealTimeUpdates() {
+    // Update every 45 seconds for Hepsiburada
+    setInterval(() => {
+      this.fetchChartData();
+    }, 45000);
+  },
+
+  async fetchChartData() {
+    try {
+      const period = document.getElementById('hbSalesPeriod')?.value || 'weekly';
+      // This will be connected to backend AJAX endpoints
+      console.log('Fetching Hepsiburada chart data for period:', period);
+    } catch (error) {
+      console.error('Error fetching Hepsiburada chart data:', error);
+    }
+  }
+};
+
+// Hepsiburada API Communication
+const HepsiburadaAPI = {
+  async fetchDashboardMetrics() {
+    try {
+      console.log('Fetching Hepsiburada dashboard metrics...');
+      // This will be connected to backend AJAX endpoints
+    } catch (error) {
+      console.error('Error fetching Hepsiburada metrics:', error);
+    }
+  }
+};
+
+// Global refresh function
+function refreshHepsiburadaData() {
+  HepsiburadaAPI.fetchDashboardMetrics();
+  HepsiburadaCharts.fetchChartData();
+  
+  // Show loading feedback
+  const indicator = document.querySelector('.hb-status-indicator');
+  if (indicator) {
+    indicator.style.animation = 'hb-pulse 0.5s infinite';
+    setTimeout(() => {
+      indicator.style.animation = 'hb-pulse 2s infinite';
+    }, 2000);
+  }
+}
+
+// Initialize when DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  HepsiburadaCharts.init();
+  HepsiburadaAPI.fetchDashboardMetrics();
+  
+  // Period selector change handler
+  const periodSelector = document.getElementById('hbSalesPeriod');
+  if (periodSelector) {
+    periodSelector.addEventListener('change', function() {
+      HepsiburadaCharts.fetchChartData();
+    });
+  }
+});
+
+// Legacy button handlers (keeping existing functionality)
+$('#button-sync-products').on('click', function(e) {
+  e.preventDefault();
+  
+  $.ajax({
+    url: $(this).attr('href'),
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-sync-products').button('loading');
+    },
+    complete: function() {
+      $('#button-sync-products').button('reset');
+    },
+    success: function(json) {
+      $('.alert').remove();
+      
+      if (json['error']) {
+        $('#content').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        // Refresh dashboard data
+        refreshHepsiburadaData();
+      }
+      
+      $('html, body').animate({ scrollTop: 0 }, 'slow');
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('#button-get-orders').on('click', function(e) {
+  e.preventDefault();
+  
+  $.ajax({
+    url: $(this).attr('href'),
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-get-orders').button('loading');
+    },
+    complete: function() {
+      $('#button-get-orders').button('reset');
+    },
+    success: function(json) {
+      $('.alert').remove();
+      
+      if (json['error']) {
+        $('#content').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        // Refresh dashboard data
+        refreshHepsiburadaData();
+      }
+      
+      $('html, body').animate({ scrollTop: 0 }, 'slow');
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('#button-update-stock').on('click', function(e) {
+  e.preventDefault();
+  
+  $.ajax({
+    url: $(this).attr('href'),
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-update-stock').button('loading');
+    },
+    complete: function() {
+      $('#button-update-stock').button('reset');
+    },
+    success: function(json) {
+      $('.alert').remove();
+      
+      if (json['error']) {
+        $('#content').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        // Refresh dashboard data
+        refreshHepsiburadaData();
+      }
+      
+      $('html, body').animate({ scrollTop: 0 }, 'slow');
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('#button-test-connection').on('click', function(e) {
+  e.preventDefault();
+  
+  $.ajax({
+    url: $(this).attr('href'),
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-test-connection').button('loading');
+    },
+    complete: function() {
+      $('#button-test-connection').button('reset');
+    },
+    success: function(json) {
+      $('.alert').remove();
+      
+      if (json['error']) {
+        $('#content').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      $('html, body').animate({ scrollTop: 0 }, 'slow');
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+</script>
+
+{{ footer }} 

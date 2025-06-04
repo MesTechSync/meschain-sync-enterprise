@@ -1,0 +1,550 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="trendyol-sync-all" class="btn btn-primary" data-toggle="tooltip" title="Tüm verileri senkronize et">
+          <i class="fa fa-refresh"></i> Tümünü Senkronize Et
+        </button>
+        <button type="button" id="trendyol-bulk-operations" class="btn btn-success" data-toggle="tooltip" title="Toplu işlemler">
+          <i class="fa fa-tasks"></i> Toplu İşlemler
+        </button>
+        <button type="button" id="trendyol-ai-optimize" class="btn btn-warning" data-toggle="tooltip" title="AI optimizasyonu başlat">
+          <i class="fa fa-magic"></i> AI Optimizasyon
+        </button>
+        <a href="{{ settings_url }}" class="btn btn-default" data-toggle="tooltip" title="Ayarlar">
+          <i class="fa fa-cog"></i> Ayarlar
+        </a>
+      </div>
+      <h1><i class="fa fa-shopping-bag" style="color: #FF6000;"></i> Trendyol Gelişmiş Dashboard</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Real-time Status Bar -->
+    <div class="row" style="margin-bottom: 20px;">
+      <div class="col-md-12">
+        <div class="panel panel-info">
+          <div class="panel-body" style="padding: 10px;">
+            <div class="row">
+              <div class="col-md-3">
+                <div id="trendyol-connection-status" class="text-center">
+                  <i class="fa fa-circle text-success"></i>
+                  <span class="connection-text">Bağlantı Aktif</span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div id="trendyol-api-performance" class="text-center">
+                  <i class="fa fa-tachometer"></i>
+                  <span>API Performans: <span class="performance-value">98.7%</span></span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div id="trendyol-last-sync" class="text-center">
+                  <i class="fa fa-clock-o"></i>
+                  <span>Son Sync: <span class="sync-time">2 dk önce</span></span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div id="trendyol-ai-status" class="text-center">
+                  <i class="fa fa-brain"></i>
+                  <span>AI Optimizasyon: <span class="ai-status text-success">Aktif</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Metrics Cards -->
+    <div class="row">
+      <!-- Revenue Card -->
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary trendyol-metric-card">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-money fa-3x" style="color: #FF6000;"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="trendyol-revenue">₺0</div>
+                <div>Aylık Cirolu</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left" id="revenue-growth">%0 artış</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders Card -->
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green trendyol-metric-card">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="trendyol-orders">0</div>
+                <div>Aylık Sipariş</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left" id="orders-growth">%0 artış</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Card -->
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow trendyol-metric-card">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cube fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="trendyol-products">0</div>
+                <div>Toplam Ürün</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left" id="products-sync">Sync: 100%</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversion Rate Card -->
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red trendyol-metric-card">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-percent fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="trendyol-conversion">0%</div>
+                <div>Dönüşüm Oranı</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left" id="conversion-trend">Trend: ↑</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Features Section -->
+    <div class="row">
+      <!-- AI Optimization Panel -->
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-magic" style="color: #FF6000;"></i> AI Optimizasyon
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="ai-feature-card">
+                  <div class="ai-feature-icon">
+                    <i class="fa fa-tag fa-2x text-primary"></i>
+                  </div>
+                  <div class="ai-feature-content">
+                    <h5>Dinamik Fiyatlandırma</h5>
+                    <p class="text-muted">Rakip analizi ile otomatik fiyat optimizasyonu</p>
+                    <button class="btn btn-sm btn-primary" onclick="enableDynamicPricing()">
+                      <i class="fa fa-play"></i> Başlat
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="ai-feature-card">
+                  <div class="ai-feature-icon">
+                    <i class="fa fa-chart-line fa-2x text-success"></i>
+                  </div>
+                  <div class="ai-feature-content">
+                    <h5>Talep Tahmini</h5>
+                    <p class="text-muted">30 günlük talep ve stok önerisi</p>
+                    <button class="btn btn-sm btn-success" onclick="generateDemandForecast()">
+                      <i class="fa fa-crystal-ball"></i> Tahmin Et
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+              <div class="col-md-6">
+                <div class="ai-feature-card">
+                  <div class="ai-feature-icon">
+                    <i class="fa fa-users fa-2x text-warning"></i>
+                  </div>
+                  <div class="ai-feature-content">
+                    <h5>Müşteri Segmentasyonu</h5>
+                    <p class="text-muted">Hedeflenmiş pazarlama kampanyaları</p>
+                    <button class="btn btn-sm btn-warning" onclick="analyzeCustomerSegments()">
+                      <i class="fa fa-search"></i> Analiz Et
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="ai-feature-card">
+                  <div class="ai-feature-icon">
+                    <i class="fa fa-bullseye fa-2x text-info"></i>
+                  </div>
+                  <div class="ai-feature-content">
+                    <h5>Kampanya Optimizasyonu</h5>
+                    <p class="text-muted">ROI odaklı kampanya önerileri</p>
+                    <button class="btn btn-sm btn-info" onclick="optimizeCampaigns()">
+                      <i class="fa fa-rocket"></i> Optimize Et
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-time Analytics -->
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-chart-bar"></i> Gerçek Zamanlı Analitik
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div style="height: 300px;">
+              <canvas id="trendyol-realtime-chart"></canvas>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+              <div class="col-md-4 text-center">
+                <div class="metric-mini">
+                  <div class="metric-value" id="realtime-visitors">0</div>
+                  <div class="metric-label">Anlık Ziyaretçi</div>
+                </div>
+              </div>
+              <div class="col-md-4 text-center">
+                <div class="metric-mini">
+                  <div class="metric-value" id="realtime-cart">0</div>
+                  <div class="metric-label">Sepete Ekleme</div>
+                </div>
+              </div>
+              <div class="col-md-4 text-center">
+                <div class="metric-mini">
+                  <div class="metric-value" id="realtime-conversion">0%</div>
+                  <div class="metric-label">Anlık Dönüşüm</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Dashboard -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-dashboard"></i> Performans Dashboard
+            </h3>
+            <div class="panel-actions">
+              <button class="btn btn-xs btn-default" onclick="exportDashboard()">
+                <i class="fa fa-download"></i> Dışa Aktar
+              </button>
+              <button class="btn btn-xs btn-primary" onclick="refreshDashboard()">
+                <i class="fa fa-refresh"></i> Yenile
+              </button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-8">
+                <div style="height: 400px;">
+                  <canvas id="trendyol-performance-chart"></canvas>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="performance-metrics">
+                  <h5>Performans Göstergeleri</h5>
+                  <div class="metric-item">
+                    <span class="metric-name">Sayfa Yükleme Süresi</span>
+                    <span class="metric-value">
+                      <span id="page-load-time">1.2s</span>
+                      <i class="fa fa-arrow-down text-success"></i>
+                    </span>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-name">API Yanıt Süresi</span>
+                    <span class="metric-value">
+                      <span id="api-response-time">180ms</span>
+                      <i class="fa fa-arrow-up text-warning"></i>
+                    </span>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-name">Hata Oranı</span>
+                    <span class="metric-value">
+                      <span id="error-rate">0.02%</span>
+                      <i class="fa fa-arrow-down text-success"></i>
+                    </span>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-name">Uptime</span>
+                    <span class="metric-value">
+                      <span id="uptime">99.9%</span>
+                      <i class="fa fa-check text-success"></i>
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="quick-actions" style="margin-top: 20px;">
+                  <h5>Hızlı İşlemler</h5>
+                  <button class="btn btn-block btn-primary" onclick="bulkProductUpdate()">
+                    <i class="fa fa-cubes"></i> Toplu Ürün Güncelle
+                  </button>
+                  <button class="btn btn-block btn-success" onclick="priceSync()">
+                    <i class="fa fa-tag"></i> Fiyat Senkronizasyonu
+                  </button>
+                  <button class="btn btn-block btn-warning" onclick="stockAlert()">
+                    <i class="fa fa-exclamation-triangle"></i> Stok Uyarıları
+                  </button>
+                  <button class="btn btn-block btn-info" onclick="campaignManager()">
+                    <i class="fa fa-bullhorn"></i> Kampanya Yöneticisi
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activities & Alerts -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-clock-o"></i> Son Aktiviteler
+            </h3>
+          </div>
+          <div class="panel-body" style="max-height: 300px; overflow-y: auto;">
+            <div id="trendyol-activities">
+              <div class="activity-item">
+                <i class="fa fa-plus-circle text-success"></i>
+                <span class="activity-text">15 yeni ürün Trendyol'a gönderildi</span>
+                <span class="activity-time">5 dk önce</span>
+              </div>
+              <div class="activity-item">
+                <i class="fa fa-shopping-cart text-info"></i>
+                <span class="activity-text">23 yeni sipariş alındı</span>
+                <span class="activity-time">12 dk önce</span>
+              </div>
+              <div class="activity-item">
+                <i class="fa fa-tag text-warning"></i>
+                <span class="activity-text">AI fiyat optimizasyonu tamamlandı</span>
+                <span class="activity-time">25 dk önce</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-bell"></i> Uyarılar & Bildirimler
+            </h3>
+          </div>
+          <div class="panel-body" style="max-height: 300px; overflow-y: auto;">
+            <div id="trendyol-alerts">
+              <div class="alert alert-warning alert-sm">
+                <i class="fa fa-exclamation-triangle"></i>
+                5 ürünün stoku azalıyor, yenileme gerekli
+              </div>
+              <div class="alert alert-info alert-sm">
+                <i class="fa fa-info-circle"></i>
+                Yeni kampanya fırsatları mevcut
+              </div>
+              <div class="alert alert-success alert-sm">
+                <i class="fa fa-check-circle"></i>
+                Tüm sistemler normal çalışıyor
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include Advanced JavaScript -->
+<script src="view/javascript/trendyol/trendyol_advanced.js"></script>
+
+<!-- Advanced Styling -->
+<style>
+.trendyol-metric-card {
+  border-left: 4px solid #FF6000;
+  transition: all 0.3s ease;
+}
+
+.trendyol-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 96, 0, 0.2);
+}
+
+.panel-primary .panel-heading { background-color: #FF6000; border-color: #FF6000; }
+.panel-green .panel-heading { background-color: #5cb85c; }
+.panel-yellow .panel-heading { background-color: #f0ad4e; }
+.panel-red .panel-heading { background-color: #d9534f; }
+
+.ai-feature-card {
+  padding: 15px;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.ai-feature-card:hover {
+  border-color: #FF6000;
+  box-shadow: 0 2px 4px rgba(255, 96, 0, 0.1);
+}
+
+.ai-feature-icon {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.metric-mini {
+  padding: 10px;
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #FF6000;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.performance-metrics .metric-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.activity-item i {
+  margin-right: 10px;
+  width: 16px;
+}
+
+.activity-text {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.activity-time {
+  font-size: 11px;
+  color: #999;
+}
+
+.alert-sm {
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.panel-actions {
+  float: right;
+}
+
+#trendyol-connection-status .fa-circle {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+  .trendyol-metric-card {
+    margin-bottom: 15px;
+  }
+  
+  .ai-feature-card {
+    margin-bottom: 15px;
+  }
+  
+  .metric-mini {
+    margin-bottom: 10px;
+  }
+}
+
+/* Advanced animations */
+.fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+</style>
+
+{{ footer }}

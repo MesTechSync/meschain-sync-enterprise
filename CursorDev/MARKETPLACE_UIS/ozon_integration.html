@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ozon Интеграция - MesChain-Sync</title>
+    
+    <!-- Modern UI Framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --ozon-blue: #005bff;
+            --ozon-light-blue: #3d7fff;
+            --ozon-dark-blue: #0043cc;
+            --ozon-white: #ffffff;
+            --ozon-gray: #f5f5f7;
+            --ozon-dark-gray: #1d1d1f;
+            --ozon-green: #34c759;
+            --ozon-red: #ff3b30;
+            --ozon-orange: #ff9500;
+            --ozon-lighter: #f0f4ff;
+            --ozon-gradient: linear-gradient(135deg, #005bff 0%, #3d7fff 100%);
+            --ozon-premium-gradient: linear-gradient(135deg, #ff9500 0%, #ffb84d 100%);
+        }
+        
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #3d7fff 0%, #005bff 50%, #0043cc 100%);
+            min-height: 100vh;
+        }
+        
+        .ozon-container {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 30px 80px rgba(0, 91, 255, 0.2);
+            margin: 2rem;
+            overflow: hidden;
+            border: 4px solid var(--ozon-light-blue);
+        }
+        
+        .ozon-header {
+            background: var(--ozon-gradient);
+            color: white;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ozon-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 149, 0, 0.2) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        .ozon-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--ozon-premium-gradient);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(255, 149, 0, 0.4);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .ozon-nav {
+            background: var(--ozon-lighter);
+            padding: 0;
+            border-bottom: 5px solid var(--ozon-light-blue);
+        }
+        
+        .ozon-nav-item {
+            flex: 1;
+        }
+        
+        .ozon-nav-link {
+            color: var(--ozon-dark-gray) !important;
+            padding: 1.3rem 1.5rem;
+            text-align: center;
+            border: none;
+            background: none;
+            transition: all 0.4s ease;
+            border-radius: 0;
+            font-weight: 800;
+            text-decoration: none;
+            position: relative;
+            font-size: 1.05rem;
+        }
+        
+        .ozon-nav-link:hover, .ozon-nav-link.active {
+            background: var(--ozon-gradient);
+            color: white !important;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0, 91, 255, 0.4);
+        }
+        
+        .ozon-content {
+            padding: 3rem;
+            background: white;
+        }
+        
+        .ozon-card {
+            background: white;
+            border-radius: 25px;
+            padding: 3rem;
+            box-shadow: 0 15px 45px rgba(0, 91, 255, 0.12);
+            border: 4px solid var(--ozon-light-blue);
+            margin-bottom: 3rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ozon-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 70px rgba(0, 91, 255, 0.25);
+            border-color: var(--ozon-blue);
+        }
+        
+        .ozon-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: var(--ozon-gradient);
+        }
+        
+        .status-card {
+            text-align: center;
+            padding: 3.5rem 2.5rem;
+        }
+        
+        .status-card.connected {
+            border-color: var(--ozon-green);
+        }
+        
+        .status-card.connected::before {
+            background: linear-gradient(90deg, var(--ozon-green), #6cd474);
+        }
+        
+        .status-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--ozon-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2.5rem;
+            font-size: 3rem;
+            color: white;
+            box-shadow: 0 20px 50px rgba(0, 91, 255, 0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .status-icon.connected {
+            background: linear-gradient(135deg, var(--ozon-green), #6cd474);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 4px solid var(--ozon-light-blue);
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card:hover {
+            border-color: var(--ozon-blue);
+            box-shadow: 0 15px 45px rgba(0, 91, 255, 0.25);
+            transform: translateY(-8px);
+        }
+        
+        .metric-value {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 2rem 0;
+            background: var(--ozon-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .fbo-badge {
+            background: var(--ozon-premium-gradient);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+        }
+        
+        .ozon-btn {
+            background: var(--ozon-gradient);
+            border: none;
+            color: white;
+            padding: 1.2rem 3rem;
+            border-radius: 20px;
+            font-weight: 900;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0, 91, 255, 0.35);
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1.05rem;
+        }
+        
+        .ozon-btn:hover {
+            background: linear-gradient(135deg, #0043cc, #ff9500);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0, 91, 255, 0.6);
+            color: white;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 450px;
+            margin: 2.5rem 0;
+        }
+        
+        .real-time-badge {
+            background: rgba(0, 91, 255, 0.15);
+            color: var(--ozon-blue);
+            padding: 0.8rem 2rem;
+            border-radius: 35px;
+            font-size: 1rem;
+            font-weight: 900;
+            animation: pulse 2s infinite;
+            border: 3px solid var(--ozon-light-blue);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        
+        .warehouse-selector {
+            background: var(--ozon-lighter);
+            border: 3px solid var(--ozon-light-blue);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .warehouse-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .warehouse-item {
+            background: white;
+            border: 2px solid var(--ozon-light-blue);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .warehouse-item:hover {
+            border-color: var(--ozon-blue);
+            background: var(--ozon-lighter);
+        }
+        
+        .warehouse-item.selected {
+            background: var(--ozon-gradient);
+            color: white;
+            border-color: var(--ozon-blue);
+        }
+        
+        .russian-flag {
+            width: 32px;
+            height: 24px;
+            background: linear-gradient(to bottom, #ffffff 33%, #0052cc 33%, #0052cc 66%, #cc0000 66%);
+            border-radius: 4px;
+            margin-right: 10px;
+            display: inline-block;
+            border: 1px solid #ddd;
+        }
+        
+        .premium-badge {
+            background: var(--ozon-premium-gradient);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            margin-left: 10px;
+        }
+        
+        .fbo-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .fbo-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--ozon-green);
+        }
+          
+        /* 📱 ENHANCED RESPONSIVE DESIGN - OZON MARKETPLACE */
+        
+        /* Tablet Optimization (768px - 1024px) */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .ozon-container {
+                margin: 1.5rem;
+                border-radius: 20px;
+            }
+            
+            .ozon-header {
+                padding: 2.5rem;
+            }
+            
+            .ozon-content {
+                padding: 2rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .warehouse-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+        
+        /* Mobile Optimization (max-width: 768px) */
+        @media (max-width: 768px) {
+            .ozon-container {
+                margin: 0.5rem;
+                border-radius: 15px;
+            }
+            
+            .ozon-header {
+                padding: 1.5rem;
+                text-align: center;
+            }
+            
+            .ozon-header .d-flex {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .ozon-logo {
+                margin: 0 auto 1rem;
+            }
+            
+            .ozon-content {
+                padding: 1.5rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .warehouse-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .btn {
+                min-height: 44px;
+                font-size: 0.9rem;
+            }
+            
+            .form-control, .form-select {
+                min-height: 44px;
+                font-size: 16px;
+            }
+            
+            h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .fs-4 {
+                font-size: 0.9rem !important;
+            }
+            
+            .chart-container {
+                height: 250px;
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Extra Small Mobile (max-width: 480px) */
+        @media (max-width: 480px) {
+            .ozon-container {
+                margin: 0.25rem;
+                border-radius: 12px;
+            }
+            
+            .ozon-header {
+                padding: 1rem;
+            }
+            
+            .ozon-content {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.2rem !important;
+            }
+            
+            .fs-4 {
+                font-size: 0.8rem !important;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+        }
+        
+        /* Touch Device Optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .btn:hover {
+                transform: none;
+            }
+            
+            .btn:active {
+                transform: scale(0.98);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ozon-container">
+        <!-- Ozon Header -->
+        <div class="ozon-header">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="ozon-logo">
+                        OZON
+                    </div>
+                    <div>
+                        <h1 class="mb-0 fw-bold">Ozon Marketplace Интеграция</h1>
+                        <p class="mb-0 opacity-75 fs-4">Крупнейшая e-commerce платформа России</p>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="russian-flag"></div>
+                    <span class="real-time-badge">
+                        <i class="fas fa-globe me-2"></i>Российский Рынок
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="ozon-nav d-flex">
+            <div class="ozon-nav-item">
+                <a href="#dashboard" class="ozon-nav-link active" onclick="showOzonSection('dashboard')">
+                    <i class="fas fa-chart-area me-2"></i>Панель управления
+                </a>
+            </div>
+            <div class="ozon-nav-item">
+                <a href="#fbo" class="ozon-nav-link" onclick="showOzonSection('fbo')">
+                    <i class="fas fa-warehouse me-2"></i>FBO Склады
+                </a>
+            </div>
+            <div class="ozon-nav-item">
+                <a href="#products" class="ozon-nav-link" onclick="showOzonSection('products')">
+                    <i class="fas fa-boxes me-2"></i>Товары
+                </a>
+            </div>
+            <div class="ozon-nav-item">
+                <a href="#orders" class="ozon-nav-link" onclick="showOzonSection('orders')">
+                    <i class="fas fa-shopping-cart me-2"></i>Заказы
+                </a>
+            </div>
+            <div class="ozon-nav-item">
+                <a href="#settings" class="ozon-nav-link" onclick="showOzonSection('settings')">
+                    <i class="fas fa-cogs me-2"></i>API Настройки
+                </a>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="ozon-content">
+            <!-- Dashboard Section -->
+            <div id="ozon-dashboard-section" class="ozon-section">
+                <!-- Warehouse Selector -->
+                <div class="warehouse-selector">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-warehouse me-2"></i>FBO Склады Ozon
+                    </h5>
+                    <div class="warehouse-grid">
+                        <div class="warehouse-item selected" data-warehouse="moscow">
+                            <i class="fas fa-building fa-2x mb-2 text-primary"></i>
+                            <div class="fw-bold">Москва</div>
+                            <small class="text-muted">1,234 товара</small>
+                            <div class="fbo-status mt-2">
+                                <div class="fbo-indicator"></div>
+                                <small>FBO Активен</small>
+                            </div>
+                        </div>
+                        <div class="warehouse-item" data-warehouse="spb">
+                            <i class="fas fa-building fa-2x mb-2 text-info"></i>
+                            <div class="fw-bold">Санкт-Петербург</div>
+                            <small class="text-muted">876 товаров</small>
+                            <div class="fbo-status mt-2">
+                                <div class="fbo-indicator"></div>
+                                <small>FBO Активен</small>
+                            </div>
+                        </div>
+                        <div class="warehouse-item" data-warehouse="ekaterinburg">
+                            <i class="fas fa-building fa-2x mb-2 text-warning"></i>
+                            <div class="fw-bold">Екатеринбург</div>
+                            <small class="text-muted">543 товара</small>
+                            <div class="fbo-status mt-2">
+                                <div class="fbo-indicator"></div>
+                                <small>FBO Активен</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connection Status & Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="ozon-card status-card connected">
+                            <div class="status-icon connected">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <h2 class="fw-bold text-success">Ozon API Подключение</h2>
+                            <p class="text-muted fs-4">Seller API v3.0 интеграция</p>
+                            <div class="premium-badge">Ozon Premium</div>
+                            <div class="mt-3">
+                                <small class="text-muted">Последняя синхронизация: 3 минуты назад</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="ozon-card">
+                            <h3 class="fw-bold mb-4">
+                                <i class="fas fa-rocket text-warning me-2"></i>
+                                Быстрые действия
+                            </h3>
+                            <div class="row">
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="ozon-btn w-100" onclick="syncAllOzonProducts()">
+                                        <i class="fas fa-sync-alt me-2"></i>Синхр. товары
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="ozon-btn w-100" onclick="updateOzonPrices()">
+                                        <i class="fas fa-ruble-sign me-2"></i>Обновить цены
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="ozon-btn w-100" onclick="exportOzonOrders()">
+                                        <i class="fas fa-file-csv me-2"></i>Экспорт данных
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="ozon-btn w-100" onclick="bulkOzonUpload()">
+                                        <i class="fas fa-upload me-2"></i>FBO Загрузка
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Metrics -->
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="fbo-badge">FBO</div>
+                        <i class="fas fa-boxes fa-4x text-primary mb-3"></i>
+                        <div class="metric-value" id="ozon-total-products">3,891</div>
+                        <div class="metric-label">Активные товары</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+312 в этом месяце
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-shopping-bag fa-4x text-success mb-3"></i>
+                        <div class="metric-value" id="ozon-monthly-orders">2,134</div>
+                        <div class="metric-label">Заказы в месяц</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+24% рост
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-ruble-sign fa-4x text-warning mb-3"></i>
+                        <div class="metric-value" id="ozon-monthly-revenue">₽2,847,650</div>
+                        <div class="metric-label">Оборот в месяц (₽)</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+41% увеличение
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-star fa-4x text-info mb-3"></i>
+                        <div class="metric-value" id="ozon-seller-rating">4.8</div>
+                        <div class="metric-label">Рейтинг продавца</div>
+                        <div class="metric-change">
+                            <i class="fas fa-thumbs-up"></i>12,456 отзывов
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Chart -->
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="ozon-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="fw-bold mb-0">
+                                    <i class="fas fa-chart-line text-info me-2"></i>
+                                    Ozon Продажи и FBO (30 дней)
+                                </h3>
+                                <span class="real-time-badge">Реальное время</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="ozonSalesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="ozon-card">
+                            <h3 class="fw-bold mb-4">
+                                <i class="fas fa-bell text-info me-2"></i>
+                                Последние активности
+                            </h3>
+                            <div class="activity-timeline">
+                                <div class="timeline-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="timeline-icon me-3">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">#OZON-567890</div>
+                                            <div class="text-muted small">iPhone 15 Pro Max - ₽89,999</div>
+                                            <div class="text-muted small">2 минуты назад</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="timeline-icon me-3">
+                                            <i class="fas fa-warehouse"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">FBO поставка</div>
+                                            <div class="text-muted small">MacBook Pro M3 - ₽149,999</div>
+                                            <div class="text-muted small">7 минут назад</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="timeline-icon me-3">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Синхронизация товаров</div>
+                                            <div class="text-muted small">789 товаров обновлено</div>
+                                            <div class="text-muted small">15 минут назад</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other sections placeholder -->
+            <div id="ozon-fbo-section" class="ozon-section" style="display:none;">
+                <div class="ozon-card">
+                    <h2 class="fw-bold">FBO Управление складами</h2>
+                    <p class="fs-4">Управление складами Ozon FBO отсюда...</p>
+                </div>
+            </div>
+            
+            <div id="ozon-products-section" class="ozon-section" style="display:none;">
+                <div class="ozon-card">
+                    <h2 class="fw-bold">Управление товарами Ozon</h2>
+                    <p class="fs-4">Управление товарами Ozon отсюда...</p>
+                </div>
+            </div>
+            
+            <div id="ozon-orders-section" class="ozon-section" style="display:none;">
+                <div class="ozon-card">
+                    <h2 class="fw-bold">Отслеживание заказов Ozon</h2>
+                    <p class="fs-4">Отслеживание заказов Ozon отсюда...</p>
+                </div>
+            </div>
+            
+            <div id="ozon-settings-section" class="ozon-section" style="display:none;">
+                <div class="ozon-card">
+                    <h2 class="fw-bold">Настройки Ozon API</h2>
+                    <p class="fs-4">Настройка Ozon API отсюда...</p>
+                </div>
+            </div>
+        </div>
+    </div>    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../WEBSOCKET_SYSTEM/meschain-websocket.js"></script>
+    <script src="ozon_integration.js"></script>
+    
+    <!-- Cross-Browser Compatibility Testing -->
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_compatibility_tester.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_test_config.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/browser_compatibility_test_suite.js"></script>
+    <!-- Final UI/UX Polish -->
+    <script src="../UI_UX_POLISH/final_ui_ux_polisher.js"></script>
+    <link rel="stylesheet" href="../UI_UX_POLISH/advanced_animations.css">
+    <link rel="stylesheet" href="../UI_UX_POLISH/premium_visual_effects.css">
+    
+    <!-- Initialize Cross-Browser Testing -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Final UI/UX Polish
+            if (typeof FinalUIUXPolisher !== 'undefined') {
+                window.finalUIUXPolisher = new FinalUIUXPolisher();
+                console.log('✅ Ozon Final UI/UX Polish initialized');
+            }
+
+            // Initialize Cross-Browser Compatibility Testing
+            if (typeof CrossBrowserCompatibilityTester !== 'undefined') {
+                const tester = new CrossBrowserCompatibilityTester();
+                tester.runMarketplaceTests('ozon', {
+                    testElements: ['#ozon-products-chart', '.ozon-container', '.product-card'],
+                    testInteractions: ['theme-toggle', 'product-filter', 'chart-navigation'],
+                    testResponsive: true,
+                    testPerformance: true
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

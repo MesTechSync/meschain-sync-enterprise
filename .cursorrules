@@ -1,0 +1,56 @@
+# MesChain-Sync Cursor.ai Kuralları
+
+## Proje Hakkında
+MesChain-Sync, OpenCart 3.0.4.0 tabanlı çoklu pazaryeri entegrasyon sistemidir. Trendyol, N11, Amazon, eBay, Hepsiburada ve Ozon marketplaces'lerini destekler.
+
+## Kodlama Standartları
+- PHP 7.4+ uyumlu kod yazın
+- OpenCart MVC(L) yapısına kesinlikle uyun
+- Her fonksiyon için PHPDoc yorumu ekleyin
+- Try-catch blokları ve hata işleme kullanın
+- Her modül için ayrı log dosyası kullanın
+
+## Dizin Yapısı
+```
+upload/
+├── admin/
+│   ├── controller/extension/module/    # Ana controller dosyaları
+│   ├── model/extension/module/         # Model dosyaları
+│   ├── view/template/extension/module/ # Twig template dosyaları
+│   └── language/                       # Dil dosyaları (tr-tr, en-gb)
+└── system/
+    └── library/
+        └── meschain/                   # MesChain kütüphaneleri
+            ├── helper/                 # Helper sınıfları
+            ├── api/                    # API bağlantı sınıfları
+            └── logger/                 # Loglama sınıfları
+```
+
+## Önemli Kurallar
+1. **ASLA .tpl dosyaları kullanmayın**, sadece .twig
+2. Helper dosyaları **system/library/meschain/helper/** altında olmalı
+3. Controller'da helper yanlış konumda olmamalı
+4. Her modül için model dosyası zorunlu
+5. API anahtarları config/ dizininde veya OpenCart ayarlarında saklanmalı
+6. Tüm stringler dil dosyalarında tanımlanmalı
+
+## Modül Durumları
+- **Trendyol**: %80 tamamlandı (webhook desteği eklendi)
+- **Ozon**: %65 tamamlandı
+- **N11**: %30 tamamlandı
+- **Amazon**: %15 tamamlandı
+- **Hepsiburada**: %25 tamamlandı  
+- **eBay**: %0 (henüz başlanmadı)
+
+## Temizlik Sonrası Durum
+- 39 gereksiz dosya silindi
+- Tekrar eden controller'lar kaldırıldı
+- Yanlış konumdaki helper'lar silindi
+- Eski .tpl dosyaları kaldırıldı
+
+## Yapılacaklar
+1. Eksik model dosyalarını tamamla
+2. Helper sınıflarını doğru konumda yeniden oluştur
+3. Webhook sistemini diğer modüllere ekle
+4. Dropshipping entegrasyonunu tamamla
+5. Raporlama sistemini geliştir 

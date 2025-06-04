@@ -1,0 +1,682 @@
+{{ header }}{{ column_left }}
+
+<!-- Modern CSS & JS Integration -->
+<link rel="stylesheet" href="view/stylesheet/mestech/modern_responsive.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="view/javascript/mestech/modern_dashboard.js"></script>
+
+<div id="content" class="modern-dashboard">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <div class="header-actions">
+          <button type="button" class="btn btn-modern btn-secondary" onclick="MesChainDashboard.widgets.metrics.loadData()">
+            <i class="fa fa-refresh"></i>
+            <span class="d-none d-md-inline">Yenile</span>
+          </button>
+          <div class="dropdown">
+            <button class="btn btn-modern btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+              <i class="fa fa-cog"></i>
+              <span class="d-none d-md-inline">Ayarlar</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li><a href="{{ settings_url }}"><i class="fa fa-wrench"></i> Genel Ayarlar</a></li>
+              <li><a href="{{ api_settings_url }}"><i class="fa fa-key"></i> API Ayarları</a></li>
+              <li class="divider"></li>
+              <li><a href="{{ help_url }}"><i class="fa fa-question-circle"></i> Yardım</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <h1 class="page-title">
+        <i class="fa fa-tachometer"></i>
+        {{ heading_title }}
+        <span class="page-subtitle">Pazaryeri Yönetim Paneli</span>
+      </h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Alert Messages -->
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible fade-in">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    {% if success_message %}
+    <div class="alert alert-success alert-dismissible fade-in">
+      <i class="fa fa-check-circle"></i> {{ success_message }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <!-- Quick Metrics Row -->
+    <div class="row dashboard-metrics">
+      <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="dashboard-widget metrics-widget">
+          <div class="widget-header">
+            <div class="widget-icon amazon-theme">
+              <i class="fa fa-amazon"></i>
+            </div>
+            <div class="widget-info">
+              <h3 class="widget-title">Amazon</h3>
+              <span class="widget-status status-{{ amazon_status }}">
+                {{ amazon_status_text }}
+              </span>
+            </div>
+          </div>
+          <div class="widget-body">
+            <div class="widget-value">{{ amazon_orders | default(0) }}</div>
+            <div class="widget-label">Aktif Sipariş</div>
+            <div class="widget-change positive">
+              <i class="fa fa-arrow-up"></i> +12%
+            </div>
+          </div>
+          <div class="widget-footer">
+            <a href="{{ amazon_url }}" class="btn btn-sm btn-primary btn-modern">
+              <i class="fa fa-external-link"></i> Yönet
+            </a>
+          </div>
+          <div class="loading-spinner" style="display: none;"></div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="dashboard-widget metrics-widget">
+          <div class="widget-header">
+            <div class="widget-icon ebay-theme">
+              <i class="fa fa-shopping-bag"></i>
+            </div>
+            <div class="widget-info">
+              <h3 class="widget-title">eBay</h3>
+              <span class="widget-status status-{{ ebay_status }}">
+                {{ ebay_status_text }}
+              </span>
+            </div>
+          </div>
+          <div class="widget-body">
+            <div class="widget-value">{{ ebay_orders | default(0) }}</div>
+            <div class="widget-label">Aktif Sipariş</div>
+            <div class="widget-change negative">
+              <i class="fa fa-arrow-down"></i> -3%
+            </div>
+          </div>
+          <div class="widget-footer">
+            <a href="{{ ebay_url }}" class="btn btn-sm btn-primary btn-modern">
+              <i class="fa fa-external-link"></i> Yönet
+            </a>
+          </div>
+          <div class="loading-spinner" style="display: none;"></div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="dashboard-widget metrics-widget">
+          <div class="widget-header">
+            <div class="widget-icon n11-theme">
+              <i class="fa fa-shopping-cart"></i>
+            </div>
+            <div class="widget-info">
+              <h3 class="widget-title">N11</h3>
+              <span class="widget-status status-{{ n11_status }}">
+                {{ n11_status_text }}
+              </span>
+            </div>
+          </div>
+          <div class="widget-body">
+            <div class="widget-value">{{ n11_orders | default(0) }}</div>
+            <div class="widget-label">Aktif Sipariş</div>
+            <div class="widget-change positive">
+              <i class="fa fa-arrow-up"></i> +8%
+            </div>
+          </div>
+          <div class="widget-footer">
+            <a href="{{ n11_url }}" class="btn btn-sm btn-primary btn-modern">
+              <i class="fa fa-external-link"></i> Yönet
+            </a>
+          </div>
+          <div class="loading-spinner" style="display: none;"></div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="dashboard-widget metrics-widget">
+          <div class="widget-header">
+            <div class="widget-icon hepsiburada-theme">
+              <i class="fa fa-store"></i>
+            </div>
+            <div class="widget-info">
+              <h3 class="widget-title">Hepsiburada</h3>
+              <span class="widget-status status-{{ hepsiburada_status }}">
+                {{ hepsiburada_status_text }}
+              </span>
+            </div>
+          </div>
+          <div class="widget-body">
+            <div class="widget-value">{{ hepsiburada_orders | default(0) }}</div>
+            <div class="widget-label">Aktif Sipariş</div>
+            <div class="widget-change positive">
+              <i class="fa fa-arrow-up"></i> +15%
+            </div>
+          </div>
+          <div class="widget-footer">
+            <a href="{{ hepsiburada_url }}" class="btn btn-sm btn-primary btn-modern">
+              <i class="fa fa-external-link"></i> Yönet
+            </a>
+          </div>
+          <div class="loading-spinner" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="row dashboard-content">
+      <!-- Left Column - Charts & Analytics -->
+      <div class="col-lg-8">
+        <!-- Sales Analytics Chart -->
+        <div class="card-modern analytics-widget">
+          <div class="card-header-modern">
+            <div class="d-flex justify-content-between align-items-center">
+              <h3 class="card-title">
+                <i class="fa fa-line-chart"></i>
+                Satış Performansı
+              </h3>
+              <div class="chart-controls">
+                <div class="btn-group btn-group-sm" role="group">
+                  <button type="button" class="btn btn-secondary active" data-period="7">7 Gün</button>
+                  <button type="button" class="btn btn-secondary" data-period="30">30 Gün</button>
+                  <button type="button" class="btn btn-secondary" data-period="90">3 Ay</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body-modern">
+            <canvas id="sales-chart" width="400" height="200"></canvas>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-color" style="background: var(--amazon-orange);"></span>
+                Amazon
+              </div>
+              <div class="legend-item">
+                <span class="legend-color" style="background: var(--ebay-blue);"></span>
+                eBay
+              </div>
+              <div class="legend-item">
+                <span class="legend-color" style="background: var(--n11-purple);"></span>
+                N11
+              </div>
+              <div class="legend-item">
+                <span class="legend-color" style="background: var(--hepsiburada-orange);"></span>
+                Hepsiburada
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Performance -->
+        <div class="card-modern products-widget mt-4">
+          <div class="card-header-modern">
+            <h3 class="card-title">
+              <i class="fa fa-box"></i>
+              Ürün Performansı
+            </h3>
+          </div>
+          <div class="card-body-modern">
+            <div class="row">
+              <div class="col-md-6">
+                <canvas id="products-chart" width="400" height="300"></canvas>
+              </div>
+              <div class="col-md-6">
+                <div class="product-stats">
+                  <div class="stat-row">
+                    <span class="stat-label">Toplam Ürün</span>
+                    <span class="stat-value">{{ total_products | default(0) }}</span>
+                  </div>
+                  <div class="stat-row">
+                    <span class="stat-label">Aktif Ürün</span>
+                    <span class="stat-value">{{ active_products | default(0) }}</span>
+                  </div>
+                  <div class="stat-row">
+                    <span class="stat-label">Pasif Ürün</span>
+                    <span class="stat-value">{{ inactive_products | default(0) }}</span>
+                  </div>
+                  <div class="stat-row">
+                    <span class="stat-label">Stok Tükenen</span>
+                    <span class="stat-value text-danger">{{ out_of_stock | default(0) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Activity & Notifications -->
+      <div class="col-lg-4">
+        <!-- Recent Orders -->
+        <div class="card-modern orders-widget">
+          <div class="card-header-modern">
+            <h3 class="card-title">
+              <i class="fa fa-shopping-cart"></i>
+              Son Siparişler
+            </h3>
+            <a href="{{ orders_url }}" class="btn btn-sm btn-primary btn-modern">
+              Tümünü Gör
+            </a>
+          </div>
+          <div class="card-body-modern">
+            <div class="recent-orders-list">
+              {% if recent_orders %}
+                {% for order in recent_orders %}
+                <div class="order-item">
+                  <div class="order-header">
+                    <strong>#{{ order.order_id }}</strong>
+                    <span class="order-marketplace {{ order.marketplace | lower }}">
+                      {{ order.marketplace }}
+                    </span>
+                  </div>
+                  <div class="order-details">
+                    <div class="order-customer">{{ order.customer_name }}</div>
+                    <div class="order-meta">
+                      <span class="order-amount">{{ order.total | format_currency }}</span>
+                      <span class="order-status status-{{ order.status }}">
+                        {{ order.status_text }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="order-time">
+                    {{ order.created_at | time_ago }}
+                  </div>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="empty-state">
+                  <i class="fa fa-shopping-cart"></i>
+                  <p>Henüz sipariş bulunmuyor</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="card-modern mt-4">
+          <div class="card-header-modern">
+            <h3 class="card-title">
+              <i class="fa fa-server"></i>
+              Sistem Durumu
+            </h3>
+          </div>
+          <div class="card-body-modern">
+            <div class="system-status">
+              <div class="status-item">
+                <div class="status-indicator {{ api_status | default('warning') }}"></div>
+                <div class="status-info">
+                  <div class="status-label">API Bağlantıları</div>
+                  <div class="status-value">{{ active_apis | default(0) }}/{{ total_apis | default(4) }} Aktif</div>
+                </div>
+              </div>
+              <div class="status-item">
+                <div class="status-indicator {{ sync_status | default('success') }}"></div>
+                <div class="status-info">
+                  <div class="status-label">Senkronizasyon</div>
+                  <div class="status-value">{{ last_sync | time_ago | default('Hiç') }}</div>
+                </div>
+              </div>
+              <div class="status-item">
+                <div class="status-indicator {{ queue_status | default('success') }}"></div>
+                <div class="status-info">
+                  <div class="status-label">İşlem Kuyruğu</div>
+                  <div class="status-value">{{ queue_jobs | default(0) }} Bekleyen</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card-modern mt-4">
+          <div class="card-header-modern">
+            <h3 class="card-title">
+              <i class="fa fa-bolt"></i>
+              Hızlı İşlemler
+            </h3>
+          </div>
+          <div class="card-body-modern">
+            <div class="quick-actions">
+              <a href="{{ sync_products_url }}" class="quick-action-btn">
+                <i class="fa fa-refresh"></i>
+                <span>Ürün Senkronizasyonu</span>
+              </a>
+              <a href="{{ sync_orders_url }}" class="quick-action-btn">
+                <i class="fa fa-download"></i>
+                <span>Sipariş Çekme</span>
+              </a>
+              <a href="{{ update_stocks_url }}" class="quick-action-btn">
+                <i class="fa fa-boxes"></i>
+                <span>Stok Güncelleme</span>
+              </a>
+              <a href="{{ price_update_url }}" class="quick-action-btn">
+                <i class="fa fa-tags"></i>
+                <span>Fiyat Güncelleme</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Metrics Footer -->
+    <div class="row dashboard-footer">
+      <div class="col-12">
+        <div class="card-modern">
+          <div class="card-body-modern">
+            <div class="performance-metrics">
+              <div class="metric-group">
+                <i class="fa fa-clock-o"></i>
+                <span class="metric-label">Sayfa Yükleme</span>
+                <span class="metric-value" id="page-load-time">-</span>
+              </div>
+              <div class="metric-group">
+                <i class="fa fa-memory"></i>
+                <span class="metric-label">Bellek Kullanımı</span>
+                <span class="metric-value">{{ memory_usage | default('N/A') }}</span>
+              </div>
+              <div class="metric-group">
+                <i class="fa fa-database"></i>
+                <span class="metric-label">Veritabanı</span>
+                <span class="metric-value">{{ db_queries | default(0) }} sorgu</span>
+              </div>
+              <div class="metric-group">
+                <i class="fa fa-calendar"></i>
+                <span class="metric-label">Son Güncelleme</span>
+                <span class="metric-value">{{ last_update | time_ago | default('Bilinmiyor') }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Styles for Dashboard -->
+<style>
+.modern-dashboard .page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: 0;
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--gray-500);
+  margin-left: var(--spacing-md);
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.dashboard-metrics .dashboard-widget {
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.widget-info h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.widget-status {
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-connected { background-color: var(--success-green); color: white; }
+.status-disconnected { background-color: var(--error-red); color: white; }
+.status-warning { background-color: var(--warning-orange); color: white; }
+
+.widget-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.widget-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: var(--spacing-xs);
+}
+
+.widget-label {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  margin-bottom: var(--spacing-sm);
+}
+
+.widget-change {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.widget-footer {
+  margin-top: auto;
+  text-align: center;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.recent-orders-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.order-item {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--gray-200);
+  transition: background-color var(--transition-fast);
+}
+
+.order-item:hover {
+  background-color: var(--gray-50);
+}
+
+.order-header {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.order-marketplace {
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.order-marketplace.amazon { background-color: var(--amazon-orange); color: white; }
+.order-marketplace.ebay { background-color: var(--ebay-blue); color: white; }
+.order-marketplace.n11 { background-color: var(--n11-purple); color: white; }
+.order-marketplace.hepsiburada { background-color: var(--hepsiburada-orange); color: white; }
+
+.system-status .status-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.status-indicator.success { background-color: var(--success-green); }
+.status-indicator.warning { background-color: var(--warning-orange); }
+.status-indicator.error { background-color: var(--error-red); }
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--gray-700);
+  transition: all var(--transition-fast);
+}
+
+.quick-action-btn:hover {
+  background-color: var(--gray-50);
+  border-color: var(--primary-blue);
+  transform: translateY(-2px);
+}
+
+.performance-metrics {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.metric-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.metric-value {
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+@media (max-width: 768px) {
+  .performance-metrics {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<script>
+// Initialize charts when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Performance tracking
+  const startTime = performance.now();
+  
+  window.addEventListener('load', function() {
+    const loadTime = Math.round(performance.now() - startTime);
+    document.getElementById('page-load-time').textContent = loadTime + 'ms';
+  });
+  
+  // Initialize sales chart
+  const salesCtx = document.getElementById('sales-chart');
+  if (salesCtx) {
+    new Chart(salesCtx, {
+      type: 'line',
+      data: {
+        labels: {!! json_encode($chart_labels ?? []) !!},
+        datasets: [{
+          label: 'Amazon',
+          data: {!! json_encode($amazon_sales ?? []) !!},
+          borderColor: 'var(--amazon-orange)',
+          backgroundColor: 'rgba(255, 153, 0, 0.1)',
+          tension: 0.4
+        }, {
+          label: 'eBay', 
+          data: {!! json_encode($ebay_sales ?? []) !!},
+          borderColor: 'var(--ebay-blue)',
+          backgroundColor: 'rgba(0, 100, 210, 0.1)',
+          tension: 0.4
+        }, {
+          label: 'N11',
+          data: {!! json_encode($n11_sales ?? []) !!},
+          borderColor: 'var(--n11-purple)',
+          backgroundColor: 'rgba(102, 51, 204, 0.1)',
+          tension: 0.4
+        }, {
+          label: 'Hepsiburada',
+          data: {!! json_encode($hepsiburada_sales ?? []) !!},
+          borderColor: 'var(--hepsiburada-orange)',
+          backgroundColor: 'rgba(255, 96, 0, 0.1)',
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  }
+});
+</script>
+
+{{ footer }}

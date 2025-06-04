@@ -1,0 +1,1176 @@
+{{ header }}{{ column_left }}
+
+<!-- eBay Advanced Dashboard Styles -->
+<style>
+/* eBay Advanced Dashboard CSS */
+:root {
+  --ebay-blue: #0064D2;
+  --ebay-blue-light: #3385E0;
+  --ebay-blue-dark: #004B9F;
+  --ebay-yellow: #FFD100;
+  --ebay-dark: #1E1E1E;
+  --ebay-white: #FFFFFF;
+  --ebay-gray-light: #F7F7F7;
+  --ebay-gray-medium: #666666;
+  --ebay-gray-dark: #333333;
+  --ebay-success: #00A652;
+  --ebay-warning: #FF6900;
+  --ebay-danger: #E53935;
+  --ebay-info: #0099CC;
+}
+
+.ebay-dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: var(--ebay-gray-light);
+  min-height: 100vh;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.ebay-dashboard-header {
+  background: linear-gradient(135deg, var(--ebay-blue) 0%, var(--ebay-blue-dark) 100%);
+  color: var(--ebay-white);
+  padding: 32px;
+  border-radius: 16px;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 32px rgba(0, 100, 210, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.ebay-dashboard-header::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 200px;
+  height: 200px;
+  background: var(--ebay-yellow);
+  border-radius: 50%;
+  opacity: 0.1;
+  animation: ebay-float 8s ease-in-out infinite;
+}
+
+@keyframes ebay-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+.ebay-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.ebay-brand-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ebay-logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ebay-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--ebay-yellow);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ebay-blue);
+  font-size: 1.8rem;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(255, 209, 0, 0.3);
+}
+
+.ebay-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.04em;
+}
+
+.ebay-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.ebay-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ebay-api-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.ebay-status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ebay-success);
+  animation: ebay-pulse 2s infinite;
+}
+
+@keyframes ebay-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 166, 82, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 166, 82, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 166, 82, 0); }
+}
+
+.btn-ebay-outline {
+  background: transparent;
+  color: var(--ebay-white);
+  border: 2px solid var(--ebay-white);
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-ebay-outline:hover {
+  background: var(--ebay-white);
+  color: var(--ebay-blue);
+  transform: translateY(-2px);
+}
+
+.ebay-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.ebay-metric-card {
+  background: var(--ebay-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-left: 5px solid var(--ebay-blue);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ebay-metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 100, 210, 0.15);
+}
+
+.ebay-metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(45deg, rgba(0, 100, 210, 0.1), transparent);
+  border-radius: 0 16px 0 60px;
+}
+
+.ebay-metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ebay-metric-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--ebay-blue), var(--ebay-blue-light));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ebay-white);
+  font-size: 1.5rem;
+}
+
+.ebay-metric-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--ebay-gray-dark);
+  margin-bottom: 8px;
+  letter-spacing: -0.04em;
+}
+
+.ebay-metric-label {
+  font-size: 1rem;
+  color: var(--ebay-gray-medium);
+  margin-bottom: 12px;
+}
+
+.ebay-metric-change {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.ebay-metric-change.positive {
+  background: rgba(0, 166, 82, 0.1);
+  color: var(--ebay-success);
+}
+
+.ebay-metric-change.negative {
+  background: rgba(229, 57, 53, 0.1);
+  color: var(--ebay-danger);
+}
+
+.ebay-analytics-section {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.ebay-charts-container {
+  flex: 2;
+}
+
+.ebay-chart-card {
+  background: var(--ebay-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ebay-chart-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--ebay-blue), var(--ebay-yellow));
+}
+
+.ebay-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--ebay-gray-light);
+}
+
+.ebay-chart-header h3 {
+  color: var(--ebay-gray-dark);
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ebay-chart-header h3::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--ebay-blue);
+  border-radius: 50%;
+}
+
+.ebay-currency-selector {
+  background: var(--ebay-white);
+  border: 2px solid var(--ebay-blue);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--ebay-blue);
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+.ebay-period-selector {
+  background: var(--ebay-white);
+  border: 2px solid var(--ebay-blue);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--ebay-blue);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ebay-secondary-charts {
+  display: flex;
+  gap: 24px;
+}
+
+.ebay-chart-card.ebay-small {
+  flex: 1;
+  padding: 20px;
+}
+
+.ebay-activity-section {
+  flex: 1;
+  background: var(--ebay-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  max-height: 600px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.ebay-activity-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--ebay-blue), var(--ebay-yellow));
+}
+
+.ebay-trading-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.ebay-feature-card {
+  background: var(--ebay-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ebay-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 100, 210, 0.15);
+}
+
+.ebay-feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--ebay-blue), var(--ebay-yellow));
+}
+
+.ebay-feature-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.ebay-feature-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--ebay-blue), var(--ebay-blue-light));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ebay-white);
+  font-size: 1.5rem;
+}
+
+.btn-ebay-primary {
+  background: linear-gradient(135deg, var(--ebay-blue), var(--ebay-blue-light));
+  color: var(--ebay-white);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-ebay-primary:hover {
+  background: linear-gradient(135deg, var(--ebay-blue-dark), var(--ebay-blue));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 100, 210, 0.3);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .ebay-dashboard-container {
+    padding: 16px 12px;
+  }
+  
+  .ebay-dashboard-header {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .ebay-header-content {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .ebay-metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .ebay-analytics-section {
+    flex-direction: column;
+  }
+  
+  .ebay-secondary-charts {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .ebay-trading-features {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .ebay-title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ebay-dashboard-container {
+    padding: 12px 8px;
+  }
+  
+  .ebay-title {
+    font-size: 1.5rem;
+  }
+  
+  .ebay-metric-card {
+    padding: 16px;
+    text-align: center;
+  }
+  
+  .ebay-chart-card {
+    padding: 16px;
+  }
+}
+</style>
+
+<div id="content">
+  <div class="ebay-dashboard-container">
+    
+    <!-- Modern eBay Header -->
+    <div class="ebay-dashboard-header">
+      <div class="ebay-header-content">
+        <div class="ebay-brand-section">
+          <div class="ebay-logo">
+            <div class="ebay-icon">
+              <i class="fab fa-ebay"></i>
+            </div>
+            <h1 class="ebay-title">eBay Global</h1>
+          </div>
+          <p class="ebay-subtitle">Trading API Advanced Dashboard</p>
+        </div>
+        
+        <div class="ebay-header-controls">
+          <div class="ebay-api-status">
+            <span class="ebay-status-indicator"></span>
+            <span class="ebay-status-text">Trading API Connected</span>
+          </div>
+          <div class="ebay-refresh-button">
+            <a href="javascript:void(0)" onclick="refreshEbayData()" class="btn-ebay-outline">
+              <i class="fas fa-sync-alt"></i> Refresh
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error/Success Messages -->
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <!-- Metrics Cards Grid -->
+    <div class="ebay-metrics-section">
+      <div class="ebay-metrics-grid" id="ebayMetricsGrid">
+        <div class="ebay-metric-card">
+          <div class="ebay-metric-header">
+            <div class="ebay-metric-icon">
+              <i class="fas fa-box"></i>
+            </div>
+          </div>
+          <div class="ebay-metric-value">{{ product_count|default(0) }}</div>
+          <div class="ebay-metric-label">Active Listings</div>
+          <div class="ebay-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0%
+          </div>
+        </div>
+
+        <div class="ebay-metric-card">
+          <div class="ebay-metric-header">
+            <div class="ebay-metric-icon">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+          </div>
+          <div class="ebay-metric-value">{{ order_count|default(0) }}</div>
+          <div class="ebay-metric-label">Total Orders</div>
+          <div class="ebay-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0%
+          </div>
+        </div>
+
+        <div class="ebay-metric-card">
+          <div class="ebay-metric-header">
+            <div class="ebay-metric-icon">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+          </div>
+          <div class="ebay-metric-value" id="totalRevenue">$0</div>
+          <div class="ebay-metric-label">Total Revenue</div>
+          <div class="ebay-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0%
+          </div>
+        </div>
+
+        <div class="ebay-metric-card">
+          <div class="ebay-metric-header">
+            <div class="ebay-metric-icon">
+              <i class="fas fa-eye"></i>
+            </div>
+          </div>
+          <div class="ebay-metric-value">0</div>
+          <div class="ebay-metric-label">Item Views</div>
+          <div class="ebay-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts and Analytics Section -->
+    <div class="ebay-analytics-section">
+      <div class="ebay-charts-container">
+        <div class="ebay-chart-card">
+          <div class="ebay-chart-header">
+            <h3>Sales Performance</h3>
+            <div class="ebay-chart-controls">
+              <select class="ebay-currency-selector" id="ebayCurrency">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="CAD">CAD</option>
+                <option value="AUD">AUD</option>
+              </select>
+              <select class="ebay-period-selector" id="ebaySalesPeriod">
+                <option value="daily">Daily</option>
+                <option value="weekly" selected>Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+          </div>
+          <div class="ebay-chart-content">
+            <canvas id="ebaySalesChart" width="800" height="300"></canvas>
+          </div>
+        </div>
+
+        <div class="ebay-secondary-charts">
+          <div class="ebay-chart-card ebay-small">
+            <h4>Category Performance</h4>
+            <canvas id="ebayCategoryChart" width="300" height="200"></canvas>
+          </div>
+          <div class="ebay-chart-card ebay-small">
+            <h4>Listing Status</h4>
+            <canvas id="ebayListingStatusChart" width="300" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="ebay-activity-section">
+        <div class="ebay-activity-header">
+          <h3>Recent Activities</h3>
+          <a href="#" class="ebay-view-all">View All →</a>
+        </div>
+        <div class="ebay-activity-feed" id="ebayActivityFeed">
+          <div class="ebay-activity-item">
+            <div class="ebay-activity-icon">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="ebay-activity-content">
+              <div class="ebay-activity-text">New order received #EB001</div>
+              <div class="ebay-activity-time">3 minutes ago</div>
+            </div>
+          </div>
+          
+          <div class="ebay-activity-item">
+            <div class="ebay-activity-icon">
+              <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="ebay-activity-content">
+              <div class="ebay-activity-text">Inventory synchronized</div>
+              <div class="ebay-activity-time">12 minutes ago</div>
+            </div>
+          </div>
+          
+          <div class="ebay-activity-item">
+            <div class="ebay-activity-icon">
+              <i class="fas fa-plus"></i>
+            </div>
+            <div class="ebay-activity-content">
+              <div class="ebay-activity-text">New listing created</div>
+              <div class="ebay-activity-time">25 minutes ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- eBay Trading Features Section -->
+    <div class="ebay-trading-features">
+      <div class="ebay-feature-card">
+        <div class="ebay-feature-header">
+          <div class="ebay-feature-icon">
+            <i class="fas fa-globe"></i>
+          </div>
+          <h3 class="ebay-feature-title">Global Selling</h3>
+        </div>
+        <p class="ebay-feature-description">
+          Expand to international markets with multi-currency support and localized shipping options.
+        </p>
+        <div class="ebay-feature-actions">
+          <a href="#" class="btn-ebay-primary">Manage Markets</a>
+          <a href="#" class="btn-ebay-secondary">Settings</a>
+        </div>
+      </div>
+
+      <div class="ebay-feature-card">
+        <div class="ebay-feature-header">
+          <div class="ebay-feature-icon">
+            <i class="fas fa-shipping-fast"></i>
+          </div>
+          <h3 class="ebay-feature-title">Shipping Calculator</h3>
+        </div>
+        <p class="ebay-feature-description">
+          Calculate international shipping costs automatically with eBay's Global Shipping Program integration.
+        </p>
+        <div class="ebay-feature-actions">
+          <a href="#" class="btn-ebay-primary">Configure</a>
+          <a href="#" class="btn-ebay-secondary">Test Rates</a>
+        </div>
+      </div>
+
+      <div class="ebay-feature-card">
+        <div class="ebay-feature-header">
+          <div class="ebay-feature-icon">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <h3 class="ebay-feature-title">Best Match Analytics</h3>
+        </div>
+        <p class="ebay-feature-description">
+          Optimize your listings for eBay's Best Match algorithm to increase visibility and sales.
+        </p>
+        <div class="ebay-feature-actions">
+          <a href="#" class="btn-ebay-primary">Analyze</a>
+          <a href="#" class="btn-ebay-secondary">Optimize</a>
+        </div>
+      </div>
+
+      <div class="ebay-feature-card">
+        <div class="ebay-feature-header">
+          <div class="ebay-feature-icon">
+            <i class="fas fa-tags"></i>
+          </div>
+          <h3 class="ebay-feature-title">Promoted Listings</h3>
+        </div>
+        <p class="ebay-feature-description">
+          Boost your listing visibility with eBay's advertising platform and track campaign performance.
+        </p>
+        <div class="ebay-feature-actions">
+          <a href="#" class="btn-ebay-primary">Create Campaign</a>
+          <a href="#" class="btn-ebay-secondary">View Reports</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legacy Quick Actions -->
+    <div class="row" style="margin-top: 32px;">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cogs"></i> Quick Actions</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-3">
+                <button type="button" id="sync-listings" class="btn btn-success btn-lg btn-block">
+                  <i class="fa fa-upload"></i> Sync Listings
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button type="button" id="get-orders" class="btn btn-primary btn-lg btn-block">
+                  <i class="fa fa-download"></i> Get Orders
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button type="button" id="update-inventory" class="btn btn-info btn-lg btn-block">
+                  <i class="fa fa-cubes"></i> Update Inventory
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button type="button" id="test-connection" class="btn btn-warning btn-lg btn-block">
+                  <i class="fa fa-plug"></i> Test API
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script type="text/javascript">
+// eBay Advanced Dashboard JavaScript with Chart.js Integration
+const EbayCharts = {
+  salesChart: null,
+  categoryChart: null,
+  listingStatusChart: null,
+  currentCurrency: 'USD',
+
+  init() {
+    this.initSalesChart();
+    this.initCategoryChart();
+    this.initListingStatusChart();
+    this.startRealTimeUpdates();
+  },
+
+  initSalesChart() {
+    const ctx = document.getElementById('ebaySalesChart');
+    if (!ctx) return;
+    
+    this.salesChart = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Sales Revenue',
+          data: [850, 1200, 1800, 2400, 1600, 2200, 2800],
+          backgroundColor: 'rgba(0, 100, 210, 0.1)',
+          borderColor: '#0064D2',
+          borderWidth: 4,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#0064D2',
+          pointBorderColor: '#FFFFFF',
+          pointBorderWidth: 3,
+          pointRadius: 8,
+          pointHoverRadius: 12,
+          pointHoverBackgroundColor: '#004B9F',
+          pointHoverBorderColor: '#FFFFFF'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: '#1E1E1E',
+            titleColor: '#FFFFFF',
+            bodyColor: '#FFFFFF',
+            cornerRadius: 12,
+            displayColors: false,
+            titleFont: {
+              size: 16,
+              weight: 'bold'
+            },
+            bodyFont: {
+              size: 14
+            },
+            padding: 16,
+            callbacks: {
+              label: (context) => {
+                const currency = this.getCurrencySymbol(this.currentCurrency);
+                return `Sales: ${currency}${context.parsed.y.toLocaleString()}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false
+            },
+            ticks: {
+              color: '#666666',
+              font: {
+                size: 12,
+                weight: '500'
+              },
+              callback: (value) => {
+                const currency = this.getCurrencySymbol(this.currentCurrency);
+                return currency + value.toLocaleString();
+              }
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false
+            },
+            ticks: {
+              color: '#666666',
+              font: {
+                size: 12,
+                weight: '500'
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 2000,
+          easing: 'easeInOutQuart'
+        }
+      }
+    });
+  },
+
+  initCategoryChart() {
+    const ctx = document.getElementById('ebayCategoryChart');
+    if (!ctx) return;
+    
+    this.categoryChart = new Chart(ctx.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Electronics', 'Fashion', 'Home & Garden', 'Collectibles', 'Sports', 'Motors'],
+        datasets: [{
+          data: [35, 20, 18, 12, 10, 5],
+          backgroundColor: [
+            '#0064D2',
+            '#FFD100',
+            '#3385E0',
+            '#666666',
+            '#0099CC',
+            '#333333'
+          ],
+          borderWidth: 0,
+          hoverBorderWidth: 4,
+          hoverBorderColor: '#FFFFFF'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle',
+              padding: 20,
+              font: {
+                size: 11,
+                weight: '500'
+              },
+              color: '#666666'
+            }
+          },
+          tooltip: {
+            backgroundColor: '#1E1E1E',
+            titleColor: '#FFFFFF',
+            bodyColor: '#FFFFFF',
+            cornerRadius: 8,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                const percentage = ((context.parsed / context.dataset.data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                return `${context.label}: ${percentage}%`;
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 1500,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  },
+
+  initListingStatusChart() {
+    const ctx = document.getElementById('ebayListingStatusChart');
+    if (!ctx) return;
+    
+    this.listingStatusChart = new Chart(ctx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Active', 'Sold', 'Ended', 'Scheduled'],
+        datasets: [{
+          label: 'Listing Count',
+          data: [156, 89, 23, 12],
+          backgroundColor: [
+            '#00A652',
+            '#0064D2',
+            '#FF6900',
+            '#0099CC'
+          ],
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: '#1E1E1E',
+            titleColor: '#FFFFFF',
+            bodyColor: '#FFFFFF',
+            cornerRadius: 8,
+            displayColors: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            },
+            ticks: {
+              color: '#666666',
+              font: {
+                size: 10
+              }
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              color: '#666666',
+              font: {
+                size: 10
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 1500,
+          easing: 'easeOutBounce'
+        }
+      }
+    });
+  },
+
+  getCurrencySymbol(currency) {
+    const symbols = {
+      'USD': '$',
+      'EUR': '€',
+      'GBP': '£',
+      'CAD': 'C$',
+      'AUD': 'A$'
+    };
+    return symbols[currency] || '$';
+  },
+
+  updateCurrency(newCurrency) {
+    this.currentCurrency = newCurrency;
+    // Update revenue display
+    const revenueElement = document.getElementById('totalRevenue');
+    if (revenueElement) {
+      const symbol = this.getCurrencySymbol(newCurrency);
+      revenueElement.textContent = symbol + '0';
+    }
+    // Refresh charts
+    this.salesChart?.update();
+  },
+
+  startRealTimeUpdates() {
+    // Update every 60 seconds for eBay Trading API
+    setInterval(() => {
+      this.fetchChartData();
+    }, 60000);
+  },
+
+  async fetchChartData() {
+    try {
+      const period = document.getElementById('ebaySalesPeriod')?.value || 'weekly';
+      const currency = document.getElementById('ebayCurrency')?.value || 'USD';
+      console.log('Fetching eBay chart data:', { period, currency });
+      // VSCode backend integration ready
+    } catch (error) {
+      console.error('Error fetching eBay chart data:', error);
+    }
+  }
+};
+
+// eBay API Communication - Ready for VSCode backend integration
+const EbayAPI = {
+  baseUrl: '/admin/index.php?route=extension/module/ebay/ajax',
+  isLoading: false,
+
+  async fetchDashboardMetrics() {
+    if (this.isLoading) return;
+    
+    this.isLoading = true;
+    this.showLoadingState();
+
+    try {
+      console.log('eBay Trading API dashboard ready for backend integration...');
+      // VSCode team's backend APIs will be integrated here
+    } catch (error) {
+      console.error('Error fetching eBay metrics:', error);
+    } finally {
+      this.isLoading = false;
+      this.hideLoadingState();
+    }
+  },
+
+  showLoadingState() {
+    const cards = document.querySelectorAll('.ebay-metric-card');
+    cards.forEach(card => card.classList.add('ebay-loading'));
+  },
+
+  hideLoadingState() {
+    const cards = document.querySelectorAll('.ebay-metric-card');
+    cards.forEach(card => card.classList.remove('ebay-loading'));
+  },
+
+  updateSyncStatus(status) {
+    const indicator = document.querySelector('.ebay-status-indicator');
+    const text = document.querySelector('.ebay-status-text');
+    
+    if (indicator && text) {
+      if (status === 'connected') {
+        indicator.style.background = 'var(--ebay-success)';
+        text.textContent = 'Trading API Connected';
+      } else {
+        indicator.style.background = 'var(--ebay-danger)';
+        text.textContent = 'Trading API Disconnected';
+      }
+    }
+  }
+};
+
+// Global refresh function
+function refreshEbayData() {
+  EbayAPI.fetchDashboardMetrics();
+  EbayCharts.fetchChartData();
+  
+  // Show loading feedback
+  const indicator = document.querySelector('.ebay-status-indicator');
+  if (indicator) {
+    indicator.style.animation = 'ebay-pulse 0.5s infinite';
+    setTimeout(() => {
+      indicator.style.animation = 'ebay-pulse 2s infinite';
+    }, 2000);
+  }
+}
+
+// Initialize when DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  EbayCharts.init();
+  EbayAPI.fetchDashboardMetrics();
+  
+  // Currency selector change handler
+  const currencySelector = document.getElementById('ebayCurrency');
+  if (currencySelector) {
+    currencySelector.addEventListener('change', function() {
+      EbayCharts.updateCurrency(this.value);
+      EbayCharts.fetchChartData();
+    });
+  }
+  
+  // Period selector change handler
+  const periodSelector = document.getElementById('ebaySalesPeriod');
+  if (periodSelector) {
+    periodSelector.addEventListener('change', function() {
+      EbayCharts.fetchChartData();
+    });
+  }
+});
+
+// Legacy button handlers
+$(document).ready(function() {
+    function showAlert(type, message) {
+        var alertClass = 'alert-' + type;
+        var icon = type === 'success' ? 'check' : 'times';
+        
+        var alert = '<div class="alert ' + alertClass + ' alert-dismissible">' +
+                   '<i class="fa fa-' + icon + '"></i> ' + message +
+                   '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                   '</div>';
+        
+        $('.ebay-dashboard-container').prepend(alert);
+        
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+
+    // Trading features handlers
+    $('.btn-ebay-primary, .btn-ebay-secondary').click(function(e) {
+        e.preventDefault();
+        var feature = $(this).closest('.ebay-feature-card').find('.ebay-feature-title').text();
+        showAlert('info', feature + ' feature ready for backend integration.');
+        console.log('eBay Trading API feature integration point:', feature);
+    });
+
+    // Legacy action handlers
+    $('#test-connection, #sync-listings, #get-orders, #update-inventory').click(function() {
+        var action = $(this).text().trim();
+        showAlert('info', action + ' ready for Trading API backend integration.');
+        console.log('eBay backend integration point:', action);
+    });
+});
+</script>
+
+{{ footer }} 

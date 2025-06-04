@@ -1,0 +1,398 @@
+# MesChain-Sync CI/CD Pipeline Configuration
+# MUSTI TEAM - DevOps/QA Excellence
+# ATOM-M001: CI/CD Pipeline Configuration
+
+name: MesChain-Sync Deployment Pipeline
+version: '3.1'
+
+# Environment Configuration
+env:
+  STAGING_URL: 'https://staging.meschain-sync.com'
+  PRODUCTION_URL: 'https://meschain-sync.com'
+  OCMOD_VERSION: 'v3.1.1'
+  OPENCART_VERSION: '3.0.4.0'
+
+# Pipeline Stages
+stages:
+  - validate
+  - test
+  - build
+  - deploy-staging
+  - integration-test
+  - deploy-production
+  - monitor
+
+# Global Variables
+variables:
+  MARKETPLACE_APIS:
+    - trendyol
+    - n11
+    - amazon
+    - ebay
+    - hepsiburada
+    - ozon
+    - ciceksepeti
+    - pazarama
+  
+  WEBHOOK_SYSTEMS:
+    - amazon_webhook
+    - ebay_webhook  
+    - hepsiburada_webhook
+    - n11_webhook
+    - ozon_webhook
+    - trendyol_webhook
+
+# Validation Stage
+validate:
+  stage: validate
+  image: 'php:7.4-fpm'
+  script:
+    - echo "🔍 MUSTI TEAM - Validating MesChain-Sync codebase..."
+    - php -l upload/admin/controller/extension/module/*.php
+    - php -l upload/admin/model/extension/module/*.php
+    - php -l upload/system/library/meschain/*.php
+    - php -l upload/system/library/meschain/helper/*.php
+    - echo "✅ PHP syntax validation completed"
+    
+    # OpenCart Structure Validation
+    - echo "🏗️ Validating OpenCart MVC(L) structure..."
+    - test -d upload/admin/controller/extension/module
+    - test -d upload/admin/model/extension/module  
+    - test -d upload/admin/view/template/extension/module
+    - test -d upload/system/library/meschain/helper
+    - echo "✅ OpenCart structure validation completed"
+    
+    # Webhook Model Validation
+    - echo "🔗 Validating webhook model files..."
+    - test -f upload/admin/model/extension/module/amazon_webhook.php
+    - test -f upload/admin/model/extension/module/ebay_webhook.php
+    - test -f upload/admin/model/extension/module/hepsiburada_webhook.php
+    - test -f upload/admin/model/extension/module/n11_webhook.php
+    - test -f upload/admin/model/extension/module/ozon_webhook.php
+    - test -f upload/admin/model/extension/module/trendyol_webhook.php
+    - echo "✅ All webhook models validated"
+    
+  only:
+    - main
+    - develop
+    - staging
+
+# Test Stage  
+test:
+  stage: test
+  image: 'php:7.4-fpm'
+  services:
+    - mysql:8.0
+  variables:
+    MYSQL_ROOT_PASSWORD: 'meschain_test'
+    MYSQL_DATABASE: 'meschain_test'
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git curl libpng-dev libzip-dev
+    - docker-php-ext-install pdo pdo_mysql zip gd
+    - curl -sS https://getcomposer.org/installer | php
+    - php composer.phar install --no-dev --optimize-autoloader
+  script:
+    - echo "🧪 MUSTI TEAM - Running comprehensive tests..."
+    
+    # Unit Tests
+    - echo "🔬 Running marketplace API unit tests..."
+    - php test/unit/trendyol_api_test.php
+    - php test/unit/amazon_api_test.php
+    - php test/unit/webhook_test.php
+    
+    # Integration Tests  
+    - echo "🔄 Running webhook integration tests..."
+    - php test/integration/webhook_integration_test.php
+    - php test/integration/marketplace_sync_test.php
+    
+    # Database Tests
+    - echo "💾 Testing database structure and migrations..."
+    - php test/database/webhook_table_test.php
+    - php test/database/marketplace_table_test.php
+    
+    # Performance Tests
+    - echo "⚡ Running performance benchmarks..."
+    - php test/performance/api_response_time_test.php
+    - php test/performance/webhook_throughput_test.php
+    
+  artifacts:
+    reports:
+      junit: test/reports/junit.xml
+      coverage: test/reports/coverage.xml
+    paths:
+      - test/reports/
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+    - staging
+
+# Build Stage
+build:
+  stage: build
+  image: 'php:7.4-fpm'
+  script:
+    - echo "🏗️ MUSTI TEAM - Building MesChain-Sync OCMOD package..."
+    
+    # Create build directory
+    - mkdir -p build/
+    
+    # Copy upload files
+    - cp -r upload/ build/
+    
+    # Generate install.xml for OCMOD
+    - echo "📦 Generating OCMOD install.xml..."
+    - cat > build/install.xml << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>MesChain-Sync Multi-Marketplace Integration</name>
+    <code>meschain_sync</code>
+    <version>3.1.1</version>
+    <author>MesTech Solutions</author>
+    <link>https://meschain-sync.com</link>
+    
+    <file path="admin/controller/startup/startup.php">
+        <operation>
+            <search><![CDATA[
+            // Registry
+            ]]></search>
+            <add position="after"><![CDATA[
+            // MesChain-Sync Auto-load
+            if (file_exists(DIR_SYSTEM . 'library/meschain/')) {
+                $this->load->library('meschain/api_gateway');
+            }
+            ]]></add>
+        </operation>
+    </file>
+    
+    <file path="admin/view/template/common/menu.twig">
+        <operation>
+            <search><![CDATA[
+            {{ text_extension }}
+            ]]></search>
+            <add position="after"><![CDATA[
+            <li><a href="{{ meschain_dashboard }}">{{ text_meschain_dashboard }}</a></li>
+            ]]></add>
+        </operation>
+    </file>
+</modification>
+EOF
+    
+    # Create OCMOD package
+    - cd build/
+    - zip -r ../MesChain-Sync-v3.1.1-ULTIMATE-STYLE-BIG-CLEAN.ocmod.zip ./*
+    - cd ..
+    
+    # Generate checksums
+    - sha256sum MesChain-Sync-v3.1.1-ULTIMATE-STYLE-BIG-CLEAN.ocmod.zip > checksums.txt
+    - echo "✅ OCMOD package built successfully"
+    
+  artifacts:
+    paths:
+      - MesChain-Sync-v3.1.1-ULTIMATE-STYLE-BIG-CLEAN.ocmod.zip
+      - checksums.txt
+    expire_in: 1 month
+  only:
+    - main
+    - develop
+    - staging
+
+# Staging Deployment
+deploy-staging:
+  stage: deploy-staging
+  image: 'php:7.4-fpm'
+  environment:
+    name: staging
+    url: https://staging.meschain-sync.com
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq openssh-client rsync
+    - eval $(ssh-agent -s)
+    - echo "$STAGING_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - echo "$STAGING_HOST_KEY" >> ~/.ssh/known_hosts
+  script:
+    - echo "🚀 MUSTI TEAM - Deploying to staging environment..."
+    
+    # Backup current staging
+    - ssh $STAGING_USER@$STAGING_HOST "cd $STAGING_PATH && tar -czf backup-$(date +%Y%m%d_%H%M%S).tar.gz upload/"
+    
+    # Deploy new files
+    - rsync -avz --delete upload/ $STAGING_USER@$STAGING_HOST:$STAGING_PATH/upload/
+    
+    # Update database
+    - ssh $STAGING_USER@$STAGING_HOST "cd $STAGING_PATH && php cli/update_database.php"
+    
+    # Clear cache
+    - ssh $STAGING_USER@$STAGING_HOST "cd $STAGING_PATH && php cli/clear_cache.php"
+    
+    # Verify deployment
+    - curl -f $STAGING_URL/admin/index.php?route=extension/module/meschain_sync
+    - echo "✅ Staging deployment completed"
+    
+  only:
+    - main
+    - develop
+
+# Integration Testing on Staging
+integration-test:
+  stage: integration-test
+  image: 'node:16'
+  services:
+    - selenium/standalone-chrome:latest
+  script:
+    - echo "🔄 MUSTI TEAM - Running integration tests on staging..."
+    
+    # Install test dependencies
+    - npm install cypress selenium-webdriver
+    
+    # API Integration Tests
+    - echo "🌐 Testing marketplace API integrations..."
+    - node test/staging/api_integration_test.js $STAGING_URL
+    
+    # Webhook Tests
+    - echo "🔗 Testing webhook functionality..."
+    - node test/staging/webhook_test.js $STAGING_URL
+    
+    # UI Tests
+    - echo "🖥️ Running UI automation tests..."
+    - npx cypress run --config baseUrl=$STAGING_URL
+    
+    # Performance Tests
+    - echo "⚡ Performance testing on staging..."
+    - node test/staging/performance_test.js $STAGING_URL
+    
+  artifacts:
+    reports:
+      junit: test/staging/results.xml
+    paths:
+      - test/staging/screenshots/
+      - test/staging/videos/
+    expire_in: 1 week
+    when: always
+  only:
+    - main
+
+# Production Deployment
+deploy-production:
+  stage: deploy-production
+  image: 'php:7.4-fpm'
+  environment:
+    name: production
+    url: https://meschain-sync.com
+  when: manual
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq openssh-client rsync
+    - eval $(ssh-agent -s)
+    - echo "$PRODUCTION_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - echo "$PRODUCTION_HOST_KEY" >> ~/.ssh/known_hosts
+  script:
+    - echo "🌟 MUSTI TEAM - Deploying to PRODUCTION environment..."
+    
+    # Production safety checks
+    - echo "🛡️ Running production safety checks..."
+    - curl -f $STAGING_URL/health-check
+    - test -f MesChain-Sync-v3.1.1-ULTIMATE-STYLE-BIG-CLEAN.ocmod.zip
+    
+    # Create production backup
+    - ssh $PRODUCTION_USER@$PRODUCTION_HOST "cd $PRODUCTION_PATH && tar -czf backup-prod-$(date +%Y%m%d_%H%M%S).tar.gz upload/"
+    
+    # Blue-Green deployment preparation
+    - ssh $PRODUCTION_USER@$PRODUCTION_HOST "cp -r $PRODUCTION_PATH/upload $PRODUCTION_PATH/upload_new"
+    
+    # Deploy to new environment
+    - rsync -avz --delete upload/ $PRODUCTION_USER@$PRODUCTION_HOST:$PRODUCTION_PATH/upload_new/
+    
+    # Database migration
+    - ssh $PRODUCTION_USER@$PRODUCTION_HOST "cd $PRODUCTION_PATH && php cli/migrate_database.php --env=production"
+    
+    # Health check on new deployment
+    - ssh $PRODUCTION_USER@$PRODUCTION_HOST "cd $PRODUCTION_PATH && php cli/health_check.php --path=upload_new"
+    
+    # Switch to new version
+    - ssh $PRODUCTION_USER@$PRODUCTION_HOST "cd $PRODUCTION_PATH && mv upload upload_old && mv upload_new upload"
+    
+    # Final verification
+    - sleep 30
+    - curl -f $PRODUCTION_URL/admin/index.php?route=extension/module/meschain_sync
+    - echo "🎉 Production deployment completed successfully!"
+    
+  only:
+    - main
+
+# Monitoring Stage
+monitor:
+  stage: monitor
+  image: 'alpine:latest'
+  script:
+    - echo "📊 MUSTI TEAM - Setting up production monitoring..."
+    
+    # Install monitoring tools
+    - apk add --no-cache curl jq
+    
+    # Health checks
+    - echo "💚 Running health checks..."
+    - curl -f $PRODUCTION_URL/health-check | jq '.'
+    
+    # Performance monitoring
+    - echo "⚡ Checking performance metrics..."
+    - curl -f $PRODUCTION_URL/api/metrics | jq '.response_time'
+    
+    # Marketplace connectivity
+    - echo "🌐 Verifying marketplace connections..."
+    - curl -f $PRODUCTION_URL/api/marketplace/status | jq '.marketplaces'
+    
+    # Webhook status
+    - echo "🔗 Checking webhook systems..."
+    - curl -f $PRODUCTION_URL/api/webhooks/status | jq '.active_webhooks'
+    
+    # Send notifications
+    - echo "📢 Sending deployment notifications..."
+    - curl -X POST "$SLACK_WEBHOOK_URL" -H 'Content-Type: application/json' -d '{"text":"🎉 MesChain-Sync v3.1.1 deployed successfully to production!"}'
+    
+  only:
+    - main
+
+# Rollback Job (Manual)
+rollback:
+  stage: deploy-production
+  image: 'php:7.4-fpm'
+  when: manual
+  script:
+    - echo "🔄 MUSTI TEAM - Rolling back production deployment..."
+    - ssh $PRODUCTION_USER@$PRODUCTION_HOST "cd $PRODUCTION_PATH && mv upload upload_failed && mv upload_old upload"
+    - curl -f $PRODUCTION_URL/health-check
+    - echo "✅ Rollback completed successfully"
+  only:
+    - main
+
+# Cleanup Job
+cleanup:
+  stage: monitor
+  image: 'alpine:latest'
+  script:
+    - echo "🧹 MUSTI TEAM - Cleaning up old artifacts..."
+    - ssh $PRODUCTION_USER@$PRODUCTION_HOST "cd $PRODUCTION_PATH && find . -name 'backup-*' -mtime +30 -delete"
+    - echo "✅ Cleanup completed"
+  when: delayed
+  start_in: 1 hour
+  only:
+    - main
+
+# Pipeline Configuration
+include:
+  - local: '.gitlab/security-scan.yml'
+  - local: '.gitlab/performance-test.yml'
+  - local: '.gitlab/code-quality.yml'
+
+# Notification Settings
+notifications:
+  slack:
+    webhook_url: $SLACK_WEBHOOK_URL
+    channels:
+      - "#meschain-deployment"
+      - "#musti-team-devops"
+  email:
+    recipients:
+      - "devops@mestech.com"
+      - "musti-team@mestech.com" 

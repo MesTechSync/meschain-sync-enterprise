@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendyol Entegrasyonu - MesChain-Sync</title>
+    
+    <!-- Modern UI Framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <style>
+        :root {
+            --trendyol-orange: #f27a1a;
+            --trendyol-dark: #e55a00;
+            --trendyol-light: #fff4ed;
+            --trendyol-border: #fed7aa;
+            --trendyol-success: #16a34a;
+            --trendyol-warning: #f59e0b;
+            --trendyol-danger: #dc2626;
+            --trendyol-text: #9a3412;
+            --trendyol-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            
+            /* Light Theme */
+            --bg-primary: #ffffff;
+            --bg-secondary: #fff4ed;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border-color: #fed7aa;
+            --shadow-medium: rgba(249, 115, 22, 0.15);
+            --body-gradient: linear-gradient(135deg, #fed7aa 0%, #fdba74 50%, #fb923c 100%);
+        }
+
+        [data-theme="dark"] {
+            --trendyol-orange: #fb923c;
+            --trendyol-dark: #f97316;
+            --trendyol-light: #2d1a0d;
+            --trendyol-border: #9a3412;
+            --trendyol-text: #fb923c;
+            --trendyol-gradient: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+            
+            /* Dark Theme */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d1a0d;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --border-color: #9a3412;
+            --shadow-medium: rgba(251, 146, 60, 0.25);
+            --body-gradient: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #2d1a0d 100%);
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+          body {
+            background: var(--body-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .trendyol-container {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px var(--shadow-medium);
+            margin: 2rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .trendyol-header {
+            background: var(--trendyol-gradient);
+            color: white;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .trendyol-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        .trendyol-logo {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--trendyol-orange);
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        .trendyol-nav {
+            background: var(--trendyol-light);
+            padding: 0;
+            border-bottom: 3px solid var(--trendyol-border);
+        }
+        
+        .trendyol-nav-item {
+            flex: 1;
+        }
+        
+        .trendyol-nav-link {
+            color: var(--trendyol-text) !important;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            border: none;
+            background: none;
+            transition: all 0.3s ease;
+            border-radius: 0;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .trendyol-nav-link:hover, .trendyol-nav-link.active {
+            background: var(--trendyol-gradient);
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.25);
+        }
+        
+        .trendyol-content {
+            padding: 2rem;
+            background: white;
+        }
+        
+        .trendyol-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 30px rgba(249, 115, 22, 0.08);
+            border: 2px solid var(--trendyol-border);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .trendyol-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(249, 115, 22, 0.15);
+            border-color: var(--trendyol-orange);
+        }
+        
+        .trendyol-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--trendyol-gradient);
+        }
+        
+        .status-card {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+        }
+        
+        .status-card.connected {
+            border-color: var(--trendyol-success);
+        }
+        
+        .status-card.connected::before {
+            background: linear-gradient(90deg, var(--trendyol-success), #22c55e);
+        }
+        
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--trendyol-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.3);
+        }
+        
+        .status-icon.connected {
+            background: linear-gradient(135deg, var(--trendyol-success), #22c55e);
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid var(--trendyol-border);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            border-color: var(--trendyol-orange);
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.15);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 1rem 0;
+            background: var(--trendyol-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .metric-label {
+            color: var(--trendyol-text);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-change {
+            color: var(--trendyol-success);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .trendyol-btn {
+            background: var(--trendyol-gradient);
+            border: none;
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.25);
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .trendyol-btn:hover {
+            background: linear-gradient(135deg, #ea580c, #dc2626);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(249, 115, 22, 0.4);
+            color: white;
+        }
+        
+        .trendyol-btn.secondary {
+            background: linear-gradient(135deg, #64748b, #475569);
+        }
+        
+        .trendyol-btn.success {
+            background: linear-gradient(135deg, var(--trendyol-success), #22c55e);
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid var(--trendyol-border);
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            border-color: var(--trendyol-orange);
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.15);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 150px;
+            background: var(--trendyol-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 3rem;
+            color: var(--trendyol-orange);
+        }
+        
+        .sync-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .sync-status.synced {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--trendyol-success);
+        }
+        
+        .sync-status.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--trendyol-warning);
+        }
+        
+        .sync-status.error {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--trendyol-danger);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin: 1.5rem 0;
+        }
+        
+        .api-config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--trendyol-text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control {
+            border: 2px solid var(--trendyol-border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--trendyol-orange);
+            box-shadow: 0 0 0 0.2rem rgba(249, 115, 22, 0.25);
+        }
+        
+        .connection-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .connection-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .connection-dot.connected {
+            background: var(--trendyol-success);
+        }
+        
+        .connection-dot.disconnected {
+            background: var(--trendyol-danger);
+            animation: none;
+        }
+        
+        .real-time-badge {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--trendyol-orange);
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        
+        .order-timeline {
+            margin-top: 2rem;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--trendyol-light);
+            border-radius: 8px;
+            border-left: 4px solid var(--trendyol-orange);
+        }
+        
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--trendyol-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+          
+        /* 📱 ENHANCED RESPONSIVE DESIGN - TRENDYOL MARKETPLACE */
+        
+        /* Tablet Optimization (768px - 1024px) */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .trendyol-container {
+                margin: 1.5rem;
+                border-radius: 20px;
+            }
+            
+            .metric-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .api-config-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+        
+        /* Mobile Optimization (max-width: 768px) */
+        @media (max-width: 768px) {
+            .trendyol-container {
+                margin: 0.5rem;
+                border-radius: 15px;
+            }
+            
+            .trendyol-header {
+                padding: 1.5rem;
+                text-align: center;
+            }
+            
+            .trendyol-header .d-flex {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .trendyol-logo {
+                margin: 0 auto 1rem;
+            }
+            
+            .trendyol-content {
+                padding: 1.5rem;
+            }
+            
+            .api-config-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .btn {
+                min-height: 44px;
+                font-size: 0.9rem;
+            }
+            
+            .form-control, .form-select {
+                min-height: 44px;
+                font-size: 16px;
+            }
+            
+            h2 {
+                font-size: 1.4rem !important;
+            }
+            
+            .chart-container {
+                height: 250px;
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Extra Small Mobile (max-width: 480px) */
+        @media (max-width: 480px) {
+            .trendyol-container {
+                margin: 0.25rem;
+                border-radius: 12px;
+            }
+            
+            .trendyol-header {
+                padding: 1rem;
+            }
+            
+            .trendyol-content {
+                padding: 1rem;
+            }
+            
+            h2 {
+                font-size: 1.2rem !important;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="trendyol-container">
+        <!-- Trendyol Header -->
+        <div class="trendyol-header">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="trendyol-logo">
+                        T
+                    </div>
+                    <div>
+                        <h2 class="mb-0 fw-bold">Trendyol Entegrasyonu</h2>
+                        <p class="mb-0 opacity-75">Türkiye'nin en büyük e-ticaret platformu</p>
+                    </div>
+                </div>                <div class="text-end">
+                    <button id="theme-toggle" class="theme-toggle-btn me-3" title="Tema Değiştir">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="connection-indicator">
+                        <span class="connection-dot connected"></span>
+                        <span class="fw-bold">Bağlı</span>
+                    </div>
+                    <span class="real-time-badge">
+                        <i class="fas fa-sync-alt me-1"></i>Canlı Senkronizasyon
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="trendyol-nav d-flex">
+            <div class="trendyol-nav-item">
+                <a href="#dashboard" class="trendyol-nav-link active" onclick="showTrendyolSection('dashboard')">
+                    <i class="fas fa-chart-pie me-2"></i>Dashboard
+                </a>
+            </div>
+            <div class="trendyol-nav-item">
+                <a href="#products" class="trendyol-nav-link" onclick="showTrendyolSection('products')">
+                    <i class="fas fa-box me-2"></i>Ürün Yönetimi
+                </a>
+            </div>
+            <div class="trendyol-nav-item">
+                <a href="#orders" class="trendyol-nav-link" onclick="showTrendyolSection('orders')">
+                    <i class="fas fa-shopping-cart me-2"></i>Sipariş Takibi
+                </a>
+            </div>
+            <div class="trendyol-nav-item">
+                <a href="#analytics" class="trendyol-nav-link" onclick="showTrendyolSection('analytics')">
+                    <i class="fas fa-chart-bar me-2"></i>Analitik
+                </a>
+            </div>
+            <div class="trendyol-nav-item">
+                <a href="#settings" class="trendyol-nav-link" onclick="showTrendyolSection('settings')">
+                    <i class="fas fa-cog me-2"></i>Ayarlar
+                </a>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="trendyol-content">
+            <!-- Dashboard Section -->
+            <div id="trendyol-dashboard-section" class="trendyol-section">
+                <!-- Connection Status -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="trendyol-card status-card connected">
+                            <div class="status-icon connected">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <h4 class="fw-bold text-success">Bağlantı Aktif</h4>
+                            <p class="text-muted">Trendyol API ile başarıyla bağlı</p>
+                            <div class="mt-3">
+                                <small class="text-muted">Son senkronizasyon: 2 dakika önce</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="trendyol-card">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-bolt text-warning me-2"></i>
+                                Hızlı İşlemler
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-3 mb-2">
+                                    <button class="trendyol-btn w-100" onclick="syncAllProducts()">
+                                        <i class="fas fa-sync-alt me-1"></i>Tüm Ürünleri Senkronize
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="trendyol-btn success w-100" onclick="updatePrices()">
+                                        <i class="fas fa-tags me-1"></i>Fiyat Güncelle
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="trendyol-btn secondary w-100" onclick="exportOrders()">
+                                        <i class="fas fa-download me-1"></i>Siparişleri Export
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="trendyol-btn w-100" onclick="bulkUpload()">
+                                        <i class="fas fa-upload me-1"></i>Toplu Yükleme
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Metrics Grid -->
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <i class="fas fa-box fa-2x text-primary mb-3"></i>
+                        <div class="metric-value" id="total-products">1,847</div>
+                        <div class="metric-label">Toplam Ürün</div>
+                        <div class="metric-change">+127 bu ay</div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-shopping-bag fa-2x text-success mb-3"></i>
+                        <div class="metric-value" id="monthly-orders">456</div>
+                        <div class="metric-label">Bu Ay Sipariş</div>
+                        <div class="metric-change">+18% geçen aya göre</div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-lira-sign fa-2x text-warning mb-3"></i>
+                        <div class="metric-value" id="monthly-revenue">₺67,843</div>
+                        <div class="metric-label">Bu Ay Gelir</div>
+                        <div class="metric-change">+24% artış</div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-star fa-2x text-info mb-3"></i>
+                        <div class="metric-value" id="avg-rating">4.7</div>
+                        <div class="metric-label">Ortalama Puan</div>
+                        <div class="metric-change">894 değerlendirme</div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Chart -->
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="trendyol-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0">
+                                    <i class="fas fa-chart-area text-warning me-2"></i>
+                                    Satış Performansı (30 Gün)
+                                </h5>
+                                <span class="real-time-badge">Canlı Veri</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="trendyolSalesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="trendyol-card">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-clock text-info me-2"></i>
+                                Son Siparişler
+                            </h5>
+                            <div class="order-timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">#TY-24681</div>
+                                        <div class="text-muted small">Wireless Kulaklık - ₺299</div>
+                                        <div class="text-muted small">5 dakika önce</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-package"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">#TY-24680</div>
+                                        <div class="text-muted small">Smartphone Kılıfı - ₺89</div>
+                                        <div class="text-muted small">12 dakika önce</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-truck"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">#TY-24679</div>
+                                        <div class="text-muted small">Gaming Mouse - ₺159</div>
+                                        <div class="text-muted small">28 dakika önce</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="trendyol-btn w-100 mt-3" onclick="viewAllOrders()">
+                                <i class="fas fa-eye me-1"></i>Tüm Siparişleri Gör
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Section -->
+            <div id="trendyol-products-section" class="trendyol-section" style="display:none;">
+                <div class="trendyol-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="fw-bold mb-0">Ürün Yönetimi</h4>
+                        <button class="trendyol-btn" onclick="addNewProduct()">
+                            <i class="fas fa-plus me-1"></i>Yeni Ürün Ekle
+                        </button>
+                    </div>
+                    
+                    <div class="product-grid">
+                        <div class="product-card">
+                            <div class="product-image">
+                                <i class="fas fa-headphones"></i>
+                            </div>
+                            <h6 class="fw-bold">Bluetooth Kulaklık</h6>
+                            <p class="text-muted small">Premium ses kalitesi, gürültü önleyici</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">₺299.99</span>
+                                <span class="sync-status synced">Senkronize</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="trendyol-btn secondary flex-fill">Düzenle</button>
+                                <button class="trendyol-btn flex-fill">Senkronize</button>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <div class="product-image">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h6 class="fw-bold">Smartphone Kılıfı</h6>
+                            <p class="text-muted small">Darbe emici, şeffaf tasarım</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">₺89.99</span>
+                                <span class="sync-status pending">Bekliyor</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="trendyol-btn secondary flex-fill">Düzenle</button>
+                                <button class="trendyol-btn flex-fill">Senkronize</button>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <div class="product-image">
+                                <i class="fas fa-mouse"></i>
+                            </div>
+                            <h6 class="fw-bold">Gaming Mouse</h6>
+                            <p class="text-muted small">RGB aydınlatma, yüksek DPI</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">₺159.99</span>
+                                <span class="sync-status error">Hata</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="trendyol-btn secondary flex-fill">Düzenle</button>
+                                <button class="trendyol-btn flex-fill">Senkronize</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other sections will be loaded dynamically -->
+            <div id="trendyol-orders-section" class="trendyol-section" style="display:none;">
+                <div class="trendyol-card">
+                    <h4 class="fw-bold">Sipariş Takibi</h4>
+                    <p>Trendyol siparişlerinizi buradan takip edebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="trendyol-analytics-section" class="trendyol-section" style="display:none;">
+                <div class="trendyol-card">
+                    <h4 class="fw-bold">Detaylı Analitik</h4>
+                    <p>Trendyol satış analizlerinizi buradan görüntüleyebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="trendyol-settings-section" class="trendyol-section" style="display:none;">
+                <div class="trendyol-card">
+                    <h4 class="fw-bold mb-4">API Konfigürasyonu</h4>
+                    <div class="api-config-grid">
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label">API Anahtarı</label>
+                                <input type="password" class="form-control" placeholder="Trendyol API Key" value="••••••••••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Secret Key</label>
+                                <input type="password" class="form-control" placeholder="Secret Key" value="••••••••••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Supplier ID</label>
+                                <input type="text" class="form-control" placeholder="123456" value="123456">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label">Webhook URL</label>
+                                <input type="url" class="form-control" placeholder="https://..." value="https://api.meschain-sync.com/webhooks/trendyol">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="sync-frequency">Senkronizasyon Sıklığı</label>
+                                <select class="form-control" id="sync-frequency" name="sync-frequency">
+                                    <option>Her 15 dakika</option>
+                                    <option>Her 30 dakika</option>
+                                    <option selected>Her saat</option>
+                                    <option>Her 6 saat</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="auto-price-update" checked>
+                                    <label class="form-check-label" for="auto-price-update">Otomatik fiyat güncellemesi</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="stock-tracking" checked>
+                                    <label class="form-check-label" for="stock-tracking">Stok takibi aktif</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button class="trendyol-btn success me-2" onclick="saveSettings()">
+                            <i class="fas fa-save me-1"></i>Ayarları Kaydet
+                        </button>
+                        <button class="trendyol-btn secondary" onclick="testConnection()">
+                            <i class="fas fa-plug me-1"></i>Bağlantı Testi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../WEBSOCKET_SYSTEM/meschain-websocket.js"></script>
+    <script src="trendyol_integration.js"></script>
+      <!-- Cross-Browser Compatibility Testing -->
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_compatibility_tester.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_test_config.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/browser_compatibility_test_suite.js"></script>
+    
+    <!-- Final UI/UX Polish -->
+    <script src="../UI_UX_POLISH/final_ui_ux_polisher.js"></script>
+    <link rel="stylesheet" href="../UI_UX_POLISH/advanced_animations.css">
+    <link rel="stylesheet" href="../UI_UX_POLISH/premium_visual_effects.css">
+    
+    <!-- Dark Mode & Theme Toggle CSS -->
+    <style>
+        .theme-toggle-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(251, 146, 60, 0.2);
+            border-color: rgba(251, 146, 60, 0.3);
+            color: var(--trendyol-orange);
+        }
+    </style>
+    
+    <!-- Dark Mode Manager -->
+    <script>
+        class TrendyolDarkModeManager {
+            constructor() {
+                this.themeToggle = document.getElementById('theme-toggle');
+                this.themeIcon = this.themeToggle?.querySelector('i');
+                this.currentTheme = localStorage.getItem('trendyol-theme') || 'light';
+                this.init();
+            }
+            
+            init() {
+                if (!this.themeToggle) return;
+                this.setTheme(this.currentTheme);
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+            }
+            
+            setTheme(theme) {
+                this.currentTheme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                if (this.themeIcon) {
+                    this.themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+                localStorage.setItem('trendyol-theme', theme);
+            }
+            
+            toggleTheme() {
+                this.setTheme(this.currentTheme === 'light' ? 'dark' : 'light');
+            }
+        }          document.addEventListener('DOMContentLoaded', () => {
+            new TrendyolDarkModeManager();
+            
+            // Initialize Final UI/UX Polish
+            if (typeof FinalUIUXPolisher !== 'undefined') {
+                window.finalUIUXPolisher = new FinalUIUXPolisher();
+                console.log('✅ Trendyol Final UI/UX Polish initialized');
+            }
+            
+            // Initialize Cross-Browser Compatibility Testing
+            if (typeof CrossBrowserCompatibilityTester !== 'undefined') {
+                const tester = new CrossBrowserCompatibilityTester();
+                tester.runMarketplaceTests('trendyol', {
+                    testElements: ['#trendyol-products-chart', '.trendyol-container', '.product-card'],
+                    testInteractions: ['theme-toggle', 'product-filter', 'chart-navigation'],
+                    testResponsive: true,
+                    testPerformance: true
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

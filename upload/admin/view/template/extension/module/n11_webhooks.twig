@@ -1,0 +1,193 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-save" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <button type="button" id="button-test" data-toggle="tooltip" title="Test Webhook" class="btn btn-warning"><i class="fa fa-play"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }} - Webhooks</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> N11 Webhook Ayarları</h3>
+      </div>
+      <div class="panel-body">
+        <form action="" method="post" enctype="multipart/form-data" id="form-webhook" class="form-horizontal">
+          
+          <!-- Webhook URLs -->
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Webhook URL'leri</label>
+            <div class="col-sm-10">
+              <div class="well">
+                <p><strong>Siparişler:</strong> <code>{{ webhook_urls.orders }}</code></p>
+                <p><strong>Ürünler:</strong> <code>{{ webhook_urls.products }}</code></p>
+                <p><strong>Stok:</strong> <code>{{ webhook_urls.inventory }}</code></p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Webhook Ayarları -->
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Sipariş Webhook'u</label>
+            <div class="col-sm-10">
+              <label class="radio-inline">
+                <input type="radio" name="orders_enabled" value="1" checked> Aktif
+              </label>
+              <label class="radio-inline">
+                <input type="radio" name="orders_enabled" value="0"> Pasif
+              </label>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Ürün Webhook'u</label>
+            <div class="col-sm-10">
+              <label class="radio-inline">
+                <input type="radio" name="products_enabled" value="1"> Aktif
+              </label>
+              <label class="radio-inline">
+                <input type="radio" name="products_enabled" value="0" checked> Pasif
+              </label>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Stok Webhook'u</label>
+            <div class="col-sm-10">
+              <label class="radio-inline">
+                <input type="radio" name="inventory_enabled" value="1" checked> Aktif
+              </label>
+              <label class="radio-inline">
+                <input type="radio" name="inventory_enabled" value="0"> Pasif
+              </label>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-secret-key">Güvenlik Anahtarı</label>
+            <div class="col-sm-10">
+              <input type="text" name="secret_key" value="" placeholder="Webhook güvenlik anahtarı" id="input-secret-key" class="form-control" />
+              <div class="help-block">N11'den gelen webhook isteklerini doğrulamak için kullanılır.</div>
+            </div>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+    
+    <!-- Webhook Logları -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> Son Webhook Logları</h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <td class="text-left">Tarih</td>
+                <td class="text-left">Tip</td>
+                <td class="text-left">Durum</td>
+                <td class="text-left">Mesaj</td>
+              </tr>
+            </thead>
+            <tbody>
+              {% if webhooks %}
+                {% for webhook in webhooks %}
+                <tr>
+                  <td class="text-left">{{ webhook.date_added }}</td>
+                  <td class="text-left">{{ webhook.event_type }}</td>
+                  <td class="text-left">
+                    {% if webhook.status == 1 %}
+                      <span class="label label-success">Başarılı</span>
+                    {% else %}
+                      <span class="label label-danger">Hata</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-left">{{ webhook.message }}</td>
+                </tr>
+                {% endfor %}
+              {% else %}
+              <tr>
+                <td class="text-center" colspan="4">Henüz webhook logu bulunmuyor.</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<script type="text/javascript">
+$('#button-save').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/n11_webhooks/save&user_token={{ user_token }}',
+        type: 'post',
+        data: $('#form-webhook').serialize(),
+        dataType: 'json',
+        beforeSend: function() {
+            $('#button-save').button('loading');
+        },
+        complete: function() {
+            $('#button-save').button('reset');
+        },
+        success: function(json) {
+            $('.alert-dismissible').remove();
+            
+            if (json['error']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+            
+            if (json['success']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+
+$('#button-test').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/n11_webhooks/test&user_token={{ user_token }}',
+        type: 'post',
+        data: {webhook_type: 'orders'},
+        dataType: 'json',
+        beforeSend: function() {
+            $('#button-test').button('loading');
+        },
+        complete: function() {
+            $('#button-test').button('reset');
+        },
+        success: function(json) {
+            $('.alert-dismissible').remove();
+            
+            if (json['error']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+            
+            if (json['success']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+</script>
+
+{{ footer }} 

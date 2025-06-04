@@ -1,0 +1,403 @@
+{# 
+  amazon_dashboard.twig
+  Amaç: Amazon modülünün gösterge paneli arayüz şablonu.
+  Standart: Her değişiklikte log tutulmalı (amazon_view.log).
+#}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ settings }}" data-toggle="tooltip" title="Ayarlar" class="btn btn-default"><i class="fa fa-cog"></i></a>
+        <a href="#" onclick="location.reload();" data-toggle="tooltip" title="Yenile" class="btn btn-default"><i class="fa fa-refresh"></i></a>
+      </div>
+      <h1>{{ heading_title }} - Dashboard</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    
+    <!-- Alert Messages -->
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <!-- API Status Card -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-link"></i> Amazon SP-API Bağlantı Durumu</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-sm-6">
+                <p><strong>LWA Client ID:</strong> {{ module_amazon_lwa_client_id ? module_amazon_lwa_client_id[:15] ~ '...' : 'Tanımlanmamış' }}</p>
+                <p><strong>Seller ID:</strong> {{ module_amazon_seller_id ? module_amazon_seller_id : 'Tanımlanmamış' }}</p>
+                <p><strong>Marketplace ID:</strong> {{ module_amazon_marketplace_id ? module_amazon_marketplace_id : 'Tanımlanmamış' }}</p>
+                <p><strong>Bölge:</strong> {{ module_amazon_region|upper ? module_amazon_region|upper : 'EU' }}</p>
+              </div>
+              <div class="col-sm-6 text-center">
+                <button type="button" id="test-connection" class="btn btn-primary btn-lg">
+                  <i class="fa fa-plug"></i> Bağlantıyı Test Et
+                </button>
+                <div id="connection-status" class="mt-15"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Statistics Row -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-3x text-primary"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="order-count">{{ order_count|default(0) }}</div>
+                <div>Bekleyen Siparişler</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cube fa-3x text-success"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="product-count">{{ product_count|default(0) }}</div>
+                <div>Toplam Ürün</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-sync fa-3x text-warning"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="sync-status">Aktif</div>
+                <div>Senkronizasyon</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-clock-o fa-3x text-info"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="last-sync">-</div>
+                <div>Son Senkronizasyon</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Action Buttons Row -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-bolt"></i> Hızlı İşlemler</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-sm-3">
+                <button type="button" id="sync-orders" class="btn btn-info btn-block btn-lg">
+                  <i class="fa fa-download"></i><br>Siparişleri Çek
+                </button>
+              </div>
+              <div class="col-sm-3">
+                <button type="button" id="sync-products" class="btn btn-success btn-block btn-lg">
+                  <i class="fa fa-upload"></i><br>Ürünleri Senkronize Et
+                </button>
+              </div>
+              <div class="col-sm-3">
+                <button type="button" id="update-stock" class="btn btn-warning btn-block btn-lg">
+                  <i class="fa fa-cubes"></i><br>Stokları Güncelle
+                </button>
+              </div>
+              <div class="col-sm-3">
+                <button type="button" id="update-prices" class="btn btn-primary btn-block btn-lg">
+                  <i class="fa fa-euro"></i><br>Fiyatları Güncelle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Orders -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-list"></i> Son Amazon Siparişleri</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped" id="recent-orders-table">
+                <thead>
+                  <tr>
+                    <th>Sipariş ID</th>
+                    <th>Tarih</th>
+                    <th>Müşteri</th>
+                    <th>Durum</th>
+                    <th>Toplam</th>
+                    <th>İşlem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="6" class="text-center">Henüz sipariş bulunamadı</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Activity Log -->
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-clock-o"></i> Son Aktiviteler</h3>
+          </div>
+          <div class="panel-body">
+            <div id="activity-log">
+              <p class="text-muted">Henüz aktivite bulunmuyor</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loading-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
+        <p class="mt-15">İşlem devam ediyor...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.huge {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.mt-15 {
+  margin-top: 15px;
+}
+
+.panel {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-lg {
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+#connection-status {
+  min-height: 30px;
+}
+
+.activity-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-time {
+  color: #999;
+  font-size: 12px;
+}
+</style>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    
+    // Test Connection
+    $('#test-connection').click(function() {
+        var $btn = $(this);
+        var $status = $('#connection-status');
+        
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Test ediliyor...');
+        $status.html('');
+        
+        $.ajax({
+            url: '{{ test_connection }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(json) {
+                if (json['success']) {
+                    $status.html('<div class="alert alert-success"><i class="fa fa-check"></i> ' + json['success'] + '</div>');
+                    addActivity('Bağlantı testi başarılı', 'success');
+                } else if (json['error']) {
+                    $status.html('<div class="alert alert-danger"><i class="fa fa-times"></i> ' + json['error'] + '</div>');
+                    addActivity('Bağlantı testi başarısız', 'error');
+                }
+            },
+            error: function() {
+                $status.html('<div class="alert alert-danger"><i class="fa fa-times"></i> Bağlantı hatası oluştu.</div>');
+                addActivity('Bağlantı hatası', 'error');
+            },
+            complete: function() {
+                $btn.prop('disabled', false).html('<i class="fa fa-plug"></i> Bağlantıyı Test Et');
+            }
+        });
+    });
+    
+    // Sync Orders
+    $('#sync-orders').click(function() {
+        performAjaxAction($(this), '{{ get_orders }}', 'Siparişler çekiliyor...', 'Siparişleri Çek');
+    });
+    
+    // Sync Products
+    $('#sync-products').click(function() {
+        performAjaxAction($(this), '{{ sync_products }}', 'Ürünler senkronize ediliyor...', 'Ürünleri Senkronize Et');
+    });
+    
+    // Update Stock
+    $('#update-stock').click(function() {
+        performAjaxAction($(this), '{{ update_stock }}', 'Stoklar güncelleniyor...', 'Stokları Güncelle');
+    });
+    
+    // Update Prices
+    $('#update-prices').click(function() {
+        performAjaxAction($(this), '{{ update_prices }}', 'Fiyatlar güncelleniyor...', 'Fiyatları Güncelle');
+    });
+    
+    function performAjaxAction($btn, url, loadingText, originalText) {
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> ' + loadingText);
+        
+        $.ajax({
+            url: url,
+            type: 'POST',
+            dataType: 'json',
+            success: function(json) {
+                if (json['success']) {
+                    showAlert('success', json['success']);
+                    addActivity(originalText + ' işlemi başarılı', 'success');
+                    updateStatistics();
+                } else if (json['warning']) {
+                    showAlert('warning', json['warning']);
+                    addActivity(originalText + ' işlemi uyarı ile tamamlandı', 'warning');
+                } else if (json['error']) {
+                    showAlert('danger', json['error']);
+                    addActivity(originalText + ' işlemi başarısız', 'error');
+                }
+            },
+            error: function() {
+                showAlert('danger', 'İşlem sırasında hata oluştu.');
+                addActivity(originalText + ' işlemi hata ile sonuçlandı', 'error');
+            },
+            complete: function() {
+                $btn.prop('disabled', false).html(originalText);
+            }
+        });
+    }
+    
+    function showAlert(type, message) {
+        var alertClass = 'alert-' + type;
+        var icon = type === 'success' ? 'check' : (type === 'warning' ? 'exclamation-triangle' : 'times');
+        
+        var alert = '<div class="alert ' + alertClass + ' alert-dismissible">' +
+                   '<i class="fa fa-' + icon + '"></i> ' + message +
+                   '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                   '</div>';
+        
+        $('.container-fluid').prepend(alert);
+        
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+    
+    function addActivity(message, type) {
+        var now = new Date();
+        var time = now.getHours().toString().padStart(2, '0') + ':' + 
+                  now.getMinutes().toString().padStart(2, '0');
+        
+        var icon = type === 'success' ? 'check text-success' : 
+                  (type === 'warning' ? 'exclamation-triangle text-warning' : 'times text-danger');
+        
+        var activity = '<div class="activity-item">' +
+                      '<i class="fa fa-' + icon + '"></i> ' + message +
+                      '<div class="activity-time">' + time + '</div>' +
+                      '</div>';
+        
+        var $log = $('#activity-log');
+        if ($log.find('.text-muted').length) {
+            $log.html('');
+        }
+        
+        $log.prepend(activity);
+        
+        // Keep only last 10 activities
+        $log.find('.activity-item:gt(9)').remove();
+    }
+    
+    function updateStatistics() {
+        // Update last sync time
+        var now = new Date();
+        var timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                     now.getMinutes().toString().padStart(2, '0');
+        $('#last-sync').text(timeStr);
+    }
+    
+});
+</script>
+
+{{ footer }} 

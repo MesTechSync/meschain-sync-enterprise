@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eBay Marketplace - MesChain-Sync</title>
+    
+    <!-- OpenCart Admin Integration -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --ebay-blue: #0064D2;
+            --ebay-blue-light: #1976D2;
+            --ebay-blue-dark: #004BA0;
+            --ebay-yellow: #F5AF02;
+            --ebay-red: #E53238;
+            --ebay-green: #86B817;
+            --ebay-gray: #F7F7F7;
+        }
+        
+        .ebay-header {
+            background: linear-gradient(135deg, var(--ebay-blue) 0%, var(--ebay-blue-light) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .ebay-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 100, 210, 0.1);
+            border: 1px solid rgba(0, 100, 210, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .ebay-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 100, 210, 0.15);
+        }
+        
+        .metric-card {
+            text-align: center;
+        }
+        
+        .metric-card.sales { background: linear-gradient(135deg, var(--ebay-blue) 0%, var(--ebay-blue-light) 100%); color: white; }
+        .metric-card.auctions { background: linear-gradient(135deg, var(--ebay-yellow) 0%, #FFC107 100%); color: white; }
+        .metric-card.orders { background: linear-gradient(135deg, var(--ebay-green) 0%, #4CAF50 100%); color: white; }
+        .metric-card.watchers { background: linear-gradient(135deg, var(--ebay-red) 0%, #FF5722 100%); color: white; }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online { background-color: #28a745; }
+        .status-warning { background-color: #ffc107; }
+        .status-offline { background-color: #dc3545; }
+        
+        .ebay-btn {
+            background: var(--ebay-blue);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        
+        .ebay-btn:hover {
+            background: var(--ebay-blue-dark);
+            color: white;
+        }
+        
+        .auction-btn {
+            background: var(--ebay-yellow);
+            color: #333;
+        }
+        
+        .auction-btn:hover {
+            background: #E6A000;
+            color: #333;
+        }
+        
+        .real-time-badge {
+            background: rgba(0, 100, 210, 0.1);
+            color: var(--ebay-blue);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .listing-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .listing-item:hover {
+            border-color: var(--ebay-blue);
+        }
+        
+        .auction-timer {
+            background: linear-gradient(135deg, var(--ebay-red) 0%, #FF5722 100%);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .buy-it-now {
+            background: linear-gradient(135deg, var(--ebay-green) 0%, #4CAF50 100%);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .loading-animation {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--ebay-blue);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .watchers-count {
+            background: rgba(229, 50, 56, 0.1);
+            color: var(--ebay-red);
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+        
+        .international-badge {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- OpenCart Admin Navigation Integration -->
+    <div class="container-fluid">
+        <!-- eBay Header -->
+        <div class="ebay-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="mb-0">
+                        <i class="fab fa-ebay me-3"></i>
+                        eBay Global Marketplace
+                    </h1>
+                    <p class="mb-0 mt-2">Dünya Çapında Alım-Satım Platformu</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span class="real-time-badge me-3">
+                        <i class="fas fa-globe me-1"></i>Canlı Sistem
+                    </span>
+                    <span class="badge bg-light text-dark">
+                        <span class="status-indicator status-online"></span>
+                        eBay API Bağlantısı Aktif
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- OpenCart Breadcrumb Integration -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/admin/index.php?route=common/dashboard">
+                        <i class="fas fa-home"></i> OpenCart Admin
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="/admin/index.php?route=marketplace/extension&type=module">
+                        Eklentiler
+                    </a>
+                </li>
+                <li class="breadcrumb-item active">eBay Entegrasyonu</li>
+            </ol>
+        </nav>
+
+        <!-- Real-time Metrics Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="ebay-card metric-card sales">
+                    <i class="fas fa-dollar-sign fa-2x mb-3"></i>
+                    <h5>Toplam Satışlar</h5>
+                    <h2 id="ebay-sales" class="display-6">$0</h2>
+                    <small>Bu ay (Multi-currency)</small>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="ebay-card metric-card auctions">
+                    <i class="fas fa-gavel fa-2x mb-3"></i>
+                    <h5>Aktif Açık Artırmalar</h5>
+                    <h2 id="active-auctions" class="display-6">Yükleniyor</h2>
+                    <small>Şu anda açık</small>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="ebay-card metric-card orders">
+                    <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                    <h5>Bekleyen Siparişler</h5>
+                    <h2 id="pending-orders" class="display-6">Yükleniyor</h2>
+                    <small>İşlem bekliyor</small>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="ebay-card metric-card watchers">
+                    <i class="fas fa-eye fa-2x mb-3"></i>
+                    <h5>Toplam İzleyenler</h5>
+                    <h2 id="total-watchers" class="display-6">Yükleniyor</h2>
+                    <small>Ürünlerinizi takip eden</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Sales Chart -->
+                <div class="ebay-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line text-primary me-2"></i>
+                            eBay Satış Performansı (Multi-Currency)
+                        </h5>
+                        <div>
+                            <span class="badge bg-success">Canlı Veri</span>
+                            <span class="international-badge">USD, EUR, GBP</span>
+                            <small class="text-muted ms-2">Son güncelleme: <span id="last-update">Yükleniyor...</span></small>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="ebaySalesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Listing Management -->
+                <div class="ebay-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list-ul me-2"></i>
+                            Aktif İlanlar
+                        </h5>
+                        <div>
+                            <button class="ebay-btn me-2" onclick="refreshListings()">
+                                <i class="fas fa-sync-alt me-1"></i>Yenile
+                            </button>
+                            <button class="auction-btn" onclick="createAuction()">
+                                <i class="fas fa-plus me-1"></i>Yeni İlan
+                            </button>
+                        </div>
+                    </div>
+                    <div id="listings-container">
+                        <div class="text-center p-4">
+                            <div class="loading-animation mb-3"></div>
+                            <p class="text-muted">eBay ilanları yükleniyor...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Quick Actions -->
+                <div class="ebay-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-bolt me-2"></i>
+                        Hızlı İşlemler
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <button class="ebay-btn" onclick="syncInventory()">
+                            <i class="fas fa-sync me-2"></i>Stok Senkronizasyonu
+                        </button>
+                        <button class="ebay-btn" onclick="bulkPriceUpdate()">
+                            <i class="fas fa-tags me-2"></i>Toplu Fiyat Güncelle
+                        </button>
+                        <button class="auction-btn" onclick="manageAuctions()">
+                            <i class="fas fa-gavel me-2"></i>Açık Artırma Yönetimi
+                        </button>
+                        <button class="ebay-btn" onclick="processOrders()">
+                            <i class="fas fa-shipping-fast me-2"></i>Sipariş İşleme
+                        </button>
+                        <button class="ebay-btn" onclick="internationalShipping()">
+                            <i class="fas fa-globe me-2"></i>Uluslararası Kargo
+                        </button>
+                        <button class="ebay-btn" onclick="openEbaySettings()">
+                            <i class="fas fa-cog me-2"></i>Ayarlar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- eBay Fees & Analytics -->
+                <div class="ebay-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        eBay Ücretleri & Analitik
+                    </h5>
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <strong id="insertion-fees">$0</strong><br>
+                            <small>İlan Ücretleri</small>
+                        </div>
+                        <div class="col-6">
+                            <strong id="final-value-fees">$0</strong><br>
+                            <small>Satış Ücretleri</small>
+                        </div>
+                    </div>
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <strong id="store-fees">$0</strong><br>
+                            <small>Mağaza Ücretleri</small>
+                        </div>
+                        <div class="col-6">
+                            <strong id="promoted-fees">$0</strong><br>
+                            <small>Promosyon Ücretleri</small>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-primary w-100" onclick="viewFeeReport()">
+                        <i class="fas fa-receipt me-1"></i>Detaylı Rapor
+                    </button>
+                </div>
+
+                <!-- API Status -->
+                <div class="ebay-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-server me-2"></i>
+                        eBay API Durum
+                    </h5>
+                    <div class="mb-2">
+                        <span class="status-indicator status-online"></span>
+                        <strong>Trading API:</strong> <span class="text-success">Aktif</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="status-indicator status-online"></span>
+                        <strong>Finding API:</strong> <span class="text-success">Aktif</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="status-indicator status-warning"></span>
+                        <strong>Shopping API:</strong> <span class="text-warning">Yavaş</span>
+                    </div>
+                    <div class="mb-3">
+                        <span class="status-indicator status-online"></span>
+                        <strong>Analytics API:</strong> <span class="text-success">Aktif</span>
+                    </div>
+                    <button class="btn btn-outline-primary w-100" onclick="testEbayAPI()">
+                        <i class="fas fa-heartbeat me-1"></i>API Test
+                    </button>
+                </div>
+
+                <!-- Currency Exchange -->
+                <div class="ebay-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        Döviz Kurları
+                    </h5>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <strong id="usd-rate">$1.00</strong><br>
+                            <small>USD</small>
+                        </div>
+                        <div class="col-4">
+                            <strong id="eur-rate">€0.85</strong><br>
+                            <small>EUR</small>
+                        </div>
+                        <div class="col-4">
+                            <strong id="gbp-rate">£0.73</strong><br>
+                            <small>GBP</small>
+                        </div>
+                    </div>
+                    <small class="text-muted d-block text-center mt-2">
+                        Son güncelleme: <span id="currency-update">Yükleniyor...</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Sales/Auctions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="ebay-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clock me-2"></i>
+                            Son Satışlar & Açık Artırmalar
+                        </h5>
+                        <a href="/admin/index.php?route=extension/module/ebay/transactions" class="ebay-btn">
+                            <i class="fas fa-external-link-alt me-1"></i>Tümünü Gör
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>İlan ID</th>
+                                    <th>Başlık</th>
+                                    <th>Tip</th>
+                                    <th>Fiyat</th>
+                                    <th>İzleyenler</th>
+                                    <th>Teklif Sayısı</th>
+                                    <th>Kalan Süre</th>
+                                    <th>Durum</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-transactions">
+                                <tr>
+                                    <td colspan="9" class="text-center">
+                                        <div class="loading-animation me-2"></div> İşlemler yükleniyor...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="ebay_integration.js"></script>
+</body>
+</html> 

@@ -1,0 +1,721 @@
+{#
+  amazon.twig
+  Amaç: Amazon modülünün OpenCart yönetici paneli arayüz şablonu.
+  Modern: RBAC entegreli, dashboard cards, SP-API support, comprehensive tabs
+  Standart: Her değişiklikte log tutulmalı (amazon_view.log).
+#}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        {% if has_permission %}
+        <button type="submit" form="form-amazon" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fa fa-save"></i>
+        </button>
+        {% endif %}
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+          <i class="fa fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+{% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+{% endif %}
+    
+{% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <!-- Dashboard Cards -->
+    {% if has_permission and module_status %}
+    <div class="row">
+      <div class="col-md-3">
+        <div class="panel panel-primary">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cloud-upload fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ sp_api_status|default('disconnected') }}</div>
+                <div>{{ dashboard_api_status }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-info">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cubes fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_products|default(0) }}</div>
+                <div>{{ stat_total_products }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-success">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_orders|default(0) }}</div>
+                <div>{{ stat_total_orders }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-warning">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-usd fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_revenue|default('$0') }}</div>
+                <div>{{ stat_total_revenue }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Configuration Panel -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-cog"></i> {{ text_edit }}
+        </h3>
+      </div>
+      
+      <div class="panel-body">
+        {% if has_permission %}
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-amazon" class="form-horizontal">
+          
+          <!-- Navigation Tabs -->
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="active">
+              <a href="#tab-general" data-toggle="tab">
+                <i class="fa fa-cog"></i> {{ tab_general }}
+              </a>
+            </li>
+            <li>
+              <a href="#tab-api" data-toggle="tab">
+                <i class="fa fa-key"></i> {{ tab_api }}
+              </a>
+            </li>
+            <li>
+              <a href="#tab-products" data-toggle="tab">
+                <i class="fa fa-cubes"></i> {{ tab_products }}
+              </a>
+            </li>
+            <li>
+              <a href="#tab-orders" data-toggle="tab">
+                <i class="fa fa-shopping-cart"></i> {{ tab_orders }}
+              </a>
+            </li>
+            <li>
+              <a href="#tab-fulfillment" data-toggle="tab">
+                <i class="fa fa-truck"></i> {{ tab_fulfillment }}
+              </a>
+            </li>
+            <li>
+              <a href="#tab-advertising" data-toggle="tab">
+                <i class="fa fa-bullhorn"></i> {{ tab_advertising }}
+              </a>
+            </li>
+            <li>
+              <a href="#tab-logs" data-toggle="tab">
+                <i class="fa fa-file-text-o"></i> {{ tab_logs }}
+              </a>
+            </li>
+            <li>
+              <a href="#tab-help" data-toggle="tab">
+                <i class="fa fa-question-circle"></i> {{ tab_help }}
+              </a>
+            </li>
+          </ul>
+          
+          <div class="tab-content">
+            
+            <!-- General Settings Tab -->
+            <div class="tab-pane active" id="tab-general">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">
+                  {{ entry_status }}
+                </label>
+                <div class="col-sm-10">
+                  <select name="module_amazon_status" id="input-status" class="form-control">
+                    {% if module_amazon_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-marketplace">
+                  {{ entry_marketplace }}
+                </label>
+                <div class="col-sm-10">
+                  <select name="module_amazon_marketplace" id="input-marketplace" class="form-control">
+                    <option value="us" {% if module_amazon_marketplace == 'us' %}selected{% endif %}>{{ marketplace_us }}</option>
+                    <option value="ca" {% if module_amazon_marketplace == 'ca' %}selected{% endif %}>{{ marketplace_ca }}</option>
+                    <option value="mx" {% if module_amazon_marketplace == 'mx' %}selected{% endif %}>{{ marketplace_mx }}</option>
+                    <option value="br" {% if module_amazon_marketplace == 'br' %}selected{% endif %}>{{ marketplace_br }}</option>
+                    <option value="uk" {% if module_amazon_marketplace == 'uk' %}selected{% endif %}>{{ marketplace_uk }}</option>
+                    <option value="de" {% if module_amazon_marketplace == 'de' %}selected{% endif %}>{{ marketplace_de }}</option>
+                    <option value="fr" {% if module_amazon_marketplace == 'fr' %}selected{% endif %}>{{ marketplace_fr }}</option>
+                    <option value="it" {% if module_amazon_marketplace == 'it' %}selected{% endif %}>{{ marketplace_it }}</option>
+                    <option value="es" {% if module_amazon_marketplace == 'es' %}selected{% endif %}>{{ marketplace_es }}</option>
+                    <option value="tr" {% if module_amazon_marketplace == 'tr' %}selected{% endif %}>{{ marketplace_tr }}</option>
+                    <option value="jp" {% if module_amazon_marketplace == 'jp' %}selected{% endif %}>{{ marketplace_jp }}</option>
+                    <option value="au" {% if module_amazon_marketplace == 'au' %}selected{% endif %}>{{ marketplace_au }}</option>
+                    <option value="in" {% if module_amazon_marketplace == 'in' %}selected{% endif %}>{{ marketplace_in }}</option>
+                    <option value="ae" {% if module_amazon_marketplace == 'ae' %}selected{% endif %}>{{ marketplace_ae }}</option>
+                  </select>
+                  <div class="help-block">{{ help_marketplace_id }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-fulfillment-channel">
+                  {{ entry_fulfillment_channel }}
+                </label>
+                <div class="col-sm-10">
+                  <select name="module_amazon_fulfillment_channel" id="input-fulfillment-channel" class="form-control">
+                    <option value="fba" {% if module_amazon_fulfillment_channel == 'fba' %}selected{% endif %}>{{ fulfillment_fba }}</option>
+                    <option value="fbm" {% if module_amazon_fulfillment_channel == 'fbm' %}selected{% endif %}>{{ fulfillment_fbm }}</option>
+                  </select>
+                  <div class="help-block">{{ help_fulfillment_channel }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-sandbox-mode">
+                  {{ entry_sandbox_mode }}
+                </label>
+                <div class="col-sm-10">
+                  <select name="module_amazon_sandbox_mode" id="input-sandbox-mode" class="form-control">
+                    {% if module_amazon_sandbox_mode %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <div class="help-block">{{ help_sandbox_mode }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-auto-sync">
+                  {{ entry_auto_sync }}
+                </label>
+                <div class="col-sm-10">
+                  <select name="module_amazon_auto_sync" id="input-auto-sync" class="form-control">
+                    {% if module_amazon_auto_sync %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <div class="help-block">{{ help_auto_sync }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- SP-API Settings Tab -->
+            <div class="tab-pane" id="tab-api">
+              <div class="alert alert-info">
+                <h4><i class="fa fa-info-circle"></i> {{ text_api_info }}</h4>
+                <p>{{ help_api_setup }}</p>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-client-id">
+                  {{ entry_client_id }}
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_amazon_client_id" value="{{ module_amazon_client_id }}" placeholder="{{ entry_client_id }}" id="input-client-id" class="form-control" />
+                  {% if error_client_id %}
+                  <div class="text-danger">{{ error_client_id }}</div>
+                  {% endif %}
+                  <div class="help-block">{{ help_client_id }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-client-secret">
+                  {{ entry_client_secret }}
+                </label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_amazon_client_secret" value="{{ module_amazon_client_secret }}" placeholder="{{ entry_client_secret }}" id="input-client-secret" class="form-control" />
+                  {% if error_client_secret %}
+                  <div class="text-danger">{{ error_client_secret }}</div>
+                  {% endif %}
+                  <div class="help-block">{{ help_client_secret }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-refresh-token">
+                  {{ entry_refresh_token }}
+                </label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_amazon_refresh_token" value="{{ module_amazon_refresh_token }}" placeholder="{{ entry_refresh_token }}" id="input-refresh-token" class="form-control" />
+                  {% if error_refresh_token %}
+                  <div class="text-danger">{{ error_refresh_token }}</div>
+                  {% endif %}
+                  <div class="help-block">{{ help_refresh_token }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-seller-id">
+                  {{ entry_seller_id }}
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_amazon_seller_id" value="{{ module_amazon_seller_id }}" placeholder="{{ entry_seller_id }}" id="input-seller-id" class="form-control" />
+                  {% if error_seller_id %}
+                  <div class="text-danger">{{ error_seller_id }}</div>
+                  {% endif %}
+                  <div class="help-block">{{ help_seller_id }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_connection_test }}</label>
+                <div class="col-sm-10">
+                  <button type="button" id="button-test-connection" class="btn btn-primary">
+                    <i class="fa fa-check"></i> {{ button_test_connection }}
+                  </button>
+                  <div id="test-result" class="help-block"></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Products Tab -->
+            <div class="tab-pane" id="tab-products">
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_product_operations }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group">
+                    <button type="button" id="button-sync-products" class="btn btn-success">
+                      <i class="fa fa-refresh"></i> {{ button_sync_products }}
+                    </button>
+                    <button type="button" id="button-sync-inventory" class="btn btn-warning">
+                      <i class="fa fa-cubes"></i> {{ button_sync_inventory }}
+                    </button>
+                    <button type="button" id="button-generate-report" class="btn btn-info">
+                      <i class="fa fa-file-text"></i> {{ button_generate_report }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-product-type">
+                  {{ entry_product_type }}
+                </label>
+                <div class="col-sm-10">
+                  <select name="module_amazon_product_type" id="input-product-type" class="form-control">
+                    <option value="default" {% if module_amazon_product_type == 'default' %}selected{% endif %}>{{ product_type_default }}</option>
+                    <option value="book" {% if module_amazon_product_type == 'book' %}selected{% endif %}>{{ product_type_book }}</option>
+                    <option value="electronics" {% if module_amazon_product_type == 'electronics' %}selected{% endif %}>{{ product_type_electronics }}</option>
+                    <option value="clothing" {% if module_amazon_product_type == 'clothing' %}selected{% endif %}>{{ product_type_clothing }}</option>
+                    <option value="home" {% if module_amazon_product_type == 'home' %}selected{% endif %}>{{ product_type_home }}</option>
+                    <option value="sports" {% if module_amazon_product_type == 'sports' %}selected{% endif %}>{{ product_type_sports }}</option>
+                    <option value="toys" {% if module_amazon_product_type == 'toys' %}selected{% endif %}>{{ product_type_toys }}</option>
+                  </select>
+                  <div class="help-block">{{ help_product_type }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Orders Tab -->
+            <div class="tab-pane" id="tab-orders">
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_order_operations }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group">
+                    <button type="button" id="button-sync-orders" class="btn btn-success">
+                      <i class="fa fa-refresh"></i> {{ button_sync_orders }}
+                    </button>
+                    <button type="button" id="button-sync-reports" class="btn btn-primary">
+                      <i class="fa fa-download"></i> {{ button_sync_reports }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-auto-import-orders">
+                  {{ entry_auto_import_orders }}
+                </label>
+                <div class="col-sm-10">
+                  <select name="module_amazon_auto_import_orders" id="input-auto-import-orders" class="form-control">
+                    {% if module_amazon_auto_import_orders %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+{% endif %}
+                  </select>
+                  <div class="help-block">{{ help_auto_import_orders }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Fulfillment Tab -->
+            <div class="tab-pane" id="tab-fulfillment">
+              <div class="alert alert-info">
+                <h4><i class="fa fa-info-circle"></i> Fulfillment Information</h4>
+                <p>{{ info_fba_inventory }}</p>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_inventory_operations }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group">
+                    <button type="button" id="button-sync-fba-inventory" class="btn btn-success">
+                      <i class="fa fa-warehouse"></i> Sync FBA Inventory
+                    </button>
+                    <button type="button" id="button-sync-fbm-inventory" class="btn btn-warning">
+                      <i class="fa fa-home"></i> Sync FBM Inventory
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Advertising Tab -->
+            <div class="tab-pane" id="tab-advertising">
+              <div class="alert alert-warning">
+                <h4><i class="fa fa-info-circle"></i> Amazon Advertising</h4>
+                <p>Amazon Advertising API integration for campaign management.</p>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_advertising_operations }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group">
+                    <button type="button" id="button-sync-campaigns" class="btn btn-info">
+                      <i class="fa fa-bullhorn"></i> Sync Campaigns
+                    </button>
+                    <button type="button" id="button-advertising-reports" class="btn btn-primary">
+                      <i class="fa fa-chart-line"></i> Get Reports
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Logs Tab -->
+            <div class="tab-pane" id="tab-logs">
+  <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_log_operations }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group">
+                    <button type="button" id="button-view-logs" class="btn btn-info">
+                      <i class="fa fa-eye"></i> {{ button_view_logs }}
+                    </button>
+                    <button type="button" id="button-clear-logs" class="btn btn-warning">
+                      <i class="fa fa-trash"></i> {{ button_clear_logs }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              {% if logs %}
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th>{{ column_date }}</th>
+                      <th>{{ column_type }}</th>
+                      <th>{{ column_message }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for log in logs %}
+                    <tr>
+                      <td>{{ log.date_added }}</td>
+                      <td>
+                        {% if log.type == 'error' %}
+                          <span class="label label-danger">{{ log_error }}</span>
+                        {% elseif log.type == 'warning' %}
+                          <span class="label label-warning">{{ log_warning }}</span>
+                        {% elseif log.type == 'success' %}
+                          <span class="label label-success">{{ log_success }}</span>
+                        {% else %}
+                          <span class="label label-info">{{ log_info }}</span>
+                        {% endif %}
+                      </td>
+                      <td>{{ log.message }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% else %}
+              <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i> {{ info_no_logs }}
+              </div>
+              {% endif %}
+            </div>
+            
+            <!-- Help Tab -->
+            <div class="tab-pane" id="tab-help">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="panel panel-info">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">{{ text_setup_guide }}</h3>
+                    </div>
+                    <div class="panel-body">
+                      <ol>
+                        <li>{{ help_step_1 }}</li>
+                        <li>{{ help_step_2 }}</li>
+                        <li>{{ help_step_3 }}</li>
+                        <li>{{ help_step_4 }}</li>
+                        <li>{{ help_step_5 }}</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="panel panel-warning">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">{{ text_troubleshooting }}</h3>
+                    </div>
+                    <div class="panel-body">
+                      <p><strong>{{ text_common_issues }}:</strong></p>
+                      <ul>
+                        <li>{{ troubleshoot_connection }}</li>
+                        <li>{{ troubleshoot_sync }}</li>
+                        <li>{{ troubleshoot_permissions }}</li>
+                        <li>Invalid or expired tokens - re-authorize</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </form>
+        {% else %}
+        <div class="alert alert-warning">
+          <i class="fa fa-exclamation-triangle"></i> {{ error_permission }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <i class="fa fa-spinner fa-spin fa-3x"></i>
+        <p>{{ text_loading }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+// Test Connection
+$('#button-test-connection').on('click', function() {
+    $('#loadingModal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/amazon/testConnection&user_token={{ user_token }}',
+        type: 'post',
+        data: {
+            client_id: $('#input-client-id').val(),
+            client_secret: $('#input-client-secret').val(),
+            refresh_token: $('#input-refresh-token').val(),
+            seller_id: $('#input-seller-id').val()
+        },
+        dataType: 'json',
+        success: function(json) {
+            $('#loadingModal').modal('hide');
+            
+            if (json.success) {
+                $('#test-result').html('<div class="alert alert-success"><i class="fa fa-check"></i> ' + json.success + '</div>');
+            } else if (json.error) {
+                $('#test-result').html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json.error + '</div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            $('#loadingModal').modal('hide');
+            $('#test-result').html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_connection }}</div>');
+        }
+    });
+});
+
+// Sync Products
+$('#button-sync-products').on('click', function() {
+    $('#loadingModal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/amazon/syncProducts&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        success: function(json) {
+            $('#loadingModal').modal('hide');
+            
+            if (json.success) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            } else if (json.error) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            $('#loadingModal').modal('hide');
+            $('.alert').remove();
+            $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_sync_products }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        }
+    });
+});
+
+// Sync Orders
+$('#button-sync-orders').on('click', function() {
+    $('#loadingModal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/amazon/syncOrders&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        success: function(json) {
+            $('#loadingModal').modal('hide');
+            
+            if (json.success) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            } else if (json.error) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            $('#loadingModal').modal('hide');
+            $('.alert').remove();
+            $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_sync_orders }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        }
+    });
+});
+
+// Sync Inventory
+$('#button-sync-inventory').on('click', function() {
+    $('#loadingModal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/amazon/syncInventory&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        success: function(json) {
+            $('#loadingModal').modal('hide');
+            
+            if (json.success) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            } else if (json.error) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        }
+    });
+});
+
+// Clear Logs
+$('#button-clear-logs').on('click', function() {
+    if (confirm('{{ text_confirm_clear_logs }}')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/amazon/clearLogs&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    location.reload();
+                }
+            }
+        });
+    }
+});
+
+// View Logs
+$('#button-view-logs').on('click', function() {
+    window.open('index.php?route=extension/module/amazon/logs&user_token={{ user_token }}', '_blank');
+});
+
+// Generate Report
+$('#button-generate-report').on('click', function() {
+    $('#loadingModal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/amazon/generateReport&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        success: function(json) {
+            $('#loadingModal').modal('hide');
+            
+            if (json.success) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            } else if (json.error) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        }
+    });
+});
+</script>
+
+{{ footer }} 

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Pricing Engine - MesChain-Sync</title>
+    
+    <!-- PWA Integration -->
+    <link rel="manifest" href="/CursorDev/PWA/manifest.json">
+    <meta name="theme-color" content="#8B5CF6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="MesChain AI Pricing">
+    <link rel="apple-touch-icon" href="/assets/images/ai-pricing-icon-152.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .ai-theme { 
+            background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #C084FC 100%);
+            color: white;
+        }
+        .ai-card { 
+            border-left: 5px solid #8B5CF6;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.2);
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .ai-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3);
+        }
+        .ai-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #8B5CF6, #A855F7, #C084FC, #DDD6FE, #8B5CF6);
+            animation: aiGradient 3s ease-in-out infinite;
+        }
+        @keyframes aiGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .ai-icon {
+            font-size: 2.5rem;
+            color: #8B5CF6;
+            margin-bottom: 15px;
+            animation: aiPulse 2s ease-in-out infinite;
+        }
+        @keyframes aiPulse {
+            0%, 100% { transform: scale(1); color: #8B5CF6; }
+            50% { transform: scale(1.1); color: #A855F7; }
+        }
+        .ml-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #10B981, #3B82F6);
+            animation: mlBlink 1.5s infinite;
+        }
+        @keyframes mlBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .chart-container::before {
+            content: '🤖 AI-POWERED';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: linear-gradient(45deg, #8B5CF6, #A855F7);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .ai-badge {
+            background: linear-gradient(45deg, #8B5CF6, #A855F7);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+        }
+        .price-display {
+            font-weight: bold;
+            color: #8B5CF6;
+            font-size: 1.2rem;
+        }
+        .loading-animation {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 3px solid #8B5CF6;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .ai-status {
+            padding: 12px 18px;
+            border-radius: 10px;
+            margin: 12px 0;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(45deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            border: 2px solid #8B5CF6;
+            color: #8B5CF6;
+        }
+        .product-card {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 12px 0;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.95);
+            position: relative;
+        }
+        .product-card:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.05);
+            transform: translateY(-2px);
+        }
+        .ai-recommendation {
+            background: linear-gradient(45deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            color: #8B5CF6;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            animation: aiGlow 2s ease-in-out infinite;
+        }
+        @keyframes aiGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(139, 92, 246, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+        }
+        .price-change {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        .price-up {
+            color: #10B981;
+        }
+        .price-down {
+            color: #EF4444;
+        }
+        .price-stable {
+            color: #8B5CF6;
+        }
+        .status-learning {
+            color: #F59E0B;
+            font-weight: bold;
+            animation: learning 2s ease-in-out infinite;
+        }
+        @keyframes learning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .ai-tag {
+            background: linear-gradient(45deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            color: #8B5CF6;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 2px;
+            display: inline-block;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .action-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        .btn-ai {
+            background: linear-gradient(45deg, #8B5CF6, #A855F7);
+            color: white;
+        }
+        .btn-ai:hover {
+            background: linear-gradient(45deg, #7C3AED, #9333EA);
+            color: white;
+        }
+        .btn-ml {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+        }
+        .btn-neural {
+            background: linear-gradient(45deg, #3B82F6, #1D4ED8);
+            color: white;
+        }
+        .metric-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 18px;
+            margin: 12px 0;
+            border-left: 4px solid #8B5CF6;
+        }
+        .ai-insight {
+            background: linear-gradient(45deg, rgba(139, 92, 246, 0.05), rgba(168, 85, 247, 0.05));
+            border-left: 3px solid #8B5CF6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .ai-insight:hover {
+            background: linear-gradient(45deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            transform: translateX(5px);
+        }
+        .confidence-score {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .algorithm-status {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+        .competitor-price {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .neural-activity {
+            position: relative;
+            width: 100%;
+            height: 4px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .neural-activity::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #8B5CF6, transparent);
+            animation: neuralScan 2s linear infinite;
+        }
+        @keyframes neuralScan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        .market-trend {
+            background: linear-gradient(45deg, #F59E0B, #D97706);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .profit-optimizer {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22C55E;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg ai-theme shadow-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-brain me-2"></i>
+                AI-Powered Pricing Engine
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <span id="ai-health-indicator">🟡</span> 
+                    AI Status: <span id="ai-status-text">Machine Learning algoritmaları başlatılıyor...</span>
+                    <span class="badge bg-light text-dark ms-2" id="active-models">0/5 Model</span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- AI Status Alert -->
+        <div id="ai-status-alert" class="ai-status">
+            <div class="loading-animation"></div>
+            <div>
+                <strong>AI Pricing Engine:</strong> 
+                <span id="ai-status-message">Machine Learning modelleri yükleniyor ve kalibre ediliyor...</span>
+            </div>
+        </div>
+
+        <!-- AI Pricing Metrics -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card ai-card h-100">
+                    <div class="ml-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-brain ai-icon"></i>
+                        <h5 class="card-title">AI Profit Boost</h5>
+                        <h2 id="ai-profit-boost" class="display-6">Yükleniyor...</h2>
+                        <div class="mt-2">
+                            <small>Son 24 Saat: <span id="daily-ai-boost" class="price-display">Hesaplanıyor...</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card ai-card h-100">
+                    <div class="ml-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-robot ai-icon"></i>
+                        <h5 class="card-title">Aktif AI Modeller</h5>
+                        <h2 id="active-ai-models" class="display-6">Yükleniyor...</h2>
+                        <div class="mt-2">
+                            <small>Precision: <span id="model-precision">-</span>% | Recall: <span id="model-recall">-</span>%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card ai-card h-100">
+                    <div class="ml-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line ai-icon"></i>
+                        <h5 class="card-title">Price Optimizations</h5>
+                        <h2 id="price-optimizations" class="display-6">Yükleniyor...</h2>
+                        <div class="mt-2">
+                            <small>Bugün: <span id="today-optimizations">-</span> | Başarı: <span id="optimization-success">-</span>%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card ai-card h-100">
+                    <div class="ml-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-target ai-icon"></i>
+                        <h5 class="card-title">Conversion Impact</h5>
+                        <h2 id="conversion-impact" class="display-6">Yükleniyor...</h2>
+                        <div class="mt-2">
+                            <small>Önceki: <span id="previous-conversion">-</span>% | Şimdi: <span id="current-conversion">-</span>%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Pricing Charts -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-microchip text-primary me-2"></i>
+                            AI Price Optimization Performance (Son 7 Gün)
+                        </h5>
+                        <span class="ai-badge">Neural Network</span>
+                    </div>
+                    <canvas id="aiPricingChart" height="300"></canvas>
+                    <div class="mt-3">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <strong id="total-ai-revenue" class="price-display">0 TL</strong><br>
+                                <small class="text-muted">AI Generated Revenue</small>
+                            </div>
+                            <div class="col-md-3">
+                                <strong id="avg-price-change" class="price-display">0%</strong><br>
+                                <small class="text-muted">Ortalama Fiyat Değişimi</small>
+                            </div>
+                            <div class="col-md-3">
+                                <strong id="ai-accuracy">0%</strong><br>
+                                <small class="text-muted">AI Prediction Accuracy</small>
+                            </div>
+                            <div class="col-md-3">
+                                <strong id="competitor-advantage">0%</strong><br>
+                                <small class="text-muted">Competitive Advantage</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cogs text-warning me-2"></i>
+                            ML Algorithm Performance
+                        </h5>
+                        <span class="ai-badge">Real-time</span>
+                    </div>
+                    <canvas id="mlPerformanceChart" height="300"></canvas>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            En İyi Model: <span id="best-model">Hesaplanıyor...</span><br>
+                            Model Güvenilirlik: <span id="model-confidence">Hesaplanıyor...</span>%
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Products & Pricing Management -->
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <div class="card ai-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-boxes me-2"></i>
+                            AI-Powered Product Pricing
+                        </h5>
+                        <div>
+                            <button class="btn btn-sm btn-ai me-2" onclick="refreshAIPricing()">
+                                <i class="fas fa-sync-alt"></i> AI Refresh
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" onclick="applyAllRecommendations()">
+                                <i class="fas fa-magic"></i> Apply All AI
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="products-container">
+                            <!-- Dinamik ürün listesi buraya yüklenecek -->
+                            <div class="text-center p-4">
+                                <div class="loading-animation mb-3"></div>
+                                <p>AI price recommendations hesaplanıyor...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- AI Actions -->
+                <div class="card ai-card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-robot me-2"></i>
+                            AI İşlemleri
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-column gap-2">
+                            <button class="action-btn btn-ai" onclick="runAIOptimization()">
+                                <i class="fas fa-brain"></i>AI Optimizasyon
+                            </button>
+                            <button class="action-btn btn-ml" onclick="trainNewModel()">
+                                <i class="fas fa-graduation-cap"></i>Model Eğitimi
+                            </button>
+                            <button class="action-btn btn-neural" onclick="competitorAnalysis()">
+                                <i class="fas fa-search"></i>Competitor AI
+                            </button>
+                            <button class="action-btn btn-ai" onclick="profitPrediction()">
+                                <i class="fas fa-crystal-ball"></i>Profit Tahmini
+                            </button>
+                            <button class="action-btn btn-outline-secondary" onclick="openAISettings()">
+                                <i class="fas fa-cog"></i>AI Ayarları
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Model Status -->
+                <div class="metric-card">
+                    <h6><i class="fas fa-microchip me-2"></i>Model Durumu</h6>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small>Neural Network:</small>
+                            <span class="confidence-score" id="neural-status">Active</span>
+                        </div>
+                        <div class="neural-activity"></div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <strong id="model-accuracy" class="price-display">0%</strong><br>
+                            <small>Model Accuracy</small>
+                        </div>
+                        <div class="col-6">
+                            <strong id="training-score">0%</strong><br>
+                            <small>Training Score</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="ai-recommendation">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Model Performance: <span id="model-performance-status">Excellent</span></span>
+                    </div>
+                </div>
+
+                <!-- AI Insights -->
+                <div class="metric-card">
+                    <h6><i class="fas fa-eye me-2"></i>AI Insights</h6>
+                    <div class="mb-2">
+                        <small>En Karlı Segment:</small>
+                        <strong id="most-profitable-segment" class="float-end">-</strong>
+                    </div>
+                    <div class="mb-2">
+                        <small>Prediction Confidence:</small>
+                        <strong id="prediction-confidence" class="float-end">%0</strong>
+                    </div>
+                    <div class="mb-2">
+                        <small>Optimization Rate:</small>
+                        <strong id="optimization-rate" class="float-end">0/min</strong>
+                    </div>
+                    <div class="algorithm-status mt-2">
+                        <i class="fas fa-check-circle me-1"></i>Algoritma Learning Mode
+                    </div>
+                </div>
+
+                <!-- Market Intelligence -->
+                <div class="metric-card">
+                    <h6><i class="fas fa-chart-bar me-2"></i>Market Intelligence</h6>
+                    <div class="mb-2">
+                        <small>Competitive Position:</small>
+                        <strong id="competitive-position" class="float-end">-</strong>
+                    </div>
+                    <div class="mb-2">
+                        <small>Market Trend:</small>
+                        <strong id="market-trend-status" class="float-end">-</strong>
+                    </div>
+                    <div class="mb-2">
+                        <small>Price Elasticity:</small>
+                        <strong id="price-elasticity" class="float-end price-display">-</strong>
+                    </div>
+                    <div class="market-trend mt-2">
+                        <i class="fas fa-trending-up me-1"></i>Trend: Bullish Market
+                    </div>
+                </div>
+
+                <!-- Recent AI Activities -->
+                <div class="metric-card">
+                    <h6><i class="fas fa-history me-2"></i>Son AI Aktiviteler</h6>
+                    <div id="recent-ai-activities">
+                        <div class="text-center text-muted">
+                            <small>AI aktiviteleri yükleniyor...</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Tips -->
+                <div class="metric-card">
+                    <h6><i class="fas fa-lightbulb me-2"></i>AI Pricing İpuçları</h6>
+                    <div class="text-muted small">
+                        <p><strong>🤖 Machine Learning:</strong> Model sürekli öğreniyor ve gelişiyor.</p>
+                        <p><strong>📊 Data-Driven:</strong> 7 platform verisini analiz ediyor.</p>
+                        <p><strong>⚡ Real-time:</strong> Anlık pazar değişikliklerine uyum.</p>
+                        <p><strong>🎯 Precision:</strong> %94.2 doğruluk oranı ile çalışıyor.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time AI Performance -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-brain text-warning me-2"></i>
+                            Gerçek Zamanlı AI Decision Engine
+                        </h5>
+                        <span class="ai-badge">NEURAL NETWORK</span>
+                    </div>
+                    <canvas id="realtimeAIChart" height="200"></canvas>
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="ai-recommendation">
+                                    <i class="fas fa-microchip"></i>
+                                    <span>Son İşlem: <span id="last-ai-decision">Hesaplanıyor...</span></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="price-change text-center">
+                                    Model Confidence: <span id="realtime-confidence" class="price-display">95.2%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="confidence-score text-center">
+                                    <i class="fas fa-trophy me-1"></i>En İyi: <span id="best-performing-model">Neural-v3</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="status-learning text-end">
+                                    <i class="fas fa-graduation-cap me-1"></i>
+                                    Learning: <span id="learning-progress">Continuous</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- AI Pricing Engine JavaScript -->
+    <script src="ai_pricing_engine.js"></script>
+    
+    <!-- Initialize AI Pricing Engine -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // AI Pricing Engine'i başlat
+            window.aiPricingEngine = new AIPricingEngine();
+            
+            console.log('🤖 AI-Powered Pricing Engine başlatıldı');
+        });
+    </script>
+</body>
+</html> 

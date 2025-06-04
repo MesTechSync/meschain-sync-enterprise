@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N11 Entegrasyonu - MesChain-Sync</title>
+    
+    <!-- Modern UI Framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <style>
+        :root {
+            --n11-orange: #ff6000;
+            --n11-dark-orange: #e55100;
+            --n11-light-orange: #ff8f40;
+            --n11-blue: #0066cc;
+            --n11-green: #4caf50;
+            --n11-red: #f44336;
+            --n11-lighter: #fff3e0;
+            --n11-dark: #1a1a1a;
+            --n11-gradient: linear-gradient(135deg, #ff6000 0%, #ff8f40 100%);
+            --n11-blue-gradient: linear-gradient(135deg, #0066cc 0%, #4bb8f0 100%);
+            
+            /* Light Theme Variables */
+            --bg-primary: #ffffff;
+            --bg-secondary: #fff3e0;
+            --bg-tertiary: #ff8f40;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --border-color: #ff8f40;
+            --shadow-light: rgba(255, 96, 0, 0.1);
+            --shadow-medium: rgba(255, 96, 0, 0.2);
+            --shadow-heavy: rgba(255, 96, 0, 0.3);
+            --body-gradient: linear-gradient(135deg, #ff8f40 0%, #ff6000 50%, #0066cc 100%);
+        }
+
+        [data-theme="dark"] {
+            --n11-orange: #ff8f40;
+            --n11-dark-orange: #ff6000;
+            --n11-light-orange: #ff6000;
+            --n11-blue: #4bb8f0;
+            --n11-green: #4caf50;
+            --n11-red: #ff4444;
+            --n11-lighter: #2d1a0f;
+            --n11-dark: #ff8f40;
+            --n11-gradient: linear-gradient(135deg, #ff8f40 0%, #ff6000 100%);
+            --n11-blue-gradient: linear-gradient(135deg, #4bb8f0 0%, #0066cc 100%);
+            
+            /* Dark Theme Variables */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d1a0f;
+            --bg-tertiary: #ff6000;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --text-muted: #999999;
+            --border-color: #ff6000;
+            --shadow-light: rgba(255, 143, 64, 0.15);
+            --shadow-medium: rgba(255, 143, 64, 0.25);
+            --shadow-heavy: rgba(255, 143, 64, 0.35);
+            --body-gradient: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #2d1a0f 100%);
+        }
+        
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+          body {
+            background: var(--body-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .n11-container {
+            background: var(--bg-primary);
+            border-radius: 25px;
+            box-shadow: 0 30px 80px var(--shadow-medium);
+            margin: 2rem;
+            overflow: hidden;
+            border: 4px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .n11-header {
+            background: var(--n11-gradient);
+            color: white;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .n11-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 102, 204, 0.2) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        .n11-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--n11-blue-gradient);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 102, 204, 0.4);
+            position: relative;
+            z-index: 2;
+        }
+          .n11-nav {
+            background: var(--bg-secondary);
+            padding: 0;
+            border-bottom: 5px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .n11-nav-item {
+            flex: 1;
+        }
+        
+        .n11-nav-link {
+            color: var(--text-primary) !important;
+            padding: 1.3rem 1.5rem;
+            text-align: center;
+            border: none;
+            background: none;
+            transition: all 0.4s ease;
+            border-radius: 0;
+            font-weight: 800;
+            text-decoration: none;
+            position: relative;
+            font-size: 1.05rem;
+        }
+        
+        .n11-nav-link:hover, .n11-nav-link.active {
+            background: var(--n11-gradient);
+            color: white !important;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(255, 96, 0, 0.4);
+        }
+        
+        .n11-content {
+            padding: 3rem;
+            background: white;
+        }
+        
+        .n11-card {
+            background: white;
+            border-radius: 25px;
+            padding: 3rem;
+            box-shadow: 0 15px 45px rgba(255, 96, 0, 0.12);
+            border: 4px solid var(--n11-light-orange);
+            margin-bottom: 3rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .n11-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 70px rgba(255, 96, 0, 0.25);
+            border-color: var(--n11-orange);
+        }
+        
+        .n11-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: var(--n11-gradient);
+        }
+        
+        .status-card {
+            text-align: center;
+            padding: 3.5rem 2.5rem;
+        }
+        
+        .status-card.connected {
+            border-color: var(--n11-green);
+        }
+        
+        .status-card.connected::before {
+            background: linear-gradient(90deg, var(--n11-green), #81c784);
+        }
+        
+        .status-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--n11-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2.5rem;
+            font-size: 3rem;
+            color: white;
+            box-shadow: 0 20px 50px rgba(255, 96, 0, 0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .status-icon.connected {
+            background: linear-gradient(135deg, var(--n11-green), #81c784);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 4px solid var(--n11-light-orange);
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card:hover {
+            border-color: var(--n11-orange);
+            box-shadow: 0 15px 45px rgba(255, 96, 0, 0.25);
+            transform: translateY(-8px);
+        }
+        
+        .metric-value {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 2rem 0;
+            background: var(--n11-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .turkish-badge {
+            background: linear-gradient(135deg, #e53238 0%, #ffffff 50%, #e53238 100%);
+            color: #e53238;
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            border: 2px solid #e53238;
+        }
+        
+        .n11-btn {
+            background: var(--n11-gradient);
+            border: none;
+            color: white;
+            padding: 1.2rem 3rem;
+            border-radius: 20px;
+            font-weight: 900;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(255, 96, 0, 0.35);
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1.05rem;
+        }
+        
+        .n11-btn:hover {
+            background: linear-gradient(135deg, #e55100, #0066cc);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(255, 96, 0, 0.6);
+            color: white;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 450px;
+            margin: 2.5rem 0;
+        }
+        
+        .real-time-badge {
+            background: rgba(255, 96, 0, 0.15);
+            color: var(--n11-orange);
+            padding: 0.8rem 2rem;
+            border-radius: 35px;
+            font-size: 1rem;
+            font-weight: 900;
+            animation: pulse 2s infinite;
+            border: 3px solid var(--n11-light-orange);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        
+        .category-selector {
+            background: var(--n11-lighter);
+            border: 3px solid var(--n11-light-orange);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .category-item {
+            background: white;
+            border: 2px solid var(--n11-light-orange);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .category-item:hover {
+            border-color: var(--n11-orange);
+            background: var(--n11-lighter);
+        }
+        
+        .category-item.selected {
+            background: var(--n11-gradient);
+            color: white;
+            border-color: var(--n11-orange);
+        }
+        
+        .turkish-flag {
+            width: 32px;
+            height: 24px;
+            background: linear-gradient(to bottom, #e53238 0%, #e53238 100%);
+            border-radius: 4px;
+            position: relative;
+            margin-right: 10px;
+            display: inline-block;
+        }
+        
+        .turkish-flag::before {
+            content: '★';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            left: 4px;
+            top: 2px;
+        }
+        
+        .turkish-flag::after {
+            content: '☪';
+            position: absolute;
+            color: white;
+            font-size: 12px;
+            right: 6px;
+            top: 3px;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2.5rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 4px solid var(--n11-light-orange);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-card:hover {
+            border-color: var(--n11-orange);
+            box-shadow: 0 15px 45px rgba(255, 96, 0, 0.25);
+            transform: translateY(-8px);
+        }
+          
+        /* 📱 ENHANCED RESPONSIVE DESIGN - N11 MARKETPLACE */
+        
+        /* Tablet Optimization (768px - 1024px) */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .n11-container {
+                margin: 1.5rem;
+                border-radius: 20px;
+            }
+            
+            .n11-header {
+                padding: 2.5rem;
+            }
+            
+            .n11-content {
+                padding: 2rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+        }
+        
+        /* Mobile Optimization (max-width: 768px) */
+        @media (max-width: 768px) {
+            .n11-container {
+                margin: 0.5rem;
+                border-radius: 15px;
+            }
+            
+            .n11-header {
+                padding: 1.5rem;
+                text-align: center;
+            }
+            
+            .n11-header .d-flex {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .n11-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 1.8rem;
+                margin: 0 auto 1rem;
+            }
+            
+            .n11-content {
+                padding: 1.5rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .category-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.8rem;
+            }
+            
+            .n11-nav {
+                flex-direction: column;
+                overflow-x: auto;
+            }
+            
+            .n11-nav-item {
+                min-width: 100%;
+            }
+            
+            .n11-nav-link {
+                padding: 1rem;
+                text-align: left;
+                border-bottom: 1px solid rgba(255, 96, 0, 0.1);
+            }
+            
+            .chart-container {
+                height: 250px;
+                margin-bottom: 1rem;
+            }
+            
+            .real-time-badge {
+                display: block;
+                margin-top: 0.5rem;
+                text-align: center;
+            }
+            
+            /* Mobile-friendly buttons */
+            .btn {
+                min-height: 44px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+            
+            /* Touch-friendly form elements */
+            .form-control, .form-select {
+                min-height: 44px;
+                font-size: 16px;
+            }
+            
+            /* Mobile typography */
+            h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .fs-4 {
+                font-size: 0.9rem !important;
+            }
+            
+            /* Product card mobile optimization */
+            .product-card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .product-card:hover {
+                transform: none; /* Disable hover effects on mobile */
+            }
+        }
+        
+        /* Extra Small Mobile (max-width: 480px) */
+        @media (max-width: 480px) {
+            .n11-container {
+                margin: 0.25rem;
+                border-radius: 12px;
+            }
+            
+            .n11-header {
+                padding: 1rem;
+            }
+            
+            .n11-content {
+                padding: 1rem;
+            }
+            
+            .n11-logo {
+                width: 50px;
+                height: 50px;
+                font-size: 1.4rem;
+            }
+            
+            .metric-grid {
+                gap: 0.8rem;
+            }
+            
+            .category-grid {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+            
+            h1 {
+                font-size: 1.2rem !important;
+            }
+            
+            .fs-4 {
+                font-size: 0.8rem !important;
+            }
+        }
+        
+        /* Touch Device Optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .n11-nav-link:hover {
+                background: none;
+            }
+            
+            .n11-nav-link:active {
+                background: rgba(255, 96, 0, 0.2);
+            }
+            
+            .product-card:hover {
+                transform: none;
+                box-shadow: 0 8px 25px rgba(255, 96, 0, 0.15);
+            }
+            
+            .product-card:active {
+                transform: scale(0.98);
+            }
+        }
+        
+        /* Landscape Mobile Optimization */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .n11-header {
+                padding: 1rem;
+            }
+            
+            .n11-header .d-flex {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="n11-container">
+        <!-- N11 Header -->
+        <div class="n11-header">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="n11-logo">
+                        11
+                    </div>
+                    <div>
+                        <h1 class="mb-0 fw-bold">N11 Marketplace Entegrasyonu</h1>
+                        <p class="mb-0 opacity-75 fs-4">Türkiye'nin dijital alışveriş platformu</p>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="turkish-flag"></div>
+                    <span class="real-time-badge">
+                        <i class="fas fa-chart-line me-2"></i>Türkiye Pazarı
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="n11-nav d-flex">
+            <div class="n11-nav-item">
+                <a href="#dashboard" class="n11-nav-link active" onclick="showN11Section('dashboard')">
+                    <i class="fas fa-chart-area me-2"></i>Dashboard
+                </a>
+            </div>
+            <div class="n11-nav-item">
+                <a href="#products" class="n11-nav-link" onclick="showN11Section('products')">
+                    <i class="fas fa-box-open me-2"></i>Ürünler
+                </a>
+            </div>
+            <div class="n11-nav-item">
+                <a href="#orders" class="n11-nav-link" onclick="showN11Section('orders')">
+                    <i class="fas fa-shipping-fast me-2"></i>Siparişler
+                </a>
+            </div>
+            <div class="n11-nav-item">
+                <a href="#analytics" class="n11-nav-link" onclick="showN11Section('analytics')">
+                    <i class="fas fa-chart-pie me-2"></i>Analizler
+                </a>
+            </div>
+            <div class="n11-nav-item">
+                <a href="#settings" class="n11-nav-link" onclick="showN11Section('settings')">
+                    <i class="fas fa-cogs me-2"></i>API Ayarları
+                </a>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="n11-content">
+            <!-- Dashboard Section -->
+            <div id="n11-dashboard-section" class="n11-section">
+                <!-- Category Selector -->
+                <div class="category-selector">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-tags me-2"></i>N11 Popüler Kategoriler
+                    </h5>
+                    <div class="category-grid">
+                        <div class="category-item selected" data-category="elektronik">
+                            <i class="fas fa-laptop fa-2x mb-2 text-primary"></i>
+                            <div class="fw-bold">Elektronik</div>
+                            <small class="text-muted">2,345 ürün</small>
+                        </div>
+                        <div class="category-item" data-category="moda">
+                            <i class="fas fa-tshirt fa-2x mb-2 text-info"></i>
+                            <div class="fw-bold">Moda</div>
+                            <small class="text-muted">1,876 ürün</small>
+                        </div>
+                        <div class="category-item" data-category="ev-yasam">
+                            <i class="fas fa-home fa-2x mb-2 text-warning"></i>
+                            <div class="fw-bold">Ev & Yaşam</div>
+                            <small class="text-muted">1,234 ürün</small>
+                        </div>
+                        <div class="category-item" data-category="spor">
+                            <i class="fas fa-dumbbell fa-2x mb-2 text-success"></i>
+                            <div class="fw-bold">Spor</div>
+                            <small class="text-muted">987 ürün</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connection Status & Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="n11-card status-card connected">
+                            <div class="status-icon connected">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <h2 class="fw-bold text-success">N11 API Bağlantısı</h2>
+                            <p class="text-muted fs-4">API v3.0 ile güvenli entegrasyon</p>
+                            <div class="mt-3">
+                                <small class="text-muted">Son sync: 2 dakika önce</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="n11-card">
+                            <h3 class="fw-bold mb-4">
+                                <i class="fas fa-bolt text-warning me-2"></i>
+                                Hızlı İşlemler
+                            </h3>
+                            <div class="row">
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="n11-btn w-100" onclick="syncAllN11Products()">
+                                        <i class="fas fa-sync-alt me-2"></i>Ürün Sync
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="n11-btn w-100" onclick="updateN11Prices()">
+                                        <i class="fas fa-lira-sign me-2"></i>Fiyat Güncelle
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="n11-btn w-100" onclick="exportN11Orders()">
+                                        <i class="fas fa-file-excel me-2"></i>Excel Export
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="n11-btn w-100" onclick="bulkN11Upload()">
+                                        <i class="fas fa-upload me-2"></i>Toplu Yükleme
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Metrics -->
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <i class="fas fa-boxes fa-4x text-primary mb-3"></i>
+                        <div class="metric-value" id="n11-total-products">2,567</div>
+                        <div class="metric-label">Aktif Ürünler</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+234 bu ay
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-shopping-cart fa-4x text-success mb-3"></i>
+                        <div class="metric-value" id="n11-monthly-orders">1,456</div>
+                        <div class="metric-label">Aylık Sipariş</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+18% artış
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-lira-sign fa-4x text-warning mb-3"></i>
+                        <div class="metric-value" id="n11-monthly-revenue">₺187,456</div>
+                        <div class="metric-label">Aylık Ciro (TL)</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+32% büyüme
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-star fa-4x text-info mb-3"></i>
+                        <div class="metric-value" id="n11-seller-score">4.7</div>
+                        <div class="metric-label">Satıcı Puanı</div>
+                        <div class="metric-change">
+                            <i class="fas fa-thumbs-up"></i>3,421 değerlendirme
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Chart -->
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="n11-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="fw-bold mb-0">
+                                    <i class="fas fa-chart-line text-info me-2"></i>
+                                    N11 Satış Performansı (Son 30 Gün)
+                                </h3>
+                                <span class="real-time-badge">Canlı Veri</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="n11SalesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="n11-card">
+                            <h3 class="fw-bold mb-4">
+                                <i class="fas fa-bell text-info me-2"></i>
+                                Son N11 Aktiviteleri
+                            </h3>
+                            <div class="activity-timeline">
+                                <div class="timeline-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="timeline-icon me-3">
+                                            <i class="fas fa-shopping-bag"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">#N11-234567</div>
+                                            <div class="text-muted small">Samsung Galaxy S24 - ₺28,999</div>
+                                            <div class="text-muted small">1 dakika önce</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="timeline-icon me-3">
+                                            <i class="fas fa-truck"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Kargo Hazırlandı</div>
+                                            <div class="text-muted small">iPhone 15 Pro - ₺45,999</div>
+                                            <div class="text-muted small">5 dakika önce</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="timeline-icon me-3">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Ürün Senkronizasyonu</div>
+                                            <div class="text-muted small">456 ürün güncellendi</div>
+                                            <div class="text-muted small">12 dakika önce</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other sections placeholder -->
+            <div id="n11-products-section" class="n11-section" style="display:none;">
+                <div class="n11-card">
+                    <h2 class="fw-bold">N11 Ürün Yönetimi</h2>
+                    <p class="fs-4">N11 ürünlerinizi buradan yönetebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="n11-orders-section" class="n11-section" style="display:none;">
+                <div class="n11-card">
+                    <h2 class="fw-bold">N11 Sipariş Takibi</h2>
+                    <p class="fs-4">N11 siparişlerinizi buradan takip edebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="n11-analytics-section" class="n11-section" style="display:none;">
+                <div class="n11-card">
+                    <h2 class="fw-bold">N11 Analytics</h2>
+                    <p class="fs-4">Detaylı N11 satış analizlerinizi buradan görüntüleyebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="n11-settings-section" class="n11-section" style="display:none;">
+                <div class="n11-card">
+                    <h2 class="fw-bold">N11 API Ayarları</h2>
+                    <p class="fs-4">N11 API ayarlarınızı buradan yapılandırabilirsiniz...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../WEBSOCKET_SYSTEM/meschain-websocket.js"></script>
+    <script src="n11_integration.js"></script>
+    
+    <!-- Cross-Browser Compatibility Testing -->
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_compatibility_tester.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_test_config.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/browser_compatibility_test_suite.js"></script>
+    <!-- Final UI/UX Polish -->
+    <script src="../UI_UX_POLISH/final_ui_ux_polisher.js"></script>
+    <link rel="stylesheet" href="../UI_UX_POLISH/advanced_animations.css">
+    <link rel="stylesheet" href="../UI_UX_POLISH/premium_visual_effects.css">
+    
+    <!-- Initialize Cross-Browser Testing -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Final UI/UX Polish
+            if (typeof FinalUIUXPolisher !== 'undefined') {
+                window.finalUIUXPolisher = new FinalUIUXPolisher();
+                console.log('✅ N11 Final UI/UX Polish initialized');
+            }
+
+            // Initialize Cross-Browser Compatibility Testing
+            if (typeof CrossBrowserCompatibilityTester !== 'undefined') {
+                const tester = new CrossBrowserCompatibilityTester();
+                tester.runMarketplaceTests('n11', {
+                    testElements: ['#n11-products-chart', '.n11-container', '.product-card'],
+                    testInteractions: ['theme-toggle', 'product-filter', 'chart-navigation'],
+                    testResponsive: true,
+                    testPerformance: true
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

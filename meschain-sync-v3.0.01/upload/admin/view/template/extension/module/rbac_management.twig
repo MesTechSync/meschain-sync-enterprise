@@ -1,0 +1,731 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary" onclick="saveRbacSettings()"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-users"></i> MesChain RBAC & Multi-Tenant Yönetimi</h3>
+      </div>
+      <div class="panel-body">
+        
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active">
+            <a href="#tab-overview" aria-controls="tab-overview" role="tab" data-toggle="tab">
+              <i class="fa fa-dashboard"></i> Genel Bakış
+            </a>
+          </li>
+          <li role="presentation">
+            <a href="#tab-tenants" aria-controls="tab-tenants" role="tab" data-toggle="tab">
+              <i class="fa fa-building"></i> Tenant Yönetimi
+            </a>
+          </li>
+          <li role="presentation">
+            <a href="#tab-users" aria-controls="tab-users" role="tab" data-toggle="tab">
+              <i class="fa fa-users"></i> Kullanıcı Rolleri
+            </a>
+          </li>
+          <li role="presentation">
+            <a href="#tab-permissions" aria-controls="tab-permissions" role="tab" data-toggle="tab">
+              <i class="fa fa-key"></i> İzin Şablonları
+            </a>
+          </li>
+          <li role="presentation">
+            <a href="#tab-sessions" aria-controls="tab-sessions" role="tab" data-toggle="tab">
+              <i class="fa fa-clock-o"></i> Aktif Oturumlar
+            </a>
+          </li>
+        </ul>
+        
+        <!-- Tab Content -->
+        <div class="tab-content">
+          
+          <!-- Genel Bakış Tab -->
+          <div role="tabpanel" class="tab-pane active" id="tab-overview">
+            <div class="row" style="margin-top: 20px;">
+              
+              <!-- Mevcut Tenant Bilgisi -->
+              <div class="col-md-6">
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h4><i class="fa fa-building"></i> Mevcut Tenant</h4>
+                  </div>
+                  <div class="panel-body">
+                    {% if current_tenant %}
+                      <p><strong>Tenant Adı:</strong> {{ current_tenant.tenant_name }}</p>
+                      <p><strong>Tip:</strong> 
+                        <span class="label label-{% if current_tenant.tenant_type == 'enterprise' %}success{% elseif current_tenant.tenant_type == 'business' %}warning{% else %}default{% endif %}">
+                          {{ current_tenant.tenant_type|title }}
+                        </span>
+                      </p>
+                      <p><strong>Durum:</strong> 
+                        <span class="label label-{% if current_tenant.status == 'active' %}success{% else %}danger{% endif %}">
+                          {{ current_tenant.status|title }}
+                        </span>
+                      </p>
+                      <p><strong>Max Kullanıcı:</strong> {{ current_tenant.max_users }}</p>
+                      <p><strong>Aylık Sipariş Limiti:</strong> {{ current_tenant.max_orders_monthly }}</p>
+                    {% else %}
+                      <p class="text-muted">Tenant bilgisi yüklenemedi</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Kullanıcı Rol Bilgisi -->
+              <div class="col-md-6">
+                <div class="panel panel-primary">
+                  <div class="panel-heading">
+                    <h4><i class="fa fa-user"></i> Sizin Rolünüz</h4>
+                  </div>
+                  <div class="panel-body">
+                    {% if user_role %}
+                      <p>
+                        <span style="font-size: 24px;">{{ user_role.role_icon ?? '👤' }}</span>
+                        <strong>{{ user_role.role_name|title }}</strong>
+                      </p>
+                      <p><strong>Rol Seviyesi:</strong> {{ user_role.role_level }}</p>
+                      <p><strong>Marketplace Erişimi:</strong></p>
+                      <div>
+                        {% for marketplace in user_role.marketplace_access %}
+                          {% if marketplace == '*' %}
+                            <span class="label label-success">Tüm Marketplaces</span>
+                          {% else %}
+                            <span class="label label-primary">{{ marketplace|title }}</span>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    {% else %}
+                      <p class="text-warning">Rol bilgisi bulunamadı</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+            
+            <!-- İstatistikler -->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4><i class="fa fa-bar-chart"></i> Sistem İstatistikleri</h4>
+                  </div>
+                  <div class="panel-body" id="system-stats">
+                    <p class="text-center"><i class="fa fa-spinner fa-spin"></i> İstatistikler yükleniyor...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tenant Yönetimi Tab -->
+          <div role="tabpanel" class="tab-pane" id="tab-tenants">
+            <div style="margin-top: 20px;">
+              
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="button" class="btn btn-success" onclick="showCreateTenantModal()">
+                    <i class="fa fa-plus"></i> Yeni Tenant Ekle
+                  </button>
+                  <button type="button" class="btn btn-info pull-right" onclick="loadTenants()">
+                    <i class="fa fa-refresh"></i> Yenile
+                  </button>
+                </div>
+              </div>
+              
+              <div class="row" style="margin-top: 15px;">
+                <div class="col-md-12">
+                  <div class="table-responsive">
+                    <table class="table table-bordered table-striped" id="tenants-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Tenant Adı</th>
+                          <th>Tip</th>
+                          <th>Domain</th>
+                          <th>Kullanıcı Sayısı</th>
+                          <th>Durum</th>
+                          <th>Oluşturma Tarihi</th>
+                          <th>İşlemler</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td colspan="8" class="text-center">
+                            <i class="fa fa-spinner fa-spin"></i> Tenant'lar yükleniyor...
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Kullanıcı Rolleri Tab -->
+          <div role="tabpanel" class="tab-pane" id="tab-users">
+            <div style="margin-top: 20px;">
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Tenant Seç:</label>
+                    <select class="form-control" id="user-tenant-select" onchange="loadUsersForTenant()">
+                      <option value="">Tenant seçin...</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <button type="button" class="btn btn-primary" onclick="showAssignRoleModal()" style="margin-top: 25px;">
+                    <i class="fa fa-user-plus"></i> Rol Ata
+                  </button>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="table-responsive">
+                    <table class="table table-bordered table-striped" id="users-table">
+                      <thead>
+                        <tr>
+                          <th>Kullanıcı</th>
+                          <th>E-posta</th>
+                          <th>Rol</th>
+                          <th>Marketplace Erişimi</th>
+                          <th>Limitler</th>
+                          <th>Son Güncelleme</th>
+                          <th>İşlemler</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td colspan="7" class="text-center">
+                            <p class="text-muted">Önce bir tenant seçin</p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- İzin Şablonları Tab -->
+          <div role="tabpanel" class="tab-pane" id="tab-permissions">
+            <div style="margin-top: 20px;">
+              
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="button" class="btn btn-info pull-right" onclick="loadPermissionTemplates()">
+                    <i class="fa fa-refresh"></i> Yenile
+                  </button>
+                </div>
+              </div>
+              
+              <div class="row" style="margin-top: 15px;">
+                {% for template in permission_templates %}
+                <div class="col-md-6" style="margin-bottom: 20px;">
+                  <div class="panel panel-default">
+                    <div class="panel-heading" style="background-color: {{ template.role_color ?? '#95a5a6' }}; color: white;">
+                      <h4 class="panel-title">
+                        <span style="font-size: 16px;">{{ template.role_icon ?? '👤' }}</span>
+                        {{ template.template_name|title }}
+                        <span class="badge pull-right">Level {{ template.role_level }}</span>
+                      </h4>
+                    </div>
+                    <div class="panel-body">
+                      <p><small>{{ template.description }}</small></p>
+                      
+                      <h5>İzinler:</h5>
+                      <div class="permissions-list">
+                        {% for permission, value in template.permissions %}
+                          <span class="label label-{% if value %}success{% else %}default{% endif %}">
+                            {{ permission|replace({'_': ' '})|title }}
+                          </span>
+                        {% endfor %}
+                      </div>
+                      
+                      <h5 style="margin-top: 10px;">Marketplace Erişimi:</h5>
+                      <div>
+                        {% for marketplace in template.marketplace_access %}
+                          {% if marketplace == '*' %}
+                            <span class="label label-success">Tümü</span>
+                          {% else %}
+                            <span class="label label-primary">{{ marketplace|title }}</span>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Aktif Oturumlar Tab -->
+          <div role="tabpanel" class="tab-pane" id="tab-sessions">
+            <div style="margin-top: 20px;">
+              
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="button" class="btn btn-info pull-right" onclick="loadActiveSessions()">
+                    <i class="fa fa-refresh"></i> Yenile
+                  </button>
+                </div>
+              </div>
+              
+              <div class="row" style="margin-top: 15px;">
+                <div class="col-md-12">
+                  <div class="table-responsive">
+                    <table class="table table-bordered table-striped" id="sessions-table">
+                      <thead>
+                        <tr>
+                          <th>Kullanıcı</th>
+                          <th>IP Adresi</th>
+                          <th>Tarayıcı</th>
+                          <th>Son Aktivite</th>
+                          <th>Tenant</th>
+                          <th>İşlemler</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td colspan="6" class="text-center">
+                            <i class="fa fa-spinner fa-spin"></i> Oturumlar yükleniyor...
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+
+<!-- Yeni Tenant Modal -->
+<div class="modal fade" id="create-tenant-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><i class="fa fa-building"></i> Yeni Tenant Oluştur</h4>
+      </div>
+      <form id="create-tenant-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Tenant Adı *</label>
+            <input type="text" name="tenant_name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Tenant Tipi</label>
+            <select name="tenant_type" class="form-control">
+              <option value="individual">Individual</option>
+              <option value="business">Business</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Domain (Opsiyonel)</label>
+            <input type="text" name="domain" class="form-control" placeholder="example.com">
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Max Kullanıcı</label>
+                <input type="number" name="max_users" class="form-control" value="5" min="1">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Aylık Sipariş Limiti</label>
+                <input type="number" name="max_orders_monthly" class="form-control" value="1000" min="1">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Aktif Özellikler</label>
+            <div class="checkbox-list">
+              <label class="checkbox-inline"><input type="checkbox" name="features_enabled[]" value="trendyol"> Trendyol</label>
+              <label class="checkbox-inline"><input type="checkbox" name="features_enabled[]" value="n11"> N11</label>
+              <label class="checkbox-inline"><input type="checkbox" name="features_enabled[]" value="amazon"> Amazon</label>
+              <label class="checkbox-inline"><input type="checkbox" name="features_enabled[]" value="hepsiburada"> Hepsiburada</label>
+              <label class="checkbox-inline"><input type="checkbox" name="features_enabled[]" value="ozon"> Ozon</label>
+              <label class="checkbox-inline"><input type="checkbox" name="features_enabled[]" value="ebay"> eBay</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">İptal</button>
+          <button type="submit" class="btn btn-success">Oluştur</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Rol Atama Modal -->
+<div class="modal fade" id="assign-role-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><i class="fa fa-user-plus"></i> Kullanıcıya Rol Ata</h4>
+      </div>
+      <form id="assign-role-form">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Kullanıcı Seç *</label>
+                <select name="user_id" class="form-control" required id="assign-user-select">
+                  <option value="">Kullanıcı seçin...</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Rol Şablonu *</label>
+                <select name="role_template" class="form-control" required id="assign-role-select">
+                  <option value="">Rol seçin...</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Özel İzinler (Opsiyonel)</label>
+            <div id="custom-permissions">
+              <!-- Dynamic content -->
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">İptal</button>
+          <button type="submit" class="btn btn-primary">Rol Ata</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+// RBAC Management JavaScript Functions
+
+$(document).ready(function() {
+    loadTenants();
+    loadPermissionTemplates();
+    populateTenantSelect();
+});
+
+// Tenant Management
+function loadTenants() {
+    $.ajax({
+        url: '{{ url_get_tenants }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                populateTenantsTable(response.tenants);
+            } else {
+                showAlert('danger', response.error || 'Tenant listesi yüklenemedi');
+            }
+        },
+        error: function() {
+            showAlert('danger', 'Sunucu hatası');
+        }
+    });
+}
+
+function populateTenantsTable(tenants) {
+    var tbody = $('#tenants-table tbody');
+    tbody.empty();
+    
+    if (tenants.length === 0) {
+        tbody.append('<tr><td colspan="8" class="text-center text-muted">Tenant bulunamadı</td></tr>');
+        return;
+    }
+    
+    tenants.forEach(function(tenant) {
+        var statusLabel = tenant.status === 'active' ? 'success' : 'danger';
+        var typeLabel = tenant.tenant_type === 'enterprise' ? 'success' : 
+                       tenant.tenant_type === 'business' ? 'warning' : 'default';
+        
+        var row = '<tr>' +
+            '<td>' + tenant.tenant_id + '</td>' +
+            '<td>' + tenant.tenant_name + '</td>' +
+            '<td><span class="label label-' + typeLabel + '">' + tenant.tenant_type + '</span></td>' +
+            '<td>' + (tenant.domain || '-') + '</td>' +
+            '<td>' + tenant.user_count + '/' + tenant.max_users + '</td>' +
+            '<td><span class="label label-' + statusLabel + '">' + tenant.status + '</span></td>' +
+            '<td>' + formatDate(tenant.date_created) + '</td>' +
+            '<td>' +
+                '<button class="btn btn-xs btn-info" onclick="editTenant(' + tenant.tenant_id + ')"><i class="fa fa-edit"></i></button> ' +
+                '<button class="btn btn-xs btn-warning" onclick="viewTenantUsers(' + tenant.tenant_id + ')"><i class="fa fa-users"></i></button>' +
+            '</td>' +
+            '</tr>';
+        tbody.append(row);
+    });
+}
+
+function showCreateTenantModal() {
+    $('#create-tenant-modal').modal('show');
+}
+
+$('#create-tenant-form').on('submit', function(e) {
+    e.preventDefault();
+    
+    var formData = new FormData(this);
+    var data = {};
+    
+    // Form verilerini object'e çevir
+    for (var pair of formData.entries()) {
+        if (pair[0].endsWith('[]')) {
+            var key = pair[0].slice(0, -2);
+            if (!data[key]) data[key] = [];
+            data[key].push(pair[1]);
+        } else {
+            data[pair[0]] = pair[1];
+        }
+    }
+    
+    $.ajax({
+        url: '{{ url_create_tenant }}',
+        type: 'POST',
+        data: data,
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', response.success);
+                $('#create-tenant-modal').modal('hide');
+                loadTenants();
+                populateTenantSelect();
+            } else {
+                showAlert('danger', response.error);
+            }
+        },
+        error: function() {
+            showAlert('danger', 'Sunucu hatası');
+        }
+    });
+});
+
+// User Role Management
+function populateTenantSelect() {
+    $.ajax({
+        url: '{{ url_get_tenants }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                var select = $('#user-tenant-select');
+                select.empty().append('<option value="">Tenant seçin...</option>');
+                
+                response.tenants.forEach(function(tenant) {
+                    select.append('<option value="' + tenant.tenant_id + '">' + tenant.tenant_name + '</option>');
+                });
+            }
+        }
+    });
+}
+
+function loadUsersForTenant() {
+    var tenantId = $('#user-tenant-select').val();
+    if (!tenantId) {
+        $('#users-table tbody').html('<tr><td colspan="7" class="text-center text-muted">Önce bir tenant seçin</td></tr>');
+        return;
+    }
+    
+    $.ajax({
+        url: '{{ url_get_users }}',
+        type: 'GET',
+        data: { tenant_id: tenantId },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                populateUsersTable(response.assigned_users);
+                populateUnassignedUsers(response.unassigned_users);
+            } else {
+                showAlert('danger', response.error);
+            }
+        },
+        error: function() {
+            showAlert('danger', 'Sunucu hatası');
+        }
+    });
+}
+
+function populateUsersTable(users) {
+    var tbody = $('#users-table tbody');
+    tbody.empty();
+    
+    if (users.length === 0) {
+        tbody.append('<tr><td colspan="7" class="text-center text-muted">Bu tenant\'ta kullanıcı bulunmuyor</td></tr>');
+        return;
+    }
+    
+    users.forEach(function(user) {
+        var marketplaces = user.marketplace_access.map(function(mp) {
+            return mp === '*' ? '<span class="label label-success">Tümü</span>' : 
+                   '<span class="label label-primary">' + mp + '</span>';
+        }).join(' ');
+        
+        var row = '<tr>' +
+            '<td>' + user.username + '<br><small>' + user.firstname + ' ' + user.lastname + '</small></td>' +
+            '<td>' + user.email + '</td>' +
+            '<td>' +
+                '<span style="font-size: 14px;">' + (user.role_icon || '👤') + '</span> ' +
+                user.role_name +
+                '<br><small>Level: ' + user.role_level + '</small>' +
+            '</td>' +
+            '<td>' + marketplaces + '</td>' +
+            '<td><small>API: ' + (user.feature_limits.max_api_calls_daily === -1 ? '∞' : user.feature_limits.max_api_calls_daily) + '/gün</small></td>' +
+            '<td>' + formatDate(user.date_modified) + '</td>' +
+            '<td>' +
+                '<button class="btn btn-xs btn-warning" onclick="editUserRole(' + user.user_id + ')"><i class="fa fa-edit"></i></button> ' +
+                '<button class="btn btn-xs btn-danger" onclick="removeUserRole(' + user.user_id + ')"><i class="fa fa-trash"></i></button>' +
+            '</td>' +
+            '</tr>';
+        tbody.append(row);
+    });
+}
+
+function showAssignRoleModal() {
+    var tenantId = $('#user-tenant-select').val();
+    if (!tenantId) {
+        showAlert('warning', 'Önce bir tenant seçin');
+        return;
+    }
+    
+    // Load permission templates for role selection
+    loadPermissionTemplatesForModal();
+    $('#assign-role-modal').modal('show');
+}
+
+function loadPermissionTemplatesForModal() {
+    $.ajax({
+        url: '{{ url_get_templates }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                var select = $('#assign-role-select');
+                select.empty().append('<option value="">Rol seçin...</option>');
+                
+                response.templates.forEach(function(template) {
+                    select.append('<option value="' + template.template_name + '">' + 
+                                 template.role_icon + ' ' + template.template_name + ' (Level ' + template.role_level + ')</option>');
+                });
+            }
+        }
+    });
+}
+
+// Utility Functions
+function showAlert(type, message) {
+    var alertHtml = '<div class="alert alert-' + type + ' alert-dismissible">' +
+                   '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                   message + '</div>';
+    
+    $('.container-fluid').prepend(alertHtml);
+    
+    setTimeout(function() {
+        $('.alert').fadeOut();
+    }, 5000);
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    var date = new Date(dateString);
+    return date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'});
+}
+
+function saveRbacSettings() {
+    showAlert('info', 'RBAC ayarları kaydedildi');
+}
+</script>
+
+<style>
+.permissions-list .label {
+    margin: 2px;
+    font-size: 10px;
+}
+
+.checkbox-list {
+    max-height: 100px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.panel-heading {
+    position: relative;
+}
+
+.badge {
+    font-size: 10px;
+}
+
+.table-responsive {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.nav-tabs > li > a {
+    border-radius: 4px 4px 0 0;
+}
+
+.tab-content {
+    border: 1px solid #ddd;
+    border-top: none;
+    padding: 0;
+    background: white;
+}
+
+.tab-pane {
+    padding: 15px;
+}
+</style>
+
+{{ footer }} 

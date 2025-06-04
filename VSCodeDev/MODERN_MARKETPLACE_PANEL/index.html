@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MesChain-Sync - Modern Marketplace Control Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-store-alt me-2"></i>
+                MesChain-Sync Pro
+            </a>
+            
+            <div class="d-flex align-items-center gap-3">
+                <!-- Theme Toggle -->
+                <button class="btn btn-outline-light btn-sm" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <!-- Notifications -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-light position-relative" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            3
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sync text-success me-2"></i>Amazon sync completed</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-exclamation-triangle text-warning me-2"></i>eBay API rate limit warning</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-box text-info me-2"></i>50 new orders from Trendyol</a></li>
+                    </ul>
+                </div>
+                
+                <!-- User Profile -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>
+                        Admin User
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse shadow-sm">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#marketplaces">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Marketplaces
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#products">
+                                <i class="fas fa-boxes me-2"></i>
+                                Products
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#orders">
+                                <i class="fas fa-clipboard-list me-2"></i>
+                                Orders
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#inventory">
+                                <i class="fas fa-warehouse me-2"></i>
+                                Inventory
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#analytics">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#automation">
+                                <i class="fas fa-robot me-2"></i>
+                                Automation
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#settings">
+                                <i class="fas fa-cogs me-2"></i>
+                                Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Marketplace Control Center</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-success">
+                                <i class="fas fa-sync me-1"></i>
+                                Sync All
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus me-1"></i>
+                                Add Product
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total Revenue
+                                        </div>
+                                        <div id="totalRevenue" class="h5 mb-0 font-weight-bold text-gray-800">$24,850</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Active Products
+                                        </div>
+                                        <div id="activeProducts" class="h5 mb-0 font-weight-bold text-gray-800">1,247</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-boxes fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Total Orders
+                                        </div>
+                                        <div id="totalOrders" class="h5 mb-0 font-weight-bold text-gray-800">8,432</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            Conversion Rate
+                                        </div>
+                                        <div id="conversionRate" class="h5 mb-0 font-weight-bold text-gray-800">3.42%</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-heartbeat fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marketplace Status Grid -->
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Marketplace Sync Status</h6>
+                                <div class="dropdown no-arrow">
+                                    <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right shadow">
+                                        <a class="dropdown-item" href="#">Sync All</a>
+                                        <a class="dropdown-item" href="#">Export Data</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="marketplace-grid">
+                                    <!-- Amazon -->
+                                    <div class="marketplace-card amazon">
+                                        <div class="marketplace-header">
+                                            <img src="https://logo.clearbit.com/amazon.com" alt="Amazon" class="marketplace-logo">
+                                            <div class="marketplace-info">
+                                                <h6 class="marketplace-name">Amazon</h6>
+                                                <span class="badge bg-success">Connected</span>
+                                            </div>
+                                            <div class="marketplace-actions">
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-sync"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="marketplace-stats">
+                                            <div class="stat">
+                                                <span class="stat-value">1,245</span>
+                                                <span class="stat-label">Products</span>
+                                            </div>
+                                            <div class="stat">
+                                                <span class="stat-value">89</span>
+                                                <span class="stat-label">Orders</span>
+                                            </div>
+                                            <div class="stat">
+                                                <span class="stat-value">$12,450</span>
+                                                <span class="stat-label">Revenue</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Trendyol -->
+                                    <div class="marketplace-card trendyol">
+                                        <div class="marketplace-header">
+                                            <img src="https://logo.clearbit.com/trendyol.com" alt="Trendyol" class="marketplace-logo">
+                                            <div class="marketplace-info">
+                                                <h6 class="marketplace-name">Trendyol</h6>
+                                                <span class="badge bg-success">Connected</span>
+                                            </div>
+                                            <div class="marketplace-actions">
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-sync"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="marketplace-stats">
+                                            <div class="stat">
+                                                <span class="stat-value">856</span>
+                                                <span class="stat-label">Products</span>
+                                            </div>
+                                            <div class="stat">
+                                                <span class="stat-value">67</span>
+                                                <span class="stat-label">Orders</span>
+                                            </div>
+                                            <div class="stat">
+                                                <span class="stat-value">$8,750</span>
+                                                <span class="stat-label">Revenue</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- eBay -->
+                                    <div class="marketplace-card ebay">
+                                        <div class="marketplace-header">
+                                            <img src="https://logo.clearbit.com/ebay.com" alt="eBay" class="marketplace-logo">
+                                            <div class="marketplace-info">
+                                                <h6 class="marketplace-name">eBay</h6>
+                                                <span class="badge bg-warning">In Progress</span>
+                                            </div>
+                                            <div class="marketplace-actions">
+                                                <button class="btn btn-sm btn-outline-warning">
+                                                    <i class="fas fa-cog"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="marketplace-stats">
+                                            <div class="stat">
+                                                <span class="stat-value">234</span>
+                                                <span class="stat-label">Products</span>
+                                            </div>
+                                            <div class="stat">
+                                                <span class="stat-value">12</span>
+                                                <span class="stat-label">Orders</span>
+                                            </div>
+                                            <div class="stat">
+                                                <span class="stat-value">$2,100</span>
+                                                <span class="stat-label">Revenue</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- N11 -->
+                                    <div class="marketplace-card n11">
+                                        <div class="marketplace-header">
+                                            <img src="https://logo.clearbit.com/n11.com" alt="N11" class="marketplace-logo">
+                                            <div class="marketplace-info">
+                                                <h6 class="marketplace-name">N11</h6>
+                                                <span class="badge bg-success">Connected</span>
+                                            </div>
+                                            <div class="marketplace-actions">
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-sync"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="marketplace-stats">
+                                            <div class="stat">
+                                                <span class="stat-value">567</span>
+                                                <span class="stat-label">Products</span>
+                                            </div>
+                                            <div class="stat">
+                                                <span class="stat-value">34</span>
+                                                <span class="stat-label">Orders</span>
+                                            </div>
+                                            <div class="stat">
+                                                <span class="stat-value">$4,200</span>
+                                                <span class="stat-label">Revenue</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="col-lg-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success">
+                                        <i class="fas fa-upload me-2"></i>
+                                        Bulk Upload Products
+                                    </button>
+                                    <button class="btn btn-info">
+                                        <i class="fas fa-sync-alt me-2"></i>
+                                        Sync Inventory
+                                    </button>
+                                    <button class="btn btn-warning">
+                                        <i class="fas fa-tags me-2"></i>
+                                        Update Prices
+                                    </button>
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-download me-2"></i>
+                                        Export Orders
+                                    </button>
+                                    <button class="btn btn-secondary">
+                                        <i class="fas fa-chart-bar me-2"></i>
+                                        Generate Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- API Health Monitor -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">API Health Monitor</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="api-health-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Amazon API</span>
+                                        <div class="health-indicator">
+                                            <span class="badge bg-success">Healthy</span>
+                                            <span class="response-time">120ms</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        <div class="progress-bar bg-success" style="width: 95%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="api-health-item mt-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Trendyol API</span>
+                                        <div class="health-indicator">
+                                            <span class="badge bg-success">Healthy</span>
+                                            <span class="response-time">95ms</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        <div class="progress-bar bg-success" style="width: 98%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="api-health-item mt-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>eBay API</span>
+                                        <div class="health-indicator">
+                                            <span class="badge bg-warning">Slow</span>
+                                            <span class="response-time">850ms</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        <div class="progress-bar bg-warning" style="width: 65%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="api-health-item mt-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>N11 API</span>
+                                        <div class="health-indicator">
+                                            <span class="badge bg-success">Healthy</span>
+                                            <span class="response-time">180ms</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        <div class="progress-bar bg-success" style="width: 88%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                </div>
+
+                <!-- Recent Orders and System Alerts -->
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Recent Orders</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="recentOrdersTable" class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Customer</th>
+                                                <th>Marketplace</th>
+                                                <th>Total</th>
+                                                <th>Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><span class="fw-bold">ORD-001</span></td>
+                                                <td>John Smith</td>
+                                                <td><span class="badge bg-warning">Amazon</span></td>
+                                                <td class="fw-bold text-success">$299.99</td>
+                                                <td class="text-muted">Jun 1, 2025</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="fw-bold">ORD-002</span></td>
+                                                <td>Sarah Johnson</td>
+                                                <td><span class="badge bg-danger">Trendyol</span></td>
+                                                <td class="fw-bold text-success">$159.50</td>
+                                                <td class="text-muted">Jun 1, 2025</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">System Alerts</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="alertsContainer">
+                                    <div class="alert alert-success alert-dismissible fade show">
+                                        <i class="fas fa-sync me-2"></i>
+                                        Amazon sync completed successfully
+                                        <small class="d-block mt-1 text-muted">2 minutes ago</small>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                    <div class="alert alert-warning alert-dismissible fade show">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        eBay API rate limit approaching
+                                        <small class="d-block mt-1 text-muted">15 minutes ago</small>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="row mb-4">
+                    <div class="col-lg-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Performance Metrics</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Response Time: <span id="responseTime">145ms</span></label>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Uptime: <span id="uptime">99.97%</span></label>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Memory Usage</label>
+                                    <div class="progress">
+                                        <div id="memoryUsageBar" class="progress-bar bg-info" style="width: 68%">68%</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">CPU Usage</label>
+                                    <div class="progress">
+                                        <div id="cpuUsageBar" class="progress-bar bg-warning" style="width: 34%">34%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Marketplace Sync Status</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Amazon</label>
+                                    <div id="amazonStatus">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-success">connected</span>
+                                            <small class="text-muted">2 minutes ago</small>
+                                        </div>
+                                        <div class="mt-1">
+                                            <small>Products: 1543 | Errors: 0</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Trendyol</label>
+                                    <div id="trendyolStatus">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-success">connected</span>
+                                            <small class="text-muted">5 minutes ago</small>
+                                        </div>
+                                        <div class="mt-1">
+                                            <small>Products: 1421 | Errors: 2</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">eBay</label>
+                                    <div id="ebayStatus">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-warning">warning</span>
+                                            <small class="text-muted">15 minutes ago</small>
+                                        </div>
+                                        <div class="mt-1">
+                                            <small>Products: 987 | Errors: 1</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">N11</label>
+                                    <div id="n11Status">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-success">connected</span>
+                                            <small class="text-muted">8 minutes ago</small>
+                                        </div>
+                                        <div class="mt-1">
+                                            <small>Products: 756 | Errors: 0</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Charts -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Revenue Analytics</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="revenueChart" width="100" height="40"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Marketplace Distribution</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="marketplaceChart" width="100" height="100"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Recent Activities</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Action</th>
+                                        <th>Marketplace</th>
+                                        <th>Details</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>10:45 AM</td>
+                                        <td><i class="fas fa-sync text-primary me-2"></i>Product Sync</td>
+                                        <td>Amazon</td>
+                                        <td>15 products updated</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>10:30 AM</td>
+                                        <td><i class="fas fa-shopping-cart text-info me-2"></i>New Order</td>
+                                        <td>Trendyol</td>
+                                        <td>Order #TY-12345</td>
+                                        <td><span class="badge bg-info">Processing</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>10:15 AM</td>
+                                        <td><i class="fas fa-warehouse text-warning me-2"></i>Inventory Update</td>
+                                        <td>N11</td>
+                                        <td>Stock levels synchronized</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>09:55 AM</td>
+                                        <td><i class="fas fa-exclamation-triangle text-danger me-2"></i>API Error</td>
+                                        <td>eBay</td>
+                                        <td>Rate limit exceeded</td>
+                                        <td><span class="badge bg-danger">Failed</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

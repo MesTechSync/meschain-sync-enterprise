@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eBay Entegrasyonu - MesChain-Sync</title>
+    
+    <!-- Modern UI Framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <style>
+        :root {
+            --ebay-blue: #0064d2;
+            --ebay-yellow: #f5af02;
+            --ebay-red: #e53238;
+            --ebay-green: #86b817;
+            --ebay-light-blue: #4bb8f0;
+            --ebay-dark: #112a46;
+            --ebay-lighter: #f7f9fc;
+            --ebay-gradient: linear-gradient(135deg, #0064d2 0%, #4bb8f0 100%);
+            --ebay-accent-gradient: linear-gradient(135deg, #e53238 0%, #f5af02 100%);
+            
+            /* Light Theme Variables */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f9fc;
+            --bg-tertiary: #4bb8f0;
+            --text-primary: #112a46;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --border-color: #4bb8f0;
+            --shadow-light: rgba(0, 100, 210, 0.1);
+            --shadow-medium: rgba(0, 100, 210, 0.2);
+            --shadow-heavy: rgba(0, 100, 210, 0.3);
+            --body-gradient: linear-gradient(135deg, #4bb8f0 0%, #0064d2 50%, #112a46 100%);
+        }
+
+        [data-theme="dark"] {
+            --ebay-blue: #4bb8f0;
+            --ebay-yellow: #f5af02;
+            --ebay-red: #ff4444;
+            --ebay-green: #86b817;
+            --ebay-light-blue: #0064d2;
+            --ebay-dark: #4bb8f0;
+            --ebay-lighter: #1a1a1a;
+            --ebay-gradient: linear-gradient(135deg, #4bb8f0 0%, #0064d2 100%);
+            --ebay-accent-gradient: linear-gradient(135deg, #ff4444 0%, #f5af02 100%);
+            
+            /* Dark Theme Variables */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #0064d2;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --text-muted: #999999;
+            --border-color: #0064d2;
+            --shadow-light: rgba(75, 184, 240, 0.15);
+            --shadow-medium: rgba(75, 184, 240, 0.25);
+            --shadow-heavy: rgba(75, 184, 240, 0.35);
+            --body-gradient: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #2d2d2d 100%);
+        }
+        
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+          body {
+            background: var(--body-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .ebay-container {
+            background: var(--bg-primary);
+            border-radius: 25px;
+            box-shadow: 0 30px 80px var(--shadow-medium);
+            margin: 2rem;
+            overflow: hidden;
+            border: 4px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .ebay-header {
+            background: var(--ebay-gradient);
+            color: white;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ebay-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(245, 175, 2, 0.2) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        .ebay-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--ebay-accent-gradient);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(245, 175, 2, 0.4);
+            position: relative;
+            z-index: 2;
+        }
+          .ebay-nav {
+            background: var(--bg-secondary);
+            padding: 0;
+            border-bottom: 5px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .ebay-nav-item {
+            flex: 1;
+        }
+        
+        .ebay-nav-link {
+            color: var(--text-primary) !important;
+            padding: 1.3rem 1.5rem;
+            text-align: center;
+            border: none;
+            background: none;
+            transition: all 0.4s ease;
+            border-radius: 0;
+            font-weight: 800;
+            text-decoration: none;
+            position: relative;
+            font-size: 1.05rem;
+        }
+        
+        .ebay-nav-link:hover, .ebay-nav-link.active {
+            background: var(--ebay-gradient);
+            color: white !important;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0, 100, 210, 0.4);
+        }
+        
+        .ebay-content {
+            padding: 3rem;
+            background: white;
+        }
+        
+        .ebay-card {
+            background: white;
+            border-radius: 25px;
+            padding: 3rem;
+            box-shadow: 0 15px 45px rgba(0, 100, 210, 0.12);
+            border: 4px solid var(--ebay-light-blue);
+            margin-bottom: 3rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ebay-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 70px rgba(0, 100, 210, 0.25);
+            border-color: var(--ebay-blue);
+        }
+        
+        .ebay-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: var(--ebay-gradient);
+        }
+        
+        .status-card {
+            text-align: center;
+            padding: 3.5rem 2.5rem;
+        }
+        
+        .status-card.connected {
+            border-color: var(--ebay-green);
+        }
+        
+        .status-card.connected::before {
+            background: linear-gradient(90deg, var(--ebay-green), #a8d030);
+        }
+        
+        .status-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--ebay-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2.5rem;
+            font-size: 3rem;
+            color: white;
+            box-shadow: 0 20px 50px rgba(0, 100, 210, 0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .status-icon.connected {
+            background: linear-gradient(135deg, var(--ebay-green), #a8d030);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 4px solid var(--ebay-light-blue);
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card:hover {
+            border-color: var(--ebay-blue);
+            box-shadow: 0 15px 45px rgba(0, 100, 210, 0.25);
+            transform: translateY(-8px);
+        }
+        
+        .metric-value {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 2rem 0;
+            background: var(--ebay-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .auction-badge {
+            background: var(--ebay-accent-gradient);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+        }
+        
+        .ebay-btn {
+            background: var(--ebay-gradient);
+            border: none;
+            color: white;
+            padding: 1.2rem 3rem;
+            border-radius: 20px;
+            font-weight: 900;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0, 100, 210, 0.35);
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1.05rem;
+        }
+        
+        .ebay-btn:hover {
+            background: linear-gradient(135deg, #004ba0, #e53238);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0, 100, 210, 0.6);
+            color: white;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 450px;
+            margin: 2.5rem 0;
+        }
+        
+        .real-time-badge {
+            background: rgba(0, 100, 210, 0.15);
+            color: var(--ebay-blue);
+            padding: 0.8rem 2rem;
+            border-radius: 35px;
+            font-size: 1rem;
+            font-weight: 900;
+            animation: pulse 2s infinite;
+            border: 3px solid var(--ebay-light-blue);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        
+        .store-selector {
+            background: var(--ebay-lighter);
+            border: 3px solid var(--ebay-light-blue);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .country-flag {
+            width: 32px;
+            height: 24px;
+            border-radius: 4px;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+          
+        /* 📱 ENHANCED RESPONSIVE DESIGN - EBAY MARKETPLACE */
+        
+        /* Tablet Optimization (768px - 1024px) */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .ebay-container {
+                margin: 1.5rem;
+                border-radius: 20px;
+            }
+            
+            .ebay-header {
+                padding: 2.5rem;
+            }
+            
+            .ebay-content {
+                padding: 2rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+        }
+        
+        /* Mobile Optimization (max-width: 768px) */
+        @media (max-width: 768px) {
+            .ebay-container {
+                margin: 0.5rem;
+                border-radius: 15px;
+            }
+            
+            .ebay-header {
+                padding: 1.5rem;
+                text-align: center;
+            }
+            
+            .ebay-header .d-flex {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .ebay-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+                margin: 0 auto 1rem;
+            }
+            
+            .ebay-content {
+                padding: 1.5rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .ebay-nav {
+                flex-direction: column;
+                overflow-x: auto;
+            }
+            
+            .ebay-nav-item {
+                min-width: 100%;
+            }
+            
+            .ebay-nav-link {
+                padding: 1rem;
+                text-align: left;
+                border-bottom: 1px solid rgba(229, 50, 56, 0.1);
+            }
+            
+            .chart-container {
+                height: 250px;
+                margin-bottom: 1rem;
+            }
+            
+            .real-time-badge {
+                display: block;
+                margin-top: 0.5rem;
+                text-align: center;
+            }
+            
+            /* Mobile-friendly buttons */
+            .btn {
+                min-height: 44px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+            
+            /* Touch-friendly form elements */
+            .form-control, .form-select {
+                min-height: 44px;
+                font-size: 16px;
+            }
+            
+            /* Mobile typography */
+            h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .fs-4 {
+                font-size: 0.9rem !important;
+            }
+        }
+        
+        /* Extra Small Mobile (max-width: 480px) */
+        @media (max-width: 480px) {
+            .ebay-container {
+                margin: 0.25rem;
+                border-radius: 12px;
+            }
+            
+            .ebay-header {
+                padding: 1rem;
+            }
+            
+            .ebay-content {
+                padding: 1rem;
+            }
+            
+            .ebay-logo {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .metric-grid {
+                gap: 0.8rem;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+            
+            h1 {
+                font-size: 1.2rem !important;
+            }
+            
+            .fs-4 {
+                font-size: 0.8rem !important;
+            }
+        }
+        
+        /* Touch Device Optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .ebay-nav-link:hover {
+                background: none;
+            }
+            
+            .ebay-nav-link:active {
+                background: rgba(229, 50, 56, 0.2);
+            }
+            
+            .btn:hover {
+                transform: none;
+            }
+            
+            .btn:active {
+                transform: scale(0.98);
+            }
+        }
+        
+        /* Landscape Mobile Optimization */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .ebay-header {
+                padding: 1rem;
+            }
+            
+            .ebay-header .d-flex {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+        }
+        
+        /* Theme Toggle Button */
+        .theme-toggle-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+        }
+        
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(75, 184, 240, 0.2);
+            border-color: rgba(75, 184, 240, 0.3);
+            color: var(--ebay-blue);
+        }
+        
+        [data-theme="dark"] .theme-toggle-btn:hover {
+            background: rgba(75, 184, 240, 0.3);
+            border-color: rgba(75, 184, 240, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="ebay-container">
+        <!-- eBay Header -->
+        <div class="ebay-header">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="ebay-logo">
+                        <i class="fab fa-ebay"></i>
+                    </div>
+                    <div>
+                        <h1 class="mb-0 fw-bold">eBay Global Marketplace</h1>
+                        <p class="mb-0 opacity-75 fs-4">190+ ülkede güvenilir e-ticaret</p>
+                    </div>
+                </div>                <div class="text-end">
+                    <button id="theme-toggle" class="theme-toggle-btn me-3" title="Tema Değiştir">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <span class="real-time-badge">
+                        <i class="fas fa-globe me-2"></i>Global Sync
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="ebay-nav d-flex">
+            <div class="ebay-nav-item">
+                <a href="#dashboard" class="ebay-nav-link active" onclick="showEbaySection('dashboard')">
+                    <i class="fas fa-chart-area me-2"></i>Dashboard
+                </a>
+            </div>
+            <div class="ebay-nav-item">
+                <a href="#listings" class="ebay-nav-link" onclick="showEbaySection('listings')">
+                    <i class="fas fa-list-ul me-2"></i>Listings
+                </a>
+            </div>
+            <div class="ebay-nav-item">
+                <a href="#auctions" class="ebay-nav-link" onclick="showEbaySection('auctions')">
+                    <i class="fas fa-gavel me-2"></i>Auctions
+                </a>
+            </div>
+            <div class="ebay-nav-item">
+                <a href="#analytics" class="ebay-nav-link" onclick="showEbaySection('analytics')">
+                    <i class="fas fa-chart-pie me-2"></i>Analytics
+                </a>
+            </div>
+            <div class="ebay-nav-item">
+                <a href="#settings" class="ebay-nav-link" onclick="showEbaySection('settings')">
+                    <i class="fas fa-cogs me-2"></i>API Settings
+                </a>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="ebay-content">
+            <!-- Dashboard Section -->
+            <div id="ebay-dashboard-section" class="ebay-section">
+                <!-- Store Selector -->
+                <div class="store-selector">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-store me-2"></i>eBay Store Seçimi
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="ebay-store-selector" class="form-label fw-bold mb-2">eBay Store Seçimi</label>
+                            <select class="form-select form-select-lg" id="ebay-store-selector" aria-label="eBay Store Seçimi" title="eBay mağazanızı seçin">
+                                <option value="us">🇺🇸 eBay.com (USA)</option>
+                                <option value="uk">🇬🇧 eBay.co.uk (UK)</option>
+                                <option value="de">🇩🇪 eBay.de (Germany)</option>
+                                <option value="fr">🇫🇷 eBay.fr (France)</option>
+                                <option value="au">🇦🇺 eBay.com.au (Australia)</option>
+                                <option value="ca">🇨🇦 eBay.ca (Canada)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="ebay-btn" onclick="switchEbayStore()">
+                                <i class="fas fa-sync-alt me-2"></i>Store Değiştir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connection Status & Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="ebay-card status-card connected">
+                            <div class="status-icon connected">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <h2 class="fw-bold text-success">eBay API Bağlantısı</h2>
+                            <p class="text-muted fs-4">Trading API ile güçlü entegrasyon</p>
+                            <div class="mt-3">
+                                <small class="text-muted">Son sync: 45 saniye önce</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="ebay-card">
+                            <h3 class="fw-bold mb-4">
+                                <i class="fas fa-rocket text-warning me-2"></i>
+                                Hızlı İşlemler
+                            </h3>
+                            <div class="row">
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="ebay-btn w-100" onclick="syncAllEbayListings()">
+                                        <i class="fas fa-sync-alt me-2"></i>Sync Listings
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="ebay-btn w-100" onclick="updateEbayPrices()">
+                                        <i class="fas fa-dollar-sign me-2"></i>Update Prices
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="ebay-btn w-100" onclick="exportEbayOrders()">
+                                        <i class="fas fa-file-export me-2"></i>Export Data
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="ebay-btn w-100" onclick="bulkEbayUpload()">
+                                        <i class="fas fa-upload me-2"></i>Bulk Upload
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Metrics -->
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <i class="fas fa-list fa-4x text-primary mb-3"></i>
+                        <div class="metric-value" id="ebay-total-listings">3,467</div>
+                        <div class="metric-label">Aktif İlanlar</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+187 bu ay
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-gavel fa-4x text-success mb-3"></i>
+                        <div class="metric-value" id="ebay-auction-sales">892</div>
+                        <div class="metric-label">Müzayede Satışları</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+23% artış
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-dollar-sign fa-4x text-warning mb-3"></i>
+                        <div class="metric-value" id="ebay-monthly-revenue">$43,567</div>
+                        <div class="metric-label">Aylık Gelir (USD)</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+34% büyüme
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-star fa-4x text-info mb-3"></i>
+                        <div class="metric-value" id="ebay-feedback-score">99.2%</div>
+                        <div class="metric-label">Positive Feedback</div>
+                        <div class="metric-change">
+                            <i class="fas fa-thumbs-up"></i>4,896 review
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Chart -->
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="ebay-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="fw-bold mb-0">
+                                    <i class="fas fa-chart-line text-info me-2"></i>
+                                    eBay Satış Performansı (30 Gün)
+                                </h3>
+                                <span class="real-time-badge">Live Data</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="ebaySalesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="ebay-card">
+                            <h3 class="fw-bold mb-4">
+                                <i class="fas fa-bell text-info me-2"></i>
+                                Son Aktiviteler
+                            </h3>
+                            <div class="activity-timeline">
+                                <div class="timeline-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="timeline-icon me-3">
+                                            <i class="fas fa-gavel"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">#eBay-789456</div>
+                                            <div class="text-muted small">iPhone 14 Pro - $899</div>
+                                            <div class="text-muted small">3 dakika önce</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="timeline-icon me-3">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Buy It Now Sale</div>
+                                            <div class="text-muted small">MacBook Air M2 - $1,199</div>
+                                            <div class="text-muted small">8 dakika önce</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other sections placeholder -->
+            <div id="ebay-listings-section" class="ebay-section" style="display:none;">
+                <div class="ebay-card">
+                    <h2 class="fw-bold">eBay İlan Yönetimi</h2>
+                    <p class="fs-4">eBay ilanlarınızı buradan yönetebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="ebay-auctions-section" class="ebay-section" style="display:none;">
+                <div class="ebay-card">
+                    <h2 class="fw-bold">Müzayede Sistemi</h2>
+                    <p class="fs-4">eBay müzayedelerinizi buradan takip edebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="ebay-analytics-section" class="ebay-section" style="display:none;">
+                <div class="ebay-card">
+                    <h2 class="fw-bold">eBay Analytics</h2>
+                    <p class="fs-4">Detaylı satış analizlerinizi buradan görüntüleyebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="ebay-settings-section" class="ebay-section" style="display:none;">
+                <div class="ebay-card">
+                    <h2 class="fw-bold">eBay API Ayarları</h2>
+                    <p class="fs-4">eBay Trading API ayarlarınızı buradan yapılandırabilirsiniz...</p>
+                </div>
+            </div>
+        </div>
+    </div>    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../WEBSOCKET_SYSTEM/meschain-websocket.js"></script>
+    <script src="ebay_integration.js"></script>
+    
+    <!-- Cross-Browser Compatibility Testing -->
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_compatibility_tester.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_test_config.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/browser_compatibility_test_suite.js"></script>
+    <!-- Final UI/UX Polish -->
+    <script src="../UI_UX_POLISH/final_ui_ux_polisher.js"></script>
+    <link rel="stylesheet" href="../UI_UX_POLISH/advanced_animations.css">
+    <link rel="stylesheet" href="../UI_UX_POLISH/premium_visual_effects.css">
+    
+    <!-- Dark Mode Manager -->
+    <script>
+        class EbayDarkModeManager {
+            constructor() {
+                this.themeToggle = document.getElementById('theme-toggle');
+                this.themeIcon = this.themeToggle.querySelector('i');
+                this.currentTheme = localStorage.getItem('ebay-theme') || 'light';
+                
+                this.init();
+            }
+            
+            init() {
+                this.setTheme(this.currentTheme);
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+                
+                if (window.matchMedia) {
+                    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                        if (!localStorage.getItem('ebay-theme')) {
+                            this.setTheme(e.matches ? 'dark' : 'light');
+                        }
+                    });
+                }
+            }
+            
+            setTheme(theme) {
+                this.currentTheme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                
+                if (theme === 'dark') {
+                    this.themeIcon.className = 'fas fa-sun';
+                    this.themeToggle.title = 'Açık Tema';
+                } else {
+                    this.themeIcon.className = 'fas fa-moon';
+                    this.themeToggle.title = 'Koyu Tema';
+                }
+                
+                this.updateChartThemes();
+                localStorage.setItem('ebay-theme', theme);
+            }
+            
+            toggleTheme() {
+                const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                this.setTheme(newTheme);
+            }
+            
+            updateChartThemes() {
+                if (window.Chart && window.Chart.instances) {
+                    Object.values(window.Chart.instances).forEach(chart => {
+                        if (chart.options) {
+                            const isDark = this.currentTheme === 'dark';
+                            chart.options.plugins = chart.options.plugins || {};
+                            chart.options.plugins.legend = chart.options.plugins.legend || {};
+                            chart.options.plugins.legend.labels = chart.options.plugins.legend.labels || {};
+                            chart.options.plugins.legend.labels.color = isDark ? '#ffffff' : '#112a46';
+                            
+                            chart.options.scales = chart.options.scales || {};
+                            ['x', 'y'].forEach(axis => {
+                                if (chart.options.scales[axis]) {
+                                    chart.options.scales[axis].ticks = chart.options.scales[axis].ticks || {};
+                                    chart.options.scales[axis].ticks.color = isDark ? '#cccccc' : '#666666';
+                                    chart.options.scales[axis].grid = chart.options.scales[axis].grid || {};
+                                    chart.options.scales[axis].grid.color = isDark ? '#0064d2' : '#4bb8f0';
+                                }
+                            });
+                            
+                            chart.update();
+                        }
+                    });
+                }
+            }
+        }
+          document.addEventListener('DOMContentLoaded', () => {
+            new EbayDarkModeManager();
+
+            // Initialize Final UI/UX Polish
+            if (typeof FinalUIUXPolisher !== 'undefined') {
+                window.finalUIUXPolisher = new FinalUIUXPolisher();
+                console.log('✅ Ebay Final UI/UX Polish initialized');
+            }
+            
+            // Initialize Cross-Browser Compatibility Testing
+            if (typeof CrossBrowserCompatibilityTester !== 'undefined') {
+                const tester = new CrossBrowserCompatibilityTester();
+                tester.runMarketplaceTests('ebay', {
+                    testElements: ['#ebay-products-chart', '.ebay-container', '.product-card'],
+                    testInteractions: ['theme-toggle', 'product-filter', 'chart-navigation'],
+                    testResponsive: true,
+                    testPerformance: true
+                });
+            }
+        });
+    </script>
+</body>
+</html>

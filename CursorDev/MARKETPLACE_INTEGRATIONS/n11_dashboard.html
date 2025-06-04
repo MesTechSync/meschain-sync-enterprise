@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N11 Marketplace - MesChain-Sync</title>
+    
+    <!-- OpenCart Admin Integration -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --n11-purple: #6B2C91;
+            --n11-purple-light: #8A4FB1;
+            --n11-purple-dark: #522070;
+            --n11-orange: #FF6000;
+            --n11-gray: #F8F9FA;
+        }
+        
+        .n11-header {
+            background: linear-gradient(135deg, var(--n11-purple) 0%, var(--n11-purple-light) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .n11-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(107, 44, 145, 0.1);
+            border: 1px solid rgba(107, 44, 145, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .n11-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(107, 44, 145, 0.15);
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, var(--n11-purple) 0%, var(--n11-purple-light) 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online { background-color: #28a745; }
+        .status-warning { background-color: #ffc107; }
+        .status-offline { background-color: #dc3545; }
+        
+        .n11-btn {
+            background: var(--n11-purple);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        
+        .n11-btn:hover {
+            background: var(--n11-purple-dark);
+            color: white;
+        }
+        
+        .real-time-badge {
+            background: rgba(107, 44, 145, 0.1);
+            color: var(--n11-purple);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .commission-card {
+            background: linear-gradient(135deg, #6B2C91 0%, #8A4FB1 50%, #B775D8 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .product-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .product-item:hover {
+            border-color: var(--n11-purple);
+        }
+        
+        .loading-animation {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--n11-purple);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- OpenCart Admin Navigation Integration -->
+    <div class="container-fluid">
+        <!-- N11 Header -->
+        <div class="n11-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="mb-0">
+                        <i class="fas fa-store me-3"></i>
+                        N11 Marketplace Yönetimi
+                    </h1>
+                    <p class="mb-0 mt-2">Türkiye'nin Teknoloji Marketplace'i</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span class="real-time-badge me-3">
+                        <i class="fas fa-satellite-dish me-1"></i>Canlı Sistem
+                    </span>
+                    <span class="badge bg-light text-dark">
+                        <span class="status-indicator status-online"></span>
+                        N11 API Bağlantısı Aktif
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- OpenCart Breadcrumb Integration -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/admin/index.php?route=common/dashboard">
+                        <i class="fas fa-home"></i> OpenCart Admin
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="/admin/index.php?route=marketplace/extension&type=module">
+                        Eklentiler
+                    </a>
+                </li>
+                <li class="breadcrumb-item active">N11 Entegrasyonu</li>
+            </ol>
+        </nav>
+
+        <!-- Real-time Metrics Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="n11-card metric-card">
+                    <i class="fas fa-lira-sign fa-2x mb-3"></i>
+                    <h5>N11 Satışları</h5>
+                    <h2 id="n11-sales" class="display-6">₺0</h2>
+                    <small>Bu ay</small>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="n11-card metric-card">
+                    <i class="fas fa-box fa-2x mb-3"></i>
+                    <h5>Aktif Ürünler</h5>
+                    <h2 id="active-products" class="display-6">Yükleniyor</h2>
+                    <small>N11'de yayında</small>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="n11-card metric-card">
+                    <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                    <h5>Bekleyen Siparişler</h5>
+                    <h2 id="pending-orders" class="display-6">Yükleniyor</h2>
+                    <small>İşlem bekliyor</small>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="n11-card metric-card">
+                    <i class="fas fa-percentage fa-2x mb-3"></i>
+                    <h5>Komisyon Oranı</h5>
+                    <h2 id="commission-rate" class="display-6">Yükleniyor</h2>
+                    <small>Ortalama komisyon</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Sales Chart -->
+                <div class="n11-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line text-primary me-2"></i>
+                            N11 Satış Performansı
+                        </h5>
+                        <div>
+                            <span class="badge bg-success">Canlı Veri</span>
+                            <small class="text-muted ms-2">Son güncelleme: <span id="last-update">Yükleniyor...</span></small>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="n11SalesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Product Management -->
+                <div class="n11-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cubes me-2"></i>
+                            Ürün Yönetimi
+                        </h5>
+                        <button class="n11-btn" onclick="refreshProducts()">
+                            <i class="fas fa-sync-alt me-1"></i>Yenile
+                        </button>
+                    </div>
+                    <div id="products-container">
+                        <div class="text-center p-4">
+                            <div class="loading-animation mb-3"></div>
+                            <p class="text-muted">N11 ürünleri yükleniyor...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Quick Actions -->
+                <div class="n11-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-bolt me-2"></i>
+                        Hızlı İşlemler
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <button class="n11-btn" onclick="syncInventory()">
+                            <i class="fas fa-sync me-2"></i>Stok Senkronizasyonu
+                        </button>
+                        <button class="n11-btn" onclick="updatePrices()">
+                            <i class="fas fa-tag me-2"></i>Fiyat Güncelleme
+                        </button>
+                        <button class="n11-btn" onclick="processOrders()">
+                            <i class="fas fa-shopping-cart me-2"></i>Sipariş İşleme
+                        </button>
+                        <button class="n11-btn" onclick="manageCategories()">
+                            <i class="fas fa-sitemap me-2"></i>Kategori Yönetimi
+                        </button>
+                        <button class="n11-btn" onclick="openN11Settings()">
+                            <i class="fas fa-cog me-2"></i>Ayarlar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Commission Tracking -->
+                <div class="n11-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-percent me-2"></i>
+                        Komisyon Takibi
+                    </h5>
+                    <div id="commission-container">
+                        <div class="commission-card">
+                            <h6 class="mb-1">Teknoloji</h6>
+                            <small>%8.5 komisyon</small>
+                        </div>
+                        <div class="commission-card">
+                            <h6 class="mb-1">Ev & Yaşam</h6>
+                            <small>%12 komisyon</small>
+                        </div>
+                        <div class="commission-card">
+                            <h6 class="mb-1">Moda</h6>
+                            <small>%15 komisyon</small>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-primary w-100 mt-2" onclick="viewCommissionDetails()">
+                        <i class="fas fa-chart-pie me-1"></i>Detayları Gör
+                    </button>
+                </div>
+
+                <!-- API Status -->
+                <div class="n11-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-server me-2"></i>
+                        N11 API Durum
+                    </h5>
+                    <div class="mb-2">
+                        <span class="status-indicator status-online"></span>
+                        <strong>Product API:</strong> <span class="text-success">Aktif</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="status-indicator status-online"></span>
+                        <strong>Order API:</strong> <span class="text-success">Aktif</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="status-indicator status-warning"></span>
+                        <strong>Category API:</strong> <span class="text-warning">Yavaş</span>
+                    </div>
+                    <div class="mb-3">
+                        <span class="status-indicator status-online"></span>
+                        <strong>Shipment API:</strong> <span class="text-success">Aktif</span>
+                    </div>
+                    <button class="btn btn-outline-primary w-100" onclick="testN11API()">
+                        <i class="fas fa-heartbeat me-1"></i>API Test
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="n11-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-receipt me-2"></i>
+                            Son N11 Siparişleri
+                        </h5>
+                        <a href="/admin/index.php?route=extension/module/n11/orders" class="n11-btn">
+                            <i class="fas fa-external-link-alt me-1"></i>Tümünü Gör
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Sipariş No</th>
+                                    <th>Müşteri</th>
+                                    <th>Ürün</th>
+                                    <th>Tutar</th>
+                                    <th>Komisyon</th>
+                                    <th>Durum</th>
+                                    <th>Tarih</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-orders">
+                                <tr>
+                                    <td colspan="8" class="text-center">
+                                        <div class="loading-animation me-2"></div> Siparişler yükleniyor...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="n11_integration.js"></script>
+</body>
+</html> 

@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - MesChain-Sync</title>
+    
+    <!-- Modern UI Framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --admin-primary: #059669;
+            --admin-secondary: #0891b2;
+            --admin-accent: #7c3aed;
+            --admin-warning: #f59e0b;
+            --admin-danger: #dc2626;
+            --admin-dark: #1f2937;
+            --admin-light: #f0fdf4;
+            --admin-border: #d1fae5;
+            --admin-text: #064e3b;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            min-height: 100vh;
+        }
+        
+        .admin-sidebar {
+            background: linear-gradient(180deg, var(--admin-dark) 0%, #065f46 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 0;
+            box-shadow: 3px 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .admin-sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .admin-nav {
+            padding: 1rem 0;
+        }
+        
+        .admin-nav-item {
+            margin: 0.25rem 1rem;
+        }
+        
+        .admin-nav-link {
+            color: rgba(255,255,255,0.85) !important;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .admin-nav-link:hover, .admin-nav-link.active {
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08));
+            color: white !important;
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .admin-nav-link i {
+            width: 22px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .admin-main-content {
+            padding: 2rem;
+            background: var(--admin-light);
+        }
+        
+        .admin-top-bar {
+            background: white;
+            padding: 1.25rem 2rem;
+            border-bottom: 2px solid var(--admin-border);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+            border-radius: 0 0 12px 12px;
+        }
+        
+        .admin-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
+            border: 2px solid var(--admin-border);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.15);
+            border-color: var(--admin-primary);
+        }
+        
+        .admin-metric-card {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .admin-metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--admin-primary), var(--admin-secondary));
+        }
+        
+        .admin-metric-value {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 1rem 0;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .admin-metric-label {
+            color: var(--admin-text);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-metric-change {
+            color: var(--admin-primary);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .admin-btn {
+            background: linear-gradient(135deg, var(--admin-primary), #10b981);
+            border: none;
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.2);
+        }
+        
+        .admin-btn:hover {
+            background: linear-gradient(135deg, #047857, var(--admin-primary));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+            color: white;
+        }
+        
+        .admin-btn.secondary {
+            background: linear-gradient(135deg, var(--admin-secondary), #0ea5e9);
+        }
+        
+        .admin-btn.accent {
+            background: linear-gradient(135deg, var(--admin-accent), #8b5cf6);
+        }
+        
+        .admin-btn.warning {
+            background: linear-gradient(135deg, var(--admin-warning), #fbbf24);
+        }
+        
+        .store-status-card {
+            border-left: 6px solid var(--admin-primary);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(255, 255, 255, 0.8));
+        }
+        
+        .marketplace-connection {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(16, 185, 129, 0.03);
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--admin-border);
+            transition: all 0.2s ease;
+        }
+        
+        .marketplace-connection:hover {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: var(--admin-primary);
+        }
+        
+        .connection-status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-connected { background: var(--admin-primary); }
+        .status-disconnected { background: var(--admin-danger); animation: none; }
+        .status-warning { background: var(--admin-warning); }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        
+        .product-management-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--admin-border);
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            border-color: var(--admin-primary);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.1);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin: 1.5rem 0;
+        }
+        
+        .quick-action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .admin-badge {
+            background: linear-gradient(135deg, var(--admin-primary), #10b981);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .admin-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .notification-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--admin-danger);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .real-time-indicator {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--admin-primary);
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Admin Sidebar -->
+            <div class="col-md-3 col-lg-2 admin-sidebar">
+                <div class="admin-sidebar-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-tie me-2 text-success"></i>
+                        Admin Panel
+                    </h4>
+                    <small class="text-white-50">Mağaza Yönetimi</small>
+                </div>
+                
+                <nav class="admin-nav">
+                    <div class="admin-nav-item">
+                        <a href="#dashboard" class="admin-nav-link active" onclick="showAdminSection('dashboard')">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </div>
+                    <div class="admin-nav-item">
+                        <a href="#store" class="admin-nav-link" onclick="showAdminSection('store')">
+                            <i class="fas fa-store"></i>
+                            <span>Mağaza Ayarları</span>
+                        </a>
+                    </div>
+                    <div class="admin-nav-item">
+                        <a href="#products" class="admin-nav-link" onclick="showAdminSection('products')">
+                            <i class="fas fa-boxes"></i>
+                            <span>Ürün Yönetimi</span>
+                            <span class="notification-count">12</span>
+                        </a>
+                    </div>
+                    <div class="admin-nav-item">
+                        <a href="#catalog" class="admin-nav-link" onclick="showAdminSection('catalog')">
+                            <i class="fas fa-sitemap"></i>
+                            <span>Katalog Haritalama</span>
+                        </a>
+                    </div>
+                    <div class="admin-nav-item">
+                        <a href="#orders" class="admin-nav-link" onclick="showAdminSection('orders')">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Sipariş Yönetimi</span>
+                            <span class="notification-count">5</span>
+                        </a>
+                    </div>
+                    <div class="admin-nav-item">
+                        <a href="#inventory" class="admin-nav-link" onclick="showAdminSection('inventory')">
+                            <i class="fas fa-warehouse"></i>
+                            <span>Stok Yönetimi</span>
+                        </a>
+                    </div>
+                    <div class="admin-nav-item">
+                        <a href="#marketplaces" class="admin-nav-link" onclick="showAdminSection('marketplaces')">
+                            <i class="fas fa-globe"></i>
+                            <span>Pazaryeri Bağlantıları</span>
+                        </a>
+                    </div>
+                    <div class="admin-nav-item">
+                        <a href="#reports" class="admin-nav-link" onclick="showAdminSection('reports')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Raporlar</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+            
+            <!-- Admin Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <!-- Admin Top Bar -->
+                <div class="admin-top-bar d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0 text-success">Mağaza Yönetim Paneli</h4>
+                        <small class="text-muted">Ürün ve sipariş yönetimi merkezi</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="real-time-indicator me-3">
+                            <i class="fas fa-sync-alt me-1"></i>Senkronize
+                        </span>
+                        <div class="admin-avatar">
+                            AM
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-bold text-success">Admin</div>
+                            <small class="text-muted">Mağaza Yöneticisi</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Admin Dashboard Content -->
+                <div class="admin-main-content">
+                    <!-- Dashboard Section -->
+                    <div id="admin-dashboard-section" class="admin-content-section">
+                        <!-- Store Metrics -->
+                        <div class="row mb-4">
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="admin-card admin-metric-card">
+                                    <i class="fas fa-box-open fa-2x text-success mb-3"></i>
+                                    <div class="admin-metric-value" id="total-products">1,247</div>
+                                    <div class="admin-metric-label">Toplam Ürün</div>
+                                    <div class="admin-metric-change">+23 bu hafta</div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="admin-card admin-metric-card">
+                                    <i class="fas fa-shopping-bag fa-2x text-info mb-3"></i>
+                                    <div class="admin-metric-value" id="pending-orders">89</div>
+                                    <div class="admin-metric-label">Bekleyen Sipariş</div>
+                                    <div class="admin-metric-change">-7 bugün</div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="admin-card admin-metric-card">
+                                    <i class="fas fa-sync-alt fa-2x text-warning mb-3"></i>
+                                    <div class="admin-metric-value" id="sync-status">6/7</div>
+                                    <div class="admin-metric-label">Senkronize Pazaryeri</div>
+                                    <div class="admin-metric-change">1 bağlantı bekliyor</div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="admin-card admin-metric-card">
+                                    <i class="fas fa-exclamation-triangle fa-2x text-danger mb-3"></i>
+                                    <div class="admin-metric-value" id="low-stock">12</div>
+                                    <div class="admin-metric-label">Düşük Stok Uyarısı</div>
+                                    <div class="admin-metric-change">Acil işlem gerekli</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Store Performance Chart -->
+                        <div class="row">
+                            <div class="col-lg-8 mb-4">
+                                <div class="admin-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-chart-line text-success me-2"></i>
+                                            Mağaza Performansı (30 Gün)
+                                        </h5>
+                                        <span class="admin-badge">Canlı Veri</span>
+                                    </div>
+                                    <div class="chart-container">
+                                        <canvas id="storePerformanceChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 mb-4">
+                                <div class="admin-card store-status-card">
+                                    <h5 class="mb-3">
+                                        <i class="fas fa-plug text-success me-2"></i>
+                                        Pazaryeri Bağlantıları
+                                    </h5>
+                                    <div class="marketplace-connection">
+                                        <span><span class="connection-status status-connected"></span>Amazon</span>
+                                        <span class="badge bg-success">Aktif</span>
+                                    </div>
+                                    <div class="marketplace-connection">
+                                        <span><span class="connection-status status-connected"></span>Trendyol</span>
+                                        <span class="badge bg-success">Aktif</span>
+                                    </div>
+                                    <div class="marketplace-connection">
+                                        <span><span class="connection-status status-warning"></span>N11</span>
+                                        <span class="badge bg-warning">Senkronize Ediliyor</span>
+                                    </div>
+                                    <div class="marketplace-connection">
+                                        <span><span class="connection-status status-connected"></span>eBay</span>
+                                        <span class="badge bg-success">Aktif</span>
+                                    </div>
+                                    <div class="marketplace-connection">
+                                        <span><span class="connection-status status-disconnected"></span>Hepsiburada</span>
+                                        <span class="badge bg-danger">Bağlantı Gerekli</span>
+                                    </div>
+                                    <button class="admin-btn w-100 mt-3" onclick="manageMarketplaces()">
+                                        <i class="fas fa-cog me-1"></i>Bağlantıları Yönet
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="admin-card">
+                            <h5 class="mb-3">
+                                <i class="fas fa-bolt text-warning me-2"></i>
+                                Hızlı İşlemler
+                            </h5>
+                            <div class="quick-action-grid">
+                                <button class="admin-btn" onclick="bulkProductUpload()">
+                                    <i class="fas fa-upload me-2"></i>Toplu Ürün Yükle
+                                </button>
+                                <button class="admin-btn secondary" onclick="syncAllMarketplaces()">
+                                    <i class="fas fa-sync-alt me-2"></i>Tüm Pazaryerleri Senkronize
+                                </button>
+                                <button class="admin-btn accent" onclick="updatePricesGlobal()">
+                                    <i class="fas fa-tags me-2"></i>Global Fiyat Güncelle
+                                </button>
+                                <button class="admin-btn warning" onclick="stockAlert()">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Stok Uyarı Sistemi
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Products -->
+                        <div class="admin-card">
+                            <h5 class="mb-3">
+                                <i class="fas fa-clock text-info me-2"></i>
+                                Son Eklenen Ürünler
+                            </h5>
+                            <div class="product-management-grid">
+                                <div class="product-card">
+                                    <h6>Smartphone Case</h6>
+                                    <p class="text-muted small">SKU: SC-001-BLK</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">₺89.99</span>
+                                        <span class="badge bg-success">Stokta</span>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <h6>Wireless Headphones</h6>
+                                    <p class="text-muted small">SKU: WH-002-WHT</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">₺299.99</span>
+                                        <span class="badge bg-warning">Düşük Stok</span>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <h6>Gaming Mouse</h6>
+                                    <p class="text-muted small">SKU: GM-003-RGB</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">₺159.99</span>
+                                        <span class="badge bg-success">Stokta</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Other sections will be loaded dynamically -->
+                    <div id="admin-products-section" class="admin-content-section" style="display:none;">
+                        <div class="admin-card">
+                            <h4>Ürün Yönetimi</h4>
+                            <p>Tüm ürünlerinizi buradan yönetebilirsiniz...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="admin_dashboard.js"></script>
+</body>
+</html> 

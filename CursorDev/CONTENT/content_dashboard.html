@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Management Dashboard - MesChain-Sync</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .content-theme { 
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
+            color: white;
+        }
+        .content-card { 
+            border-left: 5px solid #F59E0B;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.2);
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .content-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.3);
+        }
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #F59E0B, #D97706, #B45309, #92400E, #F59E0B);
+            animation: contentGradient 3s ease-in-out infinite;
+        }
+        @keyframes contentGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .content-icon {
+            font-size: 2.5rem;
+            color: #F59E0B;
+            margin-bottom: 15px;
+            animation: contentPulse 2s ease-in-out infinite;
+        }
+        @keyframes contentPulse {
+            0%, 100% { transform: scale(1); color: #F59E0B; }
+            50% { transform: scale(1.1); color: #D97706; }
+        }
+        .content-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FCD34D, #F59E0B);
+            animation: contentBlink 2s infinite;
+        }
+        @keyframes contentBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.3); }
+        }
+        .creation-studio {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .studio-header {
+            background: linear-gradient(45deg, #F59E0B, #D97706);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: between;
+        }
+        .content-list {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+        .content-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .content-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .content-item.draft {
+            border-left-color: #6B7280;
+            background: linear-gradient(45deg, rgba(107, 114, 128, 0.05), rgba(75, 85, 99, 0.05));
+        }
+        .content-item.review {
+            border-left-color: #F59E0B;
+            background: linear-gradient(45deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.05));
+        }
+        .content-item.published {
+            border-left-color: #10B981;
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+        }
+        .content-item.scheduled {
+            border-left-color: #3B82F6;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.05));
+        }
+        .content-item.archived {
+            border-left-color: #EF4444;
+            background: linear-gradient(45deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.05));
+        }
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+        }
+        .status-draft { background: #6B7280; }
+        .status-review { background: #F59E0B; }
+        .status-published { background: #10B981; }
+        .status-scheduled { background: #3B82F6; }
+        .status-archived { background: #EF4444; }
+        .content-badge {
+            background: linear-gradient(45deg, #F59E0B, #D97706);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+        .metric-display {
+            font-weight: bold;
+            color: #F59E0B;
+            font-size: 1.2rem;
+        }
+        .content-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .content-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        .content-idle {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+        .content-maintenance {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+        .realtime-indicator {
+            background: linear-gradient(45deg, #F59E0B, #D97706);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            animation: realtimePulse 2s ease-in-out infinite;
+        }
+        @keyframes realtimePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .asset-library {
+            background: linear-gradient(45deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+            border: 1px solid #F59E0B;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .asset-btn {
+            background: linear-gradient(45deg, #F59E0B, #D97706);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .asset-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        .seo-panel {
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border: 1px solid #10B981;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .seo-btn {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .seo-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .chart-container::before {
+            content: '📝 REAL-TIME';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: linear-gradient(45deg, #F59E0B, #D97706);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .publishing-center {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid #3B82F6;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            animation: publishingGlow 4s ease-in-out infinite;
+        }
+        @keyframes publishingGlow {
+            0%, 100% { border-color: #3B82F6; }
+            50% { border-color: #2563EB; }
+        }
+        .publish-btn {
+            background: linear-gradient(45deg, #3B82F6, #2563EB);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .publish-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+        .content-type-selector {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .type-btn {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        .type-btn.active {
+            border-color: #F59E0B;
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+        .type-btn:hover {
+            border-color: #F59E0B;
+            transform: translateY(-2px);
+        }
+        .content-channels {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+        .channel-website { background: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+        .channel-social { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+        .channel-marketplace { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .channel-email { background: rgba(239, 68, 68, 0.1); color: #EF4444; }
+        .performance-meter {
+            background: linear-gradient(90deg, #EF4444 0%, #F59E0B 25%, #10B981 75%, #059669 100%);
+            height: 8px;
+            border-radius: 4px;
+            position: relative;
+            margin: 10px 0;
+        }
+        .performance-indicator {
+            position: absolute;
+            top: -2px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid #F59E0B;
+            border-radius: 50%;
+            transition: left 0.3s ease;
+        }
+        .content-thumbnail {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #F59E0B, #D97706);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg content-theme shadow-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-edit me-2"></i>
+                Content Management Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <span class="content-status content-active" id="content-status">
+                        <span class="content-indicator"></span>
+                        CMS: <span id="content-status-text">Active</span>
+                    </span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Content Statistics -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card content-card h-100">
+                    <div class="content-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-file-alt content-icon"></i>
+                        <h5 class="card-title">Total Content</h5>
+                        <h2 id="total-content" class="display-6">1,247</h2>
+                        <div class="mt-2">
+                            <small>Published: <span id="published-content" class="metric-display">896</span></small>
+                            <div class="realtime-indicator mt-2">ACTIVE</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card content-card h-100">
+                    <div class="content-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-images content-icon"></i>
+                        <h5 class="card-title">Digital Assets</h5>
+                        <h2 id="digital-assets" class="display-6">3,456</h2>
+                        <div class="mt-2">
+                            <small>Storage: <span id="storage-used" class="metric-display">2.4TB</span></small>
+                            <div class="realtime-indicator mt-2">ORGANIZED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card content-card h-100">
+                    <div class="content-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-eye content-icon"></i>
+                        <h5 class="card-title">Monthly Views</h5>
+                        <h2 id="monthly-views" class="display-6">847K</h2>
+                        <div class="mt-2">
+                            <small>Engagement: <span id="engagement-rate" class="metric-display">7.8%</span></small>
+                            <div class="realtime-indicator mt-2">TRENDING</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card content-card h-100">
+                    <div class="content-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-search content-icon"></i>
+                        <h5 class="card-title">SEO Score</h5>
+                        <h2 id="seo-score" class="display-6">92/100</h2>
+                        <div class="mt-2">
+                            <small>Keywords: <span id="keyword-ranking" class="metric-display">234</span></small>
+                            <div class="realtime-indicator mt-2">OPTIMIZED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Content Creation Studio -->
+                <div class="creation-studio">
+                    <div class="studio-header">
+                        <div>
+                            <h5 class="mb-0">
+                                <i class="fas fa-magic me-2"></i>
+                                Content Creation Studio
+                            </h5>
+                            <small>Create, edit and manage all your content assets</small>
+                        </div>
+                        <div class="ms-auto">
+                            <span class="content-badge">📝 Creative Hub</span>
+                        </div>
+                    </div>
+                    
+                    <div class="content-list" id="content-list">
+                        <!-- Content items will be loaded here dynamically -->
+                    </div>
+                </div>
+
+                <!-- Content Performance Analytics -->
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line text-primary me-2"></i>
+                            Content Performance Analytics (Son 30 Gün)
+                        </h5>
+                        <span class="content-badge">Real-time Data</span>
+                    </div>
+                    <canvas id="contentChart" height="300"></canvas>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Content Types -->
+                <div class="card content-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-layer-group me-2"></i>
+                            Content Categories
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="content-type-selector">
+                            <div class="type-btn active" data-type="all">All</div>
+                            <div class="type-btn" data-type="article">Articles</div>
+                            <div class="type-btn" data-type="video">Videos</div>
+                            <div class="type-btn" data-type="image">Images</div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small>Blog Articles:</small>
+                            <strong class="float-end" id="blog-articles">487</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Product Descriptions:</small>
+                            <strong class="float-end" id="product-descriptions">234</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Marketing Content:</small>
+                            <strong class="float-end" id="marketing-content">156</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Social Media Posts:</small>
+                            <strong class="float-end" id="social-posts">189</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Content Performance:</small>
+                            <div class="performance-meter">
+                                <div class="performance-indicator" style="left: 85%;"></div>
+                            </div>
+                            <strong class="float-end text-success" id="content-performance">85%</strong>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="createNewContent()">
+                                <i class="fas fa-plus me-2"></i>Create New Content
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="exportContentReport()">
+                                <i class="fas fa-download me-2"></i>Export Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Digital Asset Library -->
+                <div class="asset-library">
+                    <h6><i class="fas fa-photo-video me-2"></i>Digital Asset Library</h6>
+                    <p class="mb-3">Manage images, videos, documents & media files</p>
+                    <div class="mb-3">
+                        <div class="mb-2">
+                            <small>Images:</small>
+                            <strong class="float-end" id="image-assets">2,143</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Videos:</small>
+                            <strong class="float-end" id="video-assets">234</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Documents:</small>
+                            <strong class="float-end" id="document-assets">567</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Storage Usage:</small>
+                            <strong class="float-end text-warning" id="storage-usage">67.8%</strong>
+                        </div>
+                    </div>
+                    <button class="asset-btn w-100" onclick="openAssetLibrary()">
+                        Open Asset Library
+                    </button>
+                </div>
+
+                <!-- SEO Optimization -->
+                <div class="seo-panel">
+                    <h6><i class="fas fa-search-plus me-2"></i>SEO Optimization</h6>
+                    <p class="mb-3">Search engine optimization & keyword management</p>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto-seo" checked>
+                            <label class="form-check-label" for="auto-seo">
+                                Auto SEO Optimization
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="keyword-suggestions" checked>
+                            <label class="form-check-label" for="keyword-suggestions">
+                                Keyword Suggestions
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="schema-markup" checked>
+                            <label class="form-check-label" for="schema-markup">
+                                Schema Markup
+                            </label>
+                        </div>
+                    </div>
+                    <button class="seo-btn w-100" onclick="analyzeSEO()">
+                        Analyze SEO Performance
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Publishing Center -->
+        <div class="row mt-4" id="publishing-center">
+            <div class="col-12">
+                <div class="publishing-center">
+                    <div class="text-center">
+                        <h4 class="text-primary mb-3">
+                            <i class="fas fa-broadcast-tower me-2"></i>
+                            MULTI-CHANNEL PUBLISHING CENTER
+                        </h4>
+                        <p class="mb-4">Publish content across websites, social media, marketplaces & email campaigns</p>
+                        <div class="row text-center mb-4">
+                            <div class="col-3">
+                                <strong class="d-block">Website</strong>
+                                <span class="text-success">Active</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Social Media</strong>
+                                <span class="text-success">Connected</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Marketplaces</strong>
+                                <span class="text-warning">Syncing</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Email Campaigns</strong>
+                                <span class="text-success">Ready</span>
+                            </div>
+                        </div>
+                        <button class="publish-btn me-3" onclick="publishContent()">
+                            PUBLISH NOW
+                        </button>
+                        <button class="publish-btn" onclick="scheduleContent()">
+                            SCHEDULE CONTENT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Content Management JavaScript -->
+    <script src="content_management.js"></script>
+    
+    <!-- Initialize Content Management -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Content Management Dashboard'u başlat
+            window.contentManagement = new ContentManagement();
+            
+            console.log('📝 Content Management Dashboard başlatıldı');
+        });
+    </script>
+</body>
+</html> 

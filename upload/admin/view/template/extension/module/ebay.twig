@@ -1,0 +1,217 @@
+{#
+  ebay.twig
+  Amaç: eBay modülünün OpenCart yönetici paneli arayüz şablonu.
+  Standart: Her değişiklikte log tutulmalı (ebay_view.log).
+#}
+<!-- eBay modülü yönetim paneli görünümü --> 
+
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-ebay" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fa fa-save"></i>
+        </button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+          <i class="fa fa-reply"></i>
+        </a>
+      </div>
+      <h1>eBay Marketplace Entegrasyonu</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-cogs"></i> eBay Ayarları
+        </h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-ebay" class="form-horizontal">
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">Durum</label>
+            <div class="col-sm-10">
+              <select name="module_ebay_status" id="input-status" class="form-control">
+                {% if module_ebay_status %}
+                <option value="1" selected="selected">Etkin</option>
+                <option value="0">Devre Dışı</option>
+                {% else %}
+                <option value="1">Etkin</option>
+                <option value="0" selected="selected">Devre Dışı</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-client-id">Client ID</label>
+            <div class="col-sm-10">
+              <input type="text" name="module_ebay_client_id" value="{{ module_ebay_client_id }}" placeholder="eBay Client ID" id="input-client-id" class="form-control" />
+              {% if error_client_id %}
+              <div class="text-danger">{{ error_client_id }}</div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-client-secret">Client Secret</label>
+            <div class="col-sm-10">
+              <input type="text" name="module_ebay_client_secret" value="{{ module_ebay_client_secret }}" placeholder="eBay Client Secret" id="input-client-secret" class="form-control" />
+              {% if error_client_secret %}
+              <div class="text-danger">{{ error_client_secret }}</div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-sandbox">Test Modu</label>
+            <div class="col-sm-10">
+              <select name="module_ebay_sandbox" id="input-sandbox" class="form-control">
+                {% if module_ebay_sandbox %}
+                <option value="1" selected="selected">Sandbox</option>
+                <option value="0">Production</option>
+                {% else %}
+                <option value="1">Sandbox</option>
+                <option value="0" selected="selected">Production</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+    
+    <!-- API Test Panel -->
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-plug"></i> API Bağlantı Testi
+        </h3>
+      </div>
+      <div class="panel-body">
+        {% if connection_status %}
+        <div class="alert alert-success">
+          <i class="fa fa-check-circle"></i> {{ connection_message }}
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+          <i class="fa fa-exclamation-triangle"></i> {{ connection_message }}
+        </div>
+        {% endif %}
+        
+        <button type="button" class="btn btn-primary" onclick="testConnection()">
+          <i class="fa fa-refresh"></i> Bağlantıyı Test Et
+        </button>
+      </div>
+    </div>
+    
+    <!-- Actions Panel -->
+    <div class="panel panel-success">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-tasks"></i> Hızlı İşlemler
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-3">
+            <button type="button" class="btn btn-block btn-success" onclick="syncOrders()">
+              <i class="fa fa-download"></i> Siparişleri Çek
+            </button>
+          </div>
+          <div class="col-md-3">
+            <button type="button" class="btn btn-block btn-info" onclick="syncProducts()">
+              <i class="fa fa-upload"></i> Ürünleri Gönder
+            </button>
+          </div>
+          <div class="col-md-3">
+            <button type="button" class="btn btn-block btn-warning" onclick="getCategories()">
+              <i class="fa fa-list"></i> Kategorileri Al
+            </button>
+          </div>
+          <div class="col-md-3">
+            <button type="button" class="btn btn-block btn-primary" onclick="updateInventory()">
+              <i class="fa fa-refresh"></i> Stok Güncelle
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<script type="text/javascript">
+function testConnection() {
+    $.ajax({
+        url: '{{ test_connection_url }}',
+        type: 'POST',
+        dataType: 'json',
+        beforeSend: function() {
+            $('.alert').remove();
+            $('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Bağlantı test ediliyor...</div>').insertAfter('.page-header .container-fluid');
+        },
+        success: function(json) {
+            $('.alert').remove();
+            if (json.success) {
+                $('<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + json.success + '</div>').insertAfter('.page-header .container-fluid');
+            } else if (json.error) {
+                $('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json.error + '</div>').insertAfter('.page-header .container-fluid');
+            }
+        },
+        error: function() {
+            $('.alert').remove();
+            $('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Bağlantı hatası oluştu!</div>').insertAfter('.page-header .container-fluid');
+        }
+    });
+}
+
+function syncOrders() {
+    $.ajax({
+        url: '{{ sync_orders_url }}',
+        type: 'POST',
+        dataType: 'json',
+        beforeSend: function() {
+            $('.alert').remove();
+            $('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Siparişler senkronize ediliyor...</div>').insertAfter('.page-header .container-fluid');
+        },
+        success: function(json) {
+            $('.alert').remove();
+            if (json.success) {
+                $('<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + json.success + '</div>').insertAfter('.page-header .container-fluid');
+            } else if (json.error) {
+                $('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json.error + '</div>').insertAfter('.page-header .container-fluid');
+            }
+        }
+    });
+}
+
+function syncProducts() {
+    alert('Ürün senkronizasyonu özelliği yakında eklenecek!');
+}
+
+function getCategories() {
+    alert('Kategori alma özelliği yakında eklenecek!');
+}
+
+function updateInventory() {
+    alert('Stok güncelleme özelliği yakında eklenecek!');
+}
+</script>
+
+{{ footer }} 

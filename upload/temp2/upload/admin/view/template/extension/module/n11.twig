@@ -1,0 +1,20 @@
+{#
+  n11.twig
+  Amaç: n11 modülünün OpenCart yönetici paneli arayüz şablonu.
+  Standart: Her değişiklikte log tutulmalı (n11_view.log).
+#}
+<!-- n11 modülü yönetim paneli görünümü -->
+{% if error_warning %}
+  <div class="alert alert-danger">{{ error_warning }}</div>
+{% endif %}
+{% if success %}
+  <div class="alert alert-success">{{ success }}</div>
+{% endif %}
+<form action="{{ action }}" method="post" enctype="multipart/form-data">
+  <div class="form-group">
+    <label for="input-api-key">API Key</label>
+    <input type="text" name="module_n11_api_key" value="{{ module_n11_api_key }}" class="form-control" id="input-api-key" />
+  </div>
+  <button type="submit" class="btn btn-primary">Kaydet</button>
+  <a href="{{ cancel }}" class="btn btn-default">İptal</a>
+</form> 

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Marketplace Analytics Dashboard - MesChain-Sync</title>
+    
+    <!-- PWA Integration -->
+    <link rel="manifest" href="/CursorDev/PWA/manifest.json">
+    <meta name="theme-color" content="#6366F1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="MesChain Analytics">
+    <link rel="apple-touch-icon" href="/assets/images/analytics-icon-152.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .analytics-theme { 
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+            color: white;
+        }
+        .unified-card { 
+            border-left: 5px solid #6366F1;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .unified-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+        }
+        .unified-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF9900, #E53238, #FF6000, #FF7A00, #000000, #6366F1, #28a745);
+        }
+        .analytics-icon {
+            font-size: 2.5rem;
+            color: #6366F1;
+            margin-bottom: 15px;
+        }
+        .marketplace-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        .amazon-indicator { background: #FF9900; }
+        .ebay-indicator { background: #E53238; }
+        .n11-indicator { background: #FF6000; }
+        .hepsiburada-indicator { background: #FF6000; }
+        .gittigidiyor-indicator { background: #FF7A00; }
+        .trendyol-indicator { background: #F27A1A; }
+        .general-indicator { background: #6366F1; }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .analytics-badge {
+            background: #6366F1;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+        }
+        .currency-display {
+            font-weight: bold;
+            color: #6366F1;
+        }
+        .loading-animation {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 3px solid #6366F1;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .connection-status {
+            padding: 12px 18px;
+            border-radius: 10px;
+            margin: 12px 0;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .connection-success {
+            background: rgba(40, 167, 69, 0.15);
+            color: #28a745;
+            border: 2px solid #28a745;
+        }
+        .connection-partial {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffc107;
+            border: 2px solid #ffc107;
+        }
+        .connection-testing {
+            background: rgba(99, 102, 241, 0.15);
+            color: #6366F1;
+            border: 2px solid #6366F1;
+        }
+        .marketplace-card {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 12px 0;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.95);
+            position: relative;
+        }
+        .marketplace-card:hover {
+            border-color: #6366F1;
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateY(-2px);
+        }
+        .performance-indicator {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366F1;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .revenue-display {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #6366F1;
+        }
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .marketplace-tag {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366F1;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 2px;
+            display: inline-block;
+        }
+        .action-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        .btn-analytics {
+            background: #6366F1;
+            color: white;
+        }
+        .btn-analytics:hover {
+            background: #5856eb;
+            color: white;
+        }
+        .btn-export {
+            background: linear-gradient(45deg, #6366F1, #8B5CF6);
+            color: white;
+        }
+        .btn-sync {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+        .metric-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 18px;
+            margin: 12px 0;
+            border-left: 4px solid #6366F1;
+        }
+        .trending-up {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .trending-down {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .status-live { 
+            color: #6366F1; 
+            font-weight: bold; 
+            animation: pulse 2s infinite; 
+        }
+        @keyframes pulse { 
+            0%, 100% { opacity: 1; transform: scale(1); } 
+            50% { opacity: 0.7; transform: scale(1.05); } 
+        }
+        .platform-status {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .api-health {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+        .comparison-row {
+            background: rgba(99, 102, 241, 0.05);
+            border-left: 3px solid #6366F1;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .comparison-row:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateX(5px);
+        }
+        .benchmark-score {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .profit-margin {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg analytics-theme shadow-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-chart-pie me-2"></i>
+                Cross-Marketplace Analytics Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <span id="unified-health-indicator">🟡</span> 
+                    Unified Status: <span id="unified-status-text">Platformlar senkronize ediliyor...</span>
+                    <span class="badge bg-light text-dark ms-2" id="active-platforms">0/7 Platform</span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Connection Status Alert -->
+        <div id="connection-alert" class="connection-testing">
+            <div class="loading-animation"></div>
+            <div>
+                <strong>Cross-Platform Analytics:</strong> 
+                <span id="connection-status-text">7 marketplace entegrasyonu kontrol ediliyor...</span>
+            </div>
+        </div>
+
+        <!-- Unified Platform Metrics -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card unified-card h-100">
+                    <div class="marketplace-indicator general-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-globe analytics-icon"></i>
+                        <h5 class="card-title">Toplam Gelir</h5>
+                        <h2 id="total-revenue" class="display-6">Yükleniyor...</h2>
+                        <div class="mt-2">
+                            <small>7 Platform: <span id="monthly-total" class="currency-display">Hesaplanıyor...</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card unified-card h-100">
+                    <div class="marketplace-indicator amazon-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-trophy analytics-icon"></i>
+                        <h5 class="card-title">En İyi Platform</h5>
+                        <h2 id="top-performer" class="display-6">Yükleniyor...</h2>
+                        <div class="mt-2">
+                            <small>Performans: <span id="performance-score">-</span> | Gelir: <span id="top-revenue">-</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card unified-card h-100">
+                    <div class="marketplace-indicator ebay-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line analytics-icon"></i>
+                        <h5 class="card-title">Büyüme Oranı</h5>
+                        <h2 id="growth-rate" class="display-6">Yükleniyor...</h2>
+                        <div class="mt-2">
+                            <small>Bu Ay: <span id="monthly-growth">-</span>% | Önceki: <span id="previous-growth">-</span>%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card unified-card h-100">
+                    <div class="marketplace-indicator n11-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-percent analytics-icon"></i>
+                        <h5 class="card-title">Ortalama Kar Marjı</h5>
+                        <h2 id="avg-profit-margin" class="display-6">Yükleniyor...</h2>
+                        <div class="mt-2">
+                            <small>En İyi: <span id="best-margin">-</span>% | En Düşük: <span id="worst-margin">-</span>%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform Comparison Charts -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-area text-primary me-2"></i>
+                            Multi-Platform Revenue Comparison (Son 30 Gün)
+                        </h5>
+                        <span class="analytics-badge">7 Platform</span>
+                    </div>
+                    <canvas id="platformComparisonChart" height="300"></canvas>
+                    <div class="mt-3">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <strong id="total-monthly-sales" class="currency-display">0 TL</strong><br>
+                                <small class="text-muted">Aylık Toplam</small>
+                            </div>
+                            <div class="col-md-3">
+                                <strong id="avg-platform-performance" class="currency-display">0 TL</strong><br>
+                                <small class="text-muted">Platform Ortalaması</small>
+                            </div>
+                            <div class="col-md-3">
+                                <strong id="best-performing-day">0%</strong><br>
+                                <small class="text-muted">En İyi Gün</small>
+                            </div>
+                            <div class="col-md-3">
+                                <strong id="cross-platform-efficiency">0%</strong><br>
+                                <small class="text-muted">Genel Verimlilik</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-pie text-warning me-2"></i>
+                            Market Share Distribution
+                        </h5>
+                        <span class="analytics-badge">Gerçek Zamanlı</span>
+                    </div>
+                    <canvas id="marketShareChart" height="300"></canvas>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            Lider Platform: <span id="market-leader">Hesaplanıyor...</span><br>
+                            En Hızlı Büyüyen: <span id="fastest-growing">Hesaplanıyor...</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform Status & Management -->
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <div class="card unified-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-network-wired me-2"></i>
+                            Platform Status & Performance
+                        </h5>
+                        <div>
+                            <button class="btn btn-sm btn-analytics me-2" onclick="refreshAllPlatforms()">
+                                <i class="fas fa-sync-alt"></i> Tümünü Yenile
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" onclick="exportAnalytics()">
+                                <i class="fas fa-download"></i> Rapor İndir
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="platforms-container">
+                            <!-- Dinamik platform listesi buraya yüklenecek -->
+                            <div class="text-center p-4">
+                                <div class="loading-animation mb-3"></div>
+                                <p>Platform durumları kontrol ediliyor...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Quick Analytics Actions -->
+                <div class="card unified-card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bolt me-2"></i>
+                            Analytics İşlemleri
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-column gap-2">
+                            <button class="action-btn btn-analytics" onclick="generateReport()">
+                                <i class="fas fa-file-alt"></i>Kapsamlı Rapor
+                            </button>
+                            <button class="action-btn btn-export" onclick="exportToExcel()">
+                                <i class="fas fa-file-excel"></i>Excel İhracat
+                            </button>
+                            <button class="action-btn btn-sync" onclick="syncAllPlatforms()">
+                                <i class="fas fa-sync"></i>Platform Senkronizasyonu
+                            </button>
+                            <button class="action-btn btn-analytics" onclick="profitAnalysis()">
+                                <i class="fas fa-chart-bar"></i>Kar Analizi
+                            </button>
+                            <button class="action-btn btn-outline-secondary" onclick="openAnalyticsSettings()">
+                                <i class="fas fa-cog"></i>Analytics Ayarları
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Tracking -->
+                <div class="metric-card">
+                    <h6><i class="fas fa-tachometer-alt me-2"></i>Performance KPIs</h6>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <strong id="overall-conversion" class="currency-display">0%</strong><br>
+                            <small>Dönüşüm Oranı</small>
+                        </div>
+                        <div class="col-6">
+                            <strong id="overall-efficiency">0%</strong><br>
+                            <small>Verimlilik</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="performance-indicator">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Performans: <span id="performance-status">Hesaplanıyor...</span></span>
+                    </div>
+                </div>
+
+                <!-- Platform Health -->
+                <div class="metric-card">
+                    <h6><i class="fas fa-heartbeat me-2"></i>Platform Sağlığı</h6>
+                    <div class="mb-2">
+                        <small>Aktif Platformlar:</small>
+                        <strong id="active-platforms-count" class="float-end">0/7</strong>
+                    </div>
+                    <div class="mb-2">
+                        <small>Ortalama Uptime:</small>
+                        <strong id="avg-uptime" class="float-end">%0</strong>
+                    </div>
+                    <div class="mb-2">
+                        <small>API Response Time:</small>
+                        <strong id="avg-response-time" class="float-end">0ms</strong>
+                    </div>
+                    <div class="api-health mt-2">
+                        <i class="fas fa-check-circle me-1"></i>Tüm Sistemler Çalışıyor
+                    </div>
+                </div>
+
+                <!-- Profit Breakdown -->
+                <div class="metric-card">
+                    <h6><i class="fas fa-money-bill-wave me-2"></i>Kar Dağılımı</h6>
+                    <div class="mb-2">
+                        <small>En Karlı Platform:</small>
+                        <strong id="most-profitable" class="float-end">-</strong>
+                    </div>
+                    <div class="mb-2">
+                        <small>Toplam Kar Marjı:</small>
+                        <strong id="total-profit-margin" class="float-end">%0</strong>
+                    </div>
+                    <div class="mb-2">
+                        <small>Bu Ay Kar:</small>
+                        <strong id="monthly-profit" class="float-end currency-display">0 TL</strong>
+                    </div>
+                    <div class="profit-margin mt-2">
+                        <i class="fas fa-trending-up me-1"></i>Kar Trendi: Yükselişte
+                    </div>
+                </div>
+
+                <!-- Recent Cross-Platform Activities -->
+                <div class="metric-card">
+                    <h6><i class="fas fa-clock me-2"></i>Son Cross-Platform Aktiviteler</h6>
+                    <div id="recent-activities-unified">
+                        <div class="text-center text-muted">
+                            <small>Unified aktiviteler yükleniyor...</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Tips -->
+                <div class="metric-card">
+                    <h6><i class="fas fa-lightbulb me-2"></i>Analytics İpuçları</h6>
+                    <div class="text-muted small">
+                        <p><strong>📊 Benchmark:</strong> Platform performanslarını karşılaştırın.</p>
+                        <p><strong>💰 Kar Optimizasyonu:</strong> En karlı platformlara odaklanın.</p>
+                        <p><strong>📈 Trend Analysis:</strong> Büyüme trendlerini takip edin.</p>
+                        <p><strong>🔄 Cross-Listing:</strong> Ürünleri tüm platformlarda satın.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Cross-Platform Analytics -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-broadcast-tower text-warning me-2"></i>
+                            Gerçek Zamanlı Cross-Platform Performance
+                        </h5>
+                        <span class="analytics-badge">CANLI</span>
+                    </div>
+                    <canvas id="realtimeCrossPlatformChart" height="200"></canvas>
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="performance-indicator">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Son Güncelleme: <span id="last-update-time">Hesaplanıyor...</span></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="revenue-display text-center">
+                                    Günlük Hedef: <span id="daily-target-unified" class="currency-display">50.000 TL</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="platform-status text-center">
+                                    <i class="fas fa-star me-1"></i>En İyi: <span id="current-leader">Amazon</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="status-active text-end">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Senkronize: <span id="synced-platforms">7/7</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Cross-Platform Analytics JavaScript -->
+    <script src="cross_marketplace_analytics.js"></script>
+    
+    <!-- Initialize Cross-Platform Analytics -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cross-Platform Analytics Dashboard'ı başlat
+            window.crossPlatformAnalytics = new CrossMarketplaceAnalytics();
+            
+            console.log('📊 Cross-Marketplace Analytics Dashboard başlatıldı');
+        });
+    </script>
+</body>
+</html> 

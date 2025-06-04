@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Intelligence Dashboard - MesChain-Sync</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bi-theme { 
+            background: linear-gradient(135deg, #4C1D95 0%, #3730A3 50%, #312E81 100%);
+            color: white;
+        }
+        .bi-card { 
+            border-left: 5px solid #4C1D95;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(76, 29, 149, 0.2);
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .bi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(76, 29, 149, 0.3);
+        }
+        .bi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4C1D95, #3730A3, #312E81, #1E1B4B, #4C1D95);
+            animation: biGradient 3s ease-in-out infinite;
+        }
+        @keyframes biGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .bi-icon {
+            font-size: 2.5rem;
+            color: #4C1D95;
+            margin-bottom: 15px;
+            animation: biPulse 2s ease-in-out infinite;
+        }
+        @keyframes biPulse {
+            0%, 100% { transform: scale(1); color: #4C1D95; }
+            50% { transform: scale(1.1); color: #3730A3; }
+        }
+        .bi-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #A78BFA, #4C1D95);
+            animation: biBlink 2s infinite;
+        }
+        @keyframes biBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.3); }
+        }
+        .analytics-center {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .analytics-header {
+            background: linear-gradient(45deg, #4C1D95, #3730A3);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: between;
+        }
+        .widget-grid {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .analytics-widget {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 150px;
+        }
+        .analytics-widget:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .analytics-widget.revenue {
+            border-left-color: #10B981;
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+        }
+        .analytics-widget.conversion {
+            border-left-color: #3B82F6;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.05));
+        }
+        .analytics-widget.traffic {
+            border-left-color: #F59E0B;
+            background: linear-gradient(45deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.05));
+        }
+        .analytics-widget.performance {
+            border-left-color: #EF4444;
+            background: linear-gradient(45deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.05));
+        }
+        .widget-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .widget-title {
+            font-size: 0.9rem;
+            color: #6B7280;
+            margin-bottom: 5px;
+        }
+        .widget-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .widget-change {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .bi-badge {
+            background: linear-gradient(45deg, #4C1D95, #3730A3);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(76, 29, 149, 0.3);
+        }
+        .metric-display {
+            font-weight: bold;
+            color: #4C1D95;
+            font-size: 1.2rem;
+        }
+        .bi-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .bi-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        .bi-processing {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+        .bi-offline {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+        .realtime-indicator {
+            background: linear-gradient(45deg, #4C1D95, #3730A3);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            animation: realtimePulse 2s ease-in-out infinite;
+        }
+        @keyframes realtimePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .kpi-panel {
+            background: linear-gradient(45deg, rgba(76, 29, 149, 0.1), rgba(55, 48, 163, 0.1));
+            border: 1px solid #4C1D95;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .kpi-btn {
+            background: linear-gradient(45deg, #4C1D95, #3730A3);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .kpi-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(76, 29, 149, 0.3);
+        }
+        .insights-panel {
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border: 1px solid #10B981;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .insights-btn {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .insights-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .chart-container::before {
+            content: '📊 ANALYTICS';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: linear-gradient(45deg, #4C1D95, #3730A3);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .executive-center {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #EF4444;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            animation: executiveGlow 4s ease-in-out infinite;
+        }
+        @keyframes executiveGlow {
+            0%, 100% { border-color: #EF4444; }
+            50% { border-color: #DC2626; }
+        }
+        .executive-btn {
+            background: linear-gradient(45deg, #EF4444, #DC2626);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .executive-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+        .filter-panel {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        .filter-btn.active {
+            border-color: #4C1D95;
+            background: rgba(76, 29, 149, 0.1);
+            color: #4C1D95;
+        }
+        .filter-btn:hover {
+            border-color: #4C1D95;
+            transform: translateY(-2px);
+        }
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .trend-up { color: #10B981; }
+        .trend-down { color: #EF4444; }
+        .trend-stable { color: #6B7280; }
+        .performance-meter {
+            background: linear-gradient(90deg, #EF4444 0%, #F59E0B 25%, #10B981 75%, #059669 100%);
+            height: 8px;
+            border-radius: 4px;
+            position: relative;
+            margin: 10px 0;
+        }
+        .performance-indicator {
+            position: absolute;
+            top: -2px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid #4C1D95;
+            border-radius: 50%;
+            transition: left 0.3s ease;
+        }
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .table-header {
+            background: linear-gradient(45deg, #4C1D95, #3730A3);
+            color: white;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .table-row {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .table-row:hover {
+            background: rgba(76, 29, 149, 0.05);
+        }
+        .mini-chart {
+            width: 60px;
+            height: 30px;
+            background: linear-gradient(45deg, rgba(76, 29, 149, 0.1), rgba(55, 48, 163, 0.1));
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .mini-chart::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 60%;
+            width: 100%;
+            background: linear-gradient(45deg, #4C1D95, #3730A3);
+            transform: skewX(-10deg);
+            animation: miniChartGrow 2s ease-in-out infinite;
+        }
+        @keyframes miniChartGrow {
+            0%, 100% { height: 60%; }
+            50% { height: 80%; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg bi-theme shadow-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-chart-bar me-2"></i>
+                Business Intelligence Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <span class="bi-status bi-active" id="bi-status">
+                        <span class="bi-indicator"></span>
+                        BI Engine: <span id="bi-status-text">Active</span>
+                    </span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- KPI Overview -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bi-card h-100">
+                    <div class="bi-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-dollar-sign bi-icon"></i>
+                        <h5 class="card-title">Total Revenue</h5>
+                        <h2 id="total-revenue" class="display-6">$2.4M</h2>
+                        <div class="mt-2">
+                            <small>Monthly: <span id="monthly-revenue" class="metric-display">$847K</span></small>
+                            <div class="realtime-indicator mt-2">TRACKING</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bi-card h-100">
+                    <div class="bi-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-users bi-icon"></i>
+                        <h5 class="card-title">Active Users</h5>
+                        <h2 id="active-users" class="display-6">45.7K</h2>
+                        <div class="mt-2">
+                            <small>Growth: <span id="user-growth" class="metric-display">+12.5%</span></small>
+                            <div class="realtime-indicator mt-2">GROWING</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bi-card h-100">
+                    <div class="bi-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line bi-icon"></i>
+                        <h5 class="card-title">Conversion Rate</h5>
+                        <h2 id="conversion-rate" class="display-6">8.7%</h2>
+                        <div class="mt-2">
+                            <small>Target: <span id="conversion-target" class="metric-display">10%</span></small>
+                            <div class="realtime-indicator mt-2">OPTIMIZING</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bi-card h-100">
+                    <div class="bi-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-brain bi-icon"></i>
+                        <h5 class="card-title">AI Insights</h5>
+                        <h2 id="ai-insights" class="display-6">127</h2>
+                        <div class="mt-2">
+                            <small>Accuracy: <span id="ai-accuracy" class="metric-display">94.2%</span></small>
+                            <div class="realtime-indicator mt-2">LEARNING</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Analytics Center -->
+                <div class="analytics-center">
+                    <div class="analytics-header">
+                        <div>
+                            <h5 class="mb-0">
+                                <i class="fas fa-analytics me-2"></i>
+                                Advanced Analytics Center
+                            </h5>
+                            <small>Real-time data insights and performance metrics</small>
+                        </div>
+                        <div class="ms-auto">
+                            <span class="bi-badge">📊 Live Data</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Panel -->
+                    <div class="p-3 border-bottom">
+                        <div class="filter-panel">
+                            <div class="filter-btn active" data-period="today">Today</div>
+                            <div class="filter-btn" data-period="week">This Week</div>
+                            <div class="filter-btn" data-period="month">This Month</div>
+                            <div class="filter-btn" data-period="quarter">Quarter</div>
+                            <div class="filter-btn" data-period="year">Year</div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget-grid" id="analytics-widgets">
+                        <!-- Analytics widgets will be loaded here dynamically -->
+                    </div>
+                </div>
+
+                <!-- Business Intelligence Charts -->
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-area text-primary me-2"></i>
+                            Business Performance Analytics (Son 12 Ay)
+                        </h5>
+                        <span class="bi-badge">Real-time Intelligence</span>
+                    </div>
+                    <canvas id="biChart" height="300"></canvas>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- KPI Scorecard -->
+                <div class="card bi-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            KPI Scorecard
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small>Overall Performance:</small>
+                            <div class="performance-meter">
+                                <div class="performance-indicator" style="left: 78%;"></div>
+                            </div>
+                            <strong class="float-end text-success" id="overall-performance">78%</strong>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small>Revenue Growth:</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong id="revenue-growth">+23.4%</strong>
+                                <span class="trend-indicator trend-up">
+                                    <i class="fas fa-arrow-up"></i> Trending Up
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small>Customer Satisfaction:</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong id="customer-satisfaction">4.8/5</strong>
+                                <span class="trend-indicator trend-up">
+                                    <i class="fas fa-arrow-up"></i> Excellent
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small>Market Share:</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong id="market-share">34.7%</strong>
+                                <span class="trend-indicator trend-up">
+                                    <i class="fas fa-arrow-up"></i> Growing
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small>Operational Efficiency:</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong id="operational-efficiency">89.2%</strong>
+                                <span class="trend-indicator trend-stable">
+                                    <i class="fas fa-minus"></i> Stable
+                                </span>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="viewDetailedKPI()">
+                                <i class="fas fa-chart-line me-2"></i>Detailed KPI Analysis
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="exportKPIReport()">
+                                <i class="fas fa-download me-2"></i>Export KPI Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smart Insights -->
+                <div class="insights-panel">
+                    <h6><i class="fas fa-lightbulb me-2"></i>AI-Powered Insights</h6>
+                    <p class="mb-3">Intelligent recommendations & predictive analytics</p>
+                    <div class="mb-3">
+                        <div class="data-table">
+                            <div class="table-header">
+                                Top Recommendations
+                            </div>
+                            <div class="table-row">
+                                <div>
+                                    <strong>Optimize Pricing</strong>
+                                    <div class="small text-muted">Revenue Impact: +15%</div>
+                                </div>
+                                <div class="mini-chart"></div>
+                            </div>
+                            <div class="table-row">
+                                <div>
+                                    <strong>Expand Marketing</strong>
+                                    <div class="small text-muted">User Growth: +28%</div>
+                                </div>
+                                <div class="mini-chart"></div>
+                            </div>
+                            <div class="table-row">
+                                <div>
+                                    <strong>Improve UX</strong>
+                                    <div class="small text-muted">Conversion: +12%</div>
+                                </div>
+                                <div class="mini-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="insights-btn w-100" onclick="viewAIInsights()">
+                        View All AI Insights
+                    </button>
+                </div>
+
+                <!-- KPI Management -->
+                <div class="kpi-panel">
+                    <h6><i class="fas fa-cogs me-2"></i>KPI Management</h6>
+                    <p class="mb-3">Configure goals, alerts & automated reports</p>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto-alerts" checked>
+                            <label class="form-check-label" for="auto-alerts">
+                                Automated Alerts
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="predictive-analysis" checked>
+                            <label class="form-check-label" for="predictive-analysis">
+                                Predictive Analysis
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="executive-reports" checked>
+                            <label class="form-check-label" for="executive-reports">
+                                Executive Reports
+                            </label>
+                        </div>
+                    </div>
+                    <button class="kpi-btn w-100" onclick="configureKPI()">
+                        Configure KPI Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Executive Dashboard -->
+        <div class="row mt-4" id="executive-dashboard">
+            <div class="col-12">
+                <div class="executive-center">
+                    <div class="text-center">
+                        <h4 class="text-danger mb-3">
+                            <i class="fas fa-crown me-2"></i>
+                            EXECUTIVE INTELLIGENCE CENTER
+                        </h4>
+                        <p class="mb-4">Strategic insights, board-level reporting & executive decision support</p>
+                        <div class="row text-center mb-4">
+                            <div class="col-3">
+                                <strong class="d-block">Strategic Goals</strong>
+                                <span class="text-success">On Track</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Financial Health</strong>
+                                <span class="text-success">Excellent</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Market Position</strong>
+                                <span class="text-warning">Growing</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Risk Assessment</strong>
+                                <span class="text-success">Low Risk</span>
+                            </div>
+                        </div>
+                        <button class="executive-btn me-3" onclick="generateExecutiveReport()">
+                            GENERATE EXECUTIVE REPORT
+                        </button>
+                        <button class="executive-btn" onclick="viewStrategicInsights()">
+                            STRATEGIC INSIGHTS
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Business Intelligence JavaScript -->
+    <script src="bi_management.js"></script>
+    
+    <!-- Initialize Business Intelligence -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Business Intelligence Dashboard'u başlat
+            window.biManagement = new BusinessIntelligence();
+            
+            console.log('📊 Business Intelligence Dashboard başlatıldı');
+        });
+    </script>
+</body>
+</html> 

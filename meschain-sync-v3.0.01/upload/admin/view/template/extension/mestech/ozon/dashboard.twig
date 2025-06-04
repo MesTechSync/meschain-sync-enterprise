@@ -1,0 +1,365 @@
+{{ header }}{{ column_left }}
+
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-sync-products" data-toggle="tooltip" title="{{ button_sync_products }}" class="btn btn-success"><i class="fa fa-refresh"></i> {{ button_sync_products }}</button>
+        <button type="button" id="button-sync-orders" data-toggle="tooltip" title="{{ button_sync_orders }}" class="btn btn-info"><i class="fa fa-refresh"></i> {{ button_sync_orders }}</button>
+        <a href="{{ settings_url }}" data-toggle="tooltip" title="{{ text_settings }}" class="btn btn-primary"><i class="fa fa-cog"></i> {{ text_settings }}</a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <!-- API Durum Kartı -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-plug"></i> {{ text_marketplace }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="api-status-wrapper text-center">
+              {% if api_status %}
+                <div class="alert alert-success" style="margin-bottom: 0;">
+                  <i class="fa fa-check-circle fa-3x pull-left"></i>
+                  <h4>{{ text_api_connected }}</h4>
+                  <p>{{ text_marketplace }} API bağlantısı başarıyla kuruldu.</p>
+                </div>
+              {% else %}
+                <div class="alert alert-danger" style="margin-bottom: 0;">
+                  <i class="fa fa-times-circle fa-3x pull-left"></i>
+                  <h4>{{ text_api_not_connected }}</h4>
+                  <p>API bağlantısı kurulamadı. Lütfen <a href="{{ settings_url }}">ayarlarınızı</a> kontrol edin.</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- İstatistik Kartları -->
+    <div class="row">
+      <!-- Toplam Ürün -->
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cubes fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_products }}</div>
+                <div>{{ text_total_products }}</div>
+              </div>
+            </div>
+          </div>
+          <a href="{{ products_url }}">
+            <div class="panel-footer">
+              <span class="pull-left">{{ text_view_all }}</span>
+              <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+              <div class="clearfix"></div>
+            </div>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Toplam Sipariş -->
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_orders }}</div>
+                <div>{{ text_total_orders }}</div>
+              </div>
+            </div>
+          </div>
+          <a href="{{ orders_url }}">
+            <div class="panel-footer">
+              <span class="pull-left">{{ text_view_all }}</span>
+              <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+              <div class="clearfix"></div>
+            </div>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Bekleyen Sipariş -->
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-clock-o fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ pending_orders }}</div>
+                <div>{{ text_pending_orders }}</div>
+              </div>
+            </div>
+          </div>
+          <a href="{{ orders_url }}">
+            <div class="panel-footer">
+              <span class="pull-left">{{ text_view_all }}</span>
+              <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+              <div class="clearfix"></div>
+            </div>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Loglar -->
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-list-alt fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge"><i class="fa fa-file-text"></i></div>
+                <div>{{ text_logs }}</div>
+              </div>
+            </div>
+          </div>
+          <a href="{{ logs_url }}">
+            <div class="panel-footer">
+              <span class="pull-left">{{ text_view_all }}</span>
+              <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+              <div class="clearfix"></div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Son Siparişler -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-shopping-cart"></i> {{ text_latest_orders }}</h3>
+          </div>
+          <div class="panel-body">
+            {% if latest_orders %}
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <td class="text-left">{{ text_order_id }}</td>
+                      <td class="text-left">{{ text_customer }}</td>
+                      <td class="text-left">{{ text_status }}</td>
+                      <td class="text-right">{{ text_total }}</td>
+                      <td class="text-left">{{ text_date_added }}</td>
+                      <td class="text-right">{{ text_action }}</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for order in latest_orders %}
+                    <tr>
+                      <td class="text-left">{{ order.order_id }}</td>
+                      <td class="text-left">{{ order.customer }}</td>
+                      <td class="text-left">{{ order.status }}</td>
+                      <td class="text-right">{{ order.total }}</td>
+                      <td class="text-left">{{ order.date_added }}</td>
+                      <td class="text-right">
+                        <a href="{{ order.view }}" data-toggle="tooltip" title="{{ text_view_order }}" class="btn btn-info"><i class="fa fa-eye"></i></a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="text-center">{{ text_no_results }}</div>
+            {% endif %}
+            <div class="text-right"><a href="{{ orders_url }}" class="btn btn-primary">{{ text_view_all }} <i class="fa fa-arrow-right"></i></a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- İstatistik Grafikleri -->
+    <div class="row">
+      <!-- Ürün İstatistikleri -->
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-bar-chart"></i> {{ text_product_statistics }}</h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="productChart" width="100%" height="50"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sipariş İstatistikleri -->
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-line-chart"></i> {{ text_order_statistics }}</h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="orderChart" width="100%" height="50"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+<script type="text/javascript"><!--
+// Senkronizasyon butonları
+$('#button-sync-products').on('click', function() {
+  $.ajax({
+    url: '{{ sync_products_url }}',
+    type: 'post',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-sync-products').button('loading');
+    },
+    complete: function() {
+      $('#button-sync-products').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        
+        // Sayfa yenileme
+        setTimeout(function() {
+          location.reload();
+        }, 2000);
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('#button-sync-orders').on('click', function() {
+  $.ajax({
+    url: '{{ sync_orders_url }}',
+    type: 'post',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-sync-orders').button('loading');
+    },
+    complete: function() {
+      $('#button-sync-orders').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        
+        // Sayfa yenileme
+        setTimeout(function() {
+          location.reload();
+        }, 2000);
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+// Ürün İstatistikleri Grafiği (Örnek veri)
+var productCtx = document.getElementById('productChart').getContext('2d');
+var productChart = new Chart(productCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Aktif', 'Pasif', 'Stokta Yok', 'Onay Bekliyor', 'Reddedildi'],
+        datasets: [{
+            label: '# Ürün Sayısı',
+            data: [{{ total_products * 0.6 }}, {{ total_products * 0.1 }}, {{ total_products * 0.15 }}, {{ total_products * 0.1 }}, {{ total_products * 0.05 }}],
+            backgroundColor: [
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)',
+                'rgba(153, 102, 255, 0.5)'
+            ],
+            borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 99, 132, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+
+// Sipariş İstatistikleri Grafiği (Örnek veri)
+var orderCtx = document.getElementById('orderChart').getContext('2d');
+var orderChart = new Chart(orderCtx, {
+    type: 'line',
+    data: {
+        labels: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran'],
+        datasets: [{
+            label: '# Sipariş Sayısı',
+            data: [{{ total_orders * 0.1 }}, {{ total_orders * 0.15 }}, {{ total_orders * 0.2 }}, {{ total_orders * 0.25 }}, {{ total_orders * 0.15 }}, {{ total_orders * 0.15 }}],
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 2,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+//--></script>
+{{ footer }} 

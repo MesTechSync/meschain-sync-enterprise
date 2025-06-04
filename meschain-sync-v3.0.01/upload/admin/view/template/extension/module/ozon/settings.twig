@@ -1,0 +1,320 @@
+{#
+  settings.twig
+  Amaç: Ozon pazaryeri entegrasyonu için ayarlar ekranı
+  Fonksiyonlar: API bağlantı ayarları, otomatik eşitleme seçenekleri, varsayılan kategori ayarları
+#}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-ozon" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_settings }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-ozon" class="form-horizontal">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
+            <li><a href="#tab-api" data-toggle="tab">{{ tab_api }}</a></li>
+            <li><a href="#tab-product" data-toggle="tab">{{ tab_product }}</a></li>
+            <li><a href="#tab-order" data-toggle="tab">{{ tab_order }}</a></li>
+            <li><a href="#tab-cron" data-toggle="tab">{{ tab_cron }}</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab-general">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_mestech_ozon_status" id="input-status" class="form-control">
+                    {% if module_mestech_ozon_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-debug">{{ entry_debug }}</label>
+                <div class="col-sm-10">
+                  <select name="module_mestech_ozon_debug" id="input-debug" class="form-control">
+                    {% if module_mestech_ozon_debug %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-store">{{ entry_store }}</label>
+                <div class="col-sm-10">
+                  <select name="module_mestech_ozon_store_id" id="input-store" class="form-control">
+                    {% for store in stores %}
+                    {% if store.store_id == module_mestech_ozon_store_id %}
+                    <option value="{{ store.store_id }}" selected="selected">{{ store.name }}</option>
+                    {% else %}
+                    <option value="{{ store.store_id }}">{{ store.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-api">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-client-id">{{ entry_client_id }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_mestech_ozon_client_id" value="{{ module_mestech_ozon_client_id }}" placeholder="{{ entry_client_id }}" id="input-client-id" class="form-control" />
+                  {% if error_client_id %}
+                  <div class="text-danger">{{ error_client_id }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-api-key">{{ entry_api_key }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_mestech_ozon_api_key" value="{{ module_mestech_ozon_api_key }}" placeholder="{{ entry_api_key }}" id="input-api-key" class="form-control" />
+                  {% if error_api_key %}
+                  <div class="text-danger">{{ error_api_key }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-api-secret">{{ entry_api_secret }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_mestech_ozon_api_secret" value="{{ module_mestech_ozon_api_secret }}" placeholder="{{ entry_api_secret }}" id="input-api-secret" class="form-control" />
+                  {% if error_api_secret %}
+                  <div class="text-danger">{{ error_api_secret }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-api-url">{{ entry_api_url }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_mestech_ozon_api_url" value="{{ module_mestech_ozon_api_url }}" placeholder="{{ entry_api_url }}" id="input-api-url" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="button" id="button-test-connection" class="btn btn-info"><i class="fa fa-check"></i> {{ button_test_connection }}</button>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-product">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-product-sync">{{ entry_product_sync }}</label>
+                <div class="col-sm-10">
+                  <select name="module_mestech_ozon_product_sync" id="input-product-sync" class="form-control">
+                    {% if module_mestech_ozon_product_sync %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-price-markup">{{ entry_price_markup }}</label>
+                <div class="col-sm-10">
+                  <div class="input-group">
+                    <input type="text" name="module_mestech_ozon_price_markup" value="{{ module_mestech_ozon_price_markup }}" placeholder="{{ entry_price_markup }}" id="input-price-markup" class="form-control" />
+                    <span class="input-group-addon">%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-stock-threshold">{{ entry_stock_threshold }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_mestech_ozon_stock_threshold" value="{{ module_mestech_ozon_stock_threshold }}" placeholder="{{ entry_stock_threshold }}" id="input-stock-threshold" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-product-status">{{ entry_product_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_mestech_ozon_product_status" id="input-product-status" class="form-control">
+                    {% for status in product_statuses %}
+                    {% if status.status_id == module_mestech_ozon_product_status %}
+                    <option value="{{ status.status_id }}" selected="selected">{{ status.name }}</option>
+                    {% else %}
+                    <option value="{{ status.status_id }}">{{ status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-order">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-order-sync">{{ entry_order_sync }}</label>
+                <div class="col-sm-10">
+                  <select name="module_mestech_ozon_order_sync" id="input-order-sync" class="form-control">
+                    {% if module_mestech_ozon_order_sync %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-order-status">{{ entry_order_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_mestech_ozon_order_status_id" id="input-order-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == module_mestech_ozon_order_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-customer-group">{{ entry_customer_group }}</label>
+                <div class="col-sm-10">
+                  <select name="module_mestech_ozon_customer_group_id" id="input-customer-group" class="form-control">
+                    {% for customer_group in customer_groups %}
+                    {% if customer_group.customer_group_id == module_mestech_ozon_customer_group_id %}
+                    <option value="{{ customer_group.customer_group_id }}" selected="selected">{{ customer_group.name }}</option>
+                    {% else %}
+                    <option value="{{ customer_group.customer_group_id }}">{{ customer_group.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-cron">
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_cron_url }}</label>
+                <div class="col-sm-10">
+                  <div class="input-group">
+                    <input type="text" value="{{ cron_url }}" class="form-control" readonly />
+                    <span class="input-group-btn">
+                      <button type="button" class="btn btn-default btn-copy" data-clipboard-text="{{ cron_url }}"><i class="fa fa-copy"></i></button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_cron_schedule }}</label>
+                <div class="col-sm-10">
+                  <pre>*/15 * * * * wget -q -O /dev/null "{{ cron_url }}"</pre>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_cron_last_run }}</label>
+                <div class="col-sm-10">
+                  <div class="input-group">
+                    <input type="text" value="{{ cron_last_run }}" class="form-control" readonly />
+                    <span class="input-group-btn">
+                      <button type="button" id="button-run-cron" class="btn btn-info"><i class="fa fa-play"></i> {{ button_run_cron }}</button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+$('#button-test-connection').on('click', function() {
+  $.ajax({
+    url: 'index.php?route=extension/module/ozon/testConnection&user_token={{ user_token }}',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-test-connection').button('loading');
+    },
+    complete: function() {
+      $('#button-test-connection').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('#button-run-cron').on('click', function() {
+  $.ajax({
+    url: 'index.php?route=extension/module/ozon/runCron&user_token={{ user_token }}',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-run-cron').button('loading');
+    },
+    complete: function() {
+      $('#button-run-cron').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+// Clipboard
+var clipboard = new ClipboardJS('.btn-copy');
+
+clipboard.on('success', function(e) {
+  $('.alert-dismissible').remove();
+  $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ text_copied }} <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+});
+//--></script>
+{{ footer }} 

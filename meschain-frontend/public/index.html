@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#3B82F6" />
+    <meta name="description" content="MesChain-Sync - Çoklu Pazaryeri Entegrasyon Sistemi" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="MesChain" />
+    <meta name="application-name" content="MesChain" />
+    <meta name="msapplication-TileColor" content="#3B82F6" />
+    <meta name="msapplication-config" content="%PUBLIC_URL%/browserconfig.xml" />
+    
+    <!-- Performance Resource Hints -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//api.trendyol.com" />
+    <link rel="dns-prefetch" href="//api.n11.com" />
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="%PUBLIC_URL%/logo192.png" />
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Critical CSS for Performance -->
+    <style>
+      /* Critical above-the-fold styles */
+      html { 
+        font-size: 16px; 
+        line-height: 1.5; 
+        -webkit-text-size-adjust: 100%; 
+        -webkit-font-smoothing: antialiased; 
+        -moz-osx-font-smoothing: grayscale; 
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #f9fafb;
+        color: #374151;
+      }
+      
+      /* Critical loading state */
+      #root {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      /* PWA Offline indicator */
+      body.offline::before {
+        content: "📵 Çevrimdışı Mod - Veriler önbellekten yükleniyor";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #f59e0b;
+        color: white;
+        text-align: center;
+        padding: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 9999;
+        animation: slideDown 0.3s ease-out;
+      }
+      
+      @keyframes slideDown {
+        from { transform: translateY(-100%); }
+        to { transform: translateY(0); }
+      }
+      
+      /* Critical loading animation */
+      .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3b82f6;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        margin: 20px auto;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Critical responsive utilities */
+      @media (max-width: 640px) {
+        body { font-size: 14px; }
+        .loading-spinner { width: 40px; height: 40px; }
+      }
+    </style>
+    
+    <!-- Non-critical CSS loaded asynchronously -->
+    <link rel="preload" href="https://cdn.tailwindcss.com" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://cdn.tailwindcss.com" /></noscript>
+    
+    <!-- Chart.js loaded with defer for performance -->
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <title>MesChain-Sync Dashboard</title>
+  </head>
+  <body>
+    <noscript>Bu uygulamayı çalıştırmak için JavaScript'i etkinleştirmeniz gerekir.</noscript>
+    <div id="root"></div>
+    
+    <!-- Fallback for older browsers -->
+    <div id="fallback" style="display: none; text-align: center; padding: 50px;">
+      <h2>🚨 Tarayıcı Uyumsuzluğu</h2>
+      <p>Bu uygulama modern bir tarayıcı gerektirir. Lütfen tarayıcınızı güncelleyin.</p>
+    </div>
+    
+    <script>
+      // Check for modern browser features
+      if (!window.fetch || !window.Promise || !window.Map) {
+        document.getElementById('root').style.display = 'none';
+        document.getElementById('fallback').style.display = 'block';
+      }
+      
+      // PWA Service Worker Registration
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', async () => {
+          try {
+            console.log('🚀 Registering MesChain PWA Service Worker...');
+            
+            const registration = await navigator.serviceWorker.register('/sw.js', {
+              scope: '/'
+            });
+            
+            console.log('✅ MesChain PWA Service Worker registered successfully:', registration.scope);
+            
+            // Handle updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // New version available, show update notification
+                    console.log('🔄 New version available! Reload to update.');
+                    
+                    // Show update notification if supported
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                      new Notification('MesChain Güncelleme', {
+                        body: 'Yeni bir sürüm mevcut. Sayfayı yenileyin.',
+                        icon: '/logo192.png',
+                        tag: 'app-update'
+                      });
+                    }
+                  }
+                });
+              }
+            });
+            
+            // Request notification permission for PWA
+            if ('Notification' in window && Notification.permission === 'default') {
+              const permission = await Notification.requestPermission();
+              console.log('📱 Notification permission:', permission);
+            }
+            
+            // Listen for Service Worker messages
+            navigator.serviceWorker.addEventListener('message', (event) => {
+              console.log('📨 Message from Service Worker:', event.data);
+              
+              if (event.data.type === 'SW_ACTIVATED') {
+                console.log('✅ Service Worker activated successfully');
+              }
+            });
+            
+            // Check for app updates periodically
+            setInterval(() => {
+              registration.update();
+            }, 60000); // Check every minute
+            
+          } catch (error) {
+            console.error('❌ Service Worker registration failed:', error);
+          }
+        });
+        
+        // Handle offline/online status
+        window.addEventListener('online', () => {
+          console.log('🌐 App is online');
+          document.body.classList.remove('offline');
+          
+          // Show online notification
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('MesChain Online', {
+              body: 'İnternet bağlantısı geri geldi!',
+              icon: '/logo192.png',
+              tag: 'connectivity'
+            });
+          }
+        });
+        
+        window.addEventListener('offline', () => {
+          console.log('📵 App is offline');
+          document.body.classList.add('offline');
+          
+          // Show offline notification
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('MesChain Offline', {
+              body: 'Çevrimdışı modda çalışıyor.',
+              icon: '/logo192.png',
+              tag: 'connectivity'
+            });
+          }
+        });
+      } else {
+        console.warn('⚠️ Service Worker not supported');
+      }
+      
+      // Add to home screen prompt handling
+      let deferredPrompt;
+      
+      window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('📱 PWA install prompt available');
+        
+        // Prevent the mini-infobar from appearing on mobile
+        e.preventDefault();
+        
+        // Stash the event so it can be triggered later
+        deferredPrompt = e;
+        
+        // Show custom install button/banner
+        const installBanner = document.createElement('div');
+        installBanner.id = 'install-banner';
+        installBanner.innerHTML = `
+          <div style="position: fixed; bottom: 20px; right: 20px; background: #3B82F6; color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; max-width: 300px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 24px;">📱</span>
+              <div>
+                <div style="font-weight: bold; margin-bottom: 5px;">MesChain'i Yükle</div>
+                <div style="font-size: 12px; opacity: 0.9;">Ana ekranınıza ekleyin</div>
+              </div>
+              <button id="install-app-btn" style="background: white; color: #3B82F6; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-left: 10px;">Yükle</button>
+              <button id="install-close-btn" style="background: transparent; color: white; border: none; font-size: 18px; cursor: pointer; margin-left: 5px;">×</button>
+            </div>
+          </div>
+        `;
+        
+        document.body.appendChild(installBanner);
+        
+        // Handle install button click
+        document.getElementById('install-app-btn').addEventListener('click', async () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('📱 PWA install outcome:', outcome);
+            
+            if (outcome === 'accepted') {
+              console.log('✅ User accepted PWA install');
+            } else {
+              console.log('❌ User dismissed PWA install');
+            }
+            
+            deferredPrompt = null;
+            document.getElementById('install-banner').remove();
+          }
+        });
+        
+        // Handle close button click
+        document.getElementById('install-close-btn').addEventListener('click', () => {
+          document.getElementById('install-banner').remove();
+        });
+      });
+      
+      // Track PWA install
+      window.addEventListener('appinstalled', () => {
+        console.log('✅ MesChain PWA was installed successfully');
+        
+        // Remove install banner if it exists
+        const installBanner = document.getElementById('install-banner');
+        if (installBanner) {
+          installBanner.remove();
+        }
+        
+        // Show success notification
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('MesChain Yüklendi!', {
+            body: 'Uygulama ana ekranınıza eklendi.',
+            icon: '/logo512.png',
+            tag: 'app-installed'
+          });
+        }
+      });
+    </script>
+  </body>
+</html> 

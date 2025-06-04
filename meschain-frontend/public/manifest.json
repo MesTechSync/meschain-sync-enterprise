@@ -1,0 +1,130 @@
+{
+  "short_name": "MesChain-Sync",
+  "name": "MesChain-Sync - Multi-Marketplace Integration Platform",
+  "description": "Advanced marketplace integration and dropshipping management platform for Trendyol, Amazon, N11, Hepsiburada, eBay, and Ozon",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#3B82F6",
+  "background_color": "#F3F4F6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "tr-TR",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "shopping"],
+  "screenshots": [
+    {
+      "src": "screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "MesChain-Sync Dashboard"
+    },
+    {
+      "src": "screenshot-narrow.png", 
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "MesChain-Sync Mobile"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Ana kontrol paneli",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "icon-dashboard.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Trendyol",
+      "short_name": "Trendyol",
+      "description": "Trendyol entegrasyonu",
+      "url": "/trendyol",
+      "icons": [
+        {
+          "src": "icon-trendyol.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "short_name": "Siparişler",
+      "description": "Sipariş yönetimi",
+      "url": "/orders",
+      "icons": [
+        {
+          "src": "icon-orders.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "short_name": "Analizler",
+      "description": "Performans analizleri",
+      "url": "/analytics",
+      "icons": [
+        {
+          "src": "icon-analytics.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "handle_links": "preferred",
+  "protocol_handlers": [
+    {
+      "protocol": "web+meschain",
+      "url": "/handle?url=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "files",
+          "accept": ["image/*", ".csv", ".xlsx"]
+        }
+      ]
+    }
+  }
+} 

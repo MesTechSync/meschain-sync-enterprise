@@ -1,0 +1,282 @@
+{#
+  trendyol_dashboard.twig
+  Amaç: Kullanıcıya özel Trendyol paneli, gelişmiş ayar ve görsel şölenli arayüz
+#}
+<div class="trendyol-panel" style="border-top:8px solid {{ roleData.color }};">
+  <h2><span style="font-size:1.5em;">{{ roleData.icon }}</span> <span style="color:{{ roleData.color }}">{{ roleData.label }}</span> &mdash; <i class="fa fa-shopping-bag" style="color:#f90;"></i> {{ platform_name }} Paneli</h2>
+  <div class="user-info">
+    <b><i class="fa fa-user"></i> Kullanıcı:</b> {{ username }}<br>
+    <b><i class="fa fa-users"></i> Rol:</b> <span style="color:{{ roleData.color }}">{{ roleData.label }}</span><br>
+    <b><i class="fa fa-paint-brush"></i> Tema:</b> {{ theme }}<br>
+  </div>
+  {% if msg %}<div class="alert alert-info">{{ msg|raw }}</div>{% endif %}
+  <form action="{{ action }}" method="post" autocomplete="off" class="trendyol-form">
+    <div class="form-group">
+      <label>{{ api_key_label }}</label>
+      <input type="text" name="api_key" value="{{ api_key }}" readonly class="form-control" />
+    </div>
+    <div class="form-group">
+      <label>{{ api_secret_label }}</label>
+      <input type="text" name="api_secret" value="{{ api_secret }}" readonly class="form-control" />
+    </div>
+    <div class="form-group">
+      <label>{{ token_label }}</label>
+      <input type="text" name="token" value="{{ token }}" readonly class="form-control" />
+    </div>
+    <div class="form-group">
+      <label>{{ cari_id_label }}</label>
+      <input type="text" name="cari_id" value="{{ cari_id }}" class="form-control" />
+    </div>
+    <div class="form-group">
+      <label>{{ entegrasyon_ref_label }}</label>
+      <input type="text" name="entegrasyon_ref" value="{{ entegrasyon_ref }}" class="form-control" />
+    </div>
+    <div style="display:flex;gap:1em;align-items:center;">
+      <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Kaydet</button>
+      <button type="submit" name="show_secret" value="1" class="btn btn-warning"><i class="fa fa-eye"></i> Şifreyle Göster</button>
+      <input type="password" name="verify_pass" placeholder="Şifreniz" style="width:120px;" />
+      <a href="{{ cancel }}" class="btn btn-default"><i class="fa fa-times"></i> İptal</a>
+    </div>
+  </form>
+  {% if error_warning %}
+    <div class="alert alert-danger">{{ error_warning }}</div>
+  {% endif %}
+  {% if success %}
+    <div class="alert alert-success">{{ success }}</div>
+  {% endif %}
+</div>
+<div class="trendyol-api-panel">
+  <form method="post" style="display:flex;gap:1.5em;align-items:center;justify-content:center;margin-bottom:1.2em;">
+    <div>
+      <label for="order_status">Sipariş Durumu:</label>
+      <select name="order_status" id="order_status" class="form-control" style="min-width:120px;">
+        <option value="Created" {% if order_status=='Created' %}selected{% endif %}>Created</option>
+        <option value="Picking" {% if order_status=='Picking' %}selected{% endif %}>Picking</option>
+        <option value="Invoiced" {% if order_status=='Invoiced' %}selected{% endif %}>Invoiced</option>
+        <option value="Shipped" {% if order_status=='Shipped' %}selected{% endif %}>Shipped</option>
+        <option value="Delivered" {% if order_status=='Delivered' %}selected{% endif %}>Delivered</option>
+        <option value="Cancelled" {% if order_status=='Cancelled' %}selected{% endif %}>Cancelled</option>
+      </select>
+    </div>
+    <div>
+      <label for="order_size">Adet:</label>
+      <input type="number" name="order_size" id="order_size" min="1" max="100" value="{{ order_size }}" class="form-control" style="width:80px;" />
+    </div>
+    <button type="submit" name="action" value="test_connection" class="btn btn-primary btn-lg"><i class="fa fa-link"></i> Bağlantı Test Et</button>
+    <button type="submit" name="action" value="fetch_orders" class="btn btn-success btn-lg"><i class="fa fa-download"></i> Siparişleri Çek</button>
+  </form>
+  {% if api_result %}
+    <div class="alert alert-{{ api_result_type }} api-result-alert">{{ api_result }}</div>
+  {% endif %}
+</div>
+{% if orders is defined and orders is not same as(false) %}
+  <div class="trendyol-orders-table">
+    <h3><i class="fa fa-list"></i> Çekilen Siparişler</h3>
+    {% if orders|length > 0 %}
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Sipariş No</th>
+            <th>Tarih</th>
+            <th>Ürün</th>
+            <th>Adet</th>
+            <th>Tutar</th>
+            <th>Platform</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in orders %}
+            <tr>
+              <td>{{ o.id ?? '-' }}</td>
+              <td>{{ o.order_date ?? '-' }}</td>
+              <td>{{ o.product_name ?? '-' }}</td>
+              <td>{{ o.quantity ?? '-' }}</td>
+              <td>{{ o.total ?? '-' }}</td>
+              <td>{{ o.platform ?? '-' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="alert alert-info">Sipariş bulunamadı.</div>
+    {% endif %}
+  </div>
+{% endif %}
+<div class="trendyol-dashboard-widgets">
+  <div class="dashboard-row">
+    <div class="widget-box bg-green">
+      <div class="widget-title">Bugünkü Satış</div>
+      <div class="widget-value">{{ dashboard.bugun|number_format(0, ',', '.') }} ₺</div>
+      <div class="widget-change">%{{ dashboard.bugunDegisim }}</div>
+    </div>
+    <div class="widget-box bg-blue">
+      <div class="widget-title">Son 1 Hafta</div>
+      <div class="widget-value">{{ dashboard.hafta|number_format(0, ',', '.') }} ₺</div>
+      <div class="widget-change">%{{ dashboard.haftaDegisim }}</div>
+    </div>
+    <div class="widget-box bg-yellow">
+      <div class="widget-title">30 Günlük Satış</div>
+      <div class="widget-value">{{ dashboard.ay|number_format(0, ',', '.') }} ₺</div>
+      <div class="widget-change">%{{ dashboard.ayDegisim }}</div>
+    </div>
+    <div class="widget-box bg-green-light">
+      <div class="widget-title">Ödenecek Tutar</div>
+      <div class="widget-value">{{ dashboard.odenecek|number_format(2, ',', '.') }} ₺</div>
+    </div>
+    <div class="widget-box bg-blue-light">
+      <div class="widget-title">Gelecek Ödemem</div>
+      <div class="widget-value">{{ dashboard.gelecek|number_format(2, ',', '.') }} ₺</div>
+    </div>
+    <div class="widget-box bg-yellow-light">
+      <div class="widget-title">Live Monitor</div>
+      <div class="widget-value">{{ dashboard.liveMsg|raw }}</div>
+    </div>
+  </div>
+  <div class="dashboard-row">
+    <div class="widget-box bg-blue" style="flex:2;min-width:260px;">
+      <div class="widget-title">En Çok Satan Ürünler (30g)</div>
+      {% if dashboard.topProducts|length > 0 %}
+        {% for p in dashboard.topProducts %}
+          <div class="widget-list-item"><span>{{ p.name }}</span><span><b>{{ p.adet }}</b> adet / {{ p.ciro|number_format(0, ',', '.') }} ₺</span></div>
+        {% endfor %}
+      {% else %}<div>Veri yok</div>{% endif %}
+    </div>
+    <div class="widget-box bg-yellow" style="flex:1;min-width:180px;">
+      <div class="widget-title">Platform Bazlı Satış</div>
+      {% for plat, tutar in dashboard.platformSales %}
+        <div class="widget-list-item"><span>{{ plat|capitalize }}</span><span><b>{{ tutar|number_format(0, ',', '.') }} ₺</b></span></div>
+      {% else %}<div>Veri yok</div>{% endfor %}
+    </div>
+    <div class="widget-box bg-green" style="flex:1;min-width:180px;">
+      <div class="widget-title">Kategori Bazlı Satış</div>
+      {% for cat, tutar in dashboard.catSales %}
+        <div class="widget-list-item"><span>{{ cat }}</span><span><b>{{ tutar|number_format(0, ',', '.') }} ₺</b></span></div>
+      {% else %}<div>Veri yok</div>{% endfor %}
+    </div>
+    <div class="widget-box bg-blue-light" style="flex:1;min-width:220px;">
+      <div class="widget-title">Takvim / Görevler</div>
+      {% for t in dashboard.tasks %}
+        <div class="widget-list-item"><span><i class="fa fa-calendar"></i> {{ t.date }}</span> <span>{{ t.task }}</span></div>
+      {% else %}<div>Görev yok</div>{% endfor %}
+    </div>
+  </div>
+  <div class="dashboard-row quick-btns">
+    {% if roleData.can_manage_users %}
+      <a href="#" class="quick-btn bg-blue"><i class="fa fa-users"></i> Kullanıcı Yönetimi</a>
+    {% endif %}
+    {% if roleData.can_upload_modules %}
+      <a href="#" class="quick-btn bg-yellow"><i class="fa fa-upload"></i> Modül Yükle</a>
+    {% endif %}
+    <a href="#" class="quick-btn bg-green"><i class="fa fa-cogs"></i> Modül Yönetimi</a>
+    {% if roleData.can_view_logs %}
+      <a href="#" class="quick-btn bg-red"><i class="fa fa-shield-alt"></i> Güvenlik Logları</a>
+    {% endif %}
+  </div>
+</div>
+<div class="trendyol-log-panel">
+  <h3><i class="fa fa-file-alt"></i> Trendyol Logları</h3>
+  <form method="get" class="log-search-form">
+    <input type="hidden" name="route" value="extension/module/trendyol/dashboard" />
+    <input type="hidden" name="user_token" value="{{ _GET.user_token }}" />
+    <input type="text" name="log_search" value="{{ log_search }}" placeholder="Logda ara..." class="log-search-input" />
+    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Ara</button>
+    {% if is_admin %}
+      <a href="?route=extension/module/trendyol/dashboard&user_token={{ _GET.user_token }}&log_download=1&log_search={{ log_search }}" class="btn btn-warning"><i class="fa fa-download"></i> Logu İndir</a>
+    {% endif %}
+  </form>
+  <div class="log-entries">
+    {% if log_entries|length > 0 %}
+      {% for line in log_entries %}
+        <div class="log-entry">{{ line }}</div>
+      {% endfor %}
+    {% else %}
+      <div class="log-entry log-empty">Log kaydı yok.</div>
+    {% endif %}
+  </div>
+</div>
+<div class="trendyol-tasks-panel">
+  <h3><i class="fa fa-calendar"></i> Takvim / Görevler</h3>
+  <form method="post" class="task-add-form" style="display:flex;gap:1em;align-items:center;margin-bottom:1em;">
+    <input type="hidden" name="task_action" value="add" />
+    <input type="date" name="task_date" value="{{ "now"|date("Y-m-d") }}" class="form-control" required />
+    <input type="text" name="task_text" placeholder="Yeni görev..." class="form-control" required style="flex:2;" />
+    <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i> Ekle</button>
+  </form>
+  <div class="tasks-list">
+    {% if tasks|length > 0 %}
+      {% for t in tasks %}
+        <form method="post" class="task-item-form" style="display:flex;gap:0.5em;align-items:center;margin-bottom:0.5em;">
+          <input type="hidden" name="task_index" value="{{ loop.index0 }}" />
+          <input type="date" name="task_date" value="{{ t.date }}" class="form-control" required style="width:130px;" />
+          <input type="text" name="task_text" value="{{ t.task }}" class="form-control" required style="flex:2;" />
+          <button type="submit" name="task_action" value="edit" class="btn btn-primary"><i class="fa fa-save"></i></button>
+          <button type="submit" name="task_action" value="delete" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+        </form>
+      {% endfor %}
+    {% else %}
+      <div class="alert alert-info">Henüz görev yok.</div>
+    {% endif %}
+  </div>
+</div>
+<style>
+.trendyol-panel { max-width: 600px; margin: 30px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 16px #eee; padding: 32px; }
+.trendyol-panel h2 { color: #f90; font-size:2rem; margin-bottom:1.2em; }
+.user-info { margin-bottom: 18px; background: #f9f9f9; padding: 10px; border-radius: 4px; font-size:1.1em; }
+.trendyol-form .form-group { margin-bottom: 1.1em; }
+.trendyol-form label { font-weight:600; color:#3a8fd8; }
+.trendyol-form input[type="text"], .trendyol-form input[type="password"] { width: 100%; padding: 0.5em; border-radius: 6px; border:1px solid #e0e0e0; font-size:1.1em; }
+.btn { margin-right: 8px; border-radius:6px; font-weight:600; }
+.btn-primary { background:#f90; color:#fff; border:none; }
+.btn-warning { background:#ffe082; color:#b89b82; border:none; }
+.btn-default { background:#eee; color:#333; border:none; }
+.alert { margin-top:1em; padding:0.8em 1em; border-radius:6px; }
+.alert-info { background:#eaf6fb; color:#3a8fd8; }
+.alert-danger { background:#fff0f0; color:#d33; }
+.alert-success { background:#eafbe7; color:#2e7d32; }
+.trendyol-dashboard-widgets { margin-bottom: 2.5em; }
+.dashboard-row { display: flex; flex-wrap: wrap; gap: 1.5em; margin-bottom: 1.5em; }
+.widget-box { flex: 1 1 220px; min-width: 180px; background: #fff; border-radius: 12px; padding: 1.2rem 1rem; text-align: left; box-shadow: 0 2px 8px #0001; }
+.widget-title { font-size:1.1rem; font-weight:600; margin-bottom:0.7rem; color:#3a8fd8; }
+.widget-value { font-size:2rem; color:#222; font-weight:700; margin-bottom:0.3em; }
+.widget-change { font-size:1.1rem; color:#888; }
+.widget-list-item { display:flex; justify-content:space-between; margin-bottom:0.3em; font-size:1.05em; }
+.bg-green { background:#eafbe7; }
+.bg-blue { background:#eaf6fb; }
+.bg-yellow { background:#f5eee6; }
+.bg-green-light { background:#e0ffe0; }
+.bg-blue-light { background:#e0f7fa; }
+.bg-yellow-light { background:#fffbe7; }
+.bg-red { background:#fff0f0; color:#d33; }
+.quick-btns { gap:1em; }
+.quick-btn { display:inline-block; padding:1.1em 1.2em; border-radius:10px; text-align:center; text-decoration:none; font-weight:600; font-size:1.1em; margin-right:0.5em; color:#fff; box-shadow:0 2px 8px #0001; transition:background 0.2s; }
+.quick-btn.bg-blue { background:#3a8fd8; }
+.quick-btn.bg-yellow { background:#b89b82; }
+.quick-btn.bg-green { background:#2e7d32; }
+.quick-btn.bg-red { background:#d33; }
+.quick-btn:hover { filter:brightness(1.1); }
+.trendyol-log-panel { margin-top:2.5em; background:#f9f9f9; border-radius:10px; padding:1.5em; box-shadow:0 2px 8px #eee; }
+.trendyol-log-panel h3 { color:#3a8fd8; margin-bottom:1em; }
+.log-search-form { display:flex; gap:1em; margin-bottom:1em; align-items:center; }
+.log-search-input { padding:0.5em 1em; border-radius:6px; border:1px solid #e0e0e0; font-size:1.1em; }
+.log-entries { max-height:320px; overflow:auto; background:#fff; border-radius:8px; padding:1em; box-shadow:0 1px 4px #eee; }
+.log-entry { font-family:monospace; font-size:1.05em; padding:0.3em 0.5em; border-bottom:1px solid #f0f0f0; }
+.log-entry:last-child { border-bottom:none; }
+.log-entry.log-empty { color:#888; font-style:italic; }
+.trendyol-api-panel { margin-bottom:2em; }
+.btn-lg { font-size:1.2em; padding:0.8em 2em; border-radius:8px; }
+.api-result-alert { font-size:1.1em; margin-top:0.5em; }
+.alert-info.api-result-alert { background:#eaf6fb; color:#3a8fd8; }
+.alert-success.api-result-alert { background:#eafbe7; color:#2e7d32; }
+.alert-danger.api-result-alert { background:#fff0f0; color:#d33; }
+.trendyol-orders-table { margin:2em 0; background:#fff; border-radius:10px; box-shadow:0 2px 8px #eee; padding:1.5em; }
+.orders-table { width:100%; border-collapse:collapse; font-size:1.05em; }
+.orders-table th, .orders-table td { padding:0.6em 1em; border-bottom:1px solid #f0f0f0; }
+.orders-table th { background:#eaf6fb; color:#3a8fd8; font-weight:700; }
+.orders-table tr:last-child td { border-bottom:none; }
+.orders-table td { background:#fafcff; }
+.trendyol-tasks-panel { margin:2em 0; background:#fff; border-radius:10px; box-shadow:0 2px 8px #eee; padding:1.5em; }
+.tasks-list { margin-top:1em; }
+.task-add-form input, .task-item-form input { margin-right:0.5em; }
+.task-item-form .btn { min-width:36px; padding:0.5em 0.7em; }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" /> 

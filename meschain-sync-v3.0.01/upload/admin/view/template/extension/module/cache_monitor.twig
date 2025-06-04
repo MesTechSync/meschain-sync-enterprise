@@ -1,0 +1,308 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ clear_all_url }}" data-toggle="tooltip" title="Tüm Cache'i Temizle" class="btn btn-danger" onclick="return confirm('Tüm cache dosyalarını silmek istediğinizden emin misiniz?');">
+          <i class="fa fa-trash"></i> Tüm Cache'i Temizle
+        </a>
+        <a href="{{ refresh_url }}" data-toggle="tooltip" title="Yenile" class="btn btn-default">
+          <i class="fa fa-refresh"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <!-- Cache İstatistikleri -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-files-o fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_files|default('0') }}</div>
+                <div>Toplam Dosya</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-database fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_size_formatted|default('0 B') }}</div>
+                <div>Toplam Boyut</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-check-circle fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ hit_rate|default('0') }}%</div>
+                <div>Hit Oranı</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-clock-o fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="small">{{ last_cleanup|default('Hiçbir zaman') }}</div>
+                <div>Son Temizleme</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Marketplace Cache Durumları -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-store"></i> Marketplace Cache Durumları
+        </h3>
+      </div>
+      <div class="panel-body">
+        {% if marketplace_stats %}
+        <div class="row">
+          {% for marketplace, stats in marketplace_stats %}
+          <div class="col-md-4 col-sm-6">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  {{ marketplace|capitalize }}
+                  <div class="pull-right">
+                    <a href="{{ clear_marketplace_url }}&marketplace={{ marketplace }}" class="btn btn-xs btn-warning" onclick="return confirm('{{ marketplace|capitalize }} cache\'ini temizlemek istediğinizden emin misiniz?');">
+                      <i class="fa fa-trash"></i> Temizle
+                    </a>
+                  </div>
+                </h4>
+              </div>
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-xs-6">
+                    <small>Hit: <strong>{{ stats.hits|default('0') }}</strong></small><br>
+                    <small>Miss: <strong>{{ stats.misses|default('0') }}</strong></small>
+                  </div>
+                  <div class="col-xs-6">
+                    <small>Expired: <strong>{{ stats.expired|default('0') }}</strong></small><br>
+                    <small>Set: <strong>{{ stats.sets|default('0') }}</strong></small>
+                  </div>
+                </div>
+                <div class="progress" style="margin-top: 10px;">
+                  <div class="progress-bar progress-bar-success" style="width: {{ stats.hit_rate|default('0') }}%">
+                    {{ stats.hit_rate|default('0') }}% Hit Rate
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center">
+          <p class="text-muted">Henüz marketplace cache verisi bulunmamaktadır.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Cache Dosyaları -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-files-o"></i> Cache Dosyaları
+        </h3>
+      </div>
+      <div class="panel-body">
+        {% if cache_files %}
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Dosya Adı</th>
+                <th>Boyut</th>
+                <th>Değiştirilme Tarihi</th>
+                <th style="width: 1px;">İşlem</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for file in cache_files %}
+              <tr>
+                <td>{{ file.name }}</td>
+                <td>{{ file.size_formatted|default(file.size ~ ' B') }}</td>
+                <td>{{ file.modified }}</td>
+                <td>
+                  <a href="{{ clear_file_url }}&file={{ file.name|url_encode }}" class="btn btn-danger btn-xs" onclick="return confirm('Bu dosyayı silmek istediğinizden emin misiniz?');" data-toggle="tooltip" title="Dosyayı Sil">
+                    <i class="fa fa-trash"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if pagination %}
+        <div class="row">
+          <div class="col-sm-6 text-left">{{ pagination }}</div>
+          <div class="col-sm-6 text-right">{{ results }}</div>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center">
+          <p class="text-muted">Cache dizini boş veya erişilemiyor.</p>
+          {% if cache_info %}
+          <div class="alert alert-info">
+            <strong>Cache Dizini:</strong> {{ cache_info.cache_dir }}<br>
+            <strong>Okunabilir:</strong> {{ cache_info.readable ? 'Evet' : 'Hayır' }}<br>
+            <strong>Yazılabilir:</strong> {{ cache_info.writable ? 'Evet' : 'Hayır' }}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Cache Ayarları -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-cogs"></i> Cache Ayarları
+        </h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-cache-monitor" class="form-horizontal">
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-auto-cleanup">
+              <span data-toggle="tooltip" title="Otomatik cache temizleme etkinleştirilsin mi?">Otomatik Temizleme</span>
+            </label>
+            <div class="col-sm-10">
+              <select name="cache_monitor_auto_cleanup" id="input-auto-cleanup" class="form-control">
+                {% if cache_monitor_auto_cleanup %}
+                <option value="1" selected="selected">Etkin</option>
+                <option value="0">Devre Dışı</option>
+                {% else %}
+                <option value="1">Etkin</option>
+                <option value="0" selected="selected">Devre Dışı</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-cleanup-interval">
+              <span data-toggle="tooltip" title="Otomatik temizleme aralığı (saat)">Temizleme Aralığı</span>
+            </label>
+            <div class="col-sm-10">
+              <input type="text" name="cache_monitor_cleanup_interval" value="{{ cache_monitor_cleanup_interval|default('24') }}" placeholder="24" id="input-cleanup-interval" class="form-control" />
+              <p class="help-block">Saat cinsinden temizleme aralığı</p>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-max-size">
+              <span data-toggle="tooltip" title="Maksimum cache boyutu (MB)">Maksimum Boyut</span>
+            </label>
+            <div class="col-sm-10">
+              <input type="text" name="cache_monitor_max_size" value="{{ cache_monitor_max_size|default('100') }}" placeholder="100" id="input-max-size" class="form-control" />
+              <p class="help-block">MB cinsinden maksimum cache boyutu</p>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="submit" form="form-cache-monitor" class="btn btn-primary">
+                <i class="fa fa-save"></i> Ayarları Kaydet
+              </button>
+            </div>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    // Auto refresh every 30 seconds
+    setInterval(function() {
+        if ($('.panel:visible').length > 0) {
+            location.reload();
+        }
+    }, 30000);
+});
+</script>
+
+<style>
+.huge {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.panel-heading .fa {
+    opacity: 0.7;
+}
+
+.progress {
+    height: 8px;
+    margin-bottom: 0;
+}
+
+.marketplace-stats .panel {
+    margin-bottom: 15px;
+}
+</style>
+
+{{ footer }}

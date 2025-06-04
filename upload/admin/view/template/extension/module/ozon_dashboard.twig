@@ -1,0 +1,353 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ products_url }}" class="btn btn-primary" data-toggle="tooltip" title="{{ button_products }}"><i class="fa fa-cubes"></i> {{ button_products }}</a>
+        <a href="{{ orders_url }}" class="btn btn-info" data-toggle="tooltip" title="{{ button_orders }}"><i class="fa fa-shopping-cart"></i> {{ button_orders }}</a>
+        <a href="{{ settings_url }}" class="btn btn-default" data-toggle="tooltip" title="{{ button_settings }}"><i class="fa fa-cog"></i> {{ button_settings }}</a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-shopping-cart"></i> {{ text_orders }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="text-center">
+              <h1>{{ statistics.total_orders }}</h1>
+              <p>{{ text_total_orders }}</p>
+            </div>
+            <div class="row">
+              <div class="col-xs-6 text-center">
+                <h2>{{ statistics.pending_orders }}</h2>
+                <p>{{ text_pending_orders }}</p>
+              </div>
+              <div class="col-xs-6 text-center">
+                <h2>{{ statistics.shipped_orders }}</h2>
+                <p>{{ text_shipped_orders }}</p>
+              </div>
+            </div>
+            <div class="text-center">
+              <a href="{{ orders_url }}" class="btn btn-info btn-sm">{{ button_view_orders }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cubes"></i> {{ text_products }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="text-center">
+              <h1>{{ statistics.total_products }}</h1>
+              <p>{{ text_total_products }}</p>
+            </div>
+            <div class="row">
+              <div class="col-xs-6 text-center">
+                <h2>{{ statistics.active_products }}</h2>
+                <p>{{ text_active_products }}</p>
+              </div>
+              <div class="col-xs-6 text-center">
+                <h2>{{ statistics.inactive_products }}</h2>
+                <p>{{ text_inactive_products }}</p>
+              </div>
+            </div>
+            <div class="text-center">
+              <a href="{{ products_url }}" class="btn btn-primary btn-sm">{{ button_view_products }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-money"></i> {{ text_revenue }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="text-center">
+              <h1>{{ statistics.total_revenue }}</h1>
+              <p>{{ text_total_revenue }}</p>
+            </div>
+            <div class="row">
+              <div class="col-xs-6 text-center">
+                <h2>{{ statistics.today_revenue }}</h2>
+                <p>{{ text_today_revenue }}</p>
+              </div>
+              <div class="col-xs-6 text-center">
+                <h2>{{ statistics.month_revenue }}</h2>
+                <p>{{ text_month_revenue }}</p>
+              </div>
+            </div>
+            <div class="text-center">
+              <button class="btn btn-success btn-sm" id="refresh-revenue">{{ button_refresh }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-refresh"></i> {{ text_sync_status }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="text-center">
+              <h1><i class="fa fa-check-circle{% if statistics.last_sync_status != 'success' %} text-danger{% else %} text-success{% endif %}"></i></h1>
+              <p>{{ text_last_sync_status }}</p>
+            </div>
+            <div class="row">
+              <div class="col-xs-12 text-center">
+                <h4>{{ statistics.last_sync }}</h4>
+                <p>{{ text_last_sync }}</p>
+              </div>
+            </div>
+            <div class="text-center">
+              <button class="btn btn-warning btn-sm" id="sync-products">{{ button_sync_products }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-bar-chart"></i> {{ text_sales_chart }}</h3>
+          </div>
+          <div class="panel-body">
+            <div id="sales-chart" style="width: 100%; height: 300px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-history"></i> {{ text_recent_activities }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>{{ column_date }}</th>
+                    <th>{{ column_action }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if recent_activities %}
+                  {% for activity in recent_activities %}
+                  <tr>
+                    <td>{{ activity.date }}</td>
+                    <td>{{ activity.description }}</td>
+                  </tr>
+                  {% endfor %}
+                  {% else %}
+                  <tr>
+                    <td colspan="2" class="text-center">{{ text_no_activities }}</td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-calendar"></i> {{ text_quick_actions }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-3 text-center">
+                <a href="{{ products_url }}" class="btn btn-lg btn-default">
+                  <i class="fa fa-upload fa-2x"></i><br>
+                  {{ button_upload_products }}
+                </a>
+              </div>
+              <div class="col-md-3 text-center">
+                <button type="button" class="btn btn-lg btn-default" id="update-stock">
+                  <i class="fa fa-cubes fa-2x"></i><br>
+                  {{ button_update_stock }}
+                </button>
+              </div>
+              <div class="col-md-3 text-center">
+                <button type="button" class="btn btn-lg btn-default" id="update-prices">
+                  <i class="fa fa-money fa-2x"></i><br>
+                  {{ button_update_prices }}
+                </button>
+              </div>
+              <div class="col-md-3 text-center">
+                <button type="button" class="btn btn-lg btn-default" id="get-orders">
+                  <i class="fa fa-shopping-cart fa-2x"></i><br>
+                  {{ button_get_orders }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script type="text/javascript"><!--
+// Sales Chart
+var ctx = document.getElementById('sales-chart').getContext('2d');
+var salesChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['{{ text_monday }}', '{{ text_tuesday }}', '{{ text_wednesday }}', '{{ text_thursday }}', '{{ text_friday }}', '{{ text_saturday }}', '{{ text_sunday }}'],
+        datasets: [{
+            label: '{{ text_sales }}',
+            data: [
+                {{ statistics.sales_data.monday|default(0) }}, 
+                {{ statistics.sales_data.tuesday|default(0) }}, 
+                {{ statistics.sales_data.wednesday|default(0) }}, 
+                {{ statistics.sales_data.thursday|default(0) }}, 
+                {{ statistics.sales_data.friday|default(0) }}, 
+                {{ statistics.sales_data.saturday|default(0) }}, 
+                {{ statistics.sales_data.sunday|default(0) }}
+            ],
+            backgroundColor: 'rgba(0, 123, 255, 0.2)',
+            borderColor: 'rgba(0, 123, 255, 1)',
+            borderWidth: 2,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Action buttons
+$('#sync-products').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/ozon/sync_products&user_token={{ user_token }}',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#sync-products').button('loading');
+        },
+        complete: function() {
+            $('#sync-products').button('reset');
+        },
+        success: function(json) {
+            if (json.success) {
+                alert(json.success);
+            } else if (json.error) {
+                alert(json.error);
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+
+$('#update-stock').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/ozon/update_stock&user_token={{ user_token }}',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#update-stock').button('loading');
+        },
+        complete: function() {
+            $('#update-stock').button('reset');
+        },
+        success: function(json) {
+            if (json.success) {
+                alert(json.success);
+            } else if (json.error) {
+                alert(json.error);
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+
+$('#update-prices').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/ozon/update_prices&user_token={{ user_token }}',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#update-prices').button('loading');
+        },
+        complete: function() {
+            $('#update-prices').button('reset');
+        },
+        success: function(json) {
+            if (json.success) {
+                alert(json.success);
+            } else if (json.error) {
+                alert(json.error);
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+
+$('#get-orders').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/ozon/get_orders&user_token={{ user_token }}',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#get-orders').button('loading');
+        },
+        complete: function() {
+            $('#get-orders').button('reset');
+        },
+        success: function(json) {
+            if (json.success) {
+                alert(json.success);
+            } else if (json.error) {
+                alert(json.error);
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+
+$('#refresh-revenue').on('click', function() {
+    location.reload();
+});
+//--></script>
+
+{{ footer }} 

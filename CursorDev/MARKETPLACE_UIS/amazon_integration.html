@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Entegrasyonu - MesChain-Sync</title>
+      <!-- Performance Optimization: Preload and DNS Prefetch -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800;900&display=swap" as="style">
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    
+    <!-- Critical Resources -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+      <!-- Chart.js with defer for better performance -->
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <!-- Cross-Browser Compatibility Testing -->
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_test_config.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_compatibility_tester.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/browser_compatibility_test_suite.js"></script>
+    
+    <!-- Final UI/UX Polish -->
+    <script src="../UI_UX_POLISH/final_ui_ux_polisher.js"></script>
+    <link rel="stylesheet" href="../UI_UX_POLISH/advanced_animations.css">
+    <link rel="stylesheet" href="../UI_UX_POLISH/premium_visual_effects.css">
+    
+      <style>
+        /* ===== DARK MODE VARIABLES ===== */
+        :root {
+            --amazon-orange: #ff9900;
+            --amazon-blue: #232f3e;
+            --amazon-light-blue: #37475a;
+            --amazon-light: #febd69;
+            --amazon-lighter: #fff8f0;
+            --amazon-dark: #131a22;
+            --amazon-success: #067d62;
+            --amazon-warning: #f08804;
+            --amazon-danger: #d13212;
+            --amazon-text: #0f1111;
+            --amazon-gradient: linear-gradient(135deg, #ff9900 0%, #ffb84d 100%);
+            --amazon-dark-gradient: linear-gradient(135deg, #232f3e 0%, #37475a 100%);
+            
+            /* Light Theme Variables */
+            --bg-primary: #ffffff;
+            --bg-secondary: #fff8f0;
+            --bg-tertiary: #febd69;
+            --text-primary: #0f1111;
+            --text-secondary: #565959;
+            --text-inverse: #ffffff;
+            --border-color: rgba(255, 153, 0, 0.2);
+            --shadow-color: rgba(255, 153, 0, 0.2);
+            --card-bg: #ffffff;
+            --header-bg: var(--amazon-dark-gradient);
+        }
+
+        /* Dark Mode Variables */
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3d3d3d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-inverse: #ffffff;
+            --border-color: rgba(255, 153, 0, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --card-bg: #2d2d2d;
+            --header-bg: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            --amazon-lighter: #3d3d3d;
+            --amazon-text: #e0e0e0;
+        }
+          * {
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--amazon-orange) 50%, var(--amazon-blue) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        /* Dark Mode Body */
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #0f0f0f 100%);
+        }
+        
+        .amazon-container {
+            background: var(--card-bg);
+            border-radius: 25px;
+            box-shadow: 0 30px 80px var(--shadow-color);
+            margin: 2rem;
+            overflow: hidden;
+            border: 4px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .amazon-header {
+            background: var(--header-bg);
+            color: var(--text-inverse);
+            padding: 3rem;
+            position: relative;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+            border-color: rgba(255,255,255,0.3);
+        }        .theme-toggle i {
+            font-size: 1.2rem;
+            color: var(--text-inverse);
+            transition: all 0.3s ease;
+        }
+
+        .amazon-header {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .amazon-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 153, 0, 0.2) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        .amazon-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--amazon-gradient);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(255, 153, 0, 0.4);
+            position: relative;
+            z-index: 2;
+        }
+          .amazon-nav {
+            background: var(--amazon-lighter);
+            padding: 0;
+            border-bottom: 5px solid var(--amazon-light);
+            transition: all 0.3s ease;
+        }
+
+        /* Dark Mode Navigation */
+        [data-theme="dark"] .amazon-nav {
+            background: var(--bg-secondary);
+            border-bottom-color: var(--amazon-orange);
+        }
+        
+        .amazon-nav-item {
+            flex: 1;
+        }
+        
+        .amazon-nav-link {
+            color: var(--text-primary) !important;
+            padding: 1.3rem 1.5rem;
+            text-align: center;
+            border: none;
+            background: none;
+            transition: all 0.4s ease;
+            border-radius: 0;
+            font-weight: 800;
+            text-decoration: none;
+            position: relative;
+            font-size: 1.05rem;
+        }
+
+        /* Dark Mode Navigation Links */
+        [data-theme="dark"] .amazon-nav-link {
+            color: var(--text-primary) !important;
+        }
+        
+        .amazon-nav-link:hover, .amazon-nav-link.active {
+            background: var(--amazon-gradient);
+            color: white !important;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(255, 153, 0, 0.4);
+        }
+
+        /* Dark Mode Active Links */
+        [data-theme="dark"] .amazon-nav-link:hover,
+        [data-theme="dark"] .amazon-nav-link.active {
+            background: var(--amazon-gradient);
+            color: white !important;
+            box-shadow: 0 15px 35px rgba(255, 153, 0, 0.6);
+        }
+        
+        .amazon-nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 5px;
+            background: var(--amazon-orange);
+            transition: all 0.4s ease;
+            transform: translateX(-50%);
+        }
+        
+        .amazon-nav-link.active::before {
+            width: 100%;
+        }
+        
+        .amazon-content {
+            padding: 3rem;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .amazon-card {
+            background: white;
+            border-radius: 25px;
+            padding: 3rem;
+            box-shadow: 0 15px 45px rgba(255, 153, 0, 0.12);
+            border: 4px solid var(--amazon-light);
+            margin-bottom: 3rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .amazon-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 70px rgba(255, 153, 0, 0.25);
+            border-color: var(--amazon-orange);
+        }
+        
+        .amazon-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: var(--amazon-gradient);
+        }
+        
+        .status-card {
+            text-align: center;
+            padding: 3.5rem 2.5rem;
+        }
+        
+        .status-card.connected {
+            border-color: var(--amazon-success);
+        }
+        
+        .status-card.connected::before {
+            background: linear-gradient(90deg, var(--amazon-success), #00d4aa);
+        }
+        
+        .status-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--amazon-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2.5rem;
+            font-size: 3rem;
+            color: white;
+            box-shadow: 0 20px 50px rgba(255, 153, 0, 0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .status-icon.connected {
+            background: linear-gradient(135deg, var(--amazon-success), #00d4aa);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 4px solid var(--amazon-light);
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card:hover {
+            border-color: var(--amazon-orange);
+            box-shadow: 0 15px 45px rgba(255, 153, 0, 0.25);
+            transform: translateY(-8px);
+        }
+        
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--amazon-gradient);
+        }
+        
+        .metric-value {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 2rem 0;
+            background: var(--amazon-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .metric-label {
+            color: var(--amazon-text);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .metric-change {
+            color: var(--amazon-success);
+            font-size: 1rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .amazon-btn {
+            background: var(--amazon-gradient);
+            border: none;
+            color: white;
+            padding: 1.2rem 3rem;
+            border-radius: 20px;
+            font-weight: 900;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(255, 153, 0, 0.35);
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1.05rem;
+        }
+        
+        .amazon-btn:hover {
+            background: linear-gradient(135deg, #e68900, #232f3e);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(255, 153, 0, 0.6);
+            color: white;
+        }
+        
+        .amazon-btn.secondary {
+            background: var(--amazon-dark-gradient);
+        }
+        
+        .amazon-btn.success {
+            background: linear-gradient(135deg, var(--amazon-success), #00d4aa);
+        }
+        
+        .amazon-btn.warning {
+            background: linear-gradient(135deg, var(--amazon-warning), #ffbb33);
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2.5rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 4px solid var(--amazon-light);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-card:hover {
+            border-color: var(--amazon-orange);
+            box-shadow: 0 15px 45px rgba(255, 153, 0, 0.25);
+            transform: translateY(-8px);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: var(--amazon-lighter);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            font-size: 4rem;
+            color: var(--amazon-orange);
+            border: 3px solid var(--amazon-light);
+            position: relative;
+        }
+        
+        .product-image::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: var(--amazon-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .sync-status {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            border: 3px solid;
+        }
+        
+        .sync-status.synced {
+            background: rgba(6, 125, 98, 0.15);
+            color: var(--amazon-success);
+            border-color: var(--amazon-success);
+        }
+        
+        .sync-status.pending {
+            background: rgba(240, 136, 4, 0.15);
+            color: var(--amazon-warning);
+            border-color: var(--amazon-warning);
+        }
+        
+        .sync-status.error {
+            background: rgba(209, 50, 18, 0.15);
+            color: var(--amazon-danger);
+            border-color: var(--amazon-danger);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 450px;
+            margin: 2.5rem 0;
+        }
+        
+        .api-config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 2.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 2.5rem;
+        }
+        
+        .form-label {
+            font-weight: 800;
+            color: var(--amazon-text);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .form-control {
+            border: 4px solid var(--amazon-light);
+            border-radius: 15px;
+            padding: 1.2rem;
+            transition: all 0.4s ease;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--amazon-orange);
+            box-shadow: 0 0 0 0.4rem rgba(255, 153, 0, 0.25);
+        }
+        
+        .connection-indicator {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .connection-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            border: 3px solid white;
+        }
+        
+        .connection-dot.connected {
+            background: var(--amazon-success);
+        }
+        
+        .connection-dot.disconnected {
+            background: var(--amazon-danger);
+            animation: none;
+        }
+        
+        .real-time-badge {
+            background: rgba(255, 153, 0, 0.15);
+            color: var(--amazon-orange);
+            padding: 0.8rem 2rem;
+            border-radius: 35px;
+            font-size: 1rem;
+            font-weight: 900;
+            animation: pulse 2s infinite;
+            border: 3px solid var(--amazon-light);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        
+        .activity-timeline {
+            margin-top: 3rem;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: var(--amazon-lighter);
+            border-radius: 15px;
+            border-left: 8px solid var(--amazon-orange);
+            transition: all 0.4s ease;
+        }
+        
+        .timeline-item:hover {
+            box-shadow: 0 10px 30px rgba(255, 153, 0, 0.2);
+            transform: translateX(15px);
+        }
+        
+        .timeline-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--amazon-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 2rem;
+            font-size: 1.5rem;
+            box-shadow: 0 6px 20px rgba(255, 153, 0, 0.35);
+        }
+        
+        .category-badge {
+            background: var(--amazon-gradient);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+        }
+        
+        .performance-indicator {
+            background: linear-gradient(135deg, var(--amazon-lighter), white);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 3px solid var(--amazon-light);
+        }
+        
+        .prime-badge {
+            background: linear-gradient(135deg, #00a8cc, #0073bb);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            margin-left: 0.5rem;
+        }
+          
+        /* 📱 ENHANCED RESPONSIVE DESIGN - AMAZON MARKETPLACE */
+        
+        /* Tablet Optimization (768px - 1024px) */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .amazon-container {
+                margin: 1.5rem;
+                border-radius: 20px;
+            }
+            
+            .amazon-header {
+                padding: 2.5rem;
+            }
+            
+            .amazon-content {
+                padding: 2.5rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .api-config-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .amazon-nav-link {
+                padding: 1rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+        }
+        
+        /* Mobile Optimization (max-width: 768px) */
+        @media (max-width: 768px) {
+            .amazon-container {
+                margin: 0.5rem;
+                border-radius: 15px;
+            }
+            
+            .amazon-header {
+                padding: 1.5rem;
+                text-align: center;
+            }
+            
+            .amazon-header .d-flex {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .amazon-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+                margin: 0 auto 1rem;
+            }
+            
+            .amazon-content {
+                padding: 1.5rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .api-config-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .amazon-nav {
+                flex-direction: column;
+                overflow-x: auto;
+            }
+            
+            .amazon-nav-item {
+                min-width: 100%;
+            }
+            
+            .amazon-nav-link {
+                padding: 1rem;
+                text-align: left;
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+            }
+            
+            .chart-container {
+                height: 250px;
+                margin-bottom: 1rem;
+            }
+            
+            .connection-indicator {
+                text-align: center;
+                margin-top: 1rem;
+            }
+            
+            .real-time-badge {
+                display: block;
+                margin-top: 0.5rem;
+                text-align: center;
+            }
+            
+            /* Mobile-friendly buttons */
+            .btn {
+                min-height: 44px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+            
+            /* Touch-friendly form elements */
+            .form-control, .form-select {
+                min-height: 44px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+        
+        /* Extra Small Mobile (max-width: 480px) */
+        @media (max-width: 480px) {
+            .amazon-container {
+                margin: 0.25rem;
+                border-radius: 12px;
+            }
+            
+            .amazon-header {
+                padding: 1rem;
+            }
+            
+            .amazon-content {
+                padding: 1rem;
+            }
+            
+            .amazon-logo {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .metric-grid {
+                gap: 0.8rem;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+            
+            .amazon-nav-link {
+                padding: 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            h1 {
+                font-size: 1.3rem !important;
+            }
+            
+            .fs-4 {
+                font-size: 0.9rem !important;
+            }
+        }
+        
+        /* Touch Device Optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .amazon-nav-link:hover {
+                background: none;
+            }
+            
+            .amazon-nav-link:active {
+                background: rgba(255, 153, 0, 0.2);
+            }
+            
+            .btn:hover {
+                transform: none;
+            }
+            
+            .btn:active {
+                transform: scale(0.98);
+            }
+        }
+        
+        /* High DPI Displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .connection-dot {
+                width: 8px;
+                height: 8px;
+            }
+            
+            .amazon-logo {
+                box-shadow: 0 8px 25px rgba(255, 153, 0, 0.4);
+            }
+        }
+        
+        /* Landscape Mobile Optimization */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .amazon-header {
+                padding: 1rem;
+            }
+            
+            .amazon-header .d-flex {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="amazon-container">        <!-- Amazon Header -->
+        <div class="amazon-header">
+            <!-- Theme Toggle Button -->
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="amazon-logo">
+                        <i class="fab fa-amazon"></i>
+                    </div>
+                    <div>
+                        <h1 class="mb-0 fw-bold">Amazon Marketplace Entegrasyonu</h1>
+                        <p class="mb-0 opacity-75 fs-4">Dünyanın en büyük e-ticaret platformu</p>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="connection-indicator">
+                        <span class="connection-dot connected"></span>
+                        <span class="fw-bold fs-4">Prime Bağlantı</span>
+                    </div>
+                    <span class="real-time-badge">
+                        <i class="fas fa-satellite-dish me-2"></i>Global Senkronizasyon
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="amazon-nav d-flex">
+            <div class="amazon-nav-item">
+                <a href="#dashboard" class="amazon-nav-link active" onclick="showAmazonSection('dashboard')">
+                    <i class="fas fa-chart-area me-2"></i>Prime Dashboard
+                </a>
+            </div>
+            <div class="amazon-nav-item">
+                <a href="#products" class="amazon-nav-link" onclick="showAmazonSection('products')">
+                    <i class="fas fa-warehouse me-2"></i>FBA Ürünler
+                </a>
+            </div>
+            <div class="amazon-nav-item">
+                <a href="#orders" class="amazon-nav-link" onclick="showAmazonSection('orders')">
+                    <i class="fas fa-shipping-fast me-2"></i>Sipariş Merkezi
+                </a>
+            </div>
+            <div class="amazon-nav-item">
+                <a href="#analytics" class="amazon-nav-link" onclick="showAmazonSection('analytics')">
+                    <i class="fas fa-chart-pie me-2"></i>Seller Analytics
+                </a>
+            </div>
+            <div class="amazon-nav-item">
+                <a href="#settings" class="amazon-nav-link" onclick="showAmazonSection('settings')">
+                    <i class="fas fa-cogs me-2"></i>MWS Ayarları
+                </a>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="amazon-content">
+            <!-- Dashboard Section -->
+            <div id="amazon-dashboard-section" class="amazon-section">
+                <!-- Connection Status & Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="amazon-card status-card connected">
+                            <div class="status-icon connected">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <h2 class="fw-bold text-success">Prime Entegrasyon</h2>
+                            <p class="text-muted fs-4">Amazon MWS API ile güçlü bağlantı</p>
+                            <div class="mt-3">
+                                <small class="text-muted">Son FBA sync: 30 saniye önce</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="amazon-card">
+                            <h3 class="fw-bold mb-4">
+                                <i class="fas fa-rocket text-warning me-2"></i>
+                                Prime İşlemler
+                            </h3>
+                            <div class="row">
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="amazon-btn w-100" onclick="syncAllAmazonProducts()">
+                                        <i class="fas fa-sync-alt me-2"></i>FBA Senkronize
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="amazon-btn success w-100" onclick="updateAmazonPrices()">
+                                        <i class="fas fa-dollar-sign me-2"></i>Fiyat Güncelle
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="amazon-btn secondary w-100" onclick="exportAmazonOrders()">
+                                        <i class="fas fa-file-export me-2"></i>Sipariş Export
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="amazon-btn warning w-100" onclick="bulkAmazonUpload()">
+                                        <i class="fas fa-upload me-2"></i>Bulk Upload
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Metrics -->
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <i class="fas fa-boxes fa-4x text-primary mb-3"></i>
+                        <div class="metric-value" id="amazon-total-products">5,847</div>
+                        <div class="metric-label">FBA Ürünleri</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+312 bu ay
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-shopping-cart fa-4x text-success mb-3"></i>
+                        <div class="metric-value" id="amazon-monthly-orders">1,234</div>
+                        <div class="metric-label">Bu Ay Prime Sipariş</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+47% geçen aya göre
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-dollar-sign fa-4x text-warning mb-3"></i>
+                        <div class="metric-value" id="amazon-monthly-revenue">$67,892</div>
+                        <div class="metric-label">Bu Ay Gelir (USD)</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up"></i>+58% artış
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-star fa-4x text-info mb-3"></i>
+                        <div class="metric-value" id="amazon-avg-rating">4.9</div>
+                        <div class="metric-label">Seller Rating</div>
+                        <div class="metric-change">
+                            <i class="fas fa-medal"></i>2,456 review
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Chart & Recent Activity -->
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="amazon-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="fw-bold mb-0">
+                                    <i class="fas fa-chart-line text-info me-2"></i>
+                                    Amazon Satış ve FBA Performansı (30 Gün)
+                                </h3>
+                                <span class="real-time-badge">Prime Data</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="amazonSalesChart"></canvas>
+                            </div>
+                            <div class="performance-indicator">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="fw-bold text-success fs-4">+58%</div>
+                                        <small class="text-muted">FBA Satış Artışı</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="fw-bold text-info fs-4">99.8%</div>
+                                        <small class="text-muted">MWS API Uptime</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="fw-bold text-warning fs-4">0.8s</div>
+                                        <small class="text-muted">Avg Response</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="amazon-card">
+                            <h3 class="fw-bold mb-4">
+                                <i class="fas fa-bell text-info me-2"></i>
+                                Son Prime Aktiviteler
+                            </h3>
+                            <div class="activity-timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-crown"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">#AMZ-567234</div>
+                                        <div class="text-muted small">MacBook Pro M3 - $2,899</div>
+                                        <div class="text-muted small">
+                                            2 dakika önce
+                                            <span class="prime-badge">Prime</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-truck-fast"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">#AMZ-567233</div>
+                                        <div class="text-muted small">iPhone 15 Pro Max - $1,299</div>
+                                        <div class="text-muted small">
+                                            7 dakika önce
+                                            <span class="prime-badge">Prime</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-warehouse"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">FBA Stok Güncellemesi</div>
+                                        <div class="text-muted small">1,247 ürün güncellendi</div>
+                                        <div class="text-muted small">15 dakika önce</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">MWS API Senkronizasyon</div>
+                                        <div class="text-muted small">Tüm veriler güncellendi</div>
+                                        <div class="text-muted small">28 dakika önce</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="amazon-btn w-100 mt-3" onclick="viewAllAmazonOrders()">
+                                <i class="fas fa-list-ul me-2"></i>Tüm Prime Siparişleri
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Section -->
+            <div id="amazon-products-section" class="amazon-section" style="display:none;">
+                <div class="amazon-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="fw-bold mb-0">Amazon FBA Ürün Kataloğu</h2>
+                        <button class="amazon-btn" onclick="addNewAmazonProduct()">
+                            <i class="fas fa-plus-circle me-2"></i>Yeni FBA Ürün
+                        </button>
+                    </div>
+                    
+                    <div class="product-grid">
+                        <div class="product-card">
+                            <div class="category-badge">Electronics</div>
+                            <div class="product-image">
+                                <i class="fab fa-apple"></i>
+                            </div>
+                            <h4 class="fw-bold">MacBook Pro M3 16"</h4>
+                            <p class="text-muted small">Apple M3 Max chip, 32GB RAM, 1TB SSD</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold fs-3">$2,899.00</span>
+                                <span class="sync-status synced">FBA Ready</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="amazon-btn secondary flex-fill">Düzenle</button>
+                                <button class="amazon-btn flex-fill">FBA Sync</button>
+                            </div>
+                        </div>
+                        
+                        <div class="product-card">
+                            <div class="category-badge">Mobile</div>
+                            <div class="product-image">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h4 class="fw-bold">iPhone 15 Pro Max</h4>
+                            <p class="text-muted small">1TB, Natural Titanium, A17 Pro chip</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold fs-3">$1,299.00</span>
+                                <span class="sync-status pending">Processing</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="amazon-btn secondary flex-fill">Düzenle</button>
+                                <button class="amazon-btn flex-fill">FBA Sync</button>
+                            </div>
+                        </div>
+                        
+                        <div class="product-card">
+                            <div class="category-badge">Gaming</div>
+                            <div class="product-image">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <h4 class="fw-bold">PlayStation 5 Pro</h4>
+                            <p class="text-muted small">2TB SSD, 8K Gaming, Ray Tracing</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold fs-3">$699.99</span>
+                                <span class="sync-status error">FBA Error</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="amazon-btn secondary flex-fill">Düzenle</button>
+                                <button class="amazon-btn flex-fill">FBA Sync</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other sections will be loaded dynamically -->
+            <div id="amazon-orders-section" class="amazon-section" style="display:none;">
+                <div class="amazon-card">
+                    <h2 class="fw-bold">Amazon Prime Sipariş Merkezi</h2>
+                    <p class="fs-4">Amazon siparişlerinizi ve FBA durumlarını buradan takip edebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="amazon-analytics-section" class="amazon-section" style="display:none;">
+                <div class="amazon-card">
+                    <h2 class="fw-bold">Amazon Seller Analytics</h2>
+                    <p class="fs-4">Detaylı Amazon satış analizlerinizi ve FBA performansınızı buradan görüntüleyebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="amazon-settings-section" class="amazon-section" style="display:none;">
+                <div class="amazon-card">
+                    <h2 class="fw-bold mb-4">Amazon MWS API Konfigürasyonu</h2>
+                    <div class="api-config-grid">
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label" for="amazon-access-key">Access Key ID</label>
+                                <input type="password" class="form-control" id="amazon-access-key" placeholder="AKIA..." value="••••••••••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="amazon-secret-key">Secret Access Key</label>
+                                <input type="password" class="form-control" id="amazon-secret-key" placeholder="Secret Key" value="••••••••••••••••••••••••••••••••••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="amazon-seller-id">Seller ID</label>
+                                <input type="text" class="form-control" id="amazon-seller-id" placeholder="A1PQBFHBHS6YH1" value="A1PQBFHBHS6YH1">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label" for="amazon-marketplace">Marketplace ID</label>
+                                <select class="form-control" id="amazon-marketplace" name="amazon-marketplace">
+                                    <option>A1PA6795UKMFR9 (Germany)</option>
+                                    <option>A1RKKUPIHCS9HS (Spain)</option>
+                                    <option>A13V1IB3VIYZZH (France)</option>
+                                    <option>A21TJRUUN4KGV (India)</option>
+                                    <option selected>ATVPDKIKX0DER (US)</option>
+                                    <option>A1F83G8C2ARO7P (UK)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="amazon-sync-frequency">Senkronizasyon Sıklığı</label>
+                                <select class="form-control" id="amazon-sync-frequency" name="amazon-sync-frequency">
+                                    <option>Her 5 dakika</option>
+                                    <option selected>Her 15 dakika</option>
+                                    <option>Her 30 dakika</option>
+                                    <option>Her saat</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="amazon-fba-sync" checked>
+                                    <label class="form-check-label" for="amazon-fba-sync">FBA stok senkronizasyonu</label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="amazon-price-tracking" checked>
+                                    <label class="form-check-label" for="amazon-price-tracking">Otomatik fiyat takibi</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="amazon-prime-shipping" checked>
+                                    <label class="form-check-label" for="amazon-prime-shipping">Prime shipping aktif</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button class="amazon-btn success me-3" onclick="saveAmazonSettings()">
+                            <i class="fas fa-save me-2"></i>Ayarları Kaydet
+                        </button>
+                        <button class="amazon-btn secondary" onclick="testAmazonConnection()">
+                            <i class="fas fa-plug me-2"></i>MWS Test
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    <!-- Bootstrap JS with defer -->
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script defer src="../WEBSOCKET_SYSTEM/meschain-websocket.js"></script>
+    <script defer src="amazon_integration.js"></script>
+    
+    <!-- Performance Optimization Script -->
+    <script>
+        // Amazon Integration Performance Monitor
+        class AmazonPerformanceMonitor {
+            constructor() {
+                this.metrics = {};
+                this.startTime = performance.now();
+                this.init();
+            }
+
+            init() {
+                console.log('🚀 Amazon Performance Monitor initialized');
+                this.measurePageMetrics();
+                this.setupLazyLoading();
+                this.preloadCriticalResources();
+                this.optimizeCharts();
+            }
+
+            measurePageMetrics() {
+                // Core Web Vitals for Amazon Integration
+                if ('PerformanceObserver' in window) {
+                    // LCP Measurement
+                    new PerformanceObserver((entryList) => {
+                        const entries = entryList.getEntries();
+                        const lastEntry = entries[entries.length - 1];
+                        this.metrics.lcp = Math.round(lastEntry.startTime);
+                        console.log('📊 Amazon LCP:', this.metrics.lcp, 'ms');
+                        this.updatePerformanceBadge('LCP', this.metrics.lcp);
+                    }).observe({entryTypes: ['largest-contentful-paint']});
+
+                    // FID Measurement
+                    new PerformanceObserver((entryList) => {
+                        for (const entry of entryList.getEntries()) {
+                            this.metrics.fid = Math.round(entry.processingStart - entry.startTime);
+                            console.log('📊 Amazon FID:', this.metrics.fid, 'ms');
+                            this.updatePerformanceBadge('FID', this.metrics.fid);
+                        }
+                    }).observe({type: 'first-input', buffered: true});
+                }
+
+                // Page Load Time
+                window.addEventListener('load', () => {
+                    const perfData = performance.getEntriesByType('navigation')[0];
+                    if (perfData) {
+                        this.metrics.loadTime = Math.round(perfData.loadEventEnd - perfData.fetchStart);
+                        console.log('📊 Amazon Load Time:', this.metrics.loadTime, 'ms');
+                        this.updatePerformanceBadge('Load', this.metrics.loadTime);
+                    }
+                });
+            }
+
+            setupLazyLoading() {
+                // Intersection Observer for lazy loading
+                if ('IntersectionObserver' in window) {
+                    const lazyElements = document.querySelectorAll('.chart-card, .amazon-widget');
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, { threshold: 0.1 });
+
+                    lazyElements.forEach(el => observer.observe(el));
+                }
+            }
+
+            preloadCriticalResources() {
+                // Preload Amazon API endpoints
+                const criticalEndpoints = [
+                    '/api/amazon/orders',
+                    '/api/amazon/inventory',
+                    '/api/amazon/metrics'
+                ];
+
+                criticalEndpoints.forEach(endpoint => {
+                    const link = document.createElement('link');
+                    link.rel = 'prefetch';
+                    link.href = endpoint;
+                    document.head.appendChild(link);
+                });
+            }
+
+            optimizeCharts() {
+                // Debounced chart updates
+                let chartUpdateTimeout;
+                const originalUpdateCharts = window.updateAmazonCharts;
+                
+                if (originalUpdateCharts) {
+                    window.updateAmazonCharts = function(...args) {
+                        clearTimeout(chartUpdateTimeout);
+                        chartUpdateTimeout = setTimeout(() => {
+                            originalUpdateCharts.apply(this, args);
+                        }, 100);
+                    };
+                }
+
+                // Chart animation optimization
+                if (window.Chart) {
+                    Chart.defaults.animation.duration = 750; // Reduced from default 1000ms
+                    Chart.defaults.responsive = true;
+                    Chart.defaults.maintainAspectRatio = false;
+                }
+            }
+
+            updatePerformanceBadge(metric, value) {
+                // Update performance indicator in header
+                let badge = document.querySelector('.amazon-performance-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'amazon-performance-badge ms-2';
+                    badge.style.cssText = `
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        padding: 4px 8px;
+                        border-radius: 12px;
+                        font-size: 0.75rem;
+                        backdrop-filter: blur(10px);
+                    `;
+                    
+                    const headerTitle = document.querySelector('.amazon-header h1');
+                    if (headerTitle) {
+                        headerTitle.appendChild(badge);
+                    }
+                }
+
+                // Performance status
+                let status = 'good';
+                let color = '#067d62';
+                
+                if (metric === 'LCP' && value > 2500) { status = 'poor'; color = '#d13212'; }
+                else if (metric === 'LCP' && value > 1000) { status = 'needs-improvement'; color = '#f08804'; }
+                else if (metric === 'FID' && value > 100) { status = 'poor'; color = '#d13212'; }
+                else if (metric === 'FID' && value > 25) { status = 'needs-improvement'; color = '#f08804'; }
+                else if (metric === 'Load' && value > 3000) { status = 'poor'; color = '#d13212'; }
+                else if (metric === 'Load' && value > 1500) { status = 'needs-improvement'; color = '#f08804'; }
+
+                badge.innerHTML = `<i class="fas fa-tachometer-alt"></i> ${value}ms`;
+                badge.style.backgroundColor = color;
+                badge.title = `Amazon ${metric}: ${status}`;
+            }
+
+            getMetrics() {
+                return this.metrics;
+            }
+        }        // Initialize Amazon Performance Monitor
+        document.addEventListener('DOMContentLoaded', () => {
+            window.amazonPerformanceMonitor = new AmazonPerformanceMonitor();
+            
+            // Initialize Final UI/UX Polish
+            if (typeof FinalUIUXPolisher !== 'undefined') {
+                window.finalUIUXPolisher = new FinalUIUXPolisher();
+                console.log('✅ Amazon Final UI/UX Polish initialized');
+            }
+            
+            // Initialize Cross-Browser Testing
+            if (typeof CrossBrowserCompatibilityTester !== 'undefined') {
+                window.crossBrowserTester = new CrossBrowserCompatibilityTester();
+                console.log('✅ Amazon Cross-Browser Testing initialized');
+            }
+        });
+
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/CursorDev/PERFORMANCE/sw.js')
+                    .then(registration => console.log('✅ Amazon SW registered'))
+                    .catch(error => console.log('❌ Amazon SW registration failed:', error));
+            });
+        }
+    </script>
+</body>
+</html> 

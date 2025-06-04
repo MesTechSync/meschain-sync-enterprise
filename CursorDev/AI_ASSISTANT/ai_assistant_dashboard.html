@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant Bot - MesChain-Sync</title>
+    
+    <!-- PWA Integration -->
+    <link rel="manifest" href="/CursorDev/PWA/manifest.json">
+    <meta name="theme-color" content="#10B981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="MesChain AI Assistant">
+    <link rel="apple-touch-icon" href="/assets/images/ai-assistant-icon-152.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .assistant-theme { 
+            background: linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%);
+            color: white;
+        }
+        .assistant-card { 
+            border-left: 5px solid #10B981;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2);
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .assistant-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.3);
+        }
+        .assistant-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #10B981, #059669, #047857, #065F46, #10B981);
+            animation: assistantGradient 4s ease-in-out infinite;
+        }
+        @keyframes assistantGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .voice-icon {
+            font-size: 2.5rem;
+            color: #10B981;
+            margin-bottom: 15px;
+            animation: voicePulse 2s ease-in-out infinite;
+        }
+        @keyframes voicePulse {
+            0%, 100% { transform: scale(1); color: #10B981; }
+            50% { transform: scale(1.1); color: #059669; }
+        }
+        .ai-avatar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #10B981, #3B82F6);
+            animation: avatarFloat 3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        @keyframes avatarFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(180deg); }
+        }
+        .chat-container {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: chatAvatarPulse 2s ease-in-out infinite;
+        }
+        @keyframes chatAvatarPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            position: relative;
+            animation: messageSlide 0.3s ease-out;
+        }
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message.user .message-bubble {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        .message.assistant .message-bubble {
+            background: white;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        .message.user .message-avatar {
+            background: #10B981;
+            color: white;
+        }
+        .message.assistant .message-avatar {
+            background: linear-gradient(45deg, #10B981, #3B82F6);
+            color: white;
+            animation: assistantAvatar 2s ease-in-out infinite;
+        }
+        @keyframes assistantAvatar {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(360deg); }
+        }
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 0 0 15px 15px;
+        }
+        .voice-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .voice-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .voice-btn.recording {
+            background: linear-gradient(45deg, #EF4444, #DC2626);
+            color: white;
+            animation: recording 1s ease-in-out infinite;
+        }
+        @keyframes recording {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .voice-btn.listening {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            animation: listening 2s ease-in-out infinite;
+        }
+        @keyframes listening {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .voice-btn.idle {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        .voice-btn:hover {
+            transform: scale(1.05);
+        }
+        .voice-status {
+            flex: 1;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        .message-input {
+            display: flex;
+            gap: 10px;
+        }
+        .message-input input {
+            flex: 1;
+            border: 1px solid #d1d5db;
+            border-radius: 25px;
+            padding: 12px 20px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .message-input input:focus {
+            border-color: #10B981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        .send-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .assistant-badge {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        .metric-display {
+            font-weight: bold;
+            color: #10B981;
+            font-size: 1.2rem;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online {
+            background: #10B981;
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+        .status-speaking {
+            background: #3B82F6;
+            animation: statusPulse 1s ease-in-out infinite;
+        }
+        .status-listening {
+            background: #F59E0B;
+            animation: statusPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+        .command-suggestion {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 20px;
+            padding: 8px 16px;
+            margin: 5px;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .command-suggestion:hover {
+            background: rgba(16, 185, 129, 0.2);
+            transform: translateY(-2px);
+        }
+        .voice-visualization {
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border-radius: 10px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .voice-wave {
+            width: 4px;
+            height: 20px;
+            background: #10B981;
+            margin: 0 2px;
+            border-radius: 2px;
+            animation: voiceWave 1s ease-in-out infinite;
+        }
+        .voice-wave:nth-child(2) { animation-delay: 0.1s; }
+        .voice-wave:nth-child(3) { animation-delay: 0.2s; }
+        .voice-wave:nth-child(4) { animation-delay: 0.3s; }
+        .voice-wave:nth-child(5) { animation-delay: 0.4s; }
+        @keyframes voiceWave {
+            0%, 100% { height: 20px; }
+            50% { height: 50px; }
+        }
+        .language-toggle {
+            display: flex;
+            background: #f3f4f6;
+            border-radius: 20px;
+            padding: 4px;
+            margin-bottom: 15px;
+        }
+        .language-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 8px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .language-btn.active {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+        }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .quick-action {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .quick-action:hover {
+            border-color: #10B981;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+        .quick-action::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        .quick-action:hover::before {
+            left: 100%;
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            max-width: 80px;
+            margin-bottom: 15px;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            animation: typingDot 1.4s ease-in-out infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingDot {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg assistant-theme shadow-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-robot me-2"></i>
+                AI Assistant Bot
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <span class="status-indicator status-online"></span>
+                    AI Status: <span id="assistant-status-text">Aktif ve dinliyor...</span>
+                    <span class="badge bg-light text-dark ms-2" id="voice-status">🎤 Hazır</span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Assistant Status -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card assistant-card h-100">
+                    <div class="ai-avatar">🤖</div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-comments voice-icon"></i>
+                        <h5 class="card-title">Konuşmalar</h5>
+                        <h2 id="total-conversations" class="display-6">247</h2>
+                        <div class="mt-2">
+                            <small>Bugün: <span id="today-conversations" class="metric-display">18</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card assistant-card h-100">
+                    <div class="ai-avatar">🎤</div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-microphone voice-icon"></i>
+                        <h5 class="card-title">Sesli Komutlar</h5>
+                        <h2 id="voice-commands" class="display-6">156</h2>
+                        <div class="mt-2">
+                            <small>Accuracy: <span id="voice-accuracy" class="metric-display">94.7%</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card assistant-card h-100">
+                    <div class="ai-avatar">🧠</div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-brain voice-icon"></i>
+                        <h5 class="card-title">AI Yanıtları</h5>
+                        <h2 id="ai-responses" class="display-6">312</h2>
+                        <div class="mt-2">
+                            <small>Başarı: <span id="response-success" class="metric-display">97.1%</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card assistant-card h-100">
+                    <div class="ai-avatar">⚡</div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-bolt voice-icon"></i>
+                        <h5 class="card-title">Yanıt Süresi</h5>
+                        <h2 id="response-time" class="display-6">0.8s</h2>
+                        <div class="mt-2">
+                            <small>Ortalama: <span id="avg-response-time" class="metric-display">1.2s</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Interface -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <div class="chat-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">MesChain AI Assistant</h5>
+                            <small>Marketplace uzmanınız - 7 platform desteği</small>
+                        </div>
+                        <div class="ms-auto">
+                            <span class="assistant-badge">🧠 AI Aktif</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Mesajlar buraya dinamik olarak eklenecek -->
+                        <div class="message assistant">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-bubble">
+                                Merhaba! Ben MesChain AI Assistant'ınızım. Size nasıl yardımcı olabilirim? 
+                                Sesli komutlar veya yazarak sorularınızı sorabilirsiniz. 🤖
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input">
+                        <!-- Language Toggle -->
+                        <div class="language-toggle">
+                            <button class="language-btn active" onclick="setLanguage('tr')">🇹🇷 Türkçe</button>
+                            <button class="language-btn" onclick="setLanguage('en')">🇺🇸 English</button>
+                        </div>
+                        
+                        <!-- Voice Controls -->
+                        <div class="voice-controls">
+                            <button class="voice-btn idle" id="voice-btn" onclick="toggleVoiceRecording()" title="Ses Kayıt Başlat/Durdur">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <div class="voice-status" id="voice-status-text">
+                                Mikrofona basarak konuşmaya başlayın
+                            </div>
+                            <button class="voice-btn idle" onclick="speakLastMessage()" title="Son Mesajı Sesli Oku">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Voice Visualization -->
+                        <div class="voice-visualization" id="voice-visualization" style="display: none;">
+                            <div class="voice-wave"></div>
+                            <div class="voice-wave"></div>
+                            <div class="voice-wave"></div>
+                            <div class="voice-wave"></div>
+                            <div class="voice-wave"></div>
+                        </div>
+                        
+                        <!-- Text Input -->
+                        <div class="message-input">
+                            <input type="text" id="message-input" placeholder="Mesajınızı yazın veya sesli komut verin..." 
+                                   onkeypress="handleKeyPress(event)">
+                            <button class="send-btn" onclick="sendMessage()" title="Mesaj Gönder">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Quick Actions -->
+                <div class="card assistant-card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bolt me-2"></i>
+                            Hızlı Komutlar
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="quick-actions">
+                            <div class="quick-action" onclick="quickCommand('prices')">
+                                <i class="fas fa-tags text-primary mb-2"></i>
+                                <div class="fw-bold">Fiyatları Kontrol Et</div>
+                                <small class="text-muted">AI fiyat önerilerini göster</small>
+                            </div>
+                            <div class="quick-action" onclick="quickCommand('orders')">
+                                <i class="fas fa-shopping-cart text-success mb-2"></i>
+                                <div class="fw-bold">Siparişleri Görüntüle</div>
+                                <small class="text-muted">Son siparişleri listele</small>
+                            </div>
+                            <div class="quick-action" onclick="quickCommand('inventory')">
+                                <i class="fas fa-boxes text-warning mb-2"></i>
+                                <div class="fw-bold">Stok Durumu</div>
+                                <small class="text-muted">Envanter bilgilerini getir</small>
+                            </div>
+                            <div class="quick-action" onclick="quickCommand('analytics')">
+                                <i class="fas fa-chart-bar text-info mb-2"></i>
+                                <div class="fw-bold">Analytics Raporu</div>
+                                <small class="text-muted">Performans verilerini analiz et</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Command Suggestions -->
+                <div class="card assistant-card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            Komut Önerileri
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6>💬 Sesli Komutlar:</h6>
+                            <div class="command-suggestion" onclick="sendMessage('Amazon siparişlerimi göster')">
+                                "Amazon siparişlerimi göster"
+                            </div>
+                            <div class="command-suggestion" onclick="sendMessage('Trendyol fiyatlarını güncelle')">
+                                "Trendyol fiyatlarını güncelle"
+                            </div>
+                            <div class="command-suggestion" onclick="sendMessage('En çok satan ürünler')">
+                                "En çok satan ürünler"
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6>🤖 AI Önerileri:</h6>
+                            <div class="command-suggestion" onclick="sendMessage('Kar marjımı optimize et')">
+                                "Kar marjımı optimize et"
+                            </div>
+                            <div class="command-suggestion" onclick="sendMessage('Rakip analizi yap')">
+                                "Rakip analizi yap"
+                            </div>
+                            <div class="command-suggestion" onclick="sendMessage('Cross-listing öner')">
+                                "Cross-listing öner"
+                            </div>
+                        </div>
+
+                        <div>
+                            <h6>📊 Raporlama:</h6>
+                            <div class="command-suggestion" onclick="sendMessage('Günlük satış raporu')">
+                                "Günlük satış raporu"
+                            </div>
+                            <div class="command-suggestion" onclick="sendMessage('Platform performansı')">
+                                "Platform performansı"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voice Settings -->
+                <div class="card assistant-card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cog me-2"></i>
+                            Ses Ayarları
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="speech-rate">Ses Hızı</label>
+                            <input type="range" class="form-range" min="0.5" max="2" step="0.1" value="1" 
+                                   id="speech-rate" onchange="updateSpeechRate(this.value)">
+                            <small class="text-muted">Mevcut: <span id="rate-value">1.0x</span></small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="speech-pitch">Ses Tonu</label>
+                            <input type="range" class="form-range" min="0" max="2" step="0.1" value="1" 
+                                   id="speech-pitch" onchange="updateSpeechPitch(this.value)">
+                            <small class="text-muted">Mevcut: <span id="pitch-value">1.0</span></small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="speech-volume">Ses Seviyesi</label>
+                            <input type="range" class="form-range" min="0" max="1" step="0.1" value="0.8" 
+                                   id="speech-volume" onchange="updateSpeechVolume(this.value)">
+                            <small class="text-muted">Mevcut: <span id="volume-value">80%</span></small>
+                        </div>
+
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto-speak" checked>
+                            <label class="form-check-label" for="auto-speak">
+                                Otomatik Sesli Yanıt
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Status -->
+                <div class="card assistant-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-robot me-2"></i>
+                            AI Durumu
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <small>NLP Engine:</small>
+                            <strong class="float-end text-success">Aktif</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Voice Recognition:</small>
+                            <strong class="float-end text-success">Çalışıyor</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Speech Synthesis:</small>
+                            <strong class="float-end text-success">Hazır</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>AI Confidence:</small>
+                            <strong class="float-end metric-display">95.8%</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Response Time:</small>
+                            <strong class="float-end">0.8s</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Active Sessions:</small>
+                            <strong class="float-end">1</strong>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="text-center">
+                            <div class="status-indicator status-online"></div>
+                            <span class="fw-bold text-success">AI Assistant Online</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- AI Assistant JavaScript -->
+    <script src="ai_assistant_bot.js"></script>
+    
+    <!-- Initialize AI Assistant -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // AI Assistant Bot'u başlat
+            window.aiAssistantBot = new AIAssistantBot();
+            
+            console.log('🤖 AI Assistant Bot başlatıldı');
+        });
+    </script>
+</body>
+</html> 

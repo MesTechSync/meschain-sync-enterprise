@@ -1,0 +1,372 @@
+{{ header }}{{ column_left }}
+<div class="container-fluid">
+  {% if error_warning %}
+  <div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> {{ error_warning }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+  </div>
+  {% endif %}
+  
+  {% if success %}
+  <div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> {{ success }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+  </div>
+  {% endif %}
+
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ settings }}" data-toggle="tooltip" title="Ayarlar" class="btn btn-secondary">
+          <i class="fas fa-cog"></i> Ayarlar
+        </a>
+      </div>
+      <h1><i class="fas fa-shopping-basket text-warning"></i> Pazarama Dashboard</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Statistics Row -->
+    <div class="row mb-4">
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                  Toplam Ürün
+                </div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                  {{ product_count|default(0) }}
+                </div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-boxes fa-2x text-gray-300"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                  Toplam Sipariş
+                </div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                  {{ order_count|default(0) }}
+                </div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                  API Durumu
+                </div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                  <span class="badge badge-warning">Test Modu</span>
+                </div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-network-wired fa-2x text-gray-300"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                  Son Senkronizasyon
+                </div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                  <small>Henüz yapılmadı</small>
+                </div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-sync fa-2x text-gray-300"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts and Actions Row -->
+    <div class="row">
+      <!-- Quick Actions Card -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+              <i class="fas fa-bolt"></i> Hızlı İşlemler
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row text-center">
+              <div class="col-6 mb-3">
+                <button type="button" class="btn btn-outline-primary btn-block" onclick="testConnection()">
+                  <i class="fas fa-plug"></i><br>
+                  Bağlantı Testi
+                </button>
+              </div>
+              <div class="col-6 mb-3">
+                <button type="button" class="btn btn-outline-success btn-block" onclick="syncProducts()">
+                  <i class="fas fa-sync"></i><br>
+                  Ürün Senkronizasyonu
+                </button>
+              </div>
+              <div class="col-6 mb-3">
+                <button type="button" class="btn btn-outline-info btn-block" onclick="getOrders()">
+                  <i class="fas fa-download"></i><br>
+                  Sipariş Al
+                </button>
+              </div>
+              <div class="col-6 mb-3">
+                <button type="button" class="btn btn-outline-warning btn-block" onclick="updateStock()">
+                  <i class="fas fa-warehouse"></i><br>
+                  Stok Güncelle
+                </button>
+              </div>
+            </div>
+            <div id="action-result" class="mt-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Status Card -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+              <i class="fas fa-info-circle"></i> API Bilgileri
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-borderless">
+                <tbody>
+                  <tr>
+                    <td><strong>API Durumu:</strong></td>
+                    <td><span class="badge badge-warning">Test Modu</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Bağlantı:</strong></td>
+                    <td><span class="badge badge-secondary">Test Edilmedi</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Son Güncelleme:</strong></td>
+                    <td>{{ "now"|date("d.m.Y H:i") }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Versiyon:</strong></td>
+                    <td>v1.0.0 (Demo)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Durum:</strong></td>
+                    <td><span class="badge badge-info">Geliştirme</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+              <i class="fas fa-list"></i> Son Aktiviteler
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Tarih</th>
+                    <th>İşlem</th>
+                    <th>Durum</th>
+                    <th>Açıklama</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ "now"|date("d.m.Y H:i") }}</td>
+                    <td><i class="fas fa-cog text-primary"></i> Sistem</td>
+                    <td><span class="badge badge-success">Başarılı</span></td>
+                    <td>Pazarama modülü başlatıldı</td>
+                  </tr>
+                  <tr>
+                    <td colspan="4" class="text-center text-muted">
+                      <i class="fas fa-info-circle"></i> Daha fazla aktivite için API entegrasyonunu tamamlayın
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Alert -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="alert alert-info">
+          <h5><i class="fas fa-info-circle"></i> Bilgi</h5>
+          <p>Pazarama entegrasyonu henüz geliştirme aşamasındadır. API bağlantısı ve ürün senkronizasyonu özellikleri demo modunda çalışmaktadır.</p>
+          <hr>
+          <p class="mb-0"><strong>Geliştirme İlerlemesi:</strong> %20 tamamlandı</p>
+          <div class="progress mt-2">
+            <div class="progress-bar bg-info" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script type="text/javascript">
+function testConnection() {
+    showActionResult('info', '<i class="fas fa-spinner fa-spin"></i> Bağlantı test ediliyor...');
+    
+    $.ajax({
+        url: '{{ test_connection }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                showActionResult('success', '<i class="fas fa-check"></i> ' + data.success);
+            } else if (data.error) {
+                showActionResult('danger', '<i class="fas fa-times"></i> ' + data.error);
+            }
+        },
+        error: function() {
+            showActionResult('danger', '<i class="fas fa-exclamation-triangle"></i> Bağlantı testi sırasında hata oluştu!');
+        }
+    });
+}
+
+function syncProducts() {
+    showActionResult('info', '<i class="fas fa-spinner fa-spin"></i> Ürünler senkronize ediliyor...');
+    
+    $.ajax({
+        url: '{{ sync_products }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                showActionResult('success', '<i class="fas fa-check"></i> ' + data.success);
+            } else if (data.error) {
+                showActionResult('danger', '<i class="fas fa-times"></i> ' + data.error);
+            }
+        },
+        error: function() {
+            showActionResult('danger', '<i class="fas fa-exclamation-triangle"></i> Ürün senkronizasyon hatası!');
+        }
+    });
+}
+
+function getOrders() {
+    showActionResult('info', '<i class="fas fa-spinner fa-spin"></i> Siparişler alınıyor...');
+    
+    $.ajax({
+        url: '{{ get_orders }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                showActionResult('success', '<i class="fas fa-check"></i> ' + data.success);
+            } else if (data.error) {
+                showActionResult('danger', '<i class="fas fa-times"></i> ' + data.error);
+            }
+        },
+        error: function() {
+            showActionResult('danger', '<i class="fas fa-exclamation-triangle"></i> Sipariş alma hatası!');
+        }
+    });
+}
+
+function updateStock() {
+    showActionResult('info', '<i class="fas fa-spinner fa-spin"></i> Stok bilgileri güncelleniyor...');
+    
+    $.ajax({
+        url: '{{ update_stock }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                showActionResult('success', '<i class="fas fa-check"></i> ' + data.success);
+            } else if (data.error) {
+                showActionResult('danger', '<i class="fas fa-times"></i> ' + data.error);
+            }
+        },
+        error: function() {
+            showActionResult('danger', '<i class="fas fa-exclamation-triangle"></i> Stok güncelleme hatası!');
+        }
+    });
+}
+
+function showActionResult(type, message) {
+    $('#action-result').html('<div class="alert alert-' + type + '">' + message + '</div>');
+    
+    if (type !== 'info') {
+        setTimeout(function() {
+            $('#action-result').fadeOut();
+        }, 5000);
+    }
+}
+</script>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.text-xs {
+    font-size: 0.7rem;
+}
+.shadow {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+}
+.btn-block {
+    display: block;
+    width: 100%;
+}
+</style>
+
+{{ footer }} 

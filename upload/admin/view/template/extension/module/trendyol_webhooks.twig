@@ -1,0 +1,255 @@
+{#
+  trendyol_webhooks.twig
+  Amaç: Trendyol webhook yönetimi için arayüz şablonu.
+  Bu şablon, webhook ayarlarını ve bildirimleri görüntüler.
+#}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ view_all_notifications }}" data-toggle="tooltip" title="{{ button_view_all }}" class="btn btn-info"><i class="fa fa-bell"></i> {{ button_view_all }}</a>
+        <a href="{{ dashboard }}" data-toggle="tooltip" title="{{ button_dashboard }}" class="btn btn-primary"><i class="fa fa-dashboard"></i> {{ button_dashboard }}</a>
+        <a href="{{ back }}" data-toggle="tooltip" title="{{ button_back }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }} - {{ text_webhooks }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+      <!-- Webhook Yönetimi -->
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-exchange"></i> {{ text_webhook_management }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="alert alert-info">
+              <h4><i class="fa fa-info-circle"></i> {{ text_webhook_info }}</h4>
+              <p>{{ text_webhook_desc }}</p>
+              <p><strong>{{ text_webhook_url }}</strong> <code>{{ store_url }}</code></p>
+            </div>
+            
+            <!-- Webhook Form -->
+            <form action="{{ add_webhook }}" method="post" class="form-horizontal">
+              <div class="form-group">
+                <label class="col-sm-3 control-label" for="input-event-type">{{ entry_event_type }}</label>
+                <div class="col-sm-9">
+                  <select name="event_type" id="input-event-type" class="form-control">
+                    {% for key, value in event_types %}
+                    <option value="{{ key }}">{{ value }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label" for="input-url">{{ entry_url }}</label>
+                <div class="col-sm-9">
+                  <input type="text" name="url" value="{{ store_url }}" placeholder="{{ entry_url }}" id="input-url" class="form-control" />
+                  <div class="help-block">{{ text_webhook_url_help }}</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-9">
+                  <select name="status" id="input-status" class="form-control">
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-12 text-right">
+                  <button type="submit" class="btn btn-primary"><i class="fa fa-plus"></i> {{ button_add_webhook }}</button>
+                </div>
+              </div>
+            </form>
+            
+            <!-- Webhook Listesi -->
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <td class="text-left">{{ column_event_type }}</td>
+                    <td class="text-left">{{ column_url }}</td>
+                    <td class="text-left">{{ column_status }}</td>
+                    <td class="text-right">{{ column_date_added }}</td>
+                    <td class="text-right">{{ column_action }}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if webhooks %}
+                    {% for webhook in webhooks %}
+                    <tr>
+                      <td class="text-left">{{ event_types[webhook.event_type] is defined ? event_types[webhook.event_type] : webhook.event_type }}</td>
+                      <td class="text-left">{{ webhook.url }}</td>
+                      <td class="text-left">
+                        {% if webhook.status %}
+                        <span class="label label-success">{{ text_enabled }}</span>
+                        {% else %}
+                        <span class="label label-danger">{{ text_disabled }}</span>
+                        {% endif %}
+                      </td>
+                      <td class="text-right">{{ webhook.date_added }}</td>
+                      <td class="text-right">
+                        <a href="{{ add_webhook }}&toggle_webhook={{ webhook.webhook_id }}" data-toggle="tooltip" title="{{ webhook.status ? text_disable : text_enable }}" class="btn btn-{{ webhook.status ? 'warning' : 'success' }} btn-sm"><i class="fa fa-{{ webhook.status ? 'times' : 'check' }}"></i></a>
+                        <a href="{{ add_webhook }}&delete_webhook={{ webhook.webhook_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger btn-sm" onclick="return confirm('{{ text_confirm }}');"><i class="fa fa-trash-o"></i></a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td class="text-center" colspan="5">{{ text_no_webhooks }}</td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bildirimler -->
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-bell"></i> {{ text_notifications }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <td class="text-left">{{ column_type }}</td>
+                    <td class="text-left">{{ column_title }}</td>
+                    <td class="text-right">{{ column_date_added }}</td>
+                    <td class="text-right">{{ column_action }}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if notifications %}
+                    {% for notification in notifications %}
+                    <tr class="{{ notification.status ? '' : 'info' }}">
+                      <td class="text-left">
+                        {% if notification.type == 'order_created' %}
+                        <span class="label label-success">{{ text_order_created }}</span>
+                        {% elseif notification.type == 'order_status_changed' %}
+                        <span class="label label-primary">{{ text_order_status_changed }}</span>
+                        {% elseif notification.type == 'stock_updated' %}
+                        <span class="label label-info">{{ text_stock_updated }}</span>
+                        {% else %}
+                        <span class="label label-default">{{ notification.type }}</span>
+                        {% endif %}
+                      </td>
+                      <td class="text-left">{{ notification.title }}</td>
+                      <td class="text-right">{{ notification.date_added }}</td>
+                      <td class="text-right">
+                        <button type="button" data-toggle="tooltip" title="{{ button_view }}" class="btn btn-info btn-sm" onclick="viewNotification({{ notification.notification_id }});"><i class="fa fa-eye"></i></button>
+                        <a href="{{ add_webhook }}&mark_notification={{ notification.notification_id }}" data-toggle="tooltip" title="{{ notification.status ? text_mark_unread : text_mark_read }}" class="btn btn-{{ notification.status ? 'warning' : 'success' }} btn-sm"><i class="fa fa-{{ notification.status ? 'envelope' : 'check' }}"></i></a>
+                        <a href="{{ add_webhook }}&delete_notification={{ notification.notification_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger btn-sm" onclick="return confirm('{{ text_confirm }}');"><i class="fa fa-trash-o"></i></a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td class="text-center" colspan="4">{{ text_no_notifications }}</td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+              
+              {% if not view_all and notifications %}
+              <div class="text-right">
+                <a href="{{ view_all_notifications }}" class="btn btn-link">{{ text_view_all_notifications }}</a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bildirim Detayı Modal -->
+<div id="modal-notification" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="notification-title"></h4>
+      </div>
+      <div class="modal-body">
+        <p id="notification-message"></p>
+        <hr>
+        <h5>{{ text_raw_data }}</h5>
+        <pre id="notification-data" style="max-height: 300px; overflow-y: auto;"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+// Bildirim detayını görüntüle
+function viewNotification(notificationId) {
+  $.ajax({
+    url: 'index.php?route=extension/module/trendyol_webhook/getNotification&user_token={{ user_token }}',
+    type: 'post',
+    data: {notification_id: notificationId},
+    dataType: 'json',
+    beforeSend: function() {
+      $('#notification-title').text('{{ text_loading }}');
+      $('#notification-message').text('');
+      $('#notification-data').text('');
+    },
+    success: function(json) {
+      if (json.notification) {
+        $('#notification-title').text(json.notification.title);
+        $('#notification-message').text(json.notification.message);
+        
+        if (json.notification.data) {
+          try {
+            var data = JSON.parse(json.notification.data);
+            $('#notification-data').text(JSON.stringify(data, null, 2));
+          } catch (e) {
+            $('#notification-data').text(json.notification.data);
+          }
+        } else {
+          $('#notification-data').text('{{ text_no_data }}');
+        }
+        
+        $('#modal-notification').modal('show');
+        
+        // Bildirimi okundu olarak işaretle
+        if (json.notification.status == 0) {
+          $.get('index.php?route=extension/module/trendyol_webhooks&user_token={{ user_token }}&mark_notification=' + notificationId);
+        }
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+}
+//--></script>
+
+{{ footer }} 

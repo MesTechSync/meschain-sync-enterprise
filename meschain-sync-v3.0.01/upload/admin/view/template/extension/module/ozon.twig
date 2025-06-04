@@ -1,0 +1,344 @@
+{#
+  ozon.twig
+  Amaç: Ozon modülünün OpenCart yönetici paneli arayüz şablonu.
+  Standart: Her değişiklikte log tutulmalı (ozon_view.log).
+#}
+<!-- Ozon modülü yönetim paneli görünümü --> 
+
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-ozon" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <!-- RBAC Permission Check -->
+    {% if not rbac_permissions.can_access_ozon %}
+    <div class="alert alert-warning">
+      <i class="fa fa-exclamation-triangle"></i> Bu bölüme erişim yetkiniz bulunmamaktadır.
+    </div>
+    {% else %}
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> Ozon Marketplace Entegrasyonu</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-ozon" class="form-horizontal">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab-general" data-toggle="tab">Genel</a></li>
+            <li><a href="#tab-api" data-toggle="tab">API Ayarları</a></li>
+            <li><a href="#tab-product" data-toggle="tab">Ürün</a></li>
+            <li><a href="#tab-order" data-toggle="tab">Sipariş</a></li>
+            <li><a href="#tab-cron" data-toggle="tab">Otomatik İşlemler</a></li>
+          </ul>
+          
+          <div class="tab-content">
+            <!-- Genel Tab -->
+            <div class="tab-pane active" id="tab-general">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">Durum</label>
+                <div class="col-sm-10">
+                  <select name="module_ozon_status" id="input-status" class="form-control">
+                    {% if module_ozon_status %}
+                    <option value="1" selected="selected">Etkin</option>
+                    <option value="0">Pasif</option>
+                    {% else %}
+                    <option value="1">Etkin</option>
+                    <option value="0" selected="selected">Pasif</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Bağlantı Durumu</label>
+                <div class="col-sm-10">
+                  <div class="well">
+                    {% if connection_status %}
+                    <p><i class="fa fa-check-circle text-success"></i> <strong>{{ connection_message }}</strong></p>
+                    {% else %}
+                    <p><i class="fa fa-times-circle text-danger"></i> <strong>{{ connection_message }}</strong></p>
+                    {% endif %}
+                    <button type="button" id="test-connection" class="btn btn-info btn-sm">
+                      <i class="fa fa-plug"></i> Bağlantıyı Test Et
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- API Tab -->
+            <div class="tab-pane" id="tab-api">
+              <div class="alert alert-info">
+                <p><strong>API Bilgileri:</strong></p>
+                <ol>
+                  <li>Ozon Seller Center'da hesap oluşturun</li>
+                  <li>API bölümünden Client ID ve API Key'inizi alın</li>
+                  <li>Bu bilgileri aşağıdaki alanlara girin</li>
+                  <li>Bağlantıyı test edin</li>
+                </ol>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-client-id">Client ID</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_ozon_client_id" value="{{ module_ozon_client_id }}" placeholder="Ozon Client ID" id="input-client-id" class="form-control" />
+                  {% if error_client_id %}
+                  <div class="text-danger">{{ error_client_id }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-api-key">API Key</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_ozon_api_key" value="{{ module_ozon_api_key }}" placeholder="Ozon API Key" id="input-api-key" class="form-control" />
+                  {% if error_api_key %}
+                  <div class="text-danger">{{ error_api_key }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-sandbox">Test Modu</label>
+                <div class="col-sm-10">
+                  <select name="module_ozon_sandbox" id="input-sandbox" class="form-control">
+                    {% if module_ozon_sandbox %}
+                    <option value="1" selected="selected">Test (Sandbox)</option>
+                    <option value="0">Canlı (Production)</option>
+                    {% else %}
+                    <option value="1">Test (Sandbox)</option>
+                    <option value="0" selected="selected">Canlı (Production)</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Ürün Tab -->
+            <div class="tab-pane" id="tab-product">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-auto-export">Otomatik Ürün Gönderimi</label>
+                <div class="col-sm-10">
+                  <select name="module_ozon_auto_export" id="input-auto-export" class="form-control">
+                    {% if module_ozon_auto_export %}
+                    <option value="1" selected="selected">Etkin</option>
+                    <option value="0">Pasif</option>
+                    {% else %}
+                    <option value="1">Etkin</option>
+                    <option value="0" selected="selected">Pasif</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-stock-sync">Stok Senkronizasyonu</label>
+                <div class="col-sm-10">
+                  <select name="module_ozon_stock_sync" id="input-stock-sync" class="form-control">
+                    {% if module_ozon_stock_sync %}
+                    <option value="1" selected="selected">Etkin</option>
+                    <option value="0">Pasif</option>
+                    {% else %}
+                    <option value="1">Etkin</option>
+                    <option value="0" selected="selected">Pasif</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Sipariş Tab -->
+            <div class="tab-pane" id="tab-order">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-auto-import">Otomatik Sipariş Alma</label>
+                <div class="col-sm-10">
+                  <select name="module_ozon_auto_import" id="input-auto-import" class="form-control">
+                    {% if module_ozon_auto_import %}
+                    <option value="1" selected="selected">Etkin</option>
+                    <option value="0">Pasif</option>
+                    {% else %}
+                    <option value="1">Etkin</option>
+                    <option value="0" selected="selected">Pasif</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-order-status">Varsayılan Sipariş Durumu</label>
+                <div class="col-sm-10">
+                  <select name="module_ozon_order_status" id="input-order-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == module_ozon_order_status %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Otomatik İşlemler Tab -->
+            <div class="tab-pane" id="tab-cron">
+              <div class="alert alert-warning">
+                <p><strong>Otomatik İşlemler:</strong></p>
+                <p>Bu işlemler belirlenen aralıklarla otomatik olarak çalıştırılır.</p>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-cron-interval">Çalışma Aralığı (Dakika)</label>
+                <div class="col-sm-10">
+                  <input type="number" name="module_ozon_cron_interval" value="{{ module_ozon_cron_interval }}" placeholder="30" id="input-cron-interval" class="form-control" min="5" max="1440" />
+                  <div class="help-block">5-1440 dakika arası (Önerilen: 30 dakika)</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Cron İşlemleri</label>
+                <div class="col-sm-10">
+                  <div class="well">
+                    <button type="button" id="sync-orders" class="btn btn-primary btn-sm">
+                      <i class="fa fa-refresh"></i> Siparişleri Senkronize Et
+                    </button>
+                    <button type="button" id="sync-products" class="btn btn-info btn-sm">
+                      <i class="fa fa-upload"></i> Ürünleri Gönder
+                    </button>
+                    <button type="button" id="sync-stock" class="btn btn-warning btn-sm">
+                      <i class="fa fa-archive"></i> Stokları Güncelle
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% endif %} <!-- RBAC Permission Check End -->
+  </div>
+</div>
+
+<script type="text/javascript">
+// Ozon specific JavaScript functions
+function saveOzonSettings() {
+    // Implementation for saving settings
+}
+
+function testOzonConnection() {
+    // Implementation for testing connection
+}
+
+function loadWarehouses() {
+    // Implementation for loading warehouses
+}
+
+function syncProducts() {
+    // Implementation for product sync
+}
+
+function uploadProducts() {
+    // Implementation for product upload
+}
+
+function updatePrices() {
+    // Implementation for price updates
+}
+
+function loadProducts() {
+    // Implementation for loading products
+}
+
+function syncOrders() {
+    // Implementation for order sync
+}
+
+function bulkUpdateOrders() {
+    // Implementation for bulk order updates
+}
+
+function loadOrders() {
+    // Implementation for loading orders
+}
+
+function syncStocks() {
+    // Implementation for stock sync
+}
+
+function updateAllStocks() {
+    // Implementation for updating all stocks
+}
+
+function loadStocks() {
+    // Implementation for loading stocks
+}
+
+function createPostings() {
+    // Implementation for creating postings
+}
+
+function printLabels() {
+    // Implementation for printing labels
+}
+
+function loadPostings() {
+    // Implementation for loading postings
+}
+
+function loadLogs() {
+    // Implementation for loading logs
+}
+
+function clearLogs() {
+    // Implementation for clearing logs
+}
+
+// Auto-load data when page loads
+$(document).ready(function() {
+    loadProducts();
+    loadOrders();
+    loadStocks();
+    loadPostings();
+    loadLogs();
+    loadWarehouses();
+});
+
+// Warehouse filter change
+$('#warehouse-filter').change(function() {
+    loadStocks();
+});
+
+// Log level filter change
+$('#log-level-filter').change(function() {
+    loadLogs();
+});
+</script>
+
+{{ footer }} 

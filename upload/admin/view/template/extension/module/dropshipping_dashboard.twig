@@ -1,0 +1,589 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-refresh" data-toggle="tooltip" title="Verileri Yenile" class="btn btn-info"><i class="fa fa-refresh"></i></button>
+        <button type="button" id="button-sync-stock" data-toggle="tooltip" title="Stok Senkronize Et" class="btn btn-warning"><i class="fa fa-cubes"></i></button>
+        <button type="button" id="button-sync-prices" data-toggle="tooltip" title="Fiyat Senkronize Et" class="btn btn-success"><i class="fa fa-money"></i></button>
+        <button type="button" id="button-process-orders" data-toggle="tooltip" title="Siparişleri İşle" class="btn btn-primary"><i class="fa fa-cogs"></i></button>
+      </div>
+      <h1><i class="fa fa-truck"></i> Dropshipping Dashboard</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    
+    <!-- Dashboard İstatistikleri -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ stats.total_orders|default(0) }}</div>
+                <div>Toplam Sipariş</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-check-circle fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ stats.completed_orders|default(0) }}</div>
+                <div>Tamamlanan</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-clock-o fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ stats.pending_orders|default(0) }}</div>
+                <div>Bekleyen</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-users fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ stats.active_suppliers|default(0) }}</div>
+                <div>Aktif Tedarikçi</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Aktif Siparişler ve Tedarikçi Yönetimi -->
+    <div class="row">
+      <div class="col-md-8">
+        <!-- Aktif Siparişler -->
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-list"></i> Aktif Siparişler</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>Sipariş ID</th>
+                    <th>Tedarikçi</th>
+                    <th>Durum</th>
+                    <th>Tutar</th>
+                    <th>Tarih</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if active_orders %}
+                    {% for order in active_orders %}
+                    <tr>
+                      <td><strong>{{ order.order_id }}</strong></td>
+                      <td>{{ order.supplier_name }}</td>
+                      <td>
+                        {% if order.status == 'pending' %}
+                          <span class="label label-warning">Bekliyor</span>
+                        {% elseif order.status == 'processing' %}
+                          <span class="label label-info">İşleniyor</span>
+                        {% elseif order.status == 'shipped' %}
+                          <span class="label label-success">Kargoda</span>
+                        {% else %}
+                          <span class="label label-default">{{ order.status|title }}</span>
+                        {% endif %}
+                      </td>
+                      <td>{{ order.total|number_format(2) }}₺</td>
+                      <td>{{ order.date_added }}</td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-info" onclick="viewOrderDetails('{{ order.order_id }}')">
+                          <i class="fa fa-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-warning" onclick="updateOrderStatus('{{ order.order_id }}')">
+                          <i class="fa fa-edit"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                  <tr>
+                    <td colspan="6" class="text-center">Aktif sipariş bulunmuyor.</td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <!-- Tedarikçi Yönetimi -->
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-users"></i> Tedarikçi Yönetimi</h3>
+          </div>
+          <div class="panel-body">
+            <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#modal-supplier">
+              <i class="fa fa-plus"></i> Yeni Tedarikçi Ekle
+            </button>
+            <hr>
+            
+            {% if suppliers %}
+              {% for supplier in suppliers %}
+              <div class="supplier-item" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                <div class="row">
+                  <div class="col-xs-8">
+                    <strong>{{ supplier.name }}</strong><br>
+                    <small class="text-muted">{{ supplier.marketplace }}</small>
+                  </div>
+                  <div class="col-xs-4 text-right">
+                    {% if supplier.status %}
+                      <span class="label label-success">Aktif</span>
+                    {% else %}
+                      <span class="label label-danger">Pasif</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="row" style="margin-top: 5px;">
+                  <div class="col-xs-12">
+                    <button type="button" class="btn btn-xs btn-info" onclick="editSupplier('{{ supplier.supplier_id }}')">
+                      <i class="fa fa-edit"></i> Düzenle
+                    </button>
+                    <button type="button" class="btn btn-xs btn-danger" onclick="deleteSupplier('{{ supplier.supplier_id }}')">
+                      <i class="fa fa-trash"></i> Sil
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-center text-muted">Henüz tedarikçi eklenmemiş.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tedarikçi Performansı ve Son Aktiviteler -->
+    <div class="row">
+      <div class="col-md-6">
+        <!-- Tedarikçi Performansı -->
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-bar-chart"></i> Tedarikçi Performansı</h3>
+          </div>
+          <div class="panel-body">
+            {% if supplier_performance %}
+              {% for performance in supplier_performance %}
+              <div class="progress-item" style="margin-bottom: 15px;">
+                <div class="row">
+                  <div class="col-xs-6">
+                    <strong>{{ performance.supplier_name }}</strong>
+                  </div>
+                  <div class="col-xs-6 text-right">
+                    <span class="text-success">{{ performance.success_rate }}%</span>
+                  </div>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-success" style="width: {{ performance.success_rate }}%"></div>
+                </div>
+                <small class="text-muted">{{ performance.total_orders }} sipariş, {{ performance.avg_delivery_time }} gün ortalama teslimat</small>
+              </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-center text-muted">Performans verisi bulunmuyor.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <!-- Son Aktiviteler -->
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-clock-o"></i> Son Aktiviteler</h3>
+          </div>
+          <div class="panel-body" style="max-height: 300px; overflow-y: auto;">
+            {% if recent_activities %}
+              {% for activity in recent_activities %}
+              <div class="activity-item" style="border-left: 3px solid #f0ad4e; padding-left: 10px; margin-bottom: 10px;">
+                <strong>{{ activity.title }}</strong><br>
+                <small class="text-muted">{{ activity.description }}</small><br>
+                <small class="text-info">{{ activity.date_added }}</small>
+              </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-center text-muted">Son aktivite bulunmuyor.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Tedarikçi Modal -->
+<div class="modal fade" id="modal-supplier" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Tedarikçi Ekle/Düzenle</h4>
+      </div>
+      <div class="modal-body">
+        <form id="form-supplier" class="form-horizontal">
+          <input type="hidden" name="supplier_id" id="supplier-id">
+          
+          <div class="form-group">
+            <label class="col-sm-3 control-label">Tedarikçi Adı</label>
+            <div class="col-sm-9">
+              <input type="text" name="name" id="supplier-name" class="form-control" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-3 control-label">Pazaryeri</label>
+            <div class="col-sm-9">
+              <select name="marketplace" id="supplier-marketplace" class="form-control" required>
+                <option value="">Seçiniz</option>
+                <option value="amazon">Amazon</option>
+                <option value="ebay">eBay</option>
+                <option value="ozon">Ozon</option>
+                <option value="hepsiburada">Hepsiburada</option>
+                <option value="n11">N11</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-3 control-label">API Key</label>
+            <div class="col-sm-9">
+              <input type="text" name="api_key" id="supplier-api-key" class="form-control">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-3 control-label">API Secret</label>
+            <div class="col-sm-9">
+              <input type="password" name="api_secret" id="supplier-api-secret" class="form-control">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-3 control-label">Komisyon Oranı (%)</label>
+            <div class="col-sm-9">
+              <input type="number" name="commission_rate" id="supplier-commission" class="form-control" min="0" max="100" step="0.1">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+              <label class="checkbox-inline">
+                <input type="checkbox" name="auto_order" id="supplier-auto-order"> Otomatik Sipariş
+              </label>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+              <label class="checkbox-inline">
+                <input type="checkbox" name="status" id="supplier-status" checked> Aktif
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">İptal</button>
+        <button type="button" class="btn btn-primary" id="save-supplier">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.huge {
+    font-size: 40px;
+}
+
+.panel-green {
+    border-color: #5cb85c;
+}
+
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+
+.panel-red > .panel-heading {
+    border-color: #d9534f;
+    color: white;
+    background-color: #d9534f;
+}
+
+.supplier-item:hover {
+    background-color: #f9f9f9;
+}
+
+.activity-item:hover {
+    background-color: #fff3cd;
+}
+</style>
+
+<script type="text/javascript">
+// Dashboard verilerini yenile
+$('#button-refresh').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/dropshipping_dashboard/refreshDashboard&user_token={{ user_token }}',
+        type: 'get',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#button-refresh').button('loading');
+        },
+        complete: function() {
+            $('#button-refresh').button('reset');
+        },
+        success: function(json) {
+            if (json['success']) {
+                location.reload();
+            } else if (json['error']) {
+                alert('Hata: ' + json['error']);
+            }
+        }
+    });
+});
+
+// Stok senkronizasyonu
+$('#button-sync-stock').on('click', function() {
+    if (confirm('Tüm tedarikçilerden stok bilgileri senkronize edilecek. Devam etmek istiyor musunuz?')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/dropshipping_dashboard/syncStock&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#button-sync-stock').button('loading');
+            },
+            complete: function() {
+                $('#button-sync-stock').button('reset');
+            },
+            success: function(json) {
+                if (json['success']) {
+                    alert(json['success'] + '\nGüncellenen: ' + json['updated'] + '\nHatalı: ' + json['failed']);
+                } else if (json['error']) {
+                    alert('Hata: ' + json['error']);
+                }
+            }
+        });
+    }
+});
+
+// Fiyat senkronizasyonu
+$('#button-sync-prices').on('click', function() {
+    if (confirm('Tüm tedarikçilerden fiyat bilgileri senkronize edilecek. Devam etmek istiyor musunuz?')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/dropshipping_dashboard/syncPrices&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#button-sync-prices').button('loading');
+            },
+            complete: function() {
+                $('#button-sync-prices').button('reset');
+            },
+            success: function(json) {
+                if (json['success']) {
+                    alert(json['success'] + '\nGüncellenen: ' + json['updated'] + '\nHatalı: ' + json['failed']);
+                } else if (json['error']) {
+                    alert('Hata: ' + json['error']);
+                }
+            }
+        });
+    }
+});
+
+// Otomatik sipariş işleme
+$('#button-process-orders').on('click', function() {
+    if (confirm('Bekleyen siparişler otomatik olarak işlenecek. Devam etmek istiyor musunuz?')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/dropshipping_dashboard/processOrders&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#button-process-orders').button('loading');
+            },
+            complete: function() {
+                $('#button-process-orders').button('reset');
+            },
+            success: function(json) {
+                if (json['success']) {
+                    alert(json['success'] + '\nİşlenen: ' + json['processed'] + '\nHatalı: ' + json['failed']);
+                    location.reload();
+                } else if (json['error']) {
+                    alert('Hata: ' + json['error']);
+                }
+            }
+        });
+    }
+});
+
+// Tedarikçi kaydet
+$('#save-supplier').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/dropshipping_dashboard/saveSupplier&user_token={{ user_token }}',
+        type: 'post',
+        data: $('#form-supplier').serialize(),
+        dataType: 'json',
+        beforeSend: function() {
+            $('#save-supplier').button('loading');
+        },
+        complete: function() {
+            $('#save-supplier').button('reset');
+        },
+        success: function(json) {
+            if (json['success']) {
+                alert(json['success']);
+                $('#modal-supplier').modal('hide');
+                location.reload();
+            } else if (json['error']) {
+                alert('Hata: ' + json['error']);
+            }
+        }
+    });
+});
+
+// Sipariş detaylarını görüntüle
+function viewOrderDetails(orderId) {
+    $.ajax({
+        url: 'index.php?route=extension/module/dropshipping_dashboard/getOrderDetails&user_token={{ user_token }}&order_id=' + orderId,
+        type: 'get',
+        dataType: 'json',
+        success: function(json) {
+            if (json['success'] && json['data']) {
+                var details = json['data'];
+                var content = 'Sipariş ID: ' + details.order_id + '\n';
+                content += 'Tedarikçi: ' + details.supplier_name + '\n';
+                content += 'Durum: ' + details.status + '\n';
+                content += 'Tutar: ' + details.total + '₺\n';
+                if (details.tracking_number) {
+                    content += 'Takip No: ' + details.tracking_number + '\n';
+                }
+                alert(content);
+            } else if (json['error']) {
+                alert('Hata: ' + json['error']);
+            }
+        }
+    });
+}
+
+// Sipariş durumu güncelle
+function updateOrderStatus(orderId) {
+    var status = prompt('Yeni durum girin (pending, processing, shipped, delivered):');
+    if (status) {
+        var trackingNumber = '';
+        if (status === 'shipped') {
+            trackingNumber = prompt('Takip numarası girin (opsiyonel):') || '';
+        }
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/dropshipping_dashboard/updateOrderStatus&user_token={{ user_token }}',
+            type: 'post',
+            data: {
+                order_id: orderId,
+                status: status,
+                tracking_number: trackingNumber
+            },
+            dataType: 'json',
+            success: function(json) {
+                if (json['success']) {
+                    alert(json['success']);
+                    location.reload();
+                } else if (json['error']) {
+                    alert('Hata: ' + json['error']);
+                }
+            }
+        });
+    }
+}
+
+// Tedarikçi düzenle
+function editSupplier(supplierId) {
+    // Tedarikçi bilgilerini yükle ve modal'ı aç
+    alert('Tedarikçi düzenleme özelliği yakında eklenecek. ID: ' + supplierId);
+}
+
+// Tedarikçi sil
+function deleteSupplier(supplierId) {
+    if (confirm('Bu tedarikçiyi silmek istediğinizden emin misiniz?')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/dropshipping_dashboard/deleteSupplier&user_token={{ user_token }}',
+            type: 'post',
+            data: {supplier_id: supplierId},
+            dataType: 'json',
+            success: function(json) {
+                if (json['success']) {
+                    alert(json['success']);
+                    location.reload();
+                } else if (json['error']) {
+                    alert('Hata: ' + json['error']);
+                }
+            }
+        });
+    }
+}
+
+// Modal temizle
+$('#modal-supplier').on('hidden.bs.modal', function() {
+    $('#form-supplier')[0].reset();
+    $('#supplier-id').val('');
+});
+</script>
+
+{{ footer }} 

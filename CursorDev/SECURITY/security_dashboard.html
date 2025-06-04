@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Dashboard - MesChain-Sync</title>
+    
+    <!-- PWA Integration -->
+    <link rel="manifest" href="/CursorDev/PWA/manifest.json">
+    <meta name="theme-color" content="#DC2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="MesChain Security">
+    <link rel="apple-touch-icon" href="/assets/images/security-icon-152.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .security-theme { 
+            background: linear-gradient(135deg, #DC2626 0%, #B91C1C 50%, #991B1B 100%);
+            color: white;
+        }
+        .security-card { 
+            border-left: 5px solid #DC2626;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.2);
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .security-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(220, 38, 38, 0.3);
+        }
+        .security-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #DC2626, #B91C1C, #991B1B, #7F1D1D, #DC2626);
+            animation: securityGradient 4s ease-in-out infinite;
+        }
+        @keyframes securityGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .security-icon {
+            font-size: 2.5rem;
+            color: #DC2626;
+            margin-bottom: 15px;
+            animation: securityPulse 2s ease-in-out infinite;
+        }
+        @keyframes securityPulse {
+            0%, 100% { transform: scale(1); color: #DC2626; }
+            50% { transform: scale(1.1); color: #B91C1C; }
+        }
+        .threat-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #EF4444, #DC2626);
+            animation: threatBlink 1s infinite;
+        }
+        @keyframes threatBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.3); }
+        }
+        .security-center {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .security-header {
+            background: linear-gradient(45deg, #DC2626, #B91C1C);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: between;
+        }
+        .threat-list {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+        .threat-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .threat-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .threat-item.critical {
+            border-left-color: #DC2626;
+            background: linear-gradient(45deg, rgba(220, 38, 38, 0.05), rgba(185, 28, 28, 0.05));
+        }
+        .threat-item.high {
+            border-left-color: #F59E0B;
+            background: linear-gradient(45deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.05));
+        }
+        .threat-item.medium {
+            border-left-color: #10B981;
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+        }
+        .threat-item.low {
+            border-left-color: #6B7280;
+            background: linear-gradient(45deg, rgba(107, 114, 128, 0.05), rgba(75, 85, 99, 0.05));
+        }
+        .threat-time {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 0.8rem;
+            color: #6B7280;
+        }
+        .threat-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .threat-item:hover .threat-actions {
+            opacity: 1;
+        }
+        .severity-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+        }
+        .severity-critical { background: #DC2626; }
+        .severity-high { background: #F59E0B; }
+        .severity-medium { background: #10B981; }
+        .severity-low { background: #6B7280; }
+        .security-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .security-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .security-btn.active {
+            border-color: #DC2626;
+            background: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .security-btn:hover {
+            border-color: #DC2626;
+            transform: translateY(-2px);
+        }
+        .security-badge {
+            background: linear-gradient(45deg, #DC2626, #B91C1C);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+        }
+        .metric-display {
+            font-weight: bold;
+            color: #DC2626;
+            font-size: 1.2rem;
+        }
+        .security-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .security-secure {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        .security-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+        .security-critical {
+            background: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .security-filter {
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border-radius: 0 0 15px 15px;
+        }
+        .filter-select {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 8px 12px;
+            background: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .filter-select:focus {
+            border-color: #DC2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        .security-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            border-color: #DC2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+        }
+        .realtime-indicator {
+            background: linear-gradient(45deg, #DC2626, #B91C1C);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            animation: realtimePulse 2s ease-in-out infinite;
+        }
+        @keyframes realtimePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .firewall-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .firewall-toggle:hover {
+            transform: scale(1.1);
+        }
+        .firewall-toggle.blocked {
+            background: linear-gradient(45deg, #DC2626, #B91C1C);
+        }
+        .vulnerability-scanner {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .scan-progress {
+            width: 100%;
+            height: 20px;
+            background: #f3f4f6;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .scan-progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #DC2626, #B91C1C);
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: scanningPulse 2s ease-in-out infinite;
+        }
+        @keyframes scanningPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .attack-prevention {
+            background: linear-gradient(45deg, rgba(220, 38, 38, 0.1), rgba(185, 28, 28, 0.1));
+            border: 1px solid #DC2626;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .prevention-btn {
+            background: linear-gradient(45deg, #DC2626, #B91C1C);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .prevention-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        .security-analytics {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .chart-container::before {
+            content: '🛡️ REAL-TIME';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: linear-gradient(45deg, #DC2626, #B91C1C);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .threat-map {
+            background: linear-gradient(45deg, #1F2937, #111827);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            color: white;
+            min-height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+        .threat-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #DC2626;
+            border-radius: 50%;
+            animation: threatPulse 2s ease-in-out infinite;
+        }
+        @keyframes threatPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.6; }
+        }
+        .incident-response {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #EF4444;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            animation: incidentAlert 3s ease-in-out infinite;
+        }
+        @keyframes incidentAlert {
+            0%, 100% { border-color: #EF4444; }
+            50% { border-color: #DC2626; }
+        }
+        .response-btn {
+            background: linear-gradient(45deg, #EF4444, #DC2626);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .response-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+        .security-level {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .level-indicator {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(45deg, #10B981, #059669);
+            animation: levelPulse 3s ease-in-out infinite;
+        }
+        @keyframes levelPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .level-critical .level-indicator {
+            background: linear-gradient(45deg, #DC2626, #B91C1C);
+        }
+        .level-warning .level-indicator {
+            background: linear-gradient(45deg, #F59E0B, #D97706);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg security-theme shadow-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shield-alt me-2"></i>
+                Security Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <span class="security-status security-secure" id="security-status">
+                        <span class="threat-indicator"></span>
+                        Security: <span id="security-level-text">Secure</span>
+                    </span>
+                    <button class="firewall-toggle ms-3" id="firewall-toggle" title="Firewall Durumu">
+                        <i class="fas fa-shield-alt"></i>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Security Statistics -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card security-card h-100">
+                    <div class="threat-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-exclamation-triangle security-icon"></i>
+                        <h5 class="card-title">Tespit Edilen Tehditler</h5>
+                        <h2 id="detected-threats" class="display-6">247</h2>
+                        <div class="mt-2">
+                            <small>Son 24 saat: <span id="recent-threats" class="metric-display">18</span></small>
+                            <div class="realtime-indicator mt-2">LIVE SCAN</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card security-card h-100">
+                    <div class="threat-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-shield-alt security-icon"></i>
+                        <h5 class="card-title">Engellenen Saldırılar</h5>
+                        <h2 id="blocked-attacks" class="display-6">1,456</h2>
+                        <div class="mt-2">
+                            <small>Başarı: <span id="block-success-rate" class="metric-display">99.2%</span></small>
+                            <div class="realtime-indicator mt-2">PROTECTED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card security-card h-100">
+                    <div class="threat-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-bug security-icon"></i>
+                        <h5 class="card-title">Tespit Edilen Zafiyetler</h5>
+                        <h2 id="vulnerabilities" class="display-6">34</h2>
+                        <div class="mt-2">
+                            <small>Kritik: <span id="critical-vulnerabilities" class="metric-display">3</span></small>
+                            <div class="realtime-indicator mt-2">SCANNING</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card security-card h-100">
+                    <div class="threat-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock security-icon"></i>
+                        <h5 class="card-title">Yanıt Süresi</h5>
+                        <h2 id="response-time" class="display-6">0.3s</h2>
+                        <div class="mt-2">
+                            <small>Ortalama: <span id="avg-response-time" class="metric-display">0.8s</span></small>
+                            <div class="realtime-indicator mt-2">REAL-TIME</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Security Center -->
+                <div class="security-center">
+                    <div class="security-header">
+                        <div>
+                            <h5 class="mb-0">
+                                <i class="fas fa-search me-2"></i>
+                                Tehdit Analiz Merkezi
+                            </h5>
+                            <small>Real-time threat detection & prevention</small>
+                        </div>
+                        <div class="ms-auto">
+                            <span class="security-badge">🛡️ Live Protection</span>
+                        </div>
+                    </div>
+                    
+                    <div class="threat-list" id="threat-list">
+                        <!-- Threats will be loaded here dynamically -->
+                    </div>
+                    
+                    <div class="security-filter">
+                        <span class="fw-bold">Filtrele:</span>
+                        <select class="filter-select" id="severity-filter" title="Önem Derecesi Filtresi">
+                            <option value="all">Tüm Seviyeler</option>
+                            <option value="critical">Kritik</option>
+                            <option value="high">Yüksek</option>
+                            <option value="medium">Orta</option>
+                            <option value="low">Düşük</option>
+                        </select>
+                        <select class="filter-select" id="threat-type-filter" title="Tehdit Türü Filtresi">
+                            <option value="all">Tüm Türler</option>
+                            <option value="malware">Malware</option>
+                            <option value="ddos">DDoS</option>
+                            <option value="intrusion">Sızma</option>
+                            <option value="sql-injection">SQL Injection</option>
+                        </select>
+                        <select class="filter-select" id="status-filter" title="Durum Filtresi">
+                            <option value="all">Tüm Durumlar</option>
+                            <option value="active">Aktif</option>
+                            <option value="blocked">Engellendi</option>
+                            <option value="resolved">Çözüldü</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-danger" onclick="blockAllThreats()">
+                            <i class="fas fa-ban me-1"></i>Tümünü Engelle
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Security Analytics Charts -->
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line text-danger me-2"></i>
+                            Security Performance (Son 7 Gün)
+                        </h5>
+                        <span class="security-badge">Real-time Analytics</span>
+                    </div>
+                    <canvas id="securityChart" height="300"></canvas>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Security Level -->
+                <div class="security-level" id="security-level-display">
+                    <div class="level-indicator">
+                        95%
+                    </div>
+                    <h5>Güvenlik Seviyesi</h5>
+                    <p class="text-muted">Sistem güvenli ve korumalı</p>
+                </div>
+
+                <!-- Firewall Management -->
+                <div class="card security-card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-firewall me-2"></i>
+                            Firewall Yönetimi
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="security-selector">
+                            <div class="security-btn active" data-firewall="enabled">
+                                <i class="fas fa-shield-alt mb-2"></i>
+                                <div class="fw-bold">Aktif</div>
+                                <small>Korumalı</small>
+                            </div>
+                            <div class="security-btn" data-firewall="disabled">
+                                <i class="fas fa-shield-virus mb-2"></i>
+                                <div class="fw-bold">Pasif</div>
+                                <small>Açık</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <div class="mb-2">
+                                <small>Engellenen IP'ler:</small>
+                                <strong class="float-end" id="blocked-ips">1,247</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small>Aktif Kurallar:</small>
+                                <strong class="float-end" id="firewall-rules">89</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small>Son Güncelleme:</small>
+                                <strong class="float-end" id="firewall-update">2dk önce</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vulnerability Scanner -->
+                <div class="vulnerability-scanner">
+                    <h6><i class="fas fa-search me-2"></i>Zafiyet Tarayıcısı</h6>
+                    <div class="scan-progress">
+                        <div class="scan-progress-bar" id="scan-progress-bar"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <small>İlerleme:</small>
+                            <strong id="scan-percentage">0%</strong>
+                        </div>
+                        <div class="col-6 text-end">
+                            <small>Kalan:</small>
+                            <strong id="scan-remaining">--</strong>
+                        </div>
+                    </div>
+                    <div class="d-grid mt-3">
+                        <button class="btn btn-outline-danger" onclick="startVulnerabilityScan()">
+                            <i class="fas fa-play me-2"></i>Tarama Başlat
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Attack Prevention -->
+                <div class="attack-prevention">
+                    <h6><i class="fas fa-shield-virus me-2"></i>Saldırı Önleme</h6>
+                    <p class="mb-3">Proaktif güvenlik sistemleri devrede</p>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="ddos-protection" checked>
+                            <label class="form-check-label" for="ddos-protection">
+                                DDoS Koruması
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="intrusion-detection" checked>
+                            <label class="form-check-label" for="intrusion-detection">
+                                Sızma Tespiti
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="malware-scanning" checked>
+                            <label class="form-check-label" for="malware-scanning">
+                                Malware Taraması
+                            </label>
+                        </div>
+                    </div>
+                    <button class="prevention-btn w-100" onclick="activateEmergencyMode()">
+                        Acil Durum Modu
+                    </button>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="card security-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Hızlı İstatistikler
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="security-stats">
+                            <div class="stat-card">
+                                <div class="fw-bold metric-display" id="active-threats">12</div>
+                                <small>Aktif Tehdit</small>
+                            </div>
+                            <div class="stat-card">
+                                <div class="fw-bold metric-display" id="blocked-today">156</div>
+                                <small>Bugün Engellenen</small>
+                            </div>
+                            <div class="stat-card">
+                                <div class="fw-bold metric-display" id="security-score">95.8%</div>
+                                <small>Güvenlik Skoru</small>
+                            </div>
+                            <div class="stat-card">
+                                <div class="fw-bold metric-display" id="uptime">99.7%</div>
+                                <small>Sistem Uptime</small>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="mb-2">
+                            <small>Firewall Durumu:</small>
+                            <strong class="float-end text-success" id="firewall-status">Aktif</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Son Tarama:</small>
+                            <strong class="float-end" id="last-scan">15dk önce</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Threat Database:</small>
+                            <strong class="float-end" id="threat-db">v2024.01</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Last Update:</small>
+                            <strong class="float-end" id="last-update">Şimdi</strong>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-danger" onclick="runSecurityScan()">
+                                <i class="fas fa-search me-2"></i>Hızlı Tarama
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="exportSecurityReport()">
+                                <i class="fas fa-download me-2"></i>Güvenlik Raporu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Threat Map -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-globe text-danger me-2"></i>
+                            Real-time Threat Activity Map
+                        </h5>
+                        <div>
+                            <span class="security-badge">Global Threats</span>
+                            <span class="realtime-indicator ms-2">LIVE FEED</span>
+                        </div>
+                    </div>
+                    <canvas id="threatMapChart" height="200"></canvas>
+                    <div class="mt-3">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <strong id="global-threats" class="metric-display">1,247</strong><br>
+                                <small class="text-muted">Global Threats</small>
+                            </div>
+                            <div class="col-md-3">
+                                <strong id="threat-sources">23 Countries</strong><br>
+                                <small class="text-muted">Threat Sources</small>
+                            </div>
+                            <div class="col-md-3">
+                                <strong id="attack-vectors">12 Types</strong><br>
+                                <small class="text-muted">Attack Vectors</small>
+                            </div>
+                            <div class="col-md-3">
+                                <strong id="detection-accuracy">98.9%</strong><br>
+                                <small class="text-muted">Detection Rate</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incident Response -->
+        <div class="row mt-4" id="incident-response" style="display: none;">
+            <div class="col-12">
+                <div class="incident-response">
+                    <div class="text-center">
+                        <h4 class="text-danger mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            KRİTİK GÜVENLİK OLAYI TESPİT EDİLDİ!
+                        </h4>
+                        <p class="mb-4">Sistem otomatik olarak koruma moduna geçiyor. Acil müdahale gerekiyor.</p>
+                        <button class="response-btn me-3" onclick="handleIncident('isolate')">
+                            SİSTEMİ İZOLE ET
+                        </button>
+                        <button class="response-btn" onclick="handleIncident('block')">
+                            TEHDİDİ ENGELLE
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Security System JavaScript -->
+    <script src="security_system.js"></script>
+    
+    <!-- Initialize Security System -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Security Dashboard'u başlat
+            window.securitySystem = new SecuritySystem();
+            
+            console.log('🛡️ Security Dashboard başlatıldı');
+        });
+    </script>
+</body>
+</html> 

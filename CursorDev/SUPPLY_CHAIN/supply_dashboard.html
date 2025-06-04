@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Chain Management Dashboard - MesChain-Sync</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .supply-theme { 
+            background: linear-gradient(135deg, #065F46 0%, #047857 50%, #059669 100%);
+            color: white;
+        }
+        .supply-card { 
+            border-left: 5px solid #065F46;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(6, 95, 70, 0.2);
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .supply-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(6, 95, 70, 0.3);
+        }
+        .supply-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #065F46, #047857, #059669, #10B981, #065F46);
+            animation: supplyGradient 3s ease-in-out infinite;
+        }
+        @keyframes supplyGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .supply-icon {
+            font-size: 2.5rem;
+            color: #065F46;
+            margin-bottom: 15px;
+            animation: supplyPulse 2s ease-in-out infinite;
+        }
+        @keyframes supplyPulse {
+            0%, 100% { transform: scale(1); color: #065F46; }
+            50% { transform: scale(1.1); color: #047857; }
+        }
+        .supply-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #34D399, #065F46);
+            animation: supplyBlink 2s infinite;
+        }
+        @keyframes supplyBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.3); }
+        }
+        .logistics-center {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .logistics-header {
+            background: linear-gradient(45deg, #065F46, #047857);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: between;
+        }
+        .shipment-grid {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .shipment-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 180px;
+        }
+        .shipment-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .shipment-item.in-transit {
+            border-left-color: #F59E0B;
+            background: linear-gradient(45deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.05));
+        }
+        .shipment-item.delivered {
+            border-left-color: #10B981;
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+        }
+        .shipment-item.pending {
+            border-left-color: #6B7280;
+            background: linear-gradient(45deg, rgba(107, 114, 128, 0.05), rgba(75, 85, 99, 0.05));
+        }
+        .shipment-item.delayed {
+            border-left-color: #EF4444;
+            background: linear-gradient(45deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.05));
+        }
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+        }
+        .status-pending { background: #6B7280; }
+        .status-in-transit { background: #F59E0B; }
+        .status-delivered { background: #10B981; }
+        .status-delayed { background: #EF4444; }
+        .supply-badge {
+            background: linear-gradient(45deg, #065F46, #047857);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(6, 95, 70, 0.3);
+        }
+        .metric-display {
+            font-weight: bold;
+            color: #065F46;
+            font-size: 1.2rem;
+        }
+        .supply-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .supply-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        .supply-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+        .supply-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+        .realtime-indicator {
+            background: linear-gradient(45deg, #065F46, #047857);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            animation: realtimePulse 2s ease-in-out infinite;
+        }
+        @keyframes realtimePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .vendor-panel {
+            background: linear-gradient(45deg, rgba(6, 95, 70, 0.1), rgba(4, 120, 87, 0.1));
+            border: 1px solid #065F46;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .vendor-btn {
+            background: linear-gradient(45deg, #065F46, #047857);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .vendor-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(6, 95, 70, 0.3);
+        }
+        .procurement-panel {
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+            border: 1px solid #3B82F6;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .procurement-btn {
+            background: linear-gradient(45deg, #3B82F6, #2563EB);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .procurement-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .chart-container::before {
+            content: '🚛 SUPPLY CHAIN';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: linear-gradient(45deg, #065F46, #047857);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .optimization-center {
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid #8B5CF6;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            animation: optimizationGlow 4s ease-in-out infinite;
+        }
+        @keyframes optimizationGlow {
+            0%, 100% { border-color: #8B5CF6; }
+            50% { border-color: #7C3AED; }
+        }
+        .optimization-btn {
+            background: linear-gradient(45deg, #8B5CF6, #7C3AED);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .optimization-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+        .tracking-panel {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .tracking-btn {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        .tracking-btn.active {
+            border-color: #065F46;
+            background: rgba(6, 95, 70, 0.1);
+            color: #065F46;
+        }
+        .tracking-btn:hover {
+            border-color: #065F46;
+            transform: translateY(-2px);
+        }
+        .progress-bar {
+            background: #f3f4f6;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #065F46, #10B981);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .supplier-rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            color: #F59E0B;
+        }
+        .location-badge {
+            background: rgba(6, 95, 70, 0.1);
+            color: #065F46;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin: 2px;
+        }
+        .cost-display {
+            font-weight: bold;
+            color: #059669;
+            font-size: 1.1rem;
+        }
+        .delivery-time {
+            color: #6B7280;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+        .risk-indicator {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .risk-low { background: rgba(16, 185, 129, 0.2); color: #065F46; }
+        .risk-medium { background: rgba(245, 158, 11, 0.2); color: #92400E; }
+        .risk-high { background: rgba(239, 68, 68, 0.2); color: #991B1B; }
+        .shipment-timeline {
+            position: relative;
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        .timeline-item {
+            position: relative;
+            padding: 5px 0;
+            font-size: 0.8rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+        }
+        .timeline-item.current::before {
+            background: #F59E0B;
+            animation: timelinePulse 2s infinite;
+        }
+        @keyframes timelinePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        .ai-recommendation {
+            background: linear-gradient(45deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.1));
+            border: 1px solid #8B5CF6;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        .ai-recommendation::before {
+            content: '🤖 AI INSIGHT';
+            display: block;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #8B5CF6;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg supply-theme shadow-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-truck me-2"></i>
+                Supply Chain Management Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <span class="supply-status supply-active" id="supply-status">
+                        <span class="supply-indicator"></span>
+                        Supply Chain: <span id="supply-status-text">Operational</span>
+                    </span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Supply Chain KPIs -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card supply-card h-100">
+                    <div class="supply-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-shipping-fast supply-icon"></i>
+                        <h5 class="card-title">Active Shipments</h5>
+                        <h2 id="active-shipments" class="display-6">342</h2>
+                        <div class="mt-2">
+                            <small>In Transit: <span id="in-transit" class="metric-display">187</span></small>
+                            <div class="realtime-indicator mt-2">TRACKING</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card supply-card h-100">
+                    <div class="supply-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-warehouse supply-icon"></i>
+                        <h5 class="card-title">Inventory Value</h5>
+                        <h2 id="inventory-value" class="display-6">$4.7M</h2>
+                        <div class="mt-2">
+                            <small>Stock Level: <span id="stock-level" class="metric-display">87%</span></small>
+                            <div class="realtime-indicator mt-2">MONITORED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card supply-card h-100">
+                    <div class="supply-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-handshake supply-icon"></i>
+                        <h5 class="card-title">Active Suppliers</h5>
+                        <h2 id="active-suppliers" class="display-6">89</h2>
+                        <div class="mt-2">
+                            <small>Performance: <span id="supplier-performance" class="metric-display">94.2%</span></small>
+                            <div class="realtime-indicator mt-2">EVALUATED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card supply-card h-100">
+                    <div class="supply-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line supply-icon"></i>
+                        <h5 class="card-title">Cost Efficiency</h5>
+                        <h2 id="cost-efficiency" class="display-6">91.5%</h2>
+                        <div class="mt-2">
+                            <small>Savings: <span id="cost-savings" class="metric-display">$187K</span></small>
+                            <div class="realtime-indicator mt-2">OPTIMIZED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Logistics Center -->
+                <div class="logistics-center">
+                    <div class="logistics-header">
+                        <div>
+                            <h5 class="mb-0">
+                                <i class="fas fa-route me-2"></i>
+                                Global Logistics Center
+                            </h5>
+                            <small>Real-time shipment tracking and delivery management</small>
+                        </div>
+                        <div class="ms-auto">
+                            <span class="supply-badge">🚛 Live Tracking</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Tracking Panel -->
+                    <div class="p-3 border-bottom">
+                        <div class="tracking-panel">
+                            <div class="tracking-btn active" data-status="all">All Shipments</div>
+                            <div class="tracking-btn" data-status="pending">Pending</div>
+                            <div class="tracking-btn" data-status="in-transit">In Transit</div>
+                            <div class="tracking-btn" data-status="delivered">Delivered</div>
+                            <div class="tracking-btn" data-status="delayed">Delayed</div>
+                        </div>
+                    </div>
+                    
+                    <div class="shipment-grid" id="shipment-grid">
+                        <!-- Shipment items will be loaded here dynamically -->
+                    </div>
+                </div>
+
+                <!-- Supply Chain Analytics -->
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-area text-success me-2"></i>
+                            Supply Chain Performance Analytics (Son 6 Ay)
+                        </h5>
+                        <span class="supply-badge">Real-time Metrics</span>
+                    </div>
+                    <canvas id="supplyChart" height="300"></canvas>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Vendor Performance -->
+                <div class="card supply-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-star me-2"></i>
+                            Top Suppliers
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>Global Supply Co.</strong>
+                                    <div class="supplier-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <span class="ms-1">4.9</span>
+                                    </div>
+                                </div>
+                                <span class="location-badge">🇺🇸 USA</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 96%;"></div>
+                            </div>
+                            <small class="text-muted">Performance: 96% | Delivery: 2.3 days</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>Euro Logistics Ltd.</strong>
+                                    <div class="supplier-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <span class="ms-1">4.7</span>
+                                    </div>
+                                </div>
+                                <span class="location-badge">🇩🇪 Germany</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 94%;"></div>
+                            </div>
+                            <small class="text-muted">Performance: 94% | Delivery: 3.1 days</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>Asia Trade Partners</strong>
+                                    <div class="supplier-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <span class="ms-1">4.5</span>
+                                    </div>
+                                </div>
+                                <span class="location-badge">🇨🇳 China</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 89%;"></div>
+                            </div>
+                            <small class="text-muted">Performance: 89% | Delivery: 5.7 days</small>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success" onclick="manageVendors()">
+                                <i class="fas fa-users me-2"></i>Manage Vendors
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="vendorReport()">
+                                <i class="fas fa-file-alt me-2"></i>Vendor Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Procurement Analytics -->
+                <div class="procurement-panel">
+                    <h6><i class="fas fa-shopping-cart me-2"></i>Procurement Analytics</h6>
+                    <p class="mb-3">Purchase orders, cost analysis & spend optimization</p>
+                    <div class="mb-3">
+                        <div class="mb-2">
+                            <small>Active POs:</small>
+                            <strong class="float-end" id="active-pos">156</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Monthly Spend:</small>
+                            <strong class="float-end cost-display" id="monthly-spend">$847K</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Cost Reduction:</small>
+                            <strong class="float-end text-success" id="cost-reduction">12.5%</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Approval Time:</small>
+                            <strong class="float-end" id="approval-time">2.3 days</strong>
+                        </div>
+                    </div>
+                    <button class="procurement-btn w-100" onclick="procurementDashboard()">
+                        View Procurement Dashboard
+                    </button>
+                </div>
+
+                <!-- Vendor Management -->
+                <div class="vendor-panel">
+                    <h6><i class="fas fa-handshake me-2"></i>Quick Actions</h6>
+                    <p class="mb-3">Supply chain management & vendor operations</p>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto-reorder" checked>
+                            <label class="form-check-label" for="auto-reorder">
+                                Automatic Reordering
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="track-realtime" checked>
+                            <label class="form-check-label" for="track-realtime">
+                                Real-time Tracking
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="ai-optimization" checked>
+                            <label class="form-check-label" for="ai-optimization">
+                                AI Route Optimization
+                            </label>
+                        </div>
+                    </div>
+                    <button class="vendor-btn w-100" onclick="optimizeSupplyChain()">
+                        Optimize Supply Chain
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Optimization Center -->
+        <div class="row mt-4" id="optimization-center">
+            <div class="col-12">
+                <div class="optimization-center">
+                    <div class="text-center">
+                        <h4 class="text-primary mb-3">
+                            <i class="fas fa-robot me-2"></i>
+                            AI-POWERED SUPPLY CHAIN OPTIMIZATION
+                        </h4>
+                        <p class="mb-4">Intelligent logistics, predictive analytics & automated supply chain management</p>
+                        <div class="row text-center mb-4">
+                            <div class="col-3">
+                                <strong class="d-block">Route Optimization</strong>
+                                <span class="text-success">Active</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Demand Forecasting</strong>
+                                <span class="text-success">Learning</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Risk Management</strong>
+                                <span class="text-warning">Analyzing</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Cost Optimization</strong>
+                                <span class="text-success">Optimized</span>
+                            </div>
+                        </div>
+                        <button class="optimization-btn me-3" onclick="runAIOptimization()">
+                            RUN AI OPTIMIZATION
+                        </button>
+                        <button class="optimization-btn" onclick="viewPredictiveAnalytics()">
+                            PREDICTIVE ANALYTICS
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Supply Chain Management JavaScript -->
+    <script src="supply_management.js"></script>
+    
+    <!-- Initialize Supply Chain Management -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Supply Chain Management Dashboard'u başlat
+            window.supplyChainManagement = new SupplyChainManagement();
+            
+            console.log('🚛 Supply Chain Management Dashboard başlatıldı');
+        });
+    </script>
+</body>
+</html> 

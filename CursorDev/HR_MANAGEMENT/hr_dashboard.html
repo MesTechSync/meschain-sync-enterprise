@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human Resources Dashboard - MesChain-Sync</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hr-theme { 
+            background: linear-gradient(135deg, #7C2D92 0%, #9333EA 50%, #A855F7 100%);
+            color: white;
+        }
+        .hr-card { 
+            border-left: 5px solid #7C2D92;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(124, 45, 146, 0.2);
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .hr-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(124, 45, 146, 0.3);
+        }
+        .hr-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7C2D92, #9333EA, #A855F7, #C084FC, #7C2D92);
+            animation: hrGradient 3s ease-in-out infinite;
+        }
+        @keyframes hrGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .hr-icon {
+            font-size: 2.5rem;
+            color: #7C2D92;
+            margin-bottom: 15px;
+            animation: hrPulse 2s ease-in-out infinite;
+        }
+        @keyframes hrPulse {
+            0%, 100% { transform: scale(1); color: #7C2D92; }
+            50% { transform: scale(1.1); color: #9333EA; }
+        }
+        .hr-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #C084FC, #7C2D92);
+            animation: hrBlink 2s infinite;
+        }
+        @keyframes hrBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.3); }
+        }
+        .employee-center {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .employee-header {
+            background: linear-gradient(45deg, #7C2D92, #9333EA);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: between;
+        }
+        .employee-grid {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        .employee-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 160px;
+        }
+        .employee-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .employee-card.active {
+            border-left-color: #10B981;
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+        }
+        .employee-card.on-leave {
+            border-left-color: #F59E0B;
+            background: linear-gradient(45deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.05));
+        }
+        .employee-card.remote {
+            border-left-color: #3B82F6;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.05));
+        }
+        .employee-card.inactive {
+            border-left-color: #6B7280;
+            background: linear-gradient(45deg, rgba(107, 114, 128, 0.05), rgba(75, 85, 99, 0.05));
+        }
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+        }
+        .status-active { background: #10B981; }
+        .status-on-leave { background: #F59E0B; }
+        .status-remote { background: #3B82F6; }
+        .status-inactive { background: #6B7280; }
+        .employee-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #7C2D92, #9333EA);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .hr-badge {
+            background: linear-gradient(45deg, #7C2D92, #9333EA);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(124, 45, 146, 0.3);
+        }
+        .metric-display {
+            font-weight: bold;
+            color: #7C2D92;
+            font-size: 1.2rem;
+        }
+        .hr-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .hr-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        .hr-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+        .hr-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+        .realtime-indicator {
+            background: linear-gradient(45deg, #7C2D92, #9333EA);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            animation: realtimePulse 2s ease-in-out infinite;
+        }
+        @keyframes realtimePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .performance-panel {
+            background: linear-gradient(45deg, rgba(124, 45, 146, 0.1), rgba(147, 51, 234, 0.1));
+            border: 1px solid #7C2D92;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .performance-btn {
+            background: linear-gradient(45deg, #7C2D92, #9333EA);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .performance-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(124, 45, 146, 0.3);
+        }
+        .recruitment-panel {
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border: 1px solid #10B981;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .recruitment-btn {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .recruitment-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .chart-container::before {
+            content: '👥 HR ANALYTICS';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: linear-gradient(45deg, #7C2D92, #9333EA);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .talent-center {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid #3B82F6;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            animation: talentGlow 4s ease-in-out infinite;
+        }
+        @keyframes talentGlow {
+            0%, 100% { border-color: #3B82F6; }
+            50% { border-color: #2563EB; }
+        }
+        .talent-btn {
+            background: linear-gradient(45deg, #3B82F6, #2563EB);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .talent-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+        .filter-panel {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        .filter-btn.active {
+            border-color: #7C2D92;
+            background: rgba(124, 45, 146, 0.1);
+            color: #7C2D92;
+        }
+        .filter-btn:hover {
+            border-color: #7C2D92;
+            transform: translateY(-2px);
+        }
+        .progress-bar {
+            background: #f3f4f6;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #7C2D92, #9333EA);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .department-badge {
+            background: rgba(124, 45, 146, 0.1);
+            color: #7C2D92;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin: 2px;
+        }
+        .salary-display {
+            font-weight: bold;
+            color: #059669;
+            font-size: 1.1rem;
+        }
+        .performance-rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            color: #F59E0B;
+        }
+        .skill-tag {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            margin: 2px;
+            display: inline-block;
+        }
+        .employee-info {
+            font-size: 0.85rem;
+            color: #6B7280;
+            margin-bottom: 5px;
+        }
+        .hire-date {
+            font-size: 0.8rem;
+            color: #9CA3AF;
+            font-style: italic;
+        }
+        .ai-insight {
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+            border: 1px solid #3B82F6;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        .ai-insight::before {
+            content: '🤖 AI TALENT INSIGHT';
+            display: block;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #3B82F6;
+            margin-bottom: 5px;
+        }
+        .attendance-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 5px;
+        }
+        .attendance-present { background: #10B981; }
+        .attendance-late { background: #F59E0B; }
+        .attendance-absent { background: #EF4444; }
+        .kpi-meter {
+            background: linear-gradient(90deg, #EF4444 0%, #F59E0B 25%, #10B981 75%, #059669 100%);
+            height: 8px;
+            border-radius: 4px;
+            position: relative;
+            margin: 10px 0;
+        }
+        .kpi-indicator {
+            position: absolute;
+            top: -2px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid #7C2D92;
+            border-radius: 50%;
+            transition: left 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg hr-theme shadow-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-users me-2"></i>
+                Human Resources Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <span class="hr-status hr-active" id="hr-status">
+                        <span class="hr-indicator"></span>
+                        HR System: <span id="hr-status-text">Active</span>
+                    </span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- HR KPIs -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card hr-card h-100">
+                    <div class="hr-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-user-friends hr-icon"></i>
+                        <h5 class="card-title">Total Employees</h5>
+                        <h2 id="total-employees" class="display-6">1,247</h2>
+                        <div class="mt-2">
+                            <small>Active: <span id="active-employees" class="metric-display">1,189</span></small>
+                            <div class="realtime-indicator mt-2">MANAGED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card hr-card h-100">
+                    <div class="hr-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line hr-icon"></i>
+                        <h5 class="card-title">Avg Performance</h5>
+                        <h2 id="avg-performance" class="display-6">4.2</h2>
+                        <div class="mt-2">
+                            <small>Target: <span id="performance-target" class="metric-display">4.5</span></small>
+                            <div class="realtime-indicator mt-2">TRACKING</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card hr-card h-100">
+                    <div class="hr-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-handshake hr-icon"></i>
+                        <h5 class="card-title">Open Positions</h5>
+                        <h2 id="open-positions" class="display-6">34</h2>
+                        <div class="mt-2">
+                            <small>Applications: <span id="applications" class="metric-display">287</span></small>
+                            <div class="realtime-indicator mt-2">RECRUITING</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card hr-card h-100">
+                    <div class="hr-indicator"></div>
+                    <div class="card-body text-center">
+                        <i class="fas fa-percent hr-icon"></i>
+                        <h5 class="card-title">Retention Rate</h5>
+                        <h2 id="retention-rate" class="display-6">92.3%</h2>
+                        <div class="mt-2">
+                            <small>Turnover: <span id="turnover-rate" class="metric-display">7.7%</span></small>
+                            <div class="realtime-indicator mt-2">OPTIMAL</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Employee Center -->
+                <div class="employee-center">
+                    <div class="employee-header">
+                        <div>
+                            <h5 class="mb-0">
+                                <i class="fas fa-id-badge me-2"></i>
+                                Employee Directory
+                            </h5>
+                            <small>Comprehensive workforce management and employee tracking</small>
+                        </div>
+                        <div class="ms-auto">
+                            <span class="hr-badge">👥 Live Directory</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Panel -->
+                    <div class="p-3 border-bottom">
+                        <div class="filter-panel">
+                            <div class="filter-btn active" data-status="all">All Employees</div>
+                            <div class="filter-btn" data-status="active">Active</div>
+                            <div class="filter-btn" data-status="remote">Remote</div>
+                            <div class="filter-btn" data-status="on-leave">On Leave</div>
+                            <div class="filter-btn" data-department="engineering">Engineering</div>
+                            <div class="filter-btn" data-department="marketing">Marketing</div>
+                        </div>
+                    </div>
+                    
+                    <div class="employee-grid" id="employee-grid">
+                        <!-- Employee cards will be loaded here dynamically -->
+                    </div>
+                </div>
+
+                <!-- HR Analytics -->
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-area text-primary me-2"></i>
+                            HR Performance Analytics (Son 12 Ay)
+                        </h5>
+                        <span class="hr-badge">Real-time HR Metrics</span>
+                    </div>
+                    <canvas id="hrChart" height="300"></canvas>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Performance Overview -->
+                <div class="card hr-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-trophy me-2"></i>
+                            Performance Overview
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small>Overall Performance Score:</small>
+                            <div class="kpi-meter">
+                                <div class="kpi-indicator" style="left: 78%;"></div>
+                            </div>
+                            <strong class="float-end text-success" id="overall-performance">78%</strong>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small>Employee Satisfaction:</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong id="employee-satisfaction">4.3/5</strong>
+                                <div class="performance-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small>Training Completion:</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong id="training-completion">87.5%</strong>
+                                <span class="text-success">↗ +5.2%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small>Goal Achievement:</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong id="goal-achievement">82.1%</strong>
+                                <span class="text-success">↗ +3.7%</span>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="performanceReviews()">
+                                <i class="fas fa-clipboard-check me-2"></i>Performance Reviews
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="generateHRReport()">
+                                <i class="fas fa-file-alt me-2"></i>Generate HR Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recruitment Pipeline -->
+                <div class="recruitment-panel">
+                    <h6><i class="fas fa-user-plus me-2"></i>Recruitment Pipeline</h6>
+                    <p class="mb-3">Active hiring & candidate management</p>
+                    <div class="mb-3">
+                        <div class="mb-2">
+                            <small>Open Positions:</small>
+                            <strong class="float-end" id="recruitment-positions">34</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Active Candidates:</small>
+                            <strong class="float-end" id="active-candidates">287</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Interviews Scheduled:</small>
+                            <strong class="float-end" id="scheduled-interviews">42</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small>Offers Extended:</small>
+                            <strong class="float-end text-success" id="offers-extended">12</strong>
+                        </div>
+                    </div>
+                    <button class="recruitment-btn w-100" onclick="recruitmentDashboard()">
+                        View Recruitment Dashboard
+                    </button>
+                </div>
+
+                <!-- Performance Management -->
+                <div class="performance-panel">
+                    <h6><i class="fas fa-chart-bar me-2"></i>Quick Actions</h6>
+                    <p class="mb-3">HR management & employee operations</p>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto-reviews" checked>
+                            <label class="form-check-label" for="auto-reviews">
+                                Automated Reviews
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="goal-tracking" checked>
+                            <label class="form-check-label" for="goal-tracking">
+                                Goal Tracking
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="skill-assessment" checked>
+                            <label class="form-check-label" for="skill-assessment">
+                                Skill Assessment
+                            </label>
+                        </div>
+                    </div>
+                    <button class="performance-btn w-100" onclick="managePerformance()">
+                        Manage Performance
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Talent Management Center -->
+        <div class="row mt-4" id="talent-center">
+            <div class="col-12">
+                <div class="talent-center">
+                    <div class="text-center">
+                        <h4 class="text-primary mb-3">
+                            <i class="fas fa-brain me-2"></i>
+                            AI-POWERED TALENT MANAGEMENT
+                        </h4>
+                        <p class="mb-4">Intelligent workforce analytics, predictive insights & automated HR processes</p>
+                        <div class="row text-center mb-4">
+                            <div class="col-3">
+                                <strong class="d-block">Talent Analytics</strong>
+                                <span class="text-success">Active</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Retention Prediction</strong>
+                                <span class="text-success">Learning</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Skill Matching</strong>
+                                <span class="text-warning">Analyzing</span>
+                            </div>
+                            <div class="col-3">
+                                <strong class="d-block">Performance Insights</strong>
+                                <span class="text-success">Optimized</span>
+                            </div>
+                        </div>
+                        <button class="talent-btn me-3" onclick="runTalentAnalytics()">
+                            RUN TALENT ANALYTICS
+                        </button>
+                        <button class="talent-btn" onclick="viewPredictiveHR()">
+                            PREDICTIVE HR INSIGHTS
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- HR Management JavaScript -->
+    <script src="hr_management.js"></script>
+    
+    <!-- Initialize HR Management -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // HR Management Dashboard'u başlat
+            window.hrManagement = new HRManagement();
+            
+            console.log('👥 HR Management Dashboard başlatıldı');
+        });
+    </script>
+</body>
+</html> 

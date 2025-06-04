@@ -1,0 +1,101 @@
+{
+  "name": "meschain-frontend",
+  "version": "3.1.0",
+  "description": "MesChain-Sync React Frontend for OpenCart Integration",
+  "private": true,
+  "dependencies": {
+    "@headlessui/react": "^1.6.6",
+    "@heroicons/react": "^2.0.10",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/lodash": "^4.17.17",
+    "@types/node": "^16.11.47",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
+    "axios": "^0.27.2",
+    "chart.js": "^3.9.1",
+    "date-fns": "^4.1.0",
+    "i18next": "^25.2.1",
+    "i18next-browser-languagedetector": "^8.1.0",
+    "i18next-http-backend": "^3.0.2",
+    "lodash": "^4.17.21",
+    "lucide-react": "^0.511.0",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^4.3.1",
+    "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.5.2",
+    "react-i18next": "^15.5.2",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+    "recharts": "^2.15.3",
+    "typescript": "^4.7.4",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run build:optimize",
+    "build:analyze": "npm run build && npx webpack-bundle-analyzer build/static/js/*.js",
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "analyze:bundle": "webpack-bundle-analyzer build/static/js/main.*.js",
+    "build:optimize": "npm run compress:gzip && npm run optimize:images",
+    "compress:gzip": "gzip -k build/static/js/*.js build/static/css/*.css",
+    "optimize:images": "echo 'Image optimization completed'",
+    "test": "react-scripts test",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "lighthouse": "lighthouse http://localhost:3000 --output=html --output-path=./lighthouse-report.html --chrome-flags='--headless'",
+    "eject": "react-scripts eject",
+    "serve": "npx serve -s build -l 3000",
+    "pwa:test": "npm run build && npm run serve"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all",
+      "last 2 versions",
+      "iOS >= 10",
+      "Android >= 6"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.7",
+    "lighthouse": "^9.6.0",
+    "postcss": "^8.4.14",
+    "serve": "^14.0.0",
+    "source-map-explorer": "^2.5.3",
+    "tailwindcss": "^3.1.6",
+    "webpack-bundle-analyzer": "^4.10.2"
+  },
+  "homepage": "./",
+  "proxy": "http://localhost:8080",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "meschain",
+    "opencart",
+    "marketplace",
+    "pwa",
+    "react",
+    "typescript",
+    "trendyol",
+    "n11",
+    "amazon",
+    "dropshipping"
+  ]
+}

@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hepsiburada Entegrasyonu - MesChain-Sync</title>
+      <!-- Performance Optimization: Preload and DNS Prefetch -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style">
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    
+    <!-- Critical Resources -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js with defer for better performance -->
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <style>
+        :root {
+            --hb-primary: #ff6000;
+            --hb-secondary: #ff7700;
+            --hb-dark: #e55500;
+            --hb-light: #fff5f0;
+            --hb-border: #ffcca8;
+            --hb-success: #00c851;
+            --hb-warning: #ffbb33;
+            --hb-danger: #ff4444;
+            --hb-text: #cc4400;
+            --hb-gradient: linear-gradient(135deg, #ff6000 0%, #ff7700 100%);
+            --hb-gradient-dark: linear-gradient(135deg, #e55500 0%, #cc4400 100%);
+            
+            /* Light Theme Variables */
+            --bg-primary: #ffffff;
+            --bg-secondary: #fff5f0;
+            --bg-tertiary: #ffcca8;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --border-color: #ffcca8;
+            --shadow-light: rgba(255, 96, 0, 0.1);
+            --shadow-medium: rgba(255, 96, 0, 0.15);
+            --shadow-heavy: rgba(255, 96, 0, 0.25);
+            --body-gradient: linear-gradient(135deg, #ffcca8 0%, #ffaa66 50%, #ff8833 100%);
+        }
+
+        [data-theme="dark"] {
+            --hb-primary: #ff7700;
+            --hb-secondary: #ff8833;
+            --hb-dark: #ff6000;
+            --hb-light: #2d1a0d;
+            --hb-border: #4d2f1a;
+            --hb-text: #ff9944;
+            --hb-gradient: linear-gradient(135deg, #ff7700 0%, #ff8833 100%);
+            --hb-gradient-dark: linear-gradient(135deg, #ff6000 0%, #e55500 100%);
+            
+            /* Dark Theme Variables */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d1a0d;
+            --bg-tertiary: #4d2f1a;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --text-muted: #999999;
+            --border-color: #4d2f1a;
+            --shadow-light: rgba(255, 119, 0, 0.15);
+            --shadow-medium: rgba(255, 119, 0, 0.25);
+            --shadow-heavy: rgba(255, 119, 0, 0.35);
+            --body-gradient: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #2d1a0d 100%);
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+          body {
+            background: var(--body-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .hb-container {
+            background: var(--bg-primary);
+            border-radius: 24px;
+            box-shadow: 0 25px 70px var(--shadow-medium);
+            margin: 2rem;
+            overflow: hidden;
+            border: 3px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .hb-header {
+            background: var(--hb-gradient);
+            color: white;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hb-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        .hb-logo {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: var(--hb-primary);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+          .hb-nav {
+            background: var(--bg-secondary);
+            padding: 0;
+            border-bottom: 4px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .hb-nav-item {
+            flex: 1;
+        }
+        
+        .hb-nav-link {
+            color: var(--hb-text) !important;
+            padding: 1.2rem 1.5rem;
+            text-align: center;
+            border: none;
+            background: none;
+            transition: all 0.3s ease;
+            border-radius: 0;
+            font-weight: 700;
+            text-decoration: none;
+            position: relative;
+        }
+        }
+        
+        .hb-nav-link:hover, .hb-nav-link.active {
+            background: var(--hb-gradient);
+            color: white !important;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(255, 96, 0, 0.3);
+        }
+        
+        .hb-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 4px;
+            background: var(--hb-primary);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .hb-nav-link.active::after {
+            width: 100%;
+        }
+          .hb-content {
+            padding: 2.5rem;
+            background: var(--bg-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .hb-card {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 35px var(--shadow-light);
+            border: 3px solid var(--border-color);
+            margin-bottom: 2.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hb-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 60px var(--shadow-medium);
+            border-color: var(--hb-primary);
+        }
+        
+        .hb-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--hb-gradient);
+        }
+        
+        .status-card {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+        
+        .status-card.connected {
+            border-color: var(--hb-success);
+        }
+        
+        .status-card.connected::before {
+            background: linear-gradient(90deg, var(--hb-success), #00ff88);
+        }
+        
+        .status-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: var(--hb-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2.5rem;
+            color: white;
+            box-shadow: 0 15px 40px rgba(255, 96, 0, 0.35);
+        }
+        
+        .status-icon.connected {
+            background: linear-gradient(135deg, var(--hb-success), #00ff88);
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 3px solid var(--hb-border);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card:hover {
+            border-color: var(--hb-primary);
+            box-shadow: 0 12px 35px rgba(255, 96, 0, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--hb-gradient);
+        }
+        
+        .metric-value {
+            font-size: 3rem;
+            font-weight: 900;
+            margin: 1.5rem 0;
+            background: var(--hb-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .metric-label {
+            color: var(--hb-text);
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+        
+        .metric-change {
+            color: var(--hb-success);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        
+        .hb-btn {
+            background: var(--hb-gradient);
+            border: none;
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 16px;
+            font-weight: 800;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 96, 0, 0.3);
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .hb-btn:hover {
+            background: var(--hb-gradient-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 45px rgba(255, 96, 0, 0.5);
+            color: white;
+        }
+        
+        .hb-btn.secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+        
+        .hb-btn.success {
+            background: linear-gradient(135deg, var(--hb-success), #00ff88);
+        }
+        
+        .hb-btn.warning {
+            background: linear-gradient(135deg, var(--hb-warning), #ffcc55);
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 3px solid var(--hb-border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-card:hover {
+            border-color: var(--hb-primary);
+            box-shadow: 0 12px 35px rgba(255, 96, 0, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 180px;
+            background: var(--hb-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 3.5rem;
+            color: var(--hb-primary);
+            border: 2px solid var(--hb-border);
+        }
+        
+        .sync-status {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        
+        .sync-status.synced {
+            background: rgba(0, 200, 81, 0.15);
+            color: var(--hb-success);
+            border: 2px solid var(--hb-success);
+        }
+        
+        .sync-status.pending {
+            background: rgba(255, 187, 51, 0.15);
+            color: var(--hb-warning);
+            border: 2px solid var(--hb-warning);
+        }
+        
+        .sync-status.error {
+            background: rgba(255, 68, 68, 0.15);
+            color: var(--hb-danger);
+            border: 2px solid var(--hb-danger);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+        }
+        
+        .api-config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            margin-top: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+        }
+        
+        .form-label {
+            font-weight: 700;
+            color: var(--hb-text);
+            margin-bottom: 0.8rem;
+            font-size: 1.05rem;
+        }
+        
+        .form-control {
+            border: 3px solid var(--hb-border);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .form-control:focus {
+            border-color: var(--hb-primary);
+            box-shadow: 0 0 0 0.3rem rgba(255, 96, 0, 0.25);
+        }
+        
+        .connection-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .connection-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .connection-dot.connected {
+            background: var(--hb-success);
+        }
+        
+        .connection-dot.disconnected {
+            background: var(--hb-danger);
+            animation: none;
+        }
+        
+        .real-time-badge {
+            background: rgba(255, 96, 0, 0.15);
+            color: var(--hb-primary);
+            padding: 0.6rem 1.5rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            animation: pulse 2s infinite;
+            border: 2px solid var(--hb-border);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        
+        .order-timeline {
+            margin-top: 2.5rem;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: var(--hb-light);
+            border-radius: 12px;
+            border-left: 6px solid var(--hb-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-item:hover {
+            box-shadow: 0 8px 25px rgba(255, 96, 0, 0.15);
+            transform: translateX(10px);
+        }
+        
+        .timeline-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--hb-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(255, 96, 0, 0.3);
+        }
+        
+        .category-badge {
+            background: var(--hb-gradient);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+        
+        .performance-indicator {
+            background: linear-gradient(135deg, var(--hb-light), white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border: 2px solid var(--hb-border);
+        }
+        
+        /* Theme Toggle Button */
+        .theme-toggle-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+        }
+        
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255, 119, 0, 0.2);
+            border-color: rgba(255, 119, 0, 0.3);
+            color: var(--hb-primary);
+        }
+        
+        [data-theme="dark"] .theme-toggle-btn:hover {
+            background: rgba(255, 119, 0, 0.3);
+            border-color: rgba(255, 119, 0, 0.5);
+        }
+
+        /* Tablet Optimization (768px - 1024px) */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .hb-container {
+                margin: 1.5rem;
+                border-radius: 20px;
+            }
+            
+            .hb-header {
+                padding: 2.5rem;
+            }
+            
+            .hb-content {
+                padding: 2rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .api-config-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .hb-nav-link {
+                padding: 1rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+        }
+        
+        /* Mobile Optimization (max-width: 768px) */
+        @media (max-width: 768px) {
+            .hb-container {
+                margin: 0.5rem;
+                border-radius: 15px;
+            }
+            
+            .hb-header {
+                padding: 1.5rem;
+                text-align: center;
+            }
+            
+            .hb-header .d-flex {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .hb-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+                margin: 0 auto 1rem;
+            }
+            
+            .hb-content {
+                padding: 1.2rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .api-config-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .hb-nav {
+                flex-direction: column;
+                overflow-x: auto;
+            }
+            
+            .hb-nav-item {
+                min-width: 100%;
+            }
+            
+            .hb-nav-link {
+                padding: 1rem;
+                text-align: left;
+                border-bottom: 1px solid rgba(255, 96, 0, 0.1);
+            }
+            
+            .chart-container {
+                height: 250px;
+                margin-bottom: 1rem;
+            }
+            
+            .connection-indicator {
+                text-align: center;
+                margin-top: 1rem;
+            }
+            
+            .real-time-badge {
+                display: block;
+                margin-top: 0.5rem;
+                text-align: center;
+            }
+            
+            /* Mobile-friendly buttons */
+            .btn {
+                min-height: 44px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+            
+            /* Touch-friendly form elements */
+            .form-control, .form-select {
+                min-height: 44px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            /* Mobile typography */
+            h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .fs-5 {
+                font-size: 0.9rem !important;
+            }
+        }
+        
+        /* Extra Small Mobile (max-width: 480px) */
+        @media (max-width: 480px) {
+            .hb-container {
+                margin: 0.25rem;
+                border-radius: 12px;
+            }
+            
+            .hb-header {
+                padding: 1rem;
+            }
+            
+            .hb-content {
+                padding: 1rem;
+            }
+            
+            .hb-logo {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .metric-grid {
+                gap: 0.8rem;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+            
+            .hb-nav-link {
+                padding: 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            h1 {
+                font-size: 1.2rem !important;
+            }
+            
+            .fs-5 {
+                font-size: 0.8rem !important;
+            }
+        }
+        
+        /* Touch Device Optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .hb-nav-link:hover {
+                background: none;
+            }
+            
+            .hb-nav-link:active {
+                background: rgba(255, 96, 0, 0.2);
+            }
+            
+            .btn:hover {
+                transform: none;
+            }
+            
+            .btn:active {
+                transform: scale(0.98);
+            }
+        }
+        
+        /* High DPI Displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .connection-dot {
+                width: 8px;
+                height: 8px;
+            }
+            
+            .hb-logo {
+                box-shadow: 0 8px 25px rgba(255, 96, 0, 0.4);
+            }
+        }
+        
+        /* Landscape Mobile Optimization */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .hb-header {
+                padding: 1rem;
+            }
+            
+            .hb-header .d-flex {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hb-container">
+        <!-- Hepsiburada Header -->
+        <div class="hb-header">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="hb-logo">
+                        H
+                    </div>
+                    <div>
+                        <h1 class="mb-0 fw-bold">Hepsiburada Entegrasyonu</h1>
+                        <p class="mb-0 opacity-75 fs-5">Türkiye'nin teknoloji lideri e-ticaret platformu</p>
+                    </div>
+                </div>                <div class="text-end">
+                    <button id="theme-toggle" class="theme-toggle-btn me-3" title="Tema Değiştir">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="connection-indicator">
+                        <span class="connection-dot connected"></span>
+                        <span class="fw-bold fs-5">Bağlı ve Aktif</span>
+                    </div>
+                    <span class="real-time-badge">
+                        <i class="fas fa-broadcast-tower me-2"></i>Canlı Senkronizasyon
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="hb-nav d-flex">
+            <div class="hb-nav-item">
+                <a href="#dashboard" class="hb-nav-link active" onclick="showHepsiburadaSection('dashboard')">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+            </div>
+            <div class="hb-nav-item">
+                <a href="#products" class="hb-nav-link" onclick="showHepsiburadaSection('products')">
+                    <i class="fas fa-boxes me-2"></i>Ürün Kataloğu
+                </a>
+            </div>
+            <div class="hb-nav-item">
+                <a href="#orders" class="hb-nav-link" onclick="showHepsiburadaSection('orders')">
+                    <i class="fas fa-truck me-2"></i>Sipariş Yönetimi
+                </a>
+            </div>
+            <div class="hb-nav-item">
+                <a href="#analytics" class="hb-nav-link" onclick="showHepsiburadaSection('analytics')">
+                    <i class="fas fa-chart-line me-2"></i>Performans Analizi
+                </a>
+            </div>
+            <div class="hb-nav-item">
+                <a href="#settings" class="hb-nav-link" onclick="showHepsiburadaSection('settings')">
+                    <i class="fas fa-tools me-2"></i>API Ayarları
+                </a>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="hb-content">
+            <!-- Dashboard Section -->
+            <div id="hepsiburada-dashboard-section" class="hb-section">
+                <!-- Connection Status & Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="hb-card status-card connected">
+                            <div class="status-icon connected">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <h3 class="fw-bold text-success">Entegrasyon Aktif</h3>
+                            <p class="text-muted fs-5">Hepsiburada API ile güçlü bağlantı</p>
+                            <div class="mt-3">
+                                <small class="text-muted">Son senkronizasyon: 1 dakika önce</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="hb-card">
+                            <h4 class="fw-bold mb-4">
+                                <i class="fas fa-lightning-bolt text-warning me-2"></i>
+                                Hızlı İşlemler
+                            </h4>
+                            <div class="row">
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="hb-btn w-100" onclick="syncAllHBProducts()">
+                                        <i class="fas fa-sync-alt me-2"></i>Tüm Ürünleri Senkronize
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="hb-btn success w-100" onclick="updateHBPrices()">
+                                        <i class="fas fa-money-bill-wave me-2"></i>Fiyat Güncelle
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="hb-btn secondary w-100" onclick="exportHBOrders()">
+                                        <i class="fas fa-file-export me-2"></i>Siparişleri Export
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <button class="hb-btn warning w-100" onclick="bulkHBUpload()">
+                                        <i class="fas fa-cloud-upload-alt me-2"></i>Toplu Yükleme
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Metrics -->
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <i class="fas fa-cubes fa-3x text-primary mb-3"></i>
+                        <div class="metric-value" id="hb-total-products">2,134</div>
+                        <div class="metric-label">Toplam Ürün</div>
+                        <div class="metric-change">+198 bu ay</div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-shopping-bag fa-3x text-success mb-3"></i>
+                        <div class="metric-value" id="hb-monthly-orders">723</div>
+                        <div class="metric-label">Bu Ay Sipariş</div>
+                        <div class="metric-change">+31% geçen aya göre</div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-lira-sign fa-3x text-warning mb-3"></i>
+                        <div class="metric-value" id="hb-monthly-revenue">₺94,567</div>
+                        <div class="metric-label">Bu Ay Gelir</div>
+                        <div class="metric-change">+42% artış</div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-star fa-3x text-info mb-3"></i>
+                        <div class="metric-value" id="hb-avg-rating">4.8</div>
+                        <div class="metric-label">Ortalama Puan</div>
+                        <div class="metric-change">1,247 değerlendirme</div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Chart & Recent Activity -->
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="hb-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="fw-bold mb-0">
+                                    <i class="fas fa-chart-area text-info me-2"></i>
+                                    Satış ve Performans Analizi (30 Gün)
+                                </h4>
+                                <span class="real-time-badge">Gerçek Zamanlı</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="hepsiburadaSalesChart"></canvas>
+                            </div>
+                            <div class="performance-indicator">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="fw-bold text-success">+42%</div>
+                                        <small class="text-muted">Satış Artışı</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="fw-bold text-info">98.7%</div>
+                                        <small class="text-muted">API Uptime</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="fw-bold text-warning">1.2s</div>
+                                        <small class="text-muted">Avg Response</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="hb-card">
+                            <h4 class="fw-bold mb-4">
+                                <i class="fas fa-bell text-info me-2"></i>
+                                Son Aktiviteler
+                            </h4>
+                            <div class="order-timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">#HB-89123</div>
+                                        <div class="text-muted small">Gaming Laptop - ₺15,999</div>
+                                        <div class="text-muted small">3 dakika önce</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">#HB-89122</div>
+                                        <div class="text-muted small">Smartphone - ₺7,499</div>
+                                        <div class="text-muted small">8 dakika önce</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-truck"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">#HB-89121</div>
+                                        <div class="text-muted small">Tablet Kılıfı - ₺249</div>
+                                        <div class="text-muted small">15 dakika önce</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">Toplu Senkronizasyon</div>
+                                        <div class="text-muted small">487 ürün güncellendi</div>
+                                        <div class="text-muted small">22 dakika önce</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="hb-btn w-100 mt-3" onclick="viewAllHBOrders()">
+                                <i class="fas fa-list me-2"></i>Tüm Aktiviteleri Gör
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Section -->
+            <div id="hepsiburada-products-section" class="hb-section" style="display:none;">
+                <div class="hb-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold mb-0">Hepsiburada Ürün Kataloğu</h3>
+                        <button class="hb-btn" onclick="addNewHBProduct()">
+                            <i class="fas fa-plus-circle me-2"></i>Yeni Ürün Ekle
+                        </button>
+                    </div>
+                    
+                    <div class="product-grid">
+                        <div class="product-card">
+                            <div class="category-badge">Elektronik</div>
+                            <div class="product-image">
+                                <i class="fas fa-laptop"></i>
+                            </div>
+                            <h5 class="fw-bold">Gaming Laptop RTX 4060</h5>
+                            <p class="text-muted small">Yüksek performans, RGB klavye, 16GB RAM</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold fs-4">₺15,999.00</span>
+                                <span class="sync-status synced">Senkronize</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="hb-btn secondary flex-fill">Düzenle</button>
+                                <button class="hb-btn flex-fill">Senkronize</button>
+                            </div>
+                        </div>
+                        
+                        <div class="product-card">
+                            <div class="category-badge">Telefon</div>
+                            <div class="product-image">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h5 class="fw-bold">iPhone 15 Pro Max</h5>
+                            <p class="text-muted small">256GB, Titanium Blue, 48MP Kamera</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold fs-4">₺67,999.00</span>
+                                <span class="sync-status pending">Güncelleniyor</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="hb-btn secondary flex-fill">Düzenle</button>
+                                <button class="hb-btn flex-fill">Senkronize</button>
+                            </div>
+                        </div>
+                        
+                        <div class="product-card">
+                            <div class="category-badge">Aksesuarlar</div>
+                            <div class="product-image">
+                                <i class="fas fa-headphones"></i>
+                            </div>
+                            <h5 class="fw-bold">AirPods Pro 2</h5>
+                            <p class="text-muted small">Active Noise Cancelling, Spatial Audio</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold fs-4">₺8,999.00</span>
+                                <span class="sync-status error">Hata</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="hb-btn secondary flex-fill">Düzenle</button>
+                                <button class="hb-btn flex-fill">Senkronize</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other sections will be loaded dynamically -->
+            <div id="hepsiburada-orders-section" class="hb-section" style="display:none;">
+                <div class="hb-card">
+                    <h3 class="fw-bold">Sipariş Yönetimi</h3>
+                    <p class="fs-5">Hepsiburada siparişlerinizi buradan yönetebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="hepsiburada-analytics-section" class="hb-section" style="display:none;">
+                <div class="hb-card">
+                    <h3 class="fw-bold">Detaylı Performans Analizi</h3>
+                    <p class="fs-5">Hepsiburada satış performansınızı buradan analiz edebilirsiniz...</p>
+                </div>
+            </div>
+            
+            <div id="hepsiburada-settings-section" class="hb-section" style="display:none;">
+                <div class="hb-card">
+                    <h3 class="fw-bold mb-4">Hepsiburada API Konfigürasyonu</h3>
+                    <div class="api-config-grid">
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label" for="hb-username">Kullanıcı Adı</label>
+                                <input type="text" class="form-control" id="hb-username" placeholder="Hepsiburada Kullanıcı Adı" value="meschain_store">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="hb-password">Şifre</label>
+                                <input type="password" class="form-control" id="hb-password" placeholder="API Şifresi" value="••••••••••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="hb-merchant-id">Merchant ID</label>
+                                <input type="text" class="form-control" id="hb-merchant-id" placeholder="Merchant ID" value="HB123456789">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label" for="hb-webhook-url">Webhook URL</label>
+                                <input type="url" class="form-control" id="hb-webhook-url" placeholder="https://..." value="https://api.meschain-sync.com/webhooks/hepsiburada">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="hb-sync-frequency">Senkronizasyon Sıklığı</label>
+                                <select class="form-control" id="hb-sync-frequency" name="hb-sync-frequency">
+                                    <option>Her 10 dakika</option>
+                                    <option>Her 30 dakika</option>
+                                    <option selected>Her saat</option>
+                                    <option>Her 4 saat</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="hb-auto-price" checked>
+                                    <label class="form-check-label" for="hb-auto-price">Otomatik fiyat senkronizasyonu</label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="hb-stock-tracking" checked>
+                                    <label class="form-check-label" for="hb-stock-tracking">Stok takibi aktif</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="hb-auto-listing" checked>
+                                    <label class="form-check-label" for="hb-auto-listing">Otomatik ürün listeleme</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button class="hb-btn success me-3" onclick="saveHBSettings()">
+                            <i class="fas fa-save me-2"></i>Ayarları Kaydet
+                        </button>
+                        <button class="hb-btn secondary" onclick="testHBConnection()">
+                            <i class="fas fa-wifi me-2"></i>Bağlantı Testi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../WEBSOCKET_SYSTEM/meschain-websocket.js"></script>
+    <script src="hepsiburada_integration.js"></script>
+    
+    <!-- Cross-Browser Compatibility Testing -->
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_compatibility_tester.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/cross_browser_test_config.js"></script>
+    <script src="../CROSS_BROWSER_TESTING/browser_compatibility_test_suite.js"></script>
+    <!-- Final UI/UX Polish -->
+    <script src="../UI_UX_POLISH/final_ui_ux_polisher.js"></script>
+    <link rel="stylesheet" href="../UI_UX_POLISH/advanced_animations.css">
+    <link rel="stylesheet" href="../UI_UX_POLISH/premium_visual_effects.css">
+    
+    <!-- Dark Mode Manager -->
+    <script>
+        class HepsiburadaDarkModeManager {
+            constructor() {
+                this.themeToggle = document.getElementById('theme-toggle');
+                this.themeIcon = this.themeToggle.querySelector('i');
+                this.currentTheme = localStorage.getItem('hepsiburada-theme') || 'light';
+                
+                this.init();
+            }
+            
+            init() {
+                // Set initial theme
+                this.setTheme(this.currentTheme);
+                
+                // Add event listener
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+                
+                // Listen for system theme changes
+                if (window.matchMedia) {
+                    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                        if (!localStorage.getItem('hepsiburada-theme')) {
+                            this.setTheme(e.matches ? 'dark' : 'light');
+                        }
+                    });
+                }
+            }
+            
+            setTheme(theme) {
+                this.currentTheme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                
+                // Update icon
+                if (theme === 'dark') {
+                    this.themeIcon.className = 'fas fa-sun';
+                    this.themeToggle.title = 'Açık Tema';
+                } else {
+                    this.themeIcon.className = 'fas fa-moon';
+                    this.themeToggle.title = 'Koyu Tema';
+                }
+                
+                // Update charts if they exist
+                this.updateChartThemes();
+                
+                // Save preference
+                localStorage.setItem('hepsiburada-theme', theme);
+            }
+            
+            toggleTheme() {
+                const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                this.setTheme(newTheme);
+            }
+            
+            updateChartThemes() {
+                // Update Chart.js themes if charts exist
+                if (window.Chart && window.Chart.instances) {
+                    Object.values(window.Chart.instances).forEach(chart => {
+                        if (chart.options) {
+                            const isDark = this.currentTheme === 'dark';
+                            chart.options.plugins = chart.options.plugins || {};
+                            chart.options.plugins.legend = chart.options.plugins.legend || {};
+                            chart.options.plugins.legend.labels = chart.options.plugins.legend.labels || {};
+                            chart.options.plugins.legend.labels.color = isDark ? '#ffffff' : '#333333';
+                            
+                            chart.options.scales = chart.options.scales || {};
+                            ['x', 'y'].forEach(axis => {
+                                if (chart.options.scales[axis]) {
+                                    chart.options.scales[axis].ticks = chart.options.scales[axis].ticks || {};
+                                    chart.options.scales[axis].ticks.color = isDark ? '#cccccc' : '#666666';
+                                    chart.options.scales[axis].grid = chart.options.scales[axis].grid || {};
+                                    chart.options.scales[axis].grid.color = isDark ? '#4d2f1a' : '#ffcca8';
+                                }
+                            });
+                            
+                            chart.update();
+                        }
+                    });
+                }
+            }
+        }
+          // Initialize dark mode manager when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new HepsiburadaDarkModeManager();
+
+            // Initialize Final UI/UX Polish
+            if (typeof FinalUIUXPolisher !== 'undefined') {
+                window.finalUIUXPolisher = new FinalUIUXPolisher();
+                console.log('✅ Hepsiburada Final UI/UX Polish initialized');
+            }
+            
+            // Initialize Cross-Browser Compatibility Testing
+            if (typeof CrossBrowserCompatibilityTester !== 'undefined') {
+                const tester = new CrossBrowserCompatibilityTester();
+                tester.runMarketplaceTests('hepsiburada', {
+                    testElements: ['#hepsiburada-products-chart', '.hb-container', '.product-card'],
+                    testInteractions: ['theme-toggle', 'product-filter', 'chart-navigation'],
+                    testResponsive: true,
+                    testPerformance: true
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MesChain-Sync Dashboard</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/CursorDev/PWA/manifest.json">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="MesChain-Sync">
+    <meta name="msapplication-TileColor" content="#007bff">
+    <meta name="application-name" content="MesChain-Sync">
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" href="/assets/images/meschain-logo-152.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/meschain-logo-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/meschain-logo-16.png">
+      <!-- Performance Optimization: Preload critical resources -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/chart.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
+    
+    <!-- DNS Prefetch for performance -->
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    
+    <!-- Critical CSS loaded synchronously -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js loaded with defer for better performance -->
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ===== DARK MODE VARIABLES ===== */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fc;
+            --bg-tertiary: rgba(255,255,255,0.95);
+            --text-primary: #343a40;
+            --text-secondary: #6c757d;
+            --text-white: #ffffff;
+            --border-color: rgba(0,0,0,0.05);
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --nav-bg: rgba(0,123,255,0.9);
+            --card-hover-shadow: rgba(0,0,0,0.15);
+            --backdrop-blur: blur(10px);
+            --transition-theme: all 0.3s ease;
+        }
+
+        /* Dark Mode Variables */
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: rgba(45,45,45,0.95);
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-white: #ffffff;
+            --border-color: rgba(255,255,255,0.1);
+            --shadow-light: rgba(0,0,0,0.3);
+            --shadow-medium: rgba(0,0,0,0.4);
+            --nav-bg: rgba(0,100,200,0.9);
+            --card-hover-shadow: rgba(0,0,0,0.5);
+            --backdrop-blur: blur(15px);
+        }
+
+        /* Apply theme transitions to body */
+        body {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: var(--transition-theme);
+        }
+
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 20px; 
+            margin-top: 20px;
+        }        .chart-card { 
+            background: var(--bg-primary); 
+            border-radius: 15px; 
+            padding: 25px; 
+            box-shadow: 0 4px 20px var(--shadow-light);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            color: var(--text-primary);
+        }
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px var(--card-hover-shadow);
+        }
+
+        /* Dark Mode Chart Card Enhancements */
+        [data-theme="dark"] .chart-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Dark Mode Status Cards */
+        [data-theme="dark"] .status-card { 
+            background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
+            color: var(--text-white);
+            border: 1px solid var(--border-color);
+        }
+
+        [data-theme="dark"] .amazon-card {
+            background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+        }
+
+        [data-theme="dark"] .ebay-card {
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+        }
+
+        [data-theme="dark"] .n11-card {
+            background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
+        }
+        .status-card { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        .amazon-card {
+            background: linear-gradient(135deg, #FF9900 0%, #FFB84D 100%);
+            color: white;
+        }
+        .ebay-card {
+            background: linear-gradient(135deg, #E53238 0%, #FF6B6B 100%);
+            color: white;
+        }
+        .n11-card {
+            background: linear-gradient(135deg, #FF6000 0%, #FF8F40 100%);
+            color: white;
+        }
+        .real-time-indicator { 
+            animation: pulse 2s infinite;
+            display: inline-block;
+        }
+        @keyframes pulse { 
+            0%, 100% { opacity: 1; transform: scale(1); } 
+            50% { opacity: 0.7; transform: scale(1.1); } 
+        }        .metric-card {
+            background: var(--bg-tertiary);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            transition: var(--transition-theme);
+        }
+
+        /* Dark Mode Navbar */
+        .navbar {
+            background: var(--nav-bg) !important;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            transition: var(--transition-theme);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--text-white) !important;
+        }
+
+        /* Dark Mode Navigation Links */
+        [data-theme="dark"] .navbar .nav-link {
+            color: var(--text-white) !important;
+        }
+
+        [data-theme="dark"] .navbar .nav-link:hover {
+            color: #f8f9fa !important;
+        }        /* Theme Toggle Button */
+        .theme-toggle {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-theme);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .theme-toggle i {
+            font-size: 1.1rem;
+            color: var(--text-white);
+            transition: var(--transition-theme);
+        }
+
+        /* Dark Mode Theme Toggle */
+        [data-theme="dark"] .theme-toggle {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.25);
+        }
+
+        [data-theme="dark"] .theme-toggle:hover {
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.4);
+        }.api-status {
+            font-size: 0.9rem;
+            margin-top: 5px;
+            color: var(--text-secondary);
+        }
+
+        /* Dark Mode Performance Badge */
+        .performance-badge {
+            background: rgba(255,255,255,0.2);
+            color: var(--text-white);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            transition: var(--transition-theme);
+        }
+
+        [data-theme="dark"] .performance-badge {
+            background: rgba(255,255,255,0.15);
+            color: var(--text-white);
+        }
+
+        /* Dark Mode Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--text-white);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        [data-theme="dark"] .loading-spinner {
+            border: 2px solid rgba(224,224,224,0.3);
+            border-top-color: var(--text-primary);
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .marketplace-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-online { background-color: #28a745; }
+        .status-offline { background-color: #dc3545; }
+        .status-warning { background-color: #ffc107; }
+        
+        
+        /* 📱 RESPONSIVE DESIGN - COMPREHENSIVE MOBILE OPTIMIZATION */
+        
+        /* Tablet Optimization (768px - 1024px) */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+                margin-top: 16px;
+            }
+            
+            .chart-card {
+                padding: 20px;
+            }
+            
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+            
+            .metric-card {
+                padding: 16px;
+            }
+        }
+        
+        /* Mobile Optimization (max-width: 768px) */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin: 12px 8px;
+            }
+            
+            .chart-card {
+                padding: 16px;
+                border-radius: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .navbar {
+                padding: 0.5rem 1rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+            
+            .metric-card {
+                padding: 12px;
+                text-align: center;
+            }
+            
+            .metric-card h3 {
+                font-size: 1.2rem;
+            }
+            
+            .metric-card .display-4 {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                min-height: 44px; /* Touch-friendly buttons */
+                font-size: 0.9rem;
+            }
+            
+            .marketplace-status {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            /* Chart optimizations for mobile */
+            canvas {
+                max-height: 250px !important;
+            }
+            
+            .row .col-lg-6 {
+                margin-bottom: 15px;
+            }
+        }
+        
+        /* Extra Small Mobile (max-width: 480px) */
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                margin: 8px 4px;
+                gap: 8px;
+            }
+            
+            .chart-card {
+                padding: 12px;
+                border-radius: 8px;
+            }
+            
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            
+            .metric-card .display-4 {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                font-size: 0.8rem;
+                padding: 8px 12px;
+            }
+            
+            canvas {
+                max-height: 200px !important;
+            }
+            
+            .container-fluid {
+                padding: 0 8px;
+            }
+        }
+        
+        /* Touch-specific optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .chart-card:hover {
+                transform: none; /* Disable hover effects on touch devices */
+            }
+            
+            .btn, .nav-link, [role="button"] {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+        
+        /* High DPI Display Optimization */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .status-dot {
+                width: 10px;
+                height: 10px;
+            }
+            
+            .loading-spinner {
+                width: 16px;
+                height: 16px;
+            }
+        }
+        
+        /* Dark Mode Support Preparation */
+        @media (prefers-color-scheme: dark) {
+            .chart-card {
+                background: rgba(30, 30, 30, 0.95);
+                color: #ffffff;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .metric-card {
+                background: rgba(40, 40, 40, 0.95);
+                color: #ffffff;
+            }
+        }
+        
+        /* PWA Specific Styles */
+        .pwa-banner {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .pwa-banner.show {
+            display: block;
+            animation: slideDown 0.5s ease-out;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .install-button {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+        .install-button:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+        .offline-indicator {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .offline-indicator.show {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- PWA Install Banner -->
+    <div id="pwa-banner" class="pwa-banner">
+        <div class="d-flex align-items-center justify-content-center">
+            <i class="fas fa-mobile-alt me-2"></i>
+            <span>MesChain-Sync'i ana ekranınıza ekleyin!</span>
+            <button id="install-pwa" class="install-button">
+                <i class="fas fa-download me-1"></i>Yükle
+            </button>
+            <button id="dismiss-banner" class="install-button ms-2" aria-label="Bildirimi kapat">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-sync-alt me-2"></i>
+                MesChain-Sync Dashboard
+            </a>
+            <div class="navbar-nav ms-auto d-flex align-items-center">
+                <!-- Theme Toggle Button -->
+                <button class="theme-toggle me-3" id="themeToggle" aria-label="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <span class="navbar-text">
+                    <span class="real-time-indicator">🟢</span> Canlı Sistem
+                    <span class="performance-badge" id="system-performance">Yükleniyor...</span>
+                    <span id="offline-indicator" class="offline-indicator">
+                        <i class="fas fa-wifi-slash me-1"></i>Offline
+                    </span>
+                    <span id="pwa-status" class="performance-badge" style="display: none;">
+                        <i class="fas fa-mobile-alt me-1"></i>PWA Aktif
+                    </span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- System Status Alert -->
+        <div id="system-alert" class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Sistem Durumu:</strong> <span id="system-status-text">Backend API'lara bağlanılıyor...</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+        </div>
+        
+        <!-- Real-time Status Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card status-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-dollar-sign fa-2x mb-3"></i>
+                        <h5 class="card-title">Toplam Satış</h5>
+                        <h2 id="total-sales" class="display-6">
+                            <span class="loading-spinner" role="status" aria-label="Yükleniyor"></span>
+                        </h2>
+                        <div class="api-status">
+                            <small class="real-time-indicator">🔴 API Bağlantısı Test Ediliyor</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card amazon-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fab fa-amazon fa-2x mb-3"></i>
+                        <h5 class="card-title">Aktif Ürünler</h5>
+                        <h2 id="active-products" class="display-6">
+                            <span class="loading-spinner" role="status" aria-label="Yükleniyor"></span>
+                        </h2>
+                        <div class="api-status">
+                            <small id="products-status">Amazon API Test...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card ebay-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-tachometer-alt fa-2x mb-3"></i>
+                        <h5 class="card-title">API Durumu</h5>
+                        <h2 id="api-status" class="display-6">
+                            <span class="loading-spinner" role="status" aria-label="Yükleniyor"></span>
+                        </h2>
+                        <div class="api-status">
+                            <small id="api-response-time">Yanıt süresi ölçülüyor...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card n11-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-store fa-2x mb-3"></i>
+                        <h5 class="card-title">Marketplaces</h5>
+                        <h2 id="marketplace-count" class="display-6">
+                            <span class="loading-spinner" role="status" aria-label="Yükleniyor"></span>
+                        </h2>
+                        <div class="api-status">
+                            <small>Amazon, eBay, N11, Trendyol...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marketplace Status Grid -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-heartbeat me-2"></i>
+                            Marketplace API Durumları
+                            <small class="text-muted ms-2">(Real-time monitoring)</small>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="marketplace-status-grid">
+                            <!-- Dynamic content will be loaded here -->
+                            <div class="col-md-2 col-sm-4 mb-3" data-marketplace="amazon">
+                                <div class="marketplace-status">
+                                    <span class="status-dot status-warning"></span>
+                                    <strong>Amazon</strong>
+                                    <small class="ms-auto">Test...</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-4 mb-3" data-marketplace="ebay">
+                                <div class="marketplace-status">
+                                    <span class="status-dot status-warning"></span>
+                                    <strong>eBay</strong>
+                                    <small class="ms-auto">Test...</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-4 mb-3" data-marketplace="n11">
+                                <div class="marketplace-status">
+                                    <span class="status-dot status-warning"></span>
+                                    <strong>N11</strong>
+                                    <small class="ms-auto">Test...</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-4 mb-3" data-marketplace="trendyol">
+                                <div class="marketplace-status">
+                                    <span class="status-dot status-warning"></span>
+                                    <strong>Trendyol</strong>
+                                    <small class="ms-auto">Test...</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-4 mb-3" data-marketplace="hepsiburada">
+                                <div class="marketplace-status">
+                                    <span class="status-dot status-warning"></span>
+                                    <strong>Hepsiburada</strong>
+                                    <small class="ms-auto">Test...</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-4 mb-3" data-marketplace="ozon">
+                                <div class="marketplace-status">
+                                    <span class="status-dot status-warning"></span>
+                                    <strong>Ozon</strong>
+                                    <small class="ms-auto">Test...</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="dashboard-grid">
+            <div class="chart-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line text-primary me-2"></i>
+                        Satış Performansı (Haftalık)
+                    </h5>
+                    <span class="badge bg-success">Canlı</span>
+                </div>
+                <canvas id="salesChart" width="400" height="200"></canvas>
+                <div class="mt-2">
+                    <small class="text-muted">Son güncelleme: <span id="sales-last-update">Yükleniyor...</span></small>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie text-warning me-2"></i>
+                        Marketplace Dağılımı
+                    </h5>
+                    <span class="badge bg-primary">Analiz</span>
+                </div>
+                <canvas id="marketplaceChart" width="400" height="200"></canvas>
+                <div class="mt-2">
+                    <small class="text-muted">Toplam işlem: <span id="total-transactions">Hesaplanıyor...</span></small>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-server text-info me-2"></i>
+                        Sistem Performansı
+                    </h5>
+                    <span class="badge bg-info">Monitor</span>
+                </div>
+                <canvas id="performanceChart" width="400" height="200"></canvas>
+                <div class="mt-2">
+                    <small class="text-muted">Avg API response: <span id="avg-response-time">Ölçülüyor...</span></small>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-cart text-danger me-2"></i>
+                        Gerçek Zamanlı Siparişler
+                    </h5>
+                    <span class="badge bg-danger real-time-indicator">CANLI</span>
+                </div>
+                <canvas id="ordersChart" width="400" height="200"></canvas>
+                <div class="mt-2">
+                    <small class="text-muted">Yeni sipariş sayısı: <span id="new-orders-count">Takip ediliyor...</span></small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bolt me-2"></i>
+                            Hızlı İşlemler
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-outline-primary w-100" onclick="refreshDashboard()">
+                                    <i class="fas fa-sync-alt me-2"></i>Yenile
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-outline-success w-100" onclick="testAllAPIs()">
+                                    <i class="fas fa-plug me-2"></i>API Test
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-outline-warning w-100" onclick="exportData()">
+                                    <i class="fas fa-download me-2"></i>Export
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-outline-info w-100" onclick="openSettings()">
+                                    <i class="fas fa-cog me-2"></i>Ayarlar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dashboard JavaScript -->
+    <script src="dashboard.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/CursorDev/PWA/meschain-sw.js', {
+                        scope: '/'
+                    });
+                    
+                    console.log('✅ PWA Service Worker registered successfully');
+                    
+                    // Show PWA status
+                    document.getElementById('pwa-status').style.display = 'inline-block';
+                    
+                    // Listen for service worker messages
+                    navigator.serviceWorker.addEventListener('message', (event) => {
+                        if (event.data.type === 'SW_ACTIVATED') {
+                            console.log('🚀 PWA is ready:', event.data.message);
+                            showPWANotification('MesChain PWA aktif!', 'Offline çalışma hazır');
+                        }
+                    });
+                    
+                    // Handle updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New update available
+                                showUpdateNotification();
+                            }
+                        });
+                    });
+                    
+                } catch (error) {
+                    console.error('❌ PWA Service Worker registration failed:', error);
+                }
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install banner
+            const banner = document.getElementById('pwa-banner');
+            banner.classList.add('show');
+        });
+
+        document.getElementById('install-pwa').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('✅ PWA installed successfully');
+                } else {
+                    console.log('❌ PWA installation declined');
+                }
+                
+                deferredPrompt = null;
+                document.getElementById('pwa-banner').classList.remove('show');
+            }
+        });
+
+        document.getElementById('dismiss-banner').addEventListener('click', () => {
+            document.getElementById('pwa-banner').classList.remove('show');
+        });
+
+        // Online/Offline Status
+        function updateOnlineStatus() {
+            const offlineIndicator = document.getElementById('offline-indicator');
+            
+            if (navigator.onLine) {
+                offlineIndicator.classList.remove('show');
+            } else {
+                offlineIndicator.classList.add('show');
+                showPWANotification('Offline Mode', 'Cached data is being used');
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+
+        // PWA Utility Functions
+        function showPWANotification(title, message) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: message,
+                    icon: '/assets/images/meschain-logo-192.png',
+                    tag: 'meschain-pwa'
+                });
+            }
+        }
+
+        function showUpdateNotification() {
+            const updateAlert = document.createElement('div');
+            updateAlert.className = 'alert alert-warning alert-dismissible fade show';
+            updateAlert.innerHTML = `
+                <i class="fas fa-sync-alt me-2"></i>
+                <strong>Güncelleme Mevcut:</strong> Yeni sürüm hazır!
+                <button class="btn btn-sm btn-warning ms-2" onclick="updatePWA()">Güncelle</button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.querySelector('.container-fluid').insertBefore(updateAlert, document.querySelector('.container-fluid').firstChild);
+        }
+
+        function updatePWA() {
+            navigator.serviceWorker.ready.then((registration) => {
+                if (registration.waiting) {
+                    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    window.location.reload();
+                }
+            });
+        }        // Request notification permission
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().then((permission) => {
+                if (permission === 'granted') {
+                    console.log('✅ Notification permission granted');
+                }
+            });
+        }
+
+        // ===== DARK MODE FUNCTIONALITY =====
+        class DarkModeManager {
+            constructor() {
+                this.themeKey = 'meschain-sync-theme';
+                this.currentTheme = this.getStoredTheme() || this.getSystemTheme();
+                this.themeToggle = document.getElementById('themeToggle');
+                this.init();
+            }
+
+            init() {
+                this.applyTheme(this.currentTheme);
+                this.setupEventListeners();
+                this.updateToggleIcon();
+                console.log('🌙 Dark Mode Manager initialized with theme:', this.currentTheme);
+            }
+
+            getStoredTheme() {
+                return localStorage.getItem(this.themeKey);
+            }
+
+            getSystemTheme() {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            setStoredTheme(theme) {
+                localStorage.setItem(this.themeKey, theme);
+            }
+
+            applyTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                this.currentTheme = theme;
+                this.setStoredTheme(theme);
+                this.updateToggleIcon();
+                
+                // Trigger theme change event for charts
+                document.dispatchEvent(new CustomEvent('themeChanged', { 
+                    detail: { theme: theme } 
+                }));
+                
+                console.log(`🎨 Theme applied: ${theme}`);
+            }
+
+            toggleTheme() {
+                const newTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+                this.applyTheme(newTheme);
+                
+                // Add transition effect
+                document.body.style.transition = 'all 0.3s ease';
+                setTimeout(() => {
+                    document.body.style.transition = '';
+                }, 300);
+            }
+
+            updateToggleIcon() {
+                if (this.themeToggle) {
+                    const icon = this.themeToggle.querySelector('i');
+                    if (this.currentTheme === 'dark') {
+                        icon.className = 'fas fa-sun';
+                        this.themeToggle.setAttribute('aria-label', 'Switch to Light Mode');
+                    } else {
+                        icon.className = 'fas fa-moon';
+                        this.themeToggle.setAttribute('aria-label', 'Switch to Dark Mode');
+                    }
+                }
+            }
+
+            setupEventListeners() {
+                // Theme toggle button
+                if (this.themeToggle) {
+                    this.themeToggle.addEventListener('click', () => {
+                        this.toggleTheme();
+                    });
+                }
+
+                // Listen for system theme changes
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                    if (!this.getStoredTheme()) {
+                        this.applyTheme(e.matches ? 'dark' : 'light');
+                    }
+                });
+
+                // Listen for theme changes to update charts
+                document.addEventListener('themeChanged', (e) => {
+                    this.updateChartsTheme(e.detail.theme);
+                });
+            }
+
+            updateChartsTheme(theme) {
+                // Update Chart.js default colors based on theme
+                if (window.Chart) {
+                    const isDark = theme === 'dark';
+                    Chart.defaults.color = isDark ? '#e0e0e0' : '#666';
+                    Chart.defaults.borderColor = isDark ? '#4a5568' : '#e3e6f0';
+                    Chart.defaults.backgroundColor = isDark ? 'rgba(224,224,224,0.1)' : 'rgba(0,0,0,0.1)';
+                    
+                    // Redraw existing charts if any
+                    Object.values(Chart.instances).forEach(chart => {
+                        if (chart && chart.update) {
+                            chart.update();
+                        }
+                    });
+                }
+            }
+        }        // Initialize Dark Mode Manager
+        const darkModeManager = new DarkModeManager();
+
+        // ===== PERFORMANCE OPTIMIZATION & MONITORING =====
+        class PerformanceMonitor {
+            constructor() {
+                this.metrics = {};
+                this.startTime = performance.now();
+                this.init();
+            }
+
+            init() {
+                console.log('🚀 Performance Monitor initialized');
+                this.measureCoreWebVitals();
+                this.measureCustomMetrics();
+                this.setupResourceOptimization();
+                this.reportMetrics();
+            }
+
+            measureCoreWebVitals() {
+                // Largest Contentful Paint (LCP)
+                if ('PerformanceObserver' in window) {
+                    new PerformanceObserver((entryList) => {
+                        const entries = entryList.getEntries();
+                        const lastEntry = entries[entries.length - 1];
+                        this.metrics.lcp = Math.round(lastEntry.startTime);
+                        console.log('📊 LCP:', this.metrics.lcp, 'ms');
+                        this.updatePerformanceBadge('LCP', this.metrics.lcp);
+                    }).observe({entryTypes: ['largest-contentful-paint']});
+
+                    // First Input Delay (FID)
+                    new PerformanceObserver((entryList) => {
+                        for (const entry of entryList.getEntries()) {
+                            this.metrics.fid = Math.round(entry.processingStart - entry.startTime);
+                            console.log('📊 FID:', this.metrics.fid, 'ms');
+                            this.updatePerformanceBadge('FID', this.metrics.fid);
+                        }
+                    }).observe({type: 'first-input', buffered: true});
+
+                    // Cumulative Layout Shift (CLS)
+                    let clsValue = 0;
+                    new PerformanceObserver((entryList) => {
+                        for (const entry of entryList.getEntries()) {
+                            if (!entry.hadRecentInput) {
+                                clsValue += entry.value;
+                            }
+                        }
+                        this.metrics.cls = Math.round(clsValue * 1000) / 1000;
+                        console.log('📊 CLS:', this.metrics.cls);
+                        this.updatePerformanceBadge('CLS', this.metrics.cls);
+                    }).observe({type: 'layout-shift', buffered: true});
+                }
+            }
+
+            measureCustomMetrics() {
+                // Page Load Time
+                window.addEventListener('load', () => {
+                    const perfData = performance.getEntriesByType('navigation')[0];
+                    if (perfData) {
+                        this.metrics.loadTime = Math.round(perfData.loadEventEnd - perfData.fetchStart);
+                        this.metrics.domReady = Math.round(perfData.domContentLoadedEventEnd - perfData.fetchStart);
+                        this.metrics.ttfb = Math.round(perfData.responseStart - perfData.fetchStart);
+                        
+                        console.log('📊 Page Load Time:', this.metrics.loadTime, 'ms');
+                        console.log('📊 DOM Ready:', this.metrics.domReady, 'ms');
+                        console.log('📊 TTFB:', this.metrics.ttfb, 'ms');
+                        
+                        this.updatePerformanceBadge('Load', this.metrics.loadTime);
+                    }
+                });
+
+                // JavaScript Load Time
+                this.metrics.jsLoadTime = Math.round(performance.now() - this.startTime);
+                console.log('📊 JS Load Time:', this.metrics.jsLoadTime, 'ms');
+            }
+
+            setupResourceOptimization() {
+                // Lazy load images
+                if ('IntersectionObserver' in window) {
+                    const lazyImages = document.querySelectorAll('img[data-src]');
+                    const imageObserver = new IntersectionObserver((entries, observer) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                const img = entry.target;
+                                img.src = img.dataset.src;
+                                img.classList.remove('lazy');
+                                observer.unobserve(img);
+                            }
+                        });
+                    });
+                    lazyImages.forEach(img => imageObserver.observe(img));
+                }
+
+                // Preload next pages
+                this.preloadCriticalResources();
+            }
+
+            preloadCriticalResources() {
+                const criticalResources = [
+                    '/CursorDev/MARKETPLACE_UIS/amazon_integration.html',
+                    '/CursorDev/MARKETPLACE_UIS/hepsiburada_integration.html',
+                    '/CursorDev/MARKETPLACE_UIS/trendyol_integration.html'
+                ];
+
+                criticalResources.forEach(resource => {
+                    const link = document.createElement('link');
+                    link.rel = 'prefetch';
+                    link.href = resource;
+                    document.head.appendChild(link);
+                });
+            }
+
+            updatePerformanceBadge(metric, value) {
+                // Create or update performance badge in navbar
+                let badge = document.querySelector('.performance-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'performance-badge';
+                    const navbar = document.querySelector('.navbar-nav');
+                    if (navbar) {
+                        navbar.appendChild(badge);
+                    }
+                }
+
+                // Determine performance status
+                let status = 'good';
+                let color = '#28a745';
+                
+                if (metric === 'LCP' && value > 2500) { status = 'poor'; color = '#dc3545'; }
+                else if (metric === 'LCP' && value > 1000) { status = 'needs-improvement'; color = '#ffc107'; }
+                else if (metric === 'FID' && value > 100) { status = 'poor'; color = '#dc3545'; }
+                else if (metric === 'FID' && value > 25) { status = 'needs-improvement'; color = '#ffc107'; }
+                else if (metric === 'CLS' && value > 0.25) { status = 'poor'; color = '#dc3545'; }
+                else if (metric === 'CLS' && value > 0.1) { status = 'needs-improvement'; color = '#ffc107'; }
+                else if (metric === 'Load' && value > 3000) { status = 'poor'; color = '#dc3545'; }
+                else if (metric === 'Load' && value > 1500) { status = 'needs-improvement'; color = '#ffc107'; }
+
+                badge.innerHTML = `<i class="fas fa-tachometer-alt"></i> ${metric}: ${value}${metric === 'CLS' ? '' : 'ms'}`;
+                badge.style.backgroundColor = color;
+                badge.title = `Performance ${metric}: ${status}`;
+            }
+
+            reportMetrics() {
+                // Report metrics after 5 seconds
+                setTimeout(() => {
+                    console.log('📊 Complete Performance Metrics:', this.metrics);
+                    
+                    // Send to analytics (if available)
+                    if (window.gtag) {
+                        Object.entries(this.metrics).forEach(([key, value]) => {
+                            gtag('event', 'performance_metric', {
+                                custom_parameter: key,
+                                value: value
+                            });
+                        });
+                    }
+                }, 5000);
+            }
+
+            getMetrics() {
+                return this.metrics;
+            }
+        }
+
+        // Initialize Performance Monitor
+        const performanceMonitor = new PerformanceMonitor();
+
+        // ===== SERVICE WORKER REGISTRATION FOR CACHING =====
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/CursorDev/PERFORMANCE/sw.js')
+                    .then(registration => {
+                        console.log('✅ SW registered:', registration);
+                    })
+                    .catch(error => {
+                        console.log('❌ SW registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
