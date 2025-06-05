@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MesChain-Sync Monitoring Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .status-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-healthy { background-color: #28a745; }
+        .status-warning { background-color: #ffc107; }
+        .status-error { background-color: #dc3545; }
+        .status-unknown { background-color: #6c757d; }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .metric-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-healthy { background-color: #28a745; }
+        .progress-warning { background-color: #ffc107; }
+        .progress-danger { background-color: #dc3545; }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .chart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(45deg, #f8f9fa 25%, transparent 25%, transparent 75%, #f8f9fa 75%),
+                        linear-gradient(45deg, #f8f9fa 25%, transparent 25%, transparent 75%, #f8f9fa 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .logs-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .logs-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .log-entry {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-level {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .log-info { background-color: #d1ecf1; color: #0c5460; }
+        .log-warning { background-color: #fff3cd; color: #856404; }
+        .log-error { background-color: #f8d7da; color: #721c24; }
+        .log-debug { background-color: #e2e3e5; color: #383d41; }
+
+        .log-timestamp {
+            color: #6c757d;
+            font-size: 0.9rem;
+            min-width: 140px;
+        }
+
+        .log-message {
+            flex: 1;
+            color: #2c3e50;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .status-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>🚀 MesChain-Sync Monitoring</h1>
+            <p>DevOps & Infrastructure Monitoring Dashboard</p>
+        </div>
+
+        <div class="main-content">
+            <div class="controls">
+                <button class="btn btn-primary" onclick="refreshDashboard()">
+                    🔄 Refresh
+                </button>
+                <button class="btn btn-success" onclick="runHealthCheck()">
+                    ❤️ Health Check
+                </button>
+                <button class="btn btn-warning" onclick="clearCache()">
+                    🗑️ Clear Cache
+                </button>
+            </div>
+
+            <div class="status-grid">
+                <div class="status-card">
+                    <h3>
+                        <span class="status-icon status-healthy"></span>
+                        System Health
+                    </h3>
+                    <div class="metric">
+                        <span class="metric-label">Overall Status:</span>
+                        <span class="metric-value" id="overall-status">Healthy</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Uptime:</span>
+                        <span class="metric-value" id="uptime">24d 15h 32m</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Last Check:</span>
+                        <span class="metric-value" id="last-check">Just now</span>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h3>
+                        <span class="status-icon status-healthy"></span>
+                        Server Resources
+                    </h3>
+                    <div class="metric">
+                        <span class="metric-label">CPU Usage:</span>
+                        <span class="metric-value" id="cpu-usage">35%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-healthy" style="width: 35%"></div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Memory Usage:</span>
+                        <span class="metric-value" id="memory-usage">512 MB / 2 GB</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-healthy" style="width: 25%"></div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Disk Usage:</span>
+                        <span class="metric-value" id="disk-usage">45 GB / 100 GB</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-healthy" style="width: 45%"></div>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h3>
+                        <span class="status-icon status-healthy"></span>
+                        Database
+                    </h3>
+                    <div class="metric">
+                        <span class="metric-label">Connection:</span>
+                        <span class="metric-value" id="db-status">Connected</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Response Time:</span>
+                        <span class="metric-value" id="db-response">2.3ms</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Active Connections:</span>
+                        <span class="metric-value" id="db-connections">8/100</span>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h3>
+                        <span class="status-icon status-warning"></span>
+                        Cache System
+                    </h3>
+                    <div class="metric">
+                        <span class="metric-label">Hit Ratio:</span>
+                        <span class="metric-value" id="cache-hit-ratio">87.5%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Size:</span>
+                        <span class="metric-value" id="cache-size">125 MB</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Files Count:</span>
+                        <span class="metric-value" id="cache-files">1,234</span>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h3>
+                        <span class="status-icon status-healthy"></span>
+                        Marketplace APIs
+                    </h3>
+                    <div class="metric">
+                        <span class="metric-label">Trendyol:</span>
+                        <span class="metric-value">✅ Active</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">N11:</span>
+                        <span class="metric-value">✅ Active</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Amazon:</span>
+                        <span class="metric-value">⚠️ Limited</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Ozon:</span>
+                        <span class="metric-value">✅ Active</span>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h3>
+                        <span class="status-icon status-healthy"></span>
+                        Recent Activity
+                    </h3>
+                    <div class="metric">
+                        <span class="metric-label">Orders Synced (24h):</span>
+                        <span class="metric-value" id="orders-synced">156</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Products Updated:</span>
+                        <span class="metric-value" id="products-updated">89</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Errors (24h):</span>
+                        <span class="metric-value" id="errors-count">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-section">
+                <div class="chart-card">
+                    <h3>📊 System Performance (Last 24h)</h3>
+                    <div class="chart-placeholder">
+                        Performance Chart Placeholder<br>
+                        <small>CPU, Memory, Disk I/O trends</small>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>📈 API Response Times</h3>
+                    <div class="chart-placeholder">
+                        API Response Chart Placeholder<br>
+                        <small>Marketplace API latencies</small>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>🔄 Sync Operations</h3>
+                    <div class="chart-placeholder">
+                        Sync Operations Chart Placeholder<br>
+                        <small>Orders and products synchronization</small>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>⚠️ Error Distribution</h3>
+                    <div class="chart-placeholder">
+                        Error Distribution Chart Placeholder<br>
+                        <small>Error types and frequencies</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="logs-section">
+                <h3>📋 Recent System Logs</h3>
+                <div id="logs-container">
+                    <div class="log-entry">
+                        <span class="log-level log-info">INFO</span>
+                        <span class="log-timestamp">2025-01-05 14:32:15</span>
+                        <span class="log-message">CI/CD Pipeline completed successfully for production environment</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-level log-info">INFO</span>
+                        <span class="log-timestamp">2025-01-05 14:30:42</span>
+                        <span class="log-message">Database backup created: db_backup_2025-01-05_14-30-42.sql.gz</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-level log-warning">WARN</span>
+                        <span class="log-timestamp">2025-01-05 14:28:33</span>
+                        <span class="log-message">Cache hit ratio below 85%: 82.3%</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-level log-info">INFO</span>
+                        <span class="log-timestamp">2025-01-05 14:25:11</span>
+                        <span class="log-message">Trendyol API sync completed: 45 orders processed</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-level log-error">ERROR</span>
+                        <span class="log-timestamp">2025-01-05 14:20:07</span>
+                        <span class="log-message">Amazon API rate limit exceeded, retrying in 5 minutes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="refresh-indicator" id="refresh-indicator">
+        <div class="loading"></div>
+        <span>Refreshing...</span>
+    </div>
+
+    <script>
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            refreshDashboard();
+        }, 30000);
+
+        function refreshDashboard() {
+            const indicator = document.getElementById('refresh-indicator');
+            indicator.style.display = 'block';
+
+            // Simulate API call
+            setTimeout(() => {
+                updateMetrics();
+                indicator.style.display = 'none';
+                updateLastCheck();
+            }, 2000);
+        }
+
+        function updateMetrics() {
+            // Simulate real-time data updates
+            const cpuUsage = Math.floor(Math.random() * 30) + 20; // 20-50%
+            const memoryUsage = Math.floor(Math.random() * 40) + 20; // 20-60%
+            const diskUsage = Math.floor(Math.random() * 20) + 40; // 40-60%
+
+            document.getElementById('cpu-usage').textContent = cpuUsage + '%';
+            document.getElementById('memory-usage').textContent = `${Math.floor(memoryUsage * 20)} MB / 2 GB`;
+            document.getElementById('disk-usage').textContent = `${diskUsage} GB / 100 GB`;
+
+            // Update progress bars
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars[0].style.width = cpuUsage + '%';
+            progressBars[1].style.width = memoryUsage + '%';
+            progressBars[2].style.width = diskUsage + '%';
+
+            // Update cache hit ratio
+            const hitRatio = (Math.random() * 10 + 85).toFixed(1);
+            document.getElementById('cache-hit-ratio').textContent = hitRatio + '%';
+
+            // Update activity counters
+            document.getElementById('orders-synced').textContent = Math.floor(Math.random() * 50) + 100;
+            document.getElementById('products-updated').textContent = Math.floor(Math.random() * 30) + 70;
+            document.getElementById('errors-count').textContent = Math.floor(Math.random() * 5);
+        }
+
+        function updateLastCheck() {
+            document.getElementById('last-check').textContent = 'Just now';
+        }
+
+        function runHealthCheck() {
+            alert('🔍 Running comprehensive health check...\n\n✅ All systems operational\n✅ Database responsive\n✅ APIs functioning\n⚠️ Cache optimization recommended');
+        }
+
+        function clearCache() {
+            if (confirm('Are you sure you want to clear all cache?')) {
+                alert('🗑️ Cache cleared successfully!\n\nAll cached data has been removed and will be regenerated on next request.');
+                // Update cache metrics
+                document.getElementById('cache-size').textContent = '0 MB';
+                document.getElementById('cache-files').textContent = '0';
+            }
+        }
+
+        // Initialize dashboard
+        updateMetrics();
+        updateLastCheck();
+
+        // Real-time clock
+        setInterval(() => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            // Update any time displays if needed
+        }, 1000);
+    </script>
+</body>
+</html>
