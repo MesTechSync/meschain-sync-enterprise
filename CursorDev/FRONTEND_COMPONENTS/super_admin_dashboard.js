@@ -28,6 +28,11 @@ class SuperAdminDashboard {
         this.realTimeIntervals = {};
         this.apiOfflineNotified = false;
         
+        // Backend API Integration
+        this.apiBaseUrl = '/admin/index.php?route=extension/module/meschain_cursor_integration';
+        this.refreshInterval = 30000; // 30 saniye
+        this.backendConnected = false;
+        
         // Enhanced User Data with AI Insights
         this.userData = {
             totalUsers: 2847,
@@ -290,11 +295,17 @@ class SuperAdminDashboard {
         console.log('📊 Enhanced Features: AI Analytics, WebSocket, Advanced Security');
         this.init();
     }    /**
-     * Enhanced initialization for v4.0 with advanced features
+     * Enhanced initialization for v4.0 with backend integration
      */
     async init() {
         try {
-            console.log('🚀 Super Admin Dashboard v4.0 initializing...');
+            console.log('🚀 Super Admin Dashboard v4.0 initializing with backend API...');
+            
+            // Test backend connection first
+            await this.initializeBackendConnection();
+            
+            // Load initial data from backend
+            await this.loadInitialBackendData();
             
             // Initialize WebSocket connection for real-time updates
             await this.initializeWebSocket();
@@ -311,13 +322,13 @@ class SuperAdminDashboard {
             // Initialize notification system
             this.initializeNotificationSystem();
             
-            // Initialize enhanced charts with AI insights
+            // Initialize enhanced charts with AI insights and backend data
             await this.initializeEnhancedCharts();
             
             // Initialize mobile and PWA features
             this.initializeMobileFeatures();
             
-            // Start enhanced real-time updates
+            // Start enhanced real-time updates with backend integration
             this.startEnhancedRealTimeUpdates();
             
             // Setup enhanced event listeners
@@ -3209,6 +3220,161 @@ class SuperAdminDashboard {
                 this.showNotification(`${alert.message}: ${alert.value}`, alert.type);
             });
         }, 30000);
+    }
+
+    /**
+     * Initialize backend connection
+     */
+    async initializeBackendConnection() {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}&method=getDashboardData`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status === 'success') {
+                    this.backendConnected = true;
+                    console.log('✅ Super Admin Backend connection established');
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.warn('⚠️ Super Admin Backend connection failed, using offline mode:', error);
+        }
+        
+        this.backendConnected = false;
+        return false;
+    }
+
+    /**
+     * Load initial data from backend
+     */
+    async loadInitialBackendData() {
+        if (!this.backendConnected) return;
+
+        try {
+            // Load dashboard data
+            const dashboardResponse = await fetch(`${this.apiBaseUrl}&method=getDashboardData`);
+            if (dashboardResponse.ok) {
+                const dashboardData = await dashboardResponse.json();
+                this.updateDashboardMetrics(dashboardData);
+            }
+
+            // Load marketplace status
+            const marketplaceResponse = await fetch(`${this.apiBaseUrl}&method=getMarketplaceApiStatus`);
+            if (marketplaceResponse.ok) {
+                const marketplaceData = await marketplaceResponse.json();
+                this.updateMarketplaceData(marketplaceData);
+            }
+
+            console.log('✅ Super Admin initial backend data loaded');
+            
+        } catch (error) {
+            console.error('❌ Failed to load Super Admin initial backend data:', error);
+        }
+    }
+
+    /**
+     * Update dashboard metrics with backend data
+     */
+    updateDashboardMetrics(data) {
+        if (data.widgets) {
+            this.userData.totalUsers = data.widgets.total_sales || this.userData.totalUsers;
+            this.userData.activeSystems = data.widgets.active_products || this.userData.activeSystems;
+            this.userData.systemPerformance = data.real_time?.system_health || this.userData.systemPerformance;
+        }
+    }
+
+    /**
+     * Update marketplace data with backend data
+     */
+    updateMarketplaceData(data) {
+        if (data.marketplaces) {
+            Object.keys(data.marketplaces).forEach(marketplace => {
+                const marketplaceIndex = this.apiManagement.marketplaces.findIndex(m => m.id === marketplace);
+                if (marketplaceIndex !== -1) {
+                    this.apiManagement.marketplaces[marketplaceIndex] = {
+                        ...this.apiManagement.marketplaces[marketplaceIndex],
+                        ...data.marketplaces[marketplace]
+                    };
+                }
+            });
+        }
+    }
+
+    /**
+     * Start enhanced real-time updates with backend integration
+     */
+    startEnhancedRealTimeUpdates() {
+        // Backend data updates
+        if (this.backendConnected) {
+            this.realTimeIntervals.backendUpdate = setInterval(async () => {
+                await this.updateFromBackend();
+            }, this.refreshInterval);
+        }
+
+        // Enhanced system monitoring
+        this.realTimeIntervals.systemMetrics = setInterval(() => {
+            this.updateSystemMetrics();
+        }, 10000);
+
+        // AI analytics updates
+        this.realTimeIntervals.aiAnalytics = setInterval(() => {
+            this.updateAIAnalytics();
+        }, 30000);
+
+        // Security monitoring
+        this.realTimeIntervals.securityMonitoring = setInterval(() => {
+            this.updateSecurityMetrics();
+        }, 20000);
+
+        console.log('🔄 Enhanced real-time updates started with backend integration');
+    }
+
+    /**
+     * Update dashboard from backend
+     */
+    async updateFromBackend() {
+        if (!this.backendConnected) return;
+
+        try {
+            const response = await fetch(`${this.apiBaseUrl}&method=getRealtimeUpdates`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.type === 'dashboard_update') {
+                    this.processBackendUpdate(data.data);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Backend update error:', error);
+        }
+    }
+
+    /**
+     * Process backend update data
+     */
+    processBackendUpdate(data) {
+        // Update system metrics
+        if (data.performance_metrics) {
+            this.updateSystemPerformanceMetrics(data.performance_metrics);
+        }
+
+        // Update marketplace data
+        if (data.marketplace_updates) {
+            this.updateMarketplaceMetrics(data.marketplace_updates);
+        }
+
+        // Update user activity
+        if (data.user_activity) {
+            this.updateUserActivityMetrics(data.user_activity);
+        }
+
+        console.log('✅ Backend update processed');
     }
 
 }
