@@ -14,6 +14,491 @@
 
 class ModelExtensionModuleCiceksepeti extends Model {
     
+    private $api_url = 'https://api.ciceksepeti.com/v1/';
+    private $api_key;
+    private $api_secret;
+    
+    public function __construct($registry) {
+        parent::__construct($registry);
+        
+        $this->api_key = $this->config->get('module_ciceksepeti_api_key');
+        $this->api_secret = $this->config->get('module_ciceksepeti_api_secret');
+    }
+    
+    /**
+     * Get API credentials status
+     *
+     * @return bool Credentials are set
+     */
+    public function hasCredentials() {
+        return !empty($this->api_key) && !empty($this->api_secret);
+    }
+    
+    /**
+     * Test API connection
+     *
+     * @return array Test result
+     */
+    public function testConnection() {
+        if (!$this->hasCredentials()) {
+            return [
+                'success' => false,
+                'error' => 'API credentials not configured'
+            ];
+        }
+        
+        try {
+            $response = $this->makeApiRequest('GET', 'account/info');
+            
+            if ($response && isset($response['success']) && $response['success']) {
+                return [
+                    'success' => true,
+                    'message' => 'Connection successful',
+                    'data' => $response['data'] ?? []
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => $response['message'] ?? 'Unknown error'
+                ];
+            }
+            
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => 'Connection failed: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Get categories
+     *
+     * @return array Categories
+     */
+    public function getCategories() {
+        try {
+            $response = $this->makeApiRequest('GET', 'categories');
+            
+            if ($response && isset($response['data'])) {
+                return $response['data'];
+            }
+            
+            return [];
+            
+        } catch (Exception $e) {
+            $this->log('error', 'Failed to get categories', ['error' => $e->getMessage()]);
+            return [];
+        }
+    }
+    
+    /**
+     * Get products
+     *
+     * @param array $filters Filter options
+     * @return array Products
+     */
+    public function getProducts($filters = []) {
+        try {
+            $params = [];
+            
+            if (isset($filters['page'])) {
+                $params['page'] = (int)$filters['page'];
+            }
+            
+            if (isset($filters['limit'])) {
+                $params['limit'] = (int)$filters['limit'];
+            }
+            
+            if (isset($filters['category_id'])) {
+                $params['category_id'] = (int)$filters['category_id'];
+            }
+            
+            $response = $this->makeApiRequest('GET', 'products', $params);
+            
+            if ($response && isset($response['data'])) {
+                return $response['data'];
+            }
+            
+            return [];
+            
+        } catch (Exception $e) {
+            $this->log('error', 'Failed to get products', ['error' => $e->getMessage()]);
+            return [];
+        }
+    }
+    
+    /**
+     * Create product
+     *
+     * @param array $product_data Product data
+     * @return array Result
+     */
+    public function createProduct($product_data) {
+        try {
+            $response = $this->makeApiRequest('POST', 'products', $product_data);
+            
+            if ($response && isset($response['success']) && $response['success']) {
+                $this->log('info', 'Product created successfully', [
+                    'product_id' => $response['data']['id'] ?? null,
+                    'sku' => $product_data['sku'] ?? null
+                ]);
+                
+                return [
+                    'success' => true,
+                    'product_id' => $response['data']['id'] ?? null,
+                    'data' => $response['data'] ?? []
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => $response['message'] ?? 'Product creation failed'
+                ];
+            }
+            
+        } catch (Exception $e) {
+            $this->log('error', 'Product creation failed', [
+                'error' => $e->getMessage(),
+                'product_data' => $product_data
+            ]);
+            
+            return [
+                'success' => false,
+                'error' => 'Product creation failed: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Update product
+     *
+     * @param string $product_id Ciceksepeti product ID
+     * @param array $product_data Product data
+     * @return array Result
+     */
+    public function updateProduct($product_id, $product_data) {
+        try {
+            $response = $this->makeApiRequest('PUT', 'products/' . $product_id, $product_data);
+            
+            if ($response && isset($response['success']) && $response['success']) {
+                $this->log('info', 'Product updated successfully', [
+                    'product_id' => $product_id,
+                    'sku' => $product_data['sku'] ?? null
+                ]);
+                
+                return [
+                    'success' => true,
+                    'data' => $response['data'] ?? []
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => $response['message'] ?? 'Product update failed'
+                ];
+            }
+            
+        } catch (Exception $e) {
+            $this->log('error', 'Product update failed', [
+                'error' => $e->getMessage(),
+                'product_id' => $product_id,
+                'product_data' => $product_data
+            ]);
+            
+            return [
+                'success' => false,
+                'error' => 'Product update failed: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Update product stock
+     *
+     * @param string $product_id Ciceksepeti product ID
+     * @param int $stock Stock quantity
+     * @return array Result
+     */
+    public function updateStock($product_id, $stock) {
+        try {
+            $data = [
+                'stock' => (int)$stock
+            ];
+            
+            $response = $this->makeApiRequest('PUT', 'products/' . $product_id . '/stock', $data);
+            
+            if ($response && isset($response['success']) && $response['success']) {
+                $this->log('info', 'Stock updated successfully', [
+                    'product_id' => $product_id,
+                    'stock' => $stock
+                ]);
+                
+                return [
+                    'success' => true,
+                    'data' => $response['data'] ?? []
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => $response['message'] ?? 'Stock update failed'
+                ];
+            }
+            
+        } catch (Exception $e) {
+            $this->log('error', 'Stock update failed', [
+                'error' => $e->getMessage(),
+                'product_id' => $product_id,
+                'stock' => $stock
+            ]);
+            
+            return [
+                'success' => false,
+                'error' => 'Stock update failed: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Update product price
+     *
+     * @param string $product_id Ciceksepeti product ID
+     * @param float $price Price
+     * @return array Result
+     */
+    public function updatePrice($product_id, $price) {
+        try {
+            $data = [
+                'price' => (float)$price
+            ];
+            
+            $response = $this->makeApiRequest('PUT', 'products/' . $product_id . '/price', $data);
+            
+            if ($response && isset($response['success']) && $response['success']) {
+                $this->log('info', 'Price updated successfully', [
+                    'product_id' => $product_id,
+                    'price' => $price
+                ]);
+                
+                return [
+                    'success' => true,
+                    'data' => $response['data'] ?? []
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => $response['message'] ?? 'Price update failed'
+                ];
+            }
+            
+        } catch (Exception $e) {
+            $this->log('error', 'Price update failed', [
+                'error' => $e->getMessage(),
+                'product_id' => $product_id,
+                'price' => $price
+            ]);
+            
+            return [
+                'success' => false,
+                'error' => 'Price update failed: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Get orders
+     *
+     * @param array $filters Filter options
+     * @return array Orders
+     */
+    public function getOrders($filters = []) {
+        try {
+            $params = [];
+            
+            if (isset($filters['status'])) {
+                $params['status'] = $filters['status'];
+            }
+            
+            if (isset($filters['date_from'])) {
+                $params['date_from'] = $filters['date_from'];
+            }
+            
+            if (isset($filters['date_to'])) {
+                $params['date_to'] = $filters['date_to'];
+            }
+            
+            if (isset($filters['page'])) {
+                $params['page'] = (int)$filters['page'];
+            }
+            
+            if (isset($filters['limit'])) {
+                $params['limit'] = (int)$filters['limit'];
+            }
+            
+            $response = $this->makeApiRequest('GET', 'orders', $params);
+            
+            if ($response && isset($response['data'])) {
+                return $response['data'];
+            }
+            
+            return [];
+            
+        } catch (Exception $e) {
+            $this->log('error', 'Failed to get orders', ['error' => $e->getMessage()]);
+            return [];
+        }
+    }
+    
+    /**
+     * Update order status
+     *
+     * @param string $order_id Ciceksepeti order ID
+     * @param string $status New status
+     * @param array $tracking_info Tracking information
+     * @return array Result
+     */
+    public function updateOrderStatus($order_id, $status, $tracking_info = []) {
+        try {
+            $data = [
+                'status' => $status
+            ];
+            
+            if (!empty($tracking_info)) {
+                $data['tracking'] = $tracking_info;
+            }
+            
+            $response = $this->makeApiRequest('PUT', 'orders/' . $order_id . '/status', $data);
+            
+            if ($response && isset($response['success']) && $response['success']) {
+                $this->log('info', 'Order status updated successfully', [
+                    'order_id' => $order_id,
+                    'status' => $status
+                ]);
+                
+                return [
+                    'success' => true,
+                    'data' => $response['data'] ?? []
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => $response['message'] ?? 'Order status update failed'
+                ];
+            }
+            
+        } catch (Exception $e) {
+            $this->log('error', 'Order status update failed', [
+                'error' => $e->getMessage(),
+                'order_id' => $order_id,
+                'status' => $status
+            ]);
+            
+            return [
+                'success' => false,
+                'error' => 'Order status update failed: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Make API request
+     *
+     * @param string $method HTTP method
+     * @param string $endpoint API endpoint
+     * @param array $data Request data
+     * @return array|null Response data
+     */
+    private function makeApiRequest($method, $endpoint, $data = []) {
+        $url = $this->api_url . $endpoint;
+        
+        $headers = [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->generateAuthToken(),
+            'X-API-Key: ' . $this->api_key
+        ];
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        switch (strtoupper($method)) {
+            case 'POST':
+                curl_setopt($ch, CURLOPT_POST, true);
+                if (!empty($data)) {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+                }
+                break;
+                
+            case 'PUT':
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+                if (!empty($data)) {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+                }
+                break;
+                
+            case 'DELETE':
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+                break;
+                
+            case 'GET':
+            default:
+                if (!empty($data)) {
+                    $url .= '?' . http_build_query($data);
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                }
+                break;
+        }
+        
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        
+        if ($error) {
+            throw new Exception('cURL Error: ' . $error);
+        }
+        
+        if ($http_code >= 400) {
+            throw new Exception('HTTP Error: ' . $http_code . ' - ' . $response);
+        }
+        
+        $decoded_response = json_decode($response, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Invalid JSON response: ' . json_last_error_msg());
+        }
+        
+        return $decoded_response;
+    }
+    
+    /**
+     * Generate authentication token
+     *
+     * @return string Auth token
+     */
+    private function generateAuthToken() {
+        $timestamp = time();
+        $nonce = uniqid();
+        
+        $signature = hash_hmac('sha256', $this->api_key . $timestamp . $nonce, $this->api_secret);
+        
+        return base64_encode($this->api_key . ':' . $timestamp . ':' . $nonce . ':' . $signature);
+    }
+    
+    /**
+     * Log activity
+     *
+     * @param string $level Log level
+     * @param string $message Log message
+     * @param array $context Additional context
+     * @return void
+     */
+    private function log($level, $message, $context = []) {
+        $this->load->model('extension/module/base_marketplace');
+        $this->model_extension_module_base_marketplace->log($level, $message, $context, 'ciceksepeti');
+    }
+
     /**
      * Install Çiçek Sepeti tables
      * 
@@ -491,30 +976,6 @@ class ModelExtensionModuleCiceksepeti extends Model {
         } catch (Exception $e) {
             $this->log('error', 'addCategoryMapping', 'Failed to add category mapping: ' . $e->getMessage(), $data);
             return false;
-        }
-    }
-
-    /**
-     * Add log entry
-     * 
-     * @param string $type Log type (info, warning, error, success)
-     * @param string $action Action name
-     * @param string $message Log message
-     * @param array $data Additional data
-     * @return void
-     */
-    public function log($type, $action, $message, $data = null) {
-        try {
-            $this->db->query("
-                INSERT INTO `" . DB_PREFIX . "ciceksepeti_logs` SET
-                `type` = '" . $this->db->escape($type) . "',
-                `action` = '" . $this->db->escape($action) . "',
-                `message` = '" . $this->db->escape($message) . "',
-                `data` = " . ($data ? "'" . $this->db->escape(json_encode($data)) . "'" : "NULL") . "
-            ");
-        } catch (Exception $e) {
-            // Silent fail to prevent infinite loops
-            error_log('Çiçek Sepeti Model Log Error: ' . $e->getMessage());
         }
     }
 

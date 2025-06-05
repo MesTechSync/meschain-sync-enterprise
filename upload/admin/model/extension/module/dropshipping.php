@@ -488,4 +488,377 @@ class ModelExtensionModuleDropshipping extends Model {
             return false;
         }
     }
+    
+    /**
+     * Advanced analytics for dropshipping performance
+     */
+    public function getAdvancedAnalytics($period = '30d') {
+        $analytics = [];
+        
+        // Determine date range
+        switch ($period) {
+            case '7d':
+                $date_condition = "DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+                $group_by = "DATE(created_at)";
+                break;
+            case '30d':
+                $date_condition = "DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+                $group_by = "DATE(created_at)";
+                break;
+            case '12m':
+                $date_condition = "DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)";
+                $group_by = "DATE_FORMAT(created_at, '%Y-%m')";
+                break;
+            default:
+                $date_condition = "DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+                $group_by = "DATE(created_at)";
+        }
+        
+        // Revenue trends
+        $query = $this->db->query("
+            SELECT 
+                " . $group_by . " as period,
+                COUNT(*) as order_count,
+                SUM(total_amount) as revenue,
+                SUM(commission) as total_commission,
+                AVG(total_amount) as avg_order_value
+            FROM " . DB_PREFIX . "dropshipping_orders 
+            WHERE " . $date_condition . " AND status != 'cancelled'
+            GROUP BY " . $group_by . "
+            ORDER BY period
+        ");
+        $analytics['revenue_trends'] = $query->rows;
+        
+        // Supplier performance comparison
+        $query = $this->db->query("
+            SELECT 
+                s.supplier_name,
+                COUNT(do.id) as order_count,
+                SUM(do.total_amount) as revenue,
+                AVG(CASE 
+                    WHEN do.shipped_at IS NOT NULL AND do.created_at IS NOT NULL 
+                    THEN DATEDIFF(do.shipped_at, do.created_at) 
+                    ELSE NULL 
+                END) as avg_processing_days,
+                (COUNT(CASE WHEN do.status = 'delivered' THEN 1 END) / COUNT(*)) * 100 as success_rate,
+                s.commission_rate
+            FROM " . DB_PREFIX . "dropshipping_suppliers s
+            LEFT JOIN " . DB_PREFIX . "dropshipping_orders do ON s.supplier_id = do.supplier_id
+            WHERE " . $date_condition . " OR do.id IS NULL
+            GROUP BY s.supplier_id
+            ORDER BY revenue DESC
+        ");
+        $analytics['supplier_performance'] = $query->rows;
+        
+        // Product profitability analysis
+        $query = $this->db->query("
+            SELECT 
+                pd.name as product_name,
+                p.model,
+                dp.supplier_sku,
+                COUNT(CASE WHEN do.status != 'cancelled' THEN 1 END) as sales_count,
+                SUM(CASE WHEN do.status != 'cancelled' THEN do.total_amount ELSE 0 END) as total_revenue,
+                dp.supplier_price,
+                p.price as selling_price,
+                (p.price - dp.supplier_price) as profit_per_unit,
+                ((p.price - dp.supplier_price) / dp.supplier_price) * 100 as profit_margin_percent
+            FROM " . DB_PREFIX . "dropshipping_products dp
+            LEFT JOIN " . DB_PREFIX . "product p ON dp.product_id = p.product_id
+            LEFT JOIN " . DB_PREFIX . "product_description pd ON p.product_id = pd.product_id
+            LEFT JOIN " . DB_PREFIX . "dropshipping_orders do ON dp.supplier_id = do.supplier_id
+            WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'
+            AND (" . $date_condition . " OR do.id IS NULL)
+            GROUP BY dp.id
+            HAVING sales_count > 0
+            ORDER BY total_revenue DESC
+            LIMIT 20
+        ");
+        $analytics['product_profitability'] = $query->rows;
+        
+        // Automation efficiency metrics
+        $query = $this->db->query("
+            SELECT 
+                COUNT(*) as total_orders,
+                SUM(CASE WHEN submitted_at IS NOT NULL THEN 1 ELSE 0 END) as auto_submitted,
+                SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as failed_orders,
+                AVG(CASE 
+                    WHEN submitted_at IS NOT NULL AND created_at IS NOT NULL 
+                    THEN TIMESTAMPDIFF(MINUTE, created_at, submitted_at) 
+                    ELSE NULL 
+                END) as avg_processing_minutes
+            FROM " . DB_PREFIX . "dropshipping_orders 
+            WHERE " . $date_condition
+        );
+        $automation_data = $query->row;
+        
+        $analytics['automation_metrics'] = [
+            'total_orders' => (int)$automation_data['total_orders'],
+            'auto_submitted' => (int)$automation_data['auto_submitted'],
+            'failed_orders' => (int)$automation_data['failed_orders'],
+            'automation_rate' => $automation_data['total_orders'] > 0 ? 
+                round(($automation_data['auto_submitted'] / $automation_data['total_orders']) * 100, 2) : 0,
+            'avg_processing_minutes' => round($automation_data['avg_processing_minutes'] ?? 0, 2)
+        ];
+        
+        return $analytics;
+    }
+    
+    /**
+     * Bulk operations for dropshipping products
+     */
+    public function bulkUpdateProducts($product_ids, $action, $data = []) {
+        $results = [
+            'success' => 0,
+            'failed' => 0,
+            'errors' => []
+        ];
+        
+        if (empty($product_ids) || !is_array($product_ids)) {
+            return $results;
+        }
+        
+        foreach ($product_ids as $product_id) {
+            try {
+                switch ($action) {
+                    case 'update_markup':
+                        if (isset($data['markup_type']) && isset($data['markup_value'])) {
+                            $this->db->query("
+                                UPDATE " . DB_PREFIX . "dropshipping_products 
+                                SET markup_type = '" . $this->db->escape($data['markup_type']) . "',
+                                    markup_value = '" . (float)$data['markup_value'] . "',
+                                    updated_at = NOW()
+                                WHERE product_id = '" . (int)$product_id . "'
+                            ");
+                            
+                            // Update actual product price
+                            $this->updateProductPrice($product_id, $data['markup_type'], $data['markup_value']);
+                        }
+                        break;
+                        
+                    case 'sync_stock':
+                        $this->syncProductStock($product_id);
+                        break;
+                        
+                    case 'enable_auto_order':
+                        $this->db->query("
+                            UPDATE " . DB_PREFIX . "dropshipping_products 
+                            SET auto_order = '1', updated_at = NOW()
+                            WHERE product_id = '" . (int)$product_id . "'
+                        ");
+                        break;
+                        
+                    case 'disable_auto_order':
+                        $this->db->query("
+                            UPDATE " . DB_PREFIX . "dropshipping_products 
+                            SET auto_order = '0', updated_at = NOW()
+                            WHERE product_id = '" . (int)$product_id . "'
+                        ");
+                        break;
+                        
+                    case 'enable_stock_sync':
+                        $this->db->query("
+                            UPDATE " . DB_PREFIX . "dropshipping_products 
+                            SET stock_sync = '1', updated_at = NOW()
+                            WHERE product_id = '" . (int)$product_id . "'
+                        ");
+                        break;
+                        
+                    case 'disable_stock_sync':
+                        $this->db->query("
+                            UPDATE " . DB_PREFIX . "dropshipping_products 
+                            SET stock_sync = '0', updated_at = NOW()
+                            WHERE product_id = '" . (int)$product_id . "'
+                        ");
+                        break;
+                }
+                
+                $results['success']++;
+                
+            } catch (Exception $e) {
+                $results['failed']++;
+                $results['errors'][] = "Product ID {$product_id}: " . $e->getMessage();
+            }
+        }
+        
+        $this->writeLog('BULK_UPDATE', "Bulk operation '{$action}' completed. Success: {$results['success']}, Failed: {$results['failed']}");
+        
+        return $results;
+    }
+    
+    /**
+     * Update product price based on markup
+     */
+    private function updateProductPrice($product_id, $markup_type, $markup_value) {
+        $query = $this->db->query("
+            SELECT dp.supplier_price 
+            FROM " . DB_PREFIX . "dropshipping_products dp
+            WHERE dp.product_id = '" . (int)$product_id . "'
+        ");
+        
+        if ($query->num_rows) {
+            $supplier_price = (float)$query->row['supplier_price'];
+            
+            if ($markup_type == 'percentage') {
+                $new_price = $supplier_price * (1 + $markup_value / 100);
+            } else {
+                $new_price = $supplier_price + $markup_value;
+            }
+            
+            $this->db->query("
+                UPDATE " . DB_PREFIX . "product 
+                SET price = '" . (float)$new_price . "'
+                WHERE product_id = '" . (int)$product_id . "'
+            ");
+        }
+    }
+    
+    /**
+     * Sync individual product stock
+     */
+    private function syncProductStock($product_id) {
+        $query = $this->db->query("
+            SELECT dp.*, s.api_endpoint, s.api_key, s.api_secret
+            FROM " . DB_PREFIX . "dropshipping_products dp
+            LEFT JOIN " . DB_PREFIX . "dropshipping_suppliers s ON dp.supplier_id = s.supplier_id
+            WHERE dp.product_id = '" . (int)$product_id . "' AND dp.stock_sync = 1
+        ");
+        
+        if ($query->num_rows) {
+            $product = $query->row;
+            $stock = $this->getSupplierStock($product['supplier_id'], $product['supplier_sku']);
+            
+            if ($stock !== false) {
+                // Update stock in OpenCart
+                $this->db->query("
+                    UPDATE " . DB_PREFIX . "product 
+                    SET quantity = '" . (int)$stock . "'
+                    WHERE product_id = '" . (int)$product_id . "'
+                ");
+                
+                // Update dropshipping table
+                $this->db->query("
+                    UPDATE " . DB_PREFIX . "dropshipping_products 
+                    SET stock_quantity = '" . (int)$stock . "',
+                        last_sync = NOW(),
+                        sync_status = 'success',
+                        updated_at = NOW()
+                    WHERE product_id = '" . (int)$product_id . "'
+                ");
+                
+                return true;
+            } else {
+                // Mark sync as failed
+                $this->db->query("
+                    UPDATE " . DB_PREFIX . "dropshipping_products 
+                    SET sync_status = 'error',
+                        updated_at = NOW()
+                    WHERE product_id = '" . (int)$product_id . "'
+                ");
+                
+                return false;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Automated profit optimization
+     */
+    public function optimizeProfitMargins($supplier_id = null) {
+        $optimized = 0;
+        $min_margin = 15; // Minimum 15% margin
+        $target_margin = 30; // Target 30% margin
+        
+        $sql = "SELECT dp.*, p.price as current_price, s.commission_rate
+                FROM " . DB_PREFIX . "dropshipping_products dp
+                LEFT JOIN " . DB_PREFIX . "product p ON dp.product_id = p.product_id
+                LEFT JOIN " . DB_PREFIX . "dropshipping_suppliers s ON dp.supplier_id = s.supplier_id
+                WHERE dp.status = 1 AND dp.supplier_price > 0";
+        
+        if ($supplier_id) {
+            $sql .= " AND dp.supplier_id = '" . (int)$supplier_id . "'";
+        }
+        
+        $query = $this->db->query($sql);
+        
+        foreach ($query->rows as $product) {
+            $supplier_cost = (float)$product['supplier_price'];
+            $commission = $supplier_cost * ((float)$product['commission_rate'] / 100);
+            $total_cost = $supplier_cost + $commission;
+            
+            // Calculate current margin
+            $current_price = (float)$product['current_price'];
+            $current_margin = $current_price > 0 ? (($current_price - $total_cost) / $total_cost) * 100 : 0;
+            
+            // Check if optimization is needed
+            if ($current_margin < $min_margin || abs($current_margin - $target_margin) > 5) {
+                $optimal_price = $total_cost * (1 + $target_margin / 100);
+                
+                // Update product price
+                $this->db->query("
+                    UPDATE " . DB_PREFIX . "product 
+                    SET price = '" . (float)$optimal_price . "'
+                    WHERE product_id = '" . (int)$product['product_id'] . "'
+                ");
+                
+                // Update markup in dropshipping table
+                $new_markup = (($optimal_price - $supplier_cost) / $supplier_cost) * 100;
+                $this->db->query("
+                    UPDATE " . DB_PREFIX . "dropshipping_products 
+                    SET markup_type = 'percentage',
+                        markup_value = '" . (float)$new_markup . "',
+                        updated_at = NOW()
+                    WHERE product_id = '" . (int)$product['product_id'] . "'
+                ");
+                
+                $optimized++;
+            }
+        }
+        
+        $this->writeLog('PROFIT_OPTIMIZATION', "Optimized pricing for {$optimized} products");
+        
+        return $optimized;
+    }
+    
+    /**
+     * Get automation rules
+     */
+    public function getAutomationRules($filter = []) {
+        $sql = "SELECT * FROM " . DB_PREFIX . "dropshipping_rules WHERE 1=1";
+        
+        if (isset($filter['marketplace'])) {
+            $sql .= " AND marketplace = '" . $this->db->escape($filter['marketplace']) . "'";
+        }
+        
+        if (isset($filter['is_active'])) {
+            $sql .= " AND is_active = '" . (int)$filter['is_active'] . "'";
+        }
+        
+        $sql .= " ORDER BY priority DESC, rule_name";
+        
+        $query = $this->db->query($sql);
+        return $query->rows;
+    }
+    
+    /**
+     * Add automation rule
+     */
+    public function addAutomationRule($data) {
+        $this->db->query("INSERT INTO " . DB_PREFIX . "dropshipping_rules SET
+            rule_name = '" . $this->db->escape($data['rule_name']) . "',
+            marketplace = '" . $this->db->escape($data['marketplace'] ?? '') . "',
+            supplier_id = " . (isset($data['supplier_id']) ? "'" . (int)$data['supplier_id'] . "'" : "NULL") . ",
+            category_id = " . (isset($data['category_id']) ? "'" . (int)$data['category_id'] . "'" : "NULL") . ",
+            conditions = '" . $this->db->escape(json_encode($data['conditions'] ?? [])) . "',
+            actions = '" . $this->db->escape(json_encode($data['actions'] ?? [])) . "',
+            is_active = '" . (int)($data['is_active'] ?? 1) . "',
+            priority = '" . (int)($data['priority'] ?? 1) . "',
+            created_at = NOW(),
+            updated_at = NOW()");
+        
+        $rule_id = $this->db->getLastId();
+        $this->writeLog('ADD_RULE', 'Automation rule added: ' . $data['rule_name']);
+        return $rule_id;
+    }
 } 

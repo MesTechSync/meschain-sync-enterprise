@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="MezBjen Dashboard">
+    
+    <title>MezBjen Dashboard - Mobile PWA</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+    
+    <!-- Styles -->
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --background-color: #ffffff;
+            --surface-color: #f8fafc;
+            --text-color: #1f2937;
+            --text-secondary-color: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        [data-theme="dark"] {
+            --primary-color: #3b82f6;
+            --secondary-color: #60a5fa;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+            --error-color: #f87171;
+            --background-color: #111827;
+            --surface-color: #1f2937;
+            --text-color: #f9fafb;
+            --text-secondary-color: #d1d5db;
+            --border-color: #374151;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background-color: var(--surface-color);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-content h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        
+        .header-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary-color);
+            margin-top: 0.25rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .theme-toggle, .menu-button {
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            background: none;
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+            transition: all 0.2s ease;
+        }
+        
+        .theme-toggle:hover, .menu-button:hover {
+            background-color: var(--border-color);
+        }
+        
+        /* Loading Screen */
+        .loading-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 50vh;
+            flex-direction: column;
+        }
+        
+        .loading-spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 1rem;
+            padding-bottom: 2rem;
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+        
+        /* Metrics Overview */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+        
+        .metric-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-icon {
+            font-size: 1.25rem;
+            margin-right: 0.5rem;
+        }
+        
+        .metric-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary-color);
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-change {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .metric-change.positive {
+            color: var(--success-color);
+        }
+        
+        .metric-change.negative {
+            color: var(--error-color);
+        }
+        
+        .metric-change.neutral {
+            color: var(--text-secondary-color);
+        }
+        
+        /* Charts */
+        .chart-container {
+            background-color: var(--surface-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.75rem;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 200px;
+            border-radius: 0.5rem;
+        }
+        
+        /* Real-time Section */
+        .realtime-container {
+            background-color: var(--surface-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .realtime-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+        
+        .realtime-label {
+            font-size: 1rem;
+            color: var(--text-secondary-color);
+        }
+        
+        .realtime-value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .status-online {
+            color: var(--success-color);
+        }
+        
+        .status-offline {
+            color: var(--error-color);
+        }
+        
+        /* Recent Orders */
+        .recent-orders {
+            background-color: var(--surface-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .order-text {
+            font-size: 0.875rem;
+            color: var(--text-color);
+        }
+        
+        .order-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary-color);
+        }
+        
+        /* Offline Banner */
+        .offline-banner {
+            background-color: var(--warning-color);
+            color: white;
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 101;
+        }
+        
+        .offline-banner.hidden {
+            display: none;
+        }
+        
+        /* Pull to Refresh */
+        .pull-to-refresh {
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-secondary-color);
+            font-size: 0.875rem;
+        }
+        
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 768px;
+                margin: 0 auto;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .charts-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.75rem;
+            }
+            
+            .header-content h1 {
+                font-size: 1.25rem;
+            }
+            
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .metric-card {
+                padding: 0.75rem;
+            }
+            
+            .metric-value {
+                font-size: 1.25rem;
+            }
+        }
+        
+        /* Installation Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            right: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .install-prompt.show {
+            transform: translateY(0);
+        }
+        
+        .install-button {
+            background-color: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .close-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <!-- Offline Banner -->
+        <div class="offline-banner hidden" id="offlineBanner">
+            📡 You're offline. Some features may be limited.
+        </div>
+        
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>MezBjen Dashboard</h1>
+                <div class="header-subtitle" id="lastUpdated">Loading...</div>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    🌙
+                </button>
+                <button class="menu-button" id="menuButton" aria-label="Menu">
+                    ⚙️
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Loading Screen -->
+            <div class="loading-screen" id="loadingScreen">
+                <div class="loading-spinner"></div>
+                <div>Loading Dashboard...</div>
+            </div>
+            
+            <!-- Dashboard Content -->
+            <div id="dashboardContent" style="display: none;">
+                <!-- Pull to Refresh -->
+                <div class="pull-to-refresh" id="pullToRefresh">
+                    Pull down to refresh
+                </div>
+                
+                <!-- Metrics Overview -->
+                <section class="section">
+                    <div class="metrics-grid" id="metricsGrid">
+                        <!-- Metrics will be dynamically populated -->
+                    </div>
+                </section>
+                
+                <!-- Charts Section -->
+                <section class="section">
+                    <h2 class="section-title">Analytics Overview</h2>
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <h3 class="chart-title">Revenue Trend</h3>
+                            <canvas class="chart" id="revenueChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="chart-title">Sales by Category</h3>
+                            <canvas class="chart" id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Real-time Section -->
+                <section class="section">
+                    <h2 class="section-title">Real-time Activity</h2>
+                    <div class="realtime-container">
+                        <div class="realtime-metric">
+                            <span class="realtime-label">Active Users</span>
+                            <span class="realtime-value status-online" id="activeUsers">0 🟢</span>
+                        </div>
+                        <div class="realtime-metric">
+                            <span class="realtime-label">System Status</span>
+                            <span class="realtime-value status-online" id="systemStatus">Online ✅</span>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-orders">
+                        <h3 class="chart-title">Recent Orders</h3>
+                        <div id="recentOrdersList">
+                            <!-- Recent orders will be populated here -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+        
+        <!-- Install Prompt -->
+        <div class="install-prompt" id="installPrompt">
+            <div>
+                <strong>Install MezBjen Dashboard</strong><br>
+                Get the full app experience
+            </div>
+            <div>
+                <button class="install-button" id="installButton">Install</button>
+                <button class="close-button" id="closePrompt">&times;</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Main Application Script -->
+    <script>
+        class MobileDashboardPWA {
+            constructor() {
+                this.config = {
+                    apiBaseUrl: 'https://api.mezbjen.com/v3',
+                    websocketUrl: 'wss://realtime.mezbjen.com',
+                    refreshInterval: 15000,
+                    offlineSyncInterval: 30000,
+                    version: '3.0.0'
+                };
+                
+                this.state = {
+                    isOnline: navigator.onLine,
+                    isDarkMode: false,
+                    dashboardData: {},
+                    lastUpdated: null,
+                    websocket: null,
+                    charts: {}
+                };
+                
+                this.init();
+            }
+            
+            async init() {
+                this.setupEventListeners();
+                this.setupServiceWorker();
+                this.setupNetworkMonitoring();
+                this.loadThemePreference();
+                this.setupWebSocket();
+                await this.loadDashboardData();
+                this.setupCharts();
+                this.setupPullToRefresh();
+                this.setupInstallPrompt();
+                this.startPeriodicRefresh();
+                
+                // Hide loading screen and show content
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+            }
+            
+            setupEventListeners() {
+                // Theme toggle
+                document.getElementById('themeToggle').addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+                
+                // Menu button
+                document.getElementById('menuButton').addEventListener('click', () => {
+                    this.showMenu();
+                });
+                
+                // Install prompt
+                document.getElementById('installButton').addEventListener('click', () => {
+                    this.installApp();
+                });
+                
+                document.getElementById('closePrompt').addEventListener('click', () => {
+                    this.hideInstallPrompt();
+                });
+                
+                // Network status
+                window.addEventListener('online', () => {
+                    this.handleOnline();
+                });
+                
+                window.addEventListener('offline', () => {
+                    this.handleOffline();
+                });
+                
+                // Visibility change (for background sync)
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) {
+                        this.refreshData();
+                    }
+                });
+            }
+            
+            async setupServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    try {
+                        const registration = await navigator.serviceWorker.register('./sw.js');
+                        console.log('Service Worker registered:', registration);
+                        
+                        // Listen for updates
+                        registration.addEventListener('updatefound', () => {
+                            this.showUpdateNotification();
+                        });
+                    } catch (error) {
+                        console.error('Service Worker registration failed:', error);
+                    }
+                }
+            }
+            
+            setupNetworkMonitoring() {
+                this.updateNetworkStatus();
+            }
+            
+            updateNetworkStatus() {
+                const wasOnline = this.state.isOnline;
+                this.state.isOnline = navigator.onLine;
+                
+                const offlineBanner = document.getElementById('offlineBanner');
+                if (this.state.isOnline) {
+                    offlineBanner.classList.add('hidden');
+                    if (!wasOnline) {
+                        this.syncOfflineData();
+                    }
+                } else {
+                    offlineBanner.classList.remove('hidden');
+                }
+            }
+            
+            loadThemePreference() {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    this.enableDarkMode();
+                }
+            }
+            
+            toggleTheme() {
+                if (this.state.isDarkMode) {
+                    this.enableLightMode();
+                } else {
+                    this.enableDarkMode();
+                }
+            }
+            
+            enableDarkMode() {
+                this.state.isDarkMode = true;
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeToggle').textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+                this.updateChartThemes();
+            }
+            
+            enableLightMode() {
+                this.state.isDarkMode = false;
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('themeToggle').textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+                this.updateChartThemes();
+            }
+            
+            setupWebSocket() {
+                if (!this.state.isOnline) return;
+                
+                try {
+                    this.state.websocket = new WebSocket(this.config.websocketUrl);
+                    
+                    this.state.websocket.onopen = () => {
+                        console.log('WebSocket connected');
+                        this.authenticateWebSocket();
+                    };
+                    
+                    this.state.websocket.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        this.handleRealtimeUpdate(data);
+                    };
+                    
+                    this.state.websocket.onclose = () => {
+                        console.log('WebSocket disconnected');
+                        setTimeout(() => this.setupWebSocket(), 5000);
+                    };
+                    
+                    this.state.websocket.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                    };
+                } catch (error) {
+                    console.error('Failed to setup WebSocket:', error);
+                }
+            }
+            
+            async authenticateWebSocket() {
+                const token = localStorage.getItem('auth_token');
+                if (token && this.state.websocket.readyState === WebSocket.OPEN) {
+                    this.state.websocket.send(JSON.stringify({
+                        type: 'authenticate',
+                        token: token
+                    }));
+                }
+            }
+            
+            handleRealtimeUpdate(data) {
+                // Update real-time metrics
+                if (data.activeUsers !== undefined) {
+                    document.getElementById('activeUsers').textContent = `${data.activeUsers} 🟢`;
+                }
+                
+                if (data.systemStatus !== undefined) {
+                    const statusElement = document.getElementById('systemStatus');
+                    statusElement.textContent = `${data.systemStatus} ${data.systemStatus === 'online' ? '✅' : '❌'}`;
+                    statusElement.className = `realtime-value ${data.systemStatus === 'online' ? 'status-online' : 'status-offline'}`;
+                }
+                
+                if (data.recentOrders) {
+                    this.updateRecentOrders(data.recentOrders);
+                }
+                
+                // Update last updated time
+                this.updateLastUpdatedTime();
+            }
+            
+            async loadDashboardData() {
+                try {
+                    if (this.state.isOnline) {
+                        const [overview, analytics, realtime] = await Promise.all([
+                            this.fetchData('/dashboard/overview'),
+                            this.fetchData('/dashboard/analytics'),
+                            this.fetchData('/dashboard/realtime')
+                        ]);
+                        
+                        this.state.dashboardData = {
+                            overview,
+                            analytics,
+                            realtime
+                        };
+                        
+                        // Cache data for offline use
+                        this.cacheData(this.state.dashboardData);
+                    } else {
+                        // Load from cache
+                        this.state.dashboardData = this.getCachedData();
+                    }
+                    
+                    this.renderDashboard();
+                    this.updateLastUpdatedTime();
+                } catch (error) {
+                    console.error('Failed to load dashboard data:', error);
+                    this.showErrorMessage('Failed to load dashboard data');
+                }
+            }
+            
+            async fetchData(endpoint) {
+                const token = localStorage.getItem('auth_token');
+                const response = await fetch(`${this.config.apiBaseUrl}${endpoint}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'X-App-Version': this.config.version
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return response.json();
+            }
+            
+            cacheData(data) {
+                const cacheData = {
+                    data: data,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('dashboard_cache', JSON.stringify(cacheData));
+            }
+            
+            getCachedData() {
+                const cached = localStorage.getItem('dashboard_cache');
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    const age = Date.now() - parsed.timestamp;
+                    
+                    // Return cached data if less than 24 hours old
+                    if (age < 86400000) {
+                        return parsed.data;
+                    }
+                }
+                
+                // Return empty structure if no valid cache
+                return {
+                    overview: { revenue: { current: 0, change: 0 }, orders: { current: 0, change: 0 }, customers: { current: 0, change: 0 }, conversion: { current: 0, change: 0 } },
+                    analytics: { chartData: [] },
+                    realtime: { activeUsers: 0, systemStatus: 'offline', recentOrders: [] }
+                };
+            }
+            
+            renderDashboard() {
+                this.renderMetrics();
+                this.renderRealtimeData();
+                this.renderRecentOrders();
+            }
+            
+            renderMetrics() {
+                const overview = this.state.dashboardData.overview || {};
+                const metricsGrid = document.getElementById('metricsGrid');
+                
+                const metrics = [
+                    {
+                        title: 'Revenue',
+                        value: overview.revenue?.current || 0,
+                        change: overview.revenue?.change || 0,
+                        format: 'currency',
+                        icon: '💰'
+                    },
+                    {
+                        title: 'Orders',
+                        value: overview.orders?.current || 0,
+                        change: overview.orders?.change || 0,
+                        format: 'number',
+                        icon: '📦'
+                    },
+                    {
+                        title: 'Customers',
+                        value: overview.customers?.current || 0,
+                        change: overview.customers?.change || 0,
+                        format: 'number',
+                        icon: '👥'
+                    },
+                    {
+                        title: 'Conversion',
+                        value: overview.conversion?.current || 0,
+                        change: overview.conversion?.change || 0,
+                        format: 'percentage',
+                        icon: '📈'
+                    }
+                ];
+                
+                metricsGrid.innerHTML = metrics.map(metric => `
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-icon">${metric.icon}</span>
+                            <span class="metric-title">${metric.title}</span>
+                        </div>
+                        <div class="metric-value">${this.formatValue(metric.value, metric.format)}</div>
+                        <div class="metric-change ${this.getChangeClass(metric.change)}">
+                            ${this.getChangeIcon(metric.change)} ${Math.abs(metric.change).toFixed(1)}%
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            renderRealtimeData() {
+                const realtime = this.state.dashboardData.realtime || {};
+                
+                document.getElementById('activeUsers').textContent = `${realtime.activeUsers || 0} 🟢`;
+                
+                const statusElement = document.getElementById('systemStatus');
+                const status = realtime.systemStatus || 'offline';
+                statusElement.textContent = `${status} ${status === 'online' ? '✅' : '❌'}`;
+                statusElement.className = `realtime-value ${status === 'online' ? 'status-online' : 'status-offline'}`;
+            }
+            
+            renderRecentOrders() {
+                const realtime = this.state.dashboardData.realtime || {};
+                this.updateRecentOrders(realtime.recentOrders || []);
+            }
+            
+            updateRecentOrders(orders) {
+                const ordersList = document.getElementById('recentOrdersList');
+                
+                if (orders.length === 0) {
+                    ordersList.innerHTML = '<div class="order-item"><span class="order-text">No recent orders</span></div>';
+                    return;
+                }
+                
+                ordersList.innerHTML = orders.map(order => `
+                    <div class="order-item">
+                        <span class="order-text">Order #${order.id} - $${order.amount}</span>
+                        <span class="order-time">${order.time}</span>
+                    </div>
+                `).join('');
+            }
+            
+            setupCharts() {
+                this.setupRevenueChart();
+                this.setupCategoryChart();
+            }
+            
+            setupRevenueChart() {
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                
+                const revenueData = {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [120000, 145000, 132000, 178000, 165000, 192000],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                };
+                
+                this.state.charts.revenue = new Chart(ctx, {
+                    type: 'line',
+                    data: revenueData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            setupCategoryChart() {
+                const ctx = document.getElementById('categoryChart').getContext('2d');
+                
+                const categoryData = {
+                    labels: ['Electronics', 'Clothing', 'Books', 'Home'],
+                    datasets: [{
+                        data: [35, 28, 20, 17],
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444'
+                        ]
+                    }]
+                };
+                
+                this.state.charts.category = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: categoryData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            updateChartThemes() {
+                // Update chart colors based on theme
+                Object.values(this.state.charts).forEach(chart => {
+                    chart.update();
+                });
+            }
+            
+            setupPullToRefresh() {
+                let startY = 0;
+                let currentY = 0;
+                let isPulling = false;
+                
+                document.addEventListener('touchstart', (e) => {
+                    if (window.scrollY === 0) {
+                        startY = e.touches[0].pageY;
+                        isPulling = true;
+                    }
+                }, { passive: true });
+                
+                document.addEventListener('touchmove', (e) => {
+                    if (isPulling) {
+                        currentY = e.touches[0].pageY;
+                        const pullDistance = currentY - startY;
+                        
+                        if (pullDistance > 50) {
+                            document.getElementById('pullToRefresh').textContent = 'Release to refresh';
+                        }
+                    }
+                }, { passive: true });
+                
+                document.addEventListener('touchend', () => {
+                    if (isPulling) {
+                        const pullDistance = currentY - startY;
+                        if (pullDistance > 50) {
+                            this.refreshData();
+                        }
+                        isPulling = false;
+                        document.getElementById('pullToRefresh').textContent = 'Pull down to refresh';
+                    }
+                }, { passive: true });
+            }
+            
+            setupInstallPrompt() {
+                let deferredPrompt;
+                
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    this.showInstallPrompt();
+                });
+                
+                window.addEventListener('appinstalled', () => {
+                    console.log('PWA was installed');
+                    this.hideInstallPrompt();
+                });
+                
+                // Install button click handler
+                this.installApp = async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const result = await deferredPrompt.userChoice;
+                        console.log('User choice:', result);
+                        deferredPrompt = null;
+                        this.hideInstallPrompt();
+                    }
+                };
+            }
+            
+            showInstallPrompt() {
+                const prompt = document.getElementById('installPrompt');
+                setTimeout(() => {
+                    prompt.classList.add('show');
+                }, 2000);
+            }
+            
+            hideInstallPrompt() {
+                document.getElementById('installPrompt').classList.remove('show');
+            }
+            
+            startPeriodicRefresh() {
+                setInterval(() => {
+                    if (this.state.isOnline && !document.hidden) {
+                        this.refreshData();
+                    }
+                }, this.config.refreshInterval);
+            }
+            
+            async refreshData() {
+                try {
+                    await this.loadDashboardData();
+                } catch (error) {
+                    console.error('Refresh failed:', error);
+                }
+            }
+            
+            async syncOfflineData() {
+                // Sync any offline actions when connection is restored
+                console.log('Syncing offline data...');
+            }
+            
+            formatValue(value, format) {
+                switch (format) {
+                    case 'currency':
+                        return '$' + value.toLocaleString();
+                    case 'percentage':
+                        return value.toFixed(1) + '%';
+                    case 'number':
+                    default:
+                        return value.toLocaleString();
+                }
+            }
+            
+            getChangeClass(change) {
+                if (change > 0) return 'positive';
+                if (change < 0) return 'negative';
+                return 'neutral';
+            }
+            
+            getChangeIcon(change) {
+                if (change > 0) return '↗️';
+                if (change < 0) return '↘️';
+                return '→';
+            }
+            
+            updateLastUpdatedTime() {
+                this.state.lastUpdated = new Date();
+                document.getElementById('lastUpdated').textContent = 
+                    `Last updated: ${this.state.lastUpdated.toLocaleTimeString()}`;
+            }
+            
+            handleOnline() {
+                this.state.isOnline = true;
+                this.updateNetworkStatus();
+                this.setupWebSocket();
+                this.refreshData();
+            }
+            
+            handleOffline() {
+                this.state.isOnline = false;
+                this.updateNetworkStatus();
+                if (this.state.websocket) {
+                    this.state.websocket.close();
+                }
+            }
+            
+            showMenu() {
+                // Show settings/menu modal
+                alert('Settings menu - Coming soon!');
+            }
+            
+            showUpdateNotification() {
+                if (confirm('A new version is available. Refresh to update?')) {
+                    window.location.reload();
+                }
+            }
+            
+            showErrorMessage(message) {
+                console.error(message);
+                // Show toast notification
+            }
+        }
+        
+        // Initialize the PWA when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new MobileDashboardPWA();
+        });
+    </script>
+</body>
+</html>
