@@ -27,7 +27,7 @@ const Layout: React.FC<LayoutProps> = ({ user, children }) => {
   useEffect(() => {
     // WebSocket connection for real-time notifications
     try {
-    const ws = new WebSocket('ws://localhost:8080/notifications');
+    const ws = new WebSocket('ws://localhost:8081');
     
     ws.onmessage = (event) => {
       const notification = JSON.parse(event.data);

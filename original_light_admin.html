@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - MesChain Sync (Orijinal)</title>
+    
+    <!-- Bootstrap 3.x for original look -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* Original Admin Theme Variables */
+        :root {
+            --admin-primary: #059669;
+            --admin-secondary: #0891b2;
+            --admin-background: #f8f9fa;
+            --admin-panel-bg: #ffffff;
+            --admin-panel-header: #059669;
+            --admin-text: #333333;
+            --admin-light-text: #ffffff;
+            --admin-border: #dddddd;
+            --admin-hover: #047857;
+            --admin-active: #065f46;
+            --admin-accent: #f0fdf4;
+        }
+
+        body {
+            background-color: var(--admin-background);
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        /* Header */
+        #header {
+            background-color: var(--admin-primary);
+            color: var(--admin-light-text);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--admin-border);
+        }
+
+        #header .navbar-brand {
+            color: var(--admin-light-text);
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Sidebar */
+        #column-left {
+            background-color: var(--admin-background);
+            border-right: 1px solid var(--admin-border);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .list-group-item {
+            background-color: var(--admin-background);
+            border-color: var(--admin-border);
+            color: var(--admin-text);
+            border-radius: 0;
+        }
+
+        .list-group-item:hover {
+            background-color: var(--admin-hover);
+            color: var(--admin-light-text);
+        }
+
+        .list-group-item.active {
+            background-color: var(--admin-active);
+            color: var(--admin-light-text);
+            border-color: var(--admin-active);
+        }
+
+        /* Panels */
+        .panel {
+            border-color: var(--admin-border);
+            background-color: var(--admin-panel-bg);
+            border-radius: 4px;
+            box-shadow: 0 1px 1px rgba(0,0,0,.05);
+        }
+
+        .panel-heading {
+            background-color: var(--admin-panel-header);
+            border-color: var(--admin-border);
+            color: var(--admin-light-text);
+        }
+
+        .panel-primary .panel-heading {
+            background-color: #059669;
+            border-color: #059669;
+        }
+
+        .panel-info .panel-heading {
+            background-color: #0891b2;
+            border-color: #0891b2;
+        }
+
+        .panel-success .panel-heading {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+
+        .panel-warning .panel-heading {
+            background-color: #f59e0b;
+            border-color: #f59e0b;
+        }
+
+        /* Content Area */
+        #content {
+            background-color: var(--admin-background);
+            padding: 20px;
+        }
+
+        .page-header {
+            border-bottom: 1px solid var(--admin-border);
+            margin-bottom: 20px;
+            padding-bottom: 9px;
+        }
+
+        .huge {
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .breadcrumb {
+            background-color: var(--admin-accent);
+            border: 1px solid var(--admin-border);
+        }
+
+        /* Admin specific colors */
+        .admin-metric { color: #059669; }
+        .admin-success { color: #10b981; }
+        .admin-warning { color: #f59e0b; }
+        .admin-info { color: #0891b2; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div id="header">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <span class="navbar-brand">
+                    <i class="fa fa-user-tie"></i> MesChain-Sync Admin Panel
+                </span>
+                <div class="pull-right">
+                    <span style="color: white; margin-right: 15px;">
+                        <i class="fa fa-user"></i> Admin | 
+                        <i class="fa fa-clock-o"></i> 5 Haziran 2025
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid" style="padding: 0;">
+        <div class="row" style="margin: 0;">
+            <!-- Sidebar -->
+            <div class="col-sm-2" id="column-left">
+                <div class="list-group" style="margin: 15px;">
+                    <a href="#dashboard" class="list-group-item active" onclick="showSection('dashboard')">
+                        <i class="fa fa-dashboard"></i> Dashboard
+                    </a>
+                    <a href="#products" class="list-group-item" onclick="showSection('products')">
+                        <i class="fa fa-cubes"></i> Ürün Yönetimi
+                    </a>
+                    <a href="#orders" class="list-group-item" onclick="showSection('orders')">
+                        <i class="fa fa-shopping-cart"></i> Sipariş Yönetimi
+                    </a>
+                    <a href="#sync" class="list-group-item" onclick="showSection('sync')">
+                        <i class="fa fa-refresh"></i> Senkronizasyon
+                    </a>
+                    <a href="#reports" class="list-group-item" onclick="showSection('reports')">
+                        <i class="fa fa-bar-chart"></i> Raporlar
+                    </a>
+                    <a href="#marketplace" class="list-group-item" onclick="showSection('marketplace')">
+                        <i class="fa fa-shopping-bag"></i> Pazaryerleri
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-sm-10" id="content">
+                <!-- Dashboard Section -->
+                <div id="dashboard-section" class="content-section">
+                    <div class="page-header">
+                        <h1>Admin Dashboard</h1>
+                        <ol class="breadcrumb">
+                            <li><a href="#">Ana Sayfa</a></li>
+                            <li class="active">Dashboard</li>
+                        </ol>
+                    </div>
+
+                    <!-- Statistics Row -->
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <i class="fa fa-cubes fa-5x"></i>
+                                        </div>
+                                        <div class="col-xs-9 text-right">
+                                            <div class="huge">1,247</div>
+                                            <div>Toplam Ürün</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="panel panel-success">
+                                <div class="panel-heading">
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <i class="fa fa-shopping-cart fa-5x"></i>
+                                        </div>
+                                        <div class="col-xs-9 text-right">
+                                            <div class="huge">89</div>
+                                            <div>Bekleyen Sipariş</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <i class="fa fa-refresh fa-5x"></i>
+                                        </div>
+                                        <div class="col-xs-9 text-right">
+                                            <div class="huge">6/7</div>
+                                            <div>Sync Durumu</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="panel panel-warning">
+                                <div class="panel-heading">
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <i class="fa fa-exclamation-triangle fa-5x"></i>
+                                        </div>
+                                        <div class="col-xs-9 text-right">
+                                            <div class="huge">12</div>
+                                            <div>Düşük Stok</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Marketplace Connections -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-plug"></i> Pazaryeri Bağlantıları</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <strong>Amazon</strong>
+                                            <span class="pull-right"><i class="fa fa-check-circle admin-success"></i></span>
+                                        </div>
+                                        <div class="panel-body text-center">
+                                            <p>Son Sync: 14:30</p>
+                                            <p>Aktif Ürün: 892</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="panel panel-success">
+                                        <div class="panel-heading">
+                                            <strong>Trendyol</strong>
+                                            <span class="pull-right"><i class="fa fa-check-circle admin-success"></i></span>
+                                        </div>
+                                        <div class="panel-body text-center">
+                                            <p>Son Sync: 14:25</p>
+                                            <p>Aktif Ürün: 1,247</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="panel panel-info">
+                                        <div class="panel-heading">
+                                            <strong>N11</strong>
+                                            <span class="pull-right"><i class="fa fa-refresh fa-spin admin-warning"></i></span>
+                                        </div>
+                                        <div class="panel-body text-center">
+                                            <p>Son Sync: Devam ediyor</p>
+                                            <p>Aktif Ürün: 543</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-clock-o"></i> Son Aktiviteler</h3>
+                        </div>
+                        <div class="panel-body">
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    <span class="badge">14:30</span>
+                                    Amazon senkronizasyonu tamamlandı (892 ürün)
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="badge">14:25</span>
+                                    Trendyol ürün güncellemesi başarılı
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="badge">14:20</span>
+                                    Yeni sipariş alındı: #12847
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="badge">14:15</span>
+                                    Stok uyarısı: 12 ürün düşük stokta
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Section -->
+                <div id="products-section" class="content-section" style="display: none;">
+                    <div class="page-header">
+                        <h1>Ürün Yönetimi</h1>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Ürün Listesi</h3>
+                        </div>
+                        <div class="panel-body">
+                            <p>Ürün yönetim paneli burada yer alacak.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other sections (hidden by default) -->
+                <div id="orders-section" class="content-section" style="display: none;">
+                    <div class="page-header">
+                        <h1>Sipariş Yönetimi</h1>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <p>Sipariş yönetim paneli burada yer alacak.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="sync-section" class="content-section" style="display: none;">
+                    <div class="page-header">
+                        <h1>Senkronizasyon</h1>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <p>Senkronizasyon ayarları burada yer alacak.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reports-section" class="content-section" style="display: none;">
+                    <div class="page-header">
+                        <h1>Raporlar</h1>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <p>Raporlar burada yer alacak.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="marketplace-section" class="content-section" style="display: none;">
+                    <div class="page-header">
+                        <h1>Pazaryeri Ayarları</h1>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <p>Pazaryeri ayarları burada yer alacak.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    
+    <script>
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Remove active class from all nav links
+            document.querySelectorAll('.list-group-item').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+
+            // Add active class to clicked nav link
+            event.target.classList.add('active');
+            
+            console.log('Switched to section:', sectionName);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Admin Panel yüklendi - Original Light Mode');
+        });
+    </script>
+</body>
+</html>

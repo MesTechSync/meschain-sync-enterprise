@@ -94,7 +94,7 @@ const NotificationSystem: React.FC = () => {
   // WebSocket bağlantısı
   const connectWebSocket = useCallback(() => {
     try {
-      const ws = new WebSocket('ws://localhost:8080/websocket');
+      const ws = new WebSocket('ws://localhost:8081');
       
       ws.onopen = () => {
         console.log('WebSocket bağlantısı kuruldu');
