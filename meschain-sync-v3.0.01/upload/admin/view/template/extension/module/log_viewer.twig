@@ -1,0 +1,449 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-info" onclick="refreshLogs()">
+          <i class="fa fa-refresh"></i>
+        </button>
+        <button type="button" data-toggle="tooltip" title="{{ button_download }}" class="btn btn-success" onclick="downloadLogs()">
+          <i class="fa fa-download"></i>
+        </button>
+        <button type="button" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-danger" onclick="clearSelectedLog()">
+          <i class="fa fa-trash-o"></i>
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_log_files }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="well">
+              <h4>{{ text_available_logs }}</h4>
+              <div class="form-group">
+                <select name="log_file" id="log_file" class="form-control" onchange="loadLogFile()">
+                  <option value="">{{ text_select_log }}</option>
+                  {% for log_file in log_files %}
+                  <option value="{{ log_file.name }}" {% if selected_log == log_file.name %}selected{% endif %}>
+                    {{ log_file.name }} ({{ log_file.size_formatted }})
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              
+              {% if log_stats %}
+              <div class="log-stats">
+                <h5>{{ text_log_statistics }}</h5>
+                <table class="table table-condensed">
+                  <tr>
+                    <td>{{ text_total_files }}:</td>
+                    <td><span class="badge">{{ log_stats.total_files }}</span></td>
+                  </tr>
+                  <tr>
+                    <td>{{ text_total_size }}:</td>
+                    <td><span class="badge">{{ log_stats.total_size_formatted }}</span></td>
+                  </tr>
+                  <tr>
+                    <td>{{ text_largest_file }}:</td>
+                    <td><small>{{ log_stats.largest_file }}</small></td>
+                  </tr>
+                </table>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="col-md-8">
+            <div class="log-controls">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>{{ text_lines_to_show }}:</label>
+                    <select name="line_count" id="line_count" class="form-control" onchange="loadLogFile()">
+                      <option value="50">50 {{ text_lines }}</option>
+                      <option value="100" selected>100 {{ text_lines }}</option>
+                      <option value="200">200 {{ text_lines }}</option>
+                      <option value="500">500 {{ text_lines }}</option>
+                      <option value="1000">1000 {{ text_lines }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>{{ text_filter_level }}:</label>
+                    <select name="filter_level" id="filter_level" class="form-control" onchange="filterLogs()">
+                      <option value="">{{ text_all_levels }}</option>
+                      <option value="ERROR">ERROR</option>
+                      <option value="WARNING">WARNING</option>
+                      <option value="INFO">INFO</option>
+                      <option value="DEBUG">DEBUG</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label>{{ text_search }}:</label>
+                <div class="input-group">
+                  <input type="text" name="search_term" id="search_term" class="form-control" placeholder="{{ placeholder_search }}">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" onclick="searchLogs()">
+                      <i class="fa fa-search"></i>
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-file-text-o"></i> {{ text_log_content }}
+          {% if selected_log %}
+          <small>{{ selected_log }}</small>
+          {% endif %}
+        </h3>
+      </div>
+      <div class="panel-body">
+        {% if log_data.error %}
+        <div class="alert alert-danger">
+          <i class="fa fa-exclamation-triangle"></i> {{ log_data.error }}
+        </div>
+        {% else %}
+        
+        {% if log_data.lines %}
+        <div class="log-info">
+          <small class="text-muted">
+            {{ text_showing }} {{ log_data.lines|length }} {{ text_lines }} 
+            {{ text_of }} {{ log_data.total_lines }} {{ text_total_lines }}
+            {% if log_data.file_size %}
+            | {{ text_file_size }}: {{ log_data.file_size_formatted }}
+            {% endif %}
+            {% if log_data.last_modified %}
+            | {{ text_last_modified }}: {{ log_data.last_modified_formatted }}
+            {% endif %}
+          </small>
+        </div>
+
+        <div class="log-viewer-container">
+          <pre class="log-content" id="log-content">{% for line in log_data.lines %}<div class="log-line {{ line.level_class }}" data-line="{{ line.line_number }}" data-level="{{ line.level }}">{% if line.timestamp %}<span class="log-timestamp">[{{ line.timestamp }}]</span> {% endif %}<span class="log-level">{{ line.level }}:</span> <span class="log-message">{{ line.message }}</span></div>{% endfor %}</pre>
+        </div>
+
+        <div class="log-pagination">
+          {% if log_data.total_lines > 100 %}
+          <div class="text-center">
+            <button type="button" class="btn btn-default" onclick="loadMoreLines('older')">
+              <i class="fa fa-arrow-up"></i> {{ text_load_older }}
+            </button>
+            <button type="button" class="btn btn-default" onclick="loadMoreLines('newer')">
+              <i class="fa fa-arrow-down"></i> {{ text_load_newer }}
+            </button>
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+          <i class="fa fa-info-circle"></i> {{ text_no_log_selected }}
+        </div>
+        {% endif %}
+        
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.log-viewer-container {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.log-content {
+    background: #f8f8f8;
+    color: #333;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 0;
+    padding: 10px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.log-line {
+    margin: 2px 0;
+    padding: 2px 5px;
+    border-radius: 2px;
+}
+
+.log-line:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.log-timestamp {
+    color: #666;
+    font-weight: normal;
+}
+
+.log-level {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.log-message {
+    color: #333;
+}
+
+/* Log level colors */
+.text-danger { color: #d9534f !important; background: rgba(217, 83, 79, 0.1); }
+.text-warning { color: #f0ad4e !important; background: rgba(240, 173, 78, 0.1); }
+.text-info { color: #5bc0de !important; background: rgba(91, 192, 222, 0.1); }
+.text-success { color: #5cb85c !important; background: rgba(92, 184, 92, 0.1); }
+.text-muted { color: #777 !important; }
+.text-primary { color: #337ab7 !important; background: rgba(51, 122, 183, 0.1); }
+
+.bg-warning { background: #fcf8e3 !important; }
+.bg-danger { background: #f2dede !important; }
+
+.log-stats .table td {
+    border: none;
+    padding: 3px 5px;
+}
+
+.log-controls {
+    margin-bottom: 15px;
+}
+
+.log-info {
+    margin-bottom: 10px;
+    padding: 5px;
+    background: #f5f5f5;
+    border-radius: 3px;
+}
+
+.log-pagination {
+    margin-top: 15px;
+}
+</style>
+
+<script type="text/javascript">
+var current_offset = 0;
+
+function loadLogFile() {
+    var logFile = $('#log_file').val();
+    var lineCount = $('#line_count').val();
+    
+    if (!logFile) {
+        $('#log-content').html('<div class="alert alert-info">{{ text_select_log }}</div>');
+        return;
+    }
+    
+    $.ajax({
+        url: '{{ ajax_load_url }}',
+        type: 'POST',
+        data: {
+            log_file: logFile,
+            lines: lineCount,
+            offset: 0
+        },
+        dataType: 'json',
+        beforeSend: function() {
+            $('#log-content').html('<div class="text-center"><i class="fa fa-spinner fa-spin"></i> {{ text_loading }}</div>');
+        },
+        success: function(response) {
+            if (response.success) {
+                displayLogContent(response.data);
+                current_offset = 0;
+            } else {
+                $('#log-content').html('<div class="alert alert-danger">' + response.error + '</div>');
+            }
+        },
+        error: function() {
+            $('#log-content').html('<div class="alert alert-danger">{{ text_ajax_error }}</div>');
+        }
+    });
+}
+
+function displayLogContent(logData) {
+    var content = '';
+    
+    if (logData.lines && logData.lines.length > 0) {
+        logData.lines.forEach(function(line) {
+            content += '<div class="log-line ' + line.level_class + '" data-line="' + line.line_number + '" data-level="' + line.level + '">';
+            if (line.timestamp) {
+                content += '<span class="log-timestamp">[' + line.timestamp + ']</span> ';
+            }
+            content += '<span class="log-level">' + line.level + ':</span> ';
+            content += '<span class="log-message">' + escapeHtml(line.message) + '</span>';
+            content += '</div>';
+        });
+    } else {
+        content = '<div class="alert alert-info">{{ text_no_content }}</div>';
+    }
+    
+    $('#log-content').html(content);
+}
+
+function refreshLogs() {
+    location.reload();
+}
+
+function downloadLogs() {
+    var logFile = $('#log_file').val();
+    if (!logFile) {
+        alert('{{ text_select_log_first }}');
+        return;
+    }
+    
+    window.open('{{ download_url }}&log_file=' + encodeURIComponent(logFile), '_blank');
+}
+
+function clearSelectedLog() {
+    var logFile = $('#log_file').val();
+    if (!logFile) {
+        alert('{{ text_select_log_first }}');
+        return;
+    }
+    
+    if (confirm('{{ text_confirm_clear }}')) {
+        $.ajax({
+            url: '{{ ajax_clear_url }}',
+            type: 'POST',
+            data: { log_file: logFile },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    alert('{{ text_log_cleared }}');
+                    loadLogFile();
+                } else {
+                    alert('{{ text_clear_failed }}: ' + response.error);
+                }
+            }
+        });
+    }
+}
+
+function filterLogs() {
+    var filterLevel = $('#filter_level').val();
+    var lines = $('#log-content .log-line');
+    
+    if (!filterLevel) {
+        lines.show();
+        return;
+    }
+    
+    lines.each(function() {
+        var lineLevel = $(this).data('level');
+        if (lineLevel === filterLevel) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+}
+
+function searchLogs() {
+    var searchTerm = $('#search_term').val().toLowerCase();
+    var lines = $('#log-content .log-line');
+    
+    if (!searchTerm) {
+        lines.show();
+        return;
+    }
+    
+    lines.each(function() {
+        var lineText = $(this).text().toLowerCase();
+        if (lineText.indexOf(searchTerm) !== -1) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+}
+
+function loadMoreLines(direction) {
+    var logFile = $('#log_file').val();
+    var lineCount = $('#line_count').val();
+    
+    if (direction === 'older') {
+        current_offset += parseInt(lineCount);
+    } else {
+        current_offset = Math.max(0, current_offset - parseInt(lineCount));
+    }
+    
+    $.ajax({
+        url: '{{ ajax_load_url }}',
+        type: 'POST',
+        data: {
+            log_file: logFile,
+            lines: lineCount,
+            offset: current_offset
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                displayLogContent(response.data);
+            }
+        }
+    });
+}
+
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
+// Enter key search
+$('#search_term').keypress(function(e) {
+    if (e.which == 13) {
+        searchLogs();
+    }
+});
+
+// Auto-refresh every 30 seconds if enabled
+{% if auto_refresh %}
+setInterval(function() {
+    if ($('#log_file').val()) {
+        loadLogFile();
+    }
+}, 30000);
+{% endif %}
+</script>
+
+{{ footer }} 
