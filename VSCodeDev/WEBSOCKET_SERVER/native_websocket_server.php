@@ -11,14 +11,13 @@
  */
 
 class MeschainNativeWebSocket {
-    
-    private $host = '127.0.0.1';
-    private $port = 8080;
+      private $host = '127.0.0.1';
+    private $port = 8081;
     private $socket;
     private $clients = array();
     private $performance_monitor;
     
-    public function __construct($host = '127.0.0.1', $port = 8080) {
+    public function __construct($host = '127.0.0.1', $port = 8081) {
         $this->host = $host;
         $this->port = $port;
         $this->initializeComponents();
@@ -408,7 +407,7 @@ class MeschainNativeWebSocket {
 if (php_sapi_name() === 'cli') {
     echo "🚀 Starting MesChain Native WebSocket Server...\n";
     
-    $server = new MeschainNativeWebSocket('127.0.0.1', 8080);
+    $server = new MeschainNativeWebSocket('127.0.0.1', 8081);
     $server->start();
 } else {
     echo "⚠️ This WebSocket server must be run from command line\n";

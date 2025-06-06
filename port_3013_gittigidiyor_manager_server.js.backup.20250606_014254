@@ -1,0 +1,489 @@
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+
+const app = express();
+const PORT = 3013;
+
+// Enable CORS for all requests
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/CursorDev', express.static(path.join(__dirname, 'CursorDev')));
+
+// Placeholder for authentication middleware (to be integrated)
+const authenticateUser = (req, res, next) => {
+    // TODO: Integrate with MesChain Auth System
+    // For now, allowing all requests
+    next();
+};
+
+// Main GittiGidiyor Manager Dashboard
+app.get('/', (req, res) => {
+    res.send(`
+    <!DOCTYPE html>
+    <html lang="tr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GittiGidiyor Manager - MesChain Enterprise</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                color: #333;
+            }
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            .header {
+                background: rgba(255, 255, 255, 0.95);
+                padding: 20px;
+                border-radius: 15px;
+                margin-bottom: 30px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(10px);
+            }
+            .header h1 {
+                color: #764ba2;
+                font-size: 2.5em;
+                margin-bottom: 10px;
+                text-align: center;
+            }
+            .header .subtitle {
+                text-align: center;
+                color: #666;
+                font-size: 1.2em;
+            }
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 25px;
+                margin-bottom: 30px;
+            }
+            .dashboard-card {
+                background: rgba(255, 255, 255, 0.95);
+                padding: 25px;
+                border-radius: 15px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(10px);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .dashboard-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+            }
+            .card-title {
+                font-size: 1.4em;
+                font-weight: bold;
+                margin-bottom: 15px;
+                color: #764ba2;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .card-content {
+                color: #555;
+                line-height: 1.6;
+            }
+            .metric-value {
+                font-size: 2em;
+                font-weight: bold;
+                color: #667eea;
+                margin: 10px 0;
+            }
+            .status-indicator {
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                margin-right: 8px;
+            }
+            .status-active { background-color: #4CAF50; }
+            .status-warning { background-color: #FF9800; }
+            .status-error { background-color: #F44336; }
+            .action-buttons {
+                display: flex;
+                gap: 15px;
+                margin-top: 20px;
+                flex-wrap: wrap;
+            }
+            .btn {
+                padding: 12px 24px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                text-decoration: none;
+                display: inline-block;
+                transition: all 0.3s ease;
+                text-align: center;
+            }
+            .btn-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+            .btn-secondary {
+                background: #f8f9fa;
+                color: #764ba2;
+                border: 2px solid #764ba2;
+            }
+            .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+            .recent-activity {
+                background: rgba(255, 255, 255, 0.95);
+                padding: 25px;
+                border-radius: 15px;
+                margin-top: 30px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            }
+            .activity-item {
+                padding: 15px;
+                border-left: 4px solid #667eea;
+                margin-bottom: 15px;
+                background: #f8f9fa;
+                border-radius: 0 8px 8px 0;
+            }
+            .footer {
+                text-align: center;
+                margin-top: 40px;
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 0.9em;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🛒 GittiGidiyor Manager</h1>
+                <p class="subtitle">GittiGidiyor Entegrasyonu ve Pazaryeri Yönetim Merkezi</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="card-title">
+                        📊 GittiGidiyor Hesap Durumu
+                    </div>
+                    <div class="card-content">
+                        <div class="metric-value">
+                            <span class="status-indicator status-active"></span>
+                            Aktif
+                        </div>
+                        <p>GittiGidiyor hesabınız aktif ve senkronize</p>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="refreshGGStatus()">Durumu Yenile</button>
+                            <button class="btn btn-secondary" onclick="viewGGSettings()">Ayarlar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-title">
+                        🏪 Ürün Yönetimi
+                    </div>
+                    <div class="card-content">
+                        <div class="metric-value">1,247</div>
+                        <p>GittiGidiyor'da aktif ürün sayısı</p>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="manageGGProducts()">Ürünleri Yönet</button>
+                            <button class="btn btn-secondary" onclick="bulkUploadGG()">Toplu Yükleme</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-title">
+                        📦 Sipariş Yönetimi
+                    </div>
+                    <div class="card-content">
+                        <div class="metric-value">89</div>
+                        <p>Bekleyen GittiGidiyor siparişleri</p>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="manageGGOrders()">Siparişleri Görüntüle</button>
+                            <button class="btn btn-secondary" onclick="processGGOrders()">Toplu İşlem</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-title">
+                        💰 Satış Performansı
+                    </div>
+                    <div class="card-content">
+                        <div class="metric-value">₺45,230</div>
+                        <p>Bu ay GittiGidiyor geliri</p>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="viewGGAnalytics()">Detaylı Analiz</button>
+                            <button class="btn btn-secondary" onclick="exportGGReport()">Rapor İndir</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-title">
+                        🚚 Kargo ve Teslimat
+                    </div>
+                    <div class="card-content">
+                        <div class="metric-value">
+                            <span class="status-indicator status-warning"></span>
+                            23 Bekliyor
+                        </div>
+                        <p>GittiGidiyor kargo işlemleri</p>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="manageGGShipping()">Kargo Yönetimi</button>
+                            <button class="btn btn-secondary" onclick="trackGGShipments()">Gönderi Takibi</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-title">
+                        ⭐ Müşteri Geri Bildirimleri
+                    </div>
+                    <div class="card-content">
+                        <div class="metric-value">4.7/5.0</div>
+                        <p>GittiGidiyor mağaza puanı</p>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="viewGGReviews()">Yorumları Görüntüle</button>
+                            <button class="btn btn-secondary" onclick="respondGGReviews()">Yanıt Ver</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h3 style="color: #764ba2; margin-bottom: 20px;">🕒 Son GittiGidiyor Aktiviteleri</h3>
+                <div class="activity-item">
+                    <strong>Yeni Sipariş:</strong> #GG2025001234 - ₺125.50 - 2 dakika önce
+                </div>
+                <div class="activity-item">
+                    <strong>Ürün Güncellendi:</strong> "Premium Kulaklık" stok miktarı güncellendi - 15 dakika önce
+                </div>
+                <div class="activity-item">
+                    <strong>Kargo Bildirimi:</strong> 3 sipariş kargoya verildi - 1 saat önce
+                </div>
+                <div class="activity-item">
+                    <strong>Yeni Yorum:</strong> "Xiaomi Telefon" ürününe 5 yıldız yorum - 2 saat önce
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>© 2025 MesChain Enterprise - GittiGidiyor Manager v1.0.0</p>
+                <p>Port: ${PORT} | Server Status: Active</p>
+            </div>
+        </div>
+
+        <script>
+            function refreshGGStatus() {
+                fetch('/api/gittigidiyor/status')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('GittiGidiyor status refreshed:', data);
+                        alert('GittiGidiyor hesap durumu güncellendi!');
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            function viewGGSettings() {
+                fetch('/api/gittigidiyor/settings')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('GittiGidiyor settings:', data);
+                        alert('GittiGidiyor ayarları yükleniyor...');
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            function manageGGProducts() {
+                window.open('/gittigidiyor/products', '_blank');
+            }
+
+            function bulkUploadGG() {
+                alert('GittiGidiyor toplu ürün yükleme özelliği açılıyor...');
+            }
+
+            function manageGGOrders() {
+                window.open('/gittigidiyor/orders', '_blank');
+            }
+
+            function processGGOrders() {
+                alert('GittiGidiyor toplu sipariş işleme başlatılıyor...');
+            }
+
+            function viewGGAnalytics() {
+                window.open('/gittigidiyor/analytics', '_blank');
+            }
+
+            function exportGGReport() {
+                fetch('/api/gittigidiyor/export-report')
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'gittigidiyor-report.xlsx';
+                        a.click();
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            function manageGGShipping() {
+                window.open('/gittigidiyor/shipping', '_blank');
+            }
+
+            function trackGGShipments() {
+                alert('GittiGidiyor gönderi takip sistemi açılıyor...');
+            }
+
+            function viewGGReviews() {
+                window.open('/gittigidiyor/reviews', '_blank');
+            }
+
+            function respondGGReviews() {
+                alert('GittiGidiyor yorum yanıtlama sistemi açılıyor...');
+            }
+
+            // Auto-refresh data every 30 seconds
+            setInterval(() => {
+                fetch('/api/gittigidiyor/live-data')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('GittiGidiyor live data updated:', data);
+                    })
+                    .catch(error => console.error('Error:', error));
+            }, 30000);
+        </script>
+    </body>
+    </html>
+    `);
+});
+
+// API Routes
+app.get('/api/gittigidiyor/status', authenticateUser, (req, res) => {
+    res.json({
+        success: true,
+        status: 'active',
+        account: {
+            id: 'gg_store_001',
+            name: 'MesChain GittiGidiyor Mağazası',
+            rating: 4.7,
+            totalProducts: 1247,
+            activeListings: 1189,
+            pendingOrders: 89
+        },
+        lastSync: new Date().toISOString()
+    });
+});
+
+app.get('/api/gittigidiyor/settings', authenticateUser, (req, res) => {
+    res.json({
+        success: true,
+        settings: {
+            autoSync: true,
+            syncInterval: 15,
+            priceMargin: 0.15,
+            stockBuffer: 5,
+            autoFulfillment: false,
+            notifications: {
+                newOrders: true,
+                lowStock: true,
+                priceChanges: false
+            }
+        }
+    });
+});
+
+app.get('/api/gittigidiyor/live-data', authenticateUser, (req, res) => {
+    res.json({
+        success: true,
+        timestamp: new Date().toISOString(),
+        metrics: {
+            todayRevenue: 2450.75,
+            todayOrders: 18,
+            pendingShipments: 23,
+            newReviews: 3,
+            averageRating: 4.7,
+            conversionRate: 3.2
+        }
+    });
+});
+
+app.get('/api/gittigidiyor/export-report', authenticateUser, (req, res) => {
+    // Mock Excel file generation
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=gittigidiyor-report.xlsx');
+    res.send('Mock Excel Report Data for GittiGidiyor');
+});
+
+// GittiGidiyor specific routes
+app.get('/gittigidiyor/products', authenticateUser, (req, res) => {
+    res.send('<h1>GittiGidiyor Ürün Yönetimi</h1><p>GittiGidiyor ürün yönetim paneli geliştiriliyor...</p>');
+});
+
+app.get('/gittigidiyor/orders', authenticateUser, (req, res) => {
+    res.send('<h1>GittiGidiyor Sipariş Yönetimi</h1><p>GittiGidiyor sipariş yönetim paneli geliştiriliyor...</p>');
+});
+
+app.get('/gittigidiyor/analytics', authenticateUser, (req, res) => {
+    res.send('<h1>GittiGidiyor Analitik</h1><p>GittiGidiyor analitik dashboard geliştiriliyor...</p>');
+});
+
+app.get('/gittigidiyor/shipping', authenticateUser, (req, res) => {
+    res.send('<h1>GittiGidiyor Kargo Yönetimi</h1><p>GittiGidiyor kargo yönetim paneli geliştiriliyor...</p>');
+});
+
+app.get('/gittigidiyor/reviews', authenticateUser, (req, res) => {
+    res.send('<h1>GittiGidiyor Yorum Yönetimi</h1><p>GittiGidiyor yorum yönetim paneli geliştiriliyor...</p>');
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'healthy',
+        service: 'GittiGidiyor Manager Server',
+        port: PORT,
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('GittiGidiyor Manager Server Error:', err.stack);
+    res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        message: err.message
+    });
+});
+
+// Start server
+const server = app.listen(PORT, () => {
+    console.log(`🛒 GittiGidiyor Manager Server running on port ${PORT}`);
+    console.log(`📱 Dashboard: http://localhost:${PORT}`);
+    console.log(`🔍 Health Check: http://localhost:${PORT}/health`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('GittiGidiyor Manager Server shutting down gracefully...');
+    server.close(() => {
+        console.log('GittiGidiyor Manager Server stopped.');
+        process.exit(0);
+    });
+});
+
+module.exports = app;

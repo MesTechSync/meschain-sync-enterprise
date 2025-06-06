@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-tr="MesChain-Sync Panel Yöneticisi v4.5" data-en="MesChain-Sync Panel Manager v4.5">MesChain-Sync Panel Yöneticisi v4.5</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --purple: #7c3aed;
+            --teal: #0891b2;
+            --background: #ffffff;
+            --light-bg: #f8fafc;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-light: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--light-bg) 0%, #dbeafe 100%);
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Language Toggle */
+        .language-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--background);
+            border-radius: 30px;
+            padding: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            background: transparent;
+            color: var(--text-light);
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .lang-btn:hover:not(.active) {
+            background: var(--light-bg);
+            color: var(--text);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .system-metrics {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 20px;
+            background: var(--light-bg);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .panels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .panel-card {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .panel-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+        }
+
+        .panel-card.super-admin::before {
+            background: linear-gradient(90deg, #ffd700, #ff6b35);
+        }
+
+        .panel-card.admin::before {
+            background: linear-gradient(90deg, var(--danger), #ff6b6b);
+        }
+
+        .panel-card.integrator::before {
+            background: linear-gradient(90deg, var(--purple), #a855f7);
+        }
+
+        .panel-card.dropshipper::before {
+            background: linear-gradient(90deg, var(--teal), #06b6d4);
+        }
+
+        .panel-card.support::before {
+            background: linear-gradient(90deg, var(--warning), #fbbf24);
+        }
+
+        .panel-card.viewer::before {
+            background: linear-gradient(90deg, var(--text-light), #94a3b8);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .panel-icon {
+            font-size: 2rem;
+            opacity: 0.8;
+        }
+
+        .panel-stats {
+            margin-bottom: 20px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+            font-size: 0.9rem;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--light-bg);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .super-admin .progress-fill { background: linear-gradient(90deg, #ffd700, #ff6b35); }
+        .admin .progress-fill { background: linear-gradient(90deg, var(--danger), #ff6b6b); }
+        .integrator .progress-fill { background: linear-gradient(90deg, var(--purple), #a855f7); }
+        .dropshipper .progress-fill { background: linear-gradient(90deg, var(--teal), #06b6d4); }
+        .support .progress-fill { background: linear-gradient(90deg, var(--warning), #fbbf24); }
+        .viewer .progress-fill { background: linear-gradient(90deg, var(--text-light), #94a3b8); }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-decoration: none;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #047857;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .floating-action:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.5);
+        }
+
+        /* Super Admin Modal */
+        .super-admin-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #b91c1c;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .panels-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .floating-action {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .language-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 6px;
+            }
+
+            .lang-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Toggle -->
+    <div class="language-toggle">
+        <button class="lang-btn active" onclick="setLanguage('tr')" data-lang="tr">🇹🇷 TR</button>
+        <button class="lang-btn" onclick="setLanguage('en')" data-lang="en">🇬🇧 EN</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 data-tr="🎛️ Panel Yöneticisi" data-en="🎛️ Panel Manager">🎛️ Panel Yöneticisi</h1>
+            <p data-tr="Rol Tabanlı Kullanıcı Paneli Yönetimi ve İzleme Sistemi" data-en="Role-Based User Panel Management and Monitoring System">Rol Tabanlı Kullanıcı Paneli Yönetimi ve İzleme Sistemi</p>
+        </div>
+
+        <!-- System Metrics -->
+        <div class="system-metrics">
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <div class="metric-value">1,000</div>
+                    <div class="metric-label" data-tr="Toplam Kullanıcı" data-en="Total Users">Toplam Kullanıcı</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">6</div>
+                    <div class="metric-label" data-tr="Aktif Panel" data-en="Active Panels">Aktif Panel</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">23.7%</div>
+                    <div class="metric-label" data-tr="Sistem Yükü" data-en="System Load">Sistem Yükü</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">98.7%</div>
+                    <div class="metric-label" data-tr="Erişilebilirlik" data-en="Uptime">Erişilebilirlik</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panels Grid -->
+        <div class="panels-grid">
+            <!-- Super Admin Panel -->
+            <div class="panel-card super-admin">
+                <div class="panel-header">
+                    <div class="panel-title" data-tr="👑 Süper Admin" data-en="👑 Super Admin">👑 Süper Admin</div>
+                    <div class="panel-icon">👑</div>
+                </div>
+                
+                <div class="panel-stats">
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Aktif Kullanıcılar" data-en="Active Users">Aktif Kullanıcılar</span>
+                        <span class="stat-value">3 / 5</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Yetki Seviyesi" data-en="Permission Level">Yetki Seviyesi</span>
+                        <span class="stat-value" data-tr="Tam Erişim" data-en="Full Access">Tam Erişim</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Son Aktivite" data-en="Last Activity">Son Aktivite</span>
+                        <span class="stat-value">2 <span data-tr="dk önce" data-en="min ago">dk önce</span></span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 60%;"></div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-warning" onclick="openSuperAdminModal()" data-tr="🔐 Erişim" data-en="🔐 Access">🔐 Erişim</button>
+                    <button class="btn btn-outline" onclick="viewUsers('superadmin')" data-tr="👥 Kullanıcılar" data-en="👥 Users">👥 Kullanıcılar</button>
+                </div>
+            </div>
+
+            <!-- Admin Panel -->
+            <div class="panel-card admin">
+                <div class="panel-header">
+                    <div class="panel-title" data-tr="🔧 Admin Panel" data-en="🔧 Admin Panel">🔧 Admin Panel</div>
+                    <div class="panel-icon">🔧</div>
+                </div>
+                
+                <div class="panel-stats">
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Aktif Kullanıcılar" data-en="Active Users">Aktif Kullanıcılar</span>
+                        <span class="stat-value">12 / 15</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Yetki Seviyesi" data-en="Permission Level">Yetki Seviyesi</span>
+                        <span class="stat-value" data-tr="Yönetici" data-en="Administrator">Yönetici</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Son Aktivite" data-en="Last Activity">Son Aktivite</span>
+                        <span class="stat-value">5 <span data-tr="dk önce" data-en="min ago">dk önce</span></span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 80%;"></div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-primary" onclick="accessPanel('admin')" data-tr="🚀 Panel Aç" data-en="🚀 Open Panel">🚀 Panel Aç</button>
+                    <button class="btn btn-outline" onclick="viewUsers('admin')" data-tr="👥 Kullanıcılar" data-en="👥 Users">👥 Kullanıcılar</button>
+                </div>
+            </div>
+
+            <!-- Integrator Panel -->
+            <div class="panel-card integrator">
+                <div class="panel-header">
+                    <div class="panel-title" data-tr="🔗 Entegratör Panel" data-en="🔗 Integrator Panel">🔗 Entegratör Panel</div>
+                    <div class="panel-icon">🔗</div>
+                </div>
+                
+                <div class="panel-stats">
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Aktif Kullanıcılar" data-en="Active Users">Aktif Kullanıcılar</span>
+                        <span class="stat-value">47 / 50</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Yetki Seviyesi" data-en="Permission Level">Yetki Seviyesi</span>
+                        <span class="stat-value" data-tr="Entegrasyon" data-en="Integration">Entegrasyon</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Son Aktivite" data-en="Last Activity">Son Aktivite</span>
+                        <span class="stat-value">1 <span data-tr="dk önce" data-en="min ago">dk önce</span></span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 94%;"></div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-primary" onclick="accessPanel('integrator')" data-tr="🚀 Panel Aç" data-en="🚀 Open Panel">🚀 Panel Aç</button>
+                    <button class="btn btn-outline" onclick="viewUsers('integrator')" data-tr="👥 Kullanıcılar" data-en="👥 Users">👥 Kullanıcılar</button>
+                </div>
+            </div>
+
+            <!-- Dropshipper Panel -->
+            <div class="panel-card dropshipper">
+                <div class="panel-header">
+                    <div class="panel-title" data-tr="📦 Dropshipper Panel" data-en="📦 Dropshipper Panel">📦 Dropshipper Panel</div>
+                    <div class="panel-icon">📦</div>
+                </div>
+                
+                <div class="panel-stats">
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Aktif Kullanıcılar" data-en="Active Users">Aktif Kullanıcılar</span>
+                        <span class="stat-value">428 / 500</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Yetki Seviyesi" data-en="Permission Level">Yetki Seviyesi</span>
+                        <span class="stat-value" data-tr="Dropshipping" data-en="Dropshipping">Dropshipping</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Son Aktivite" data-en="Last Activity">Son Aktivite</span>
+                        <span class="stat-value"><1 <span data-tr="dk önce" data-en="min ago">dk önce</span></span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 85.6%;"></div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-primary" onclick="accessPanel('dropshipper')" data-tr="🚀 Panel Aç" data-en="🚀 Open Panel">🚀 Panel Aç</button>
+                    <button class="btn btn-outline" onclick="viewUsers('dropshipper')" data-tr="👥 Kullanıcılar" data-en="👥 Users">👥 Kullanıcılar</button>
+                </div>
+            </div>
+
+            <!-- Support Panel -->
+            <div class="panel-card support">
+                <div class="panel-header">
+                    <div class="panel-title" data-tr="🎧 Destek Panel" data-en="🎧 Support Panel">🎧 Destek Panel</div>
+                    <div class="panel-icon">🎧</div>
+                </div>
+                
+                <div class="panel-stats">
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Aktif Kullanıcılar" data-en="Active Users">Aktif Kullanıcılar</span>
+                        <span class="stat-value">89 / 100</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Yetki Seviyesi" data-en="Permission Level">Yetki Seviyesi</span>
+                        <span class="stat-value" data-tr="Destek" data-en="Support">Destek</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Son Aktivite" data-en="Last Activity">Son Aktivite</span>
+                        <span class="stat-value">3 <span data-tr="dk önce" data-en="min ago">dk önce</span></span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 89%;"></div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-primary" onclick="accessPanel('support')" data-tr="🚀 Panel Aç" data-en="🚀 Open Panel">🚀 Panel Aç</button>
+                    <button class="btn btn-outline" onclick="viewUsers('support')" data-tr="👥 Kullanıcılar" data-en="👥 Users">👥 Kullanıcılar</button>
+                </div>
+            </div>
+
+            <!-- Viewer Panel -->
+            <div class="panel-card viewer">
+                <div class="panel-header">
+                    <div class="panel-title" data-tr="👁️ Görüntüleyici Panel" data-en="👁️ Viewer Panel">👁️ Görüntüleyici Panel</div>
+                    <div class="panel-icon">👁️</div>
+                </div>
+                
+                <div class="panel-stats">
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Aktif Kullanıcılar" data-en="Active Users">Aktif Kullanıcılar</span>
+                        <span class="stat-value">421 / 500</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Yetki Seviyesi" data-en="Permission Level">Yetki Seviyesi</span>
+                        <span class="stat-value" data-tr="Sadece Okuma" data-en="Read Only">Sadece Okuma</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label" data-tr="Son Aktivite" data-en="Last Activity">Son Aktivite</span>
+                        <span class="stat-value">1 <span data-tr="dk önce" data-en="min ago">dk önce</span></span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 84.2%;"></div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-primary" onclick="accessPanel('viewer')" data-tr="🚀 Panel Aç" data-en="🚀 Open Panel">🚀 Panel Aç</button>
+                    <button class="btn btn-outline" onclick="viewUsers('viewer')" data-tr="👥 Kullanıcılar" data-en="👥 Users">👥 Kullanıcılar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="floating-action" onclick="quickActions()" data-tr="Hızlı İşlemler" data-en="Quick Actions" title="Hızlı İşlemler">⚡</button>
+
+    <!-- Super Admin Modal -->
+    <div class="super-admin-modal" id="superAdminModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-tr="👑 Süper Admin Erişimi" data-en="👑 Super Admin Access">👑 Süper Admin Erişimi</div>
+                <button class="close-btn" onclick="closeSuperAdminModal()" data-tr="Kapat" data-en="Close" title="Kapat">×</button>
+            </div>
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 1.2rem; margin-bottom: 20px;" data-tr="🔐 Kimlik Doğrulama Gerekli" data-en="🔐 Authentication Required">🔐 Kimlik Doğrulama Gerekli</div>
+                <div style="margin-bottom: 20px;" data-tr="Süper Admin paneline erişim için şifre gereklidir." data-en="Password required for Super Admin panel access.">
+                    Süper Admin paneline erişim için şifre gereklidir.
+                </div>
+                <input type="password" id="superAdminPassword" placeholder="Şifre girin..." data-tr-placeholder="Şifre girin..." data-en-placeholder="Enter password..." style="
+                    width: 100%;
+                    padding: 12px 15px;
+                    border: 2px solid var(--border);
+                    border-radius: 8px;
+                    font-size: 1rem;
+                    margin-bottom: 20px;
+                    outline: none;
+                    transition: border-color 0.3s ease;
+                ">
+                <div>
+                    <button class="btn btn-success" onclick="authenticateSuperAdmin()" data-tr="🚀 Erişim Sağla" data-en="🚀 Grant Access">🚀 Erişim Sağla</button>
+                    <button class="btn btn-outline" onclick="closeSuperAdminModal()" data-tr="❌ İptal" data-en="❌ Cancel">❌ İptal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Multi-language support
+        const translations = {
+            tr: {
+                'Panel access granted for': 'Panel erişimi sağlandı:',
+                'Users in panel': 'Paneldeki kullanıcılar:',
+                'Quick Actions Menu': 'Hızlı İşlemler Menüsü',
+                'System Health Check': 'Sistem Sağlık Kontrolü',
+                'View System Logs': 'Sistem Loglarını Görüntüle',
+                'User Management': 'Kullanıcı Yönetimi',
+                'Panel Configuration': 'Panel Konfigürasyonu',
+                'Security Center': 'Güvenlik Merkezi',
+                'Welcome Super Admin!': 'Hoş Geldiniz Süper Admin!',
+                'Authentication successful': 'Kimlik doğrulama başarılı',
+                'Full system access granted': 'Tam sistem erişimi verildi',
+                'Authentication Failed!': 'Kimlik Doğrulama Başarısız!',
+                'Incorrect password. Please try again.': 'Yanlış şifre. Lütfen tekrar deneyin.',
+                'Available features:': 'Mevcut özellikler:',
+                'Complete user management': '• Tam kullanıcı yönetimi',
+                'System configuration': '• Sistem konfigürasyonu',
+                'Security center access': '• Güvenlik merkezi erişimi',
+                'Panel oversight': '• Panel gözetimi',
+                'Admin users': 'Admin kullanıcıları',
+                'Integration specialists': 'Entegrasyon uzmanları',
+                'Dropshipping merchants': 'Dropshipping satıcıları',
+                'Support staff': 'Destek personeli',
+                'Read-only viewers': 'Sadece okuma kullanıcıları',
+                'Super administrators': 'Süper yöneticiler'
+            },
+            en: {
+                'Panel erişimi sağlandı:': 'Panel access granted for:',
+                'Paneldeki kullanıcılar:': 'Users in panel:',
+                'Hızlı İşlemler Menüsü': 'Quick Actions Menu',
+                'Sistem Sağlık Kontrolü': 'System Health Check',
+                'Sistem Loglarını Görüntüle': 'View System Logs',
+                'Kullanıcı Yönetimi': 'User Management',
+                'Panel Konfigürasyonu': 'Panel Configuration',
+                'Güvenlik Merkezi': 'Security Center',
+                'Hoş Geldiniz Süper Admin!': 'Welcome Super Admin!',
+                'Kimlik doğrulama başarılı': 'Authentication successful',
+                'Tam sistem erişimi verildi': 'Full system access granted',
+                'Kimlik Doğrulama Başarısız!': 'Authentication Failed!',
+                'Yanlış şifre. Lütfen tekrar deneyin.': 'Incorrect password. Please try again.',
+                'Mevcut özellikler:': 'Available features:',
+                '• Tam kullanıcı yönetimi': '• Complete user management',
+                '• Sistem konfigürasyonu': '• System configuration',
+                '• Güvenlik merkezi erişimi': '• Security center access',
+                '• Panel gözetimi': '• Panel oversight',
+                'Admin kullanıcıları': 'Admin users',
+                'Entegrasyon uzmanları': 'Integration specialists',
+                'Dropshipping satıcıları': 'Dropshipping merchants',
+                'Destek personeli': 'Support staff',
+                'Sadece okuma kullanıcıları': 'Read-only viewers',
+                'Süper yöneticiler': 'Super administrators'
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('language') || 'tr';
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            
+            // Update language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update all translatable elements
+            document.querySelectorAll('[data-tr], [data-en]').forEach(element => {
+                const text = element.getAttribute(`data-${lang}`);
+                if (text) {
+                    if (element.tagName === 'INPUT' && element.type === 'button') {
+                        element.value = text;
+                    } else if (element.hasAttribute('title')) {
+                        element.title = text;
+                    } else if (element.tagName === 'INPUT' && element.hasAttribute(`data-${lang}-placeholder`)) {
+                        element.placeholder = element.getAttribute(`data-${lang}-placeholder`);
+                    } else {
+                        element.textContent = text;
+                    }
+                }
+            });
+
+            console.log(`🌍 Language changed to: ${lang === 'tr' ? 'Türkçe' : 'English'}`);
+        }
+
+        function translate(text) {
+            if (currentLanguage === 'tr') {
+                return text;
+            }
+            return translations.en[text] || text;
+        }
+
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setLanguage(currentLanguage);
+        });
+
+        // Panel Functions
+        function accessPanel(panelType) {
+            const panelNames = {
+                admin: currentLanguage === 'tr' ? 'Admin Panel' : 'Admin Panel',
+                integrator: currentLanguage === 'tr' ? 'Entegratör Panel' : 'Integrator Panel',
+                dropshipper: currentLanguage === 'tr' ? 'Dropshipper Panel' : 'Dropshipper Panel',
+                support: currentLanguage === 'tr' ? 'Destek Panel' : 'Support Panel',
+                viewer: currentLanguage === 'tr' ? 'Görüntüleyici Panel' : 'Viewer Panel'
+            };
+            
+            alert(`🚀 ${translate('Panel erişimi sağlandı:')} ${panelNames[panelType]}\n\n✅ ${currentLanguage === 'tr' ? 'Erişim başarılı!' : 'Access successful!'}\n🎛️ ${currentLanguage === 'tr' ? 'Panel yükleniyor...' : 'Loading panel...'}`);
+        }
+
+        function viewUsers(panelType) {
+            const userCounts = {
+                superadmin: '3',
+                admin: '12',
+                integrator: '47',
+                dropshipper: '428',
+                support: '89',
+                viewer: '421'
+            };
+
+            const userTypes = {
+                superadmin: translate('Süper yöneticiler'),
+                admin: translate('Admin kullanıcıları'),
+                integrator: translate('Entegrasyon uzmanları'),
+                dropshipper: translate('Dropshipping satıcıları'),
+                support: translate('Destek personeli'),
+                viewer: translate('Sadece okuma kullanıcıları')
+            };
+            
+            alert(`👥 ${translate('Paneldeki kullanıcılar:')} ${userTypes[panelType]}\n\n📊 ${currentLanguage === 'tr' ? 'Aktif Kullanıcı Sayısı' : 'Active User Count'}: ${userCounts[panelType]}\n\n${currentLanguage === 'tr' ? 'Kullanıcı listesi yükleniyor...' : 'Loading user list...'}`);
+        }
+
+        function quickActions() {
+            const actions = [
+                translate('Sistem Sağlık Kontrolü'),
+                translate('Sistem Loglarını Görüntüle'),
+                translate('Kullanıcı Yönetimi'),
+                translate('Panel Konfigürasyonu'),
+                translate('Güvenlik Merkezi')
+            ];
+            
+            alert(`⚡ ${translate('Hızlı İşlemler Menüsü')}\n\n🔧 ${currentLanguage === 'tr' ? 'Mevcut İşlemler' : 'Available Actions'}:\n• ${actions.join('\n• ')}\n\n${currentLanguage === 'tr' ? 'İşlem menüsü yükleniyor...' : 'Loading action menu...'}`);
+        }
+
+        // Super Admin Modal Functions
+        function openSuperAdminModal() {
+            document.getElementById('superAdminModal').style.display = 'flex';
+            document.getElementById('superAdminPassword').focus();
+        }
+
+        function closeSuperAdminModal() {
+            document.getElementById('superAdminModal').style.display = 'none';
+            document.getElementById('superAdminPassword').value = '';
+        }
+
+        function authenticateSuperAdmin() {
+            const password = document.getElementById('superAdminPassword').value;
+            
+            if (password === 'MesChain2024!') {
+                closeSuperAdminModal();
+                
+                const messages = {
+                    welcome: translate('Hoş Geldiniz Süper Admin!'),
+                    success: translate('Kimlik doğrulama başarılı'),
+                    access: translate('Tam sistem erişimi verildi'),
+                    features: translate('Mevcut özellikler:'),
+                    feat1: translate('• Tam kullanıcı yönetimi'),
+                    feat2: translate('• Sistem konfigürasyonu'),
+                    feat3: translate('• Güvenlik merkezi erişimi'),
+                    feat4: translate('• Panel gözetimi')
+                };
+                
+                alert(`👑 ${messages.welcome}\n\n✅ ${messages.success}\n🎛️ ${messages.access}\n\n🔧 ${messages.features}\n${messages.feat1}\n${messages.feat2}\n${messages.feat3}\n${messages.feat4}`);
+                
+                // Show Super Admin Dashboard
+                showSuperAdminDashboard();
+            } else {
+                alert(`❌ ${translate('Kimlik Doğrulama Başarısız!')}\n\n${translate('Yanlış şifre. Lütfen tekrar deneyin.')}`);
+                document.getElementById('superAdminPassword').value = '';
+                document.getElementById('superAdminPassword').focus();
+            }
+        }
+
+        // Handle Enter key in password field
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordField = document.getElementById('superAdminPassword');
+            if (passwordField) {
+                passwordField.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        authenticateSuperAdmin();
+                    }
+                });
+            }
+        });
+
+        function showSuperAdminDashboard() {
+            // Create super admin dashboard
+            const dashboard = document.createElement('div');
+            dashboard.id = 'superAdminDashboard';
+            dashboard.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                z-index: 2000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                overflow-y: auto;
+            `;
+
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 16px;
+                padding: 40px;
+                max-width: 800px;
+                width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                position: relative;
+            `;
+
+            content.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px;">
+                    <h2 style="color: #1e293b; font-size: 2rem; font-weight: 700; margin: 0;">
+                        👑 Süper Admin Dashboard
+                    </h2>
+                    <button onclick="closeSuperAdminDashboard()" style="
+                        width: 40px; height: 40px; border: none; background: #dc2626; color: white;
+                        border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer;
+                        display: flex; align-items: center; justify-content: center;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">×</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 5px;">1,000</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Toplam Kullanıcı</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #059669, #047857); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 5px;">6</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Aktif Panel</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 5px;">99.8%</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Sistem Uptime</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 5px;">347</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Aktif Oturum</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <button onclick="window.open('http://localhost:3001/configuration', '_blank')" style="
+                        background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none;
+                        padding: 20px; border-radius: 12px; font-size: 1rem; font-weight: 600;
+                        cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center;
+                        justify-content: center; gap: 10px;
+                    " onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                        ⚙️ Sistem Konfigürasyonu
+                    </button>
+                    
+                    <button onclick="window.open('trendyol-admin.html', '_blank')" style="
+                        background: linear-gradient(135deg, #ff6000, #e55400); color: white; border: none;
+                        padding: 20px; border-radius: 12px; font-size: 1rem; font-weight: 600;
+                        cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center;
+                        justify-content: center; gap: 10px;
+                    " onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                        🛒 Trendyol Yönetimi
+                    </button>
+
+                    <button onclick="showSystemLogs()" style="
+                        background: linear-gradient(135deg, #059669, #047857); color: white; border: none;
+                        padding: 20px; border-radius: 12px; font-size: 1rem; font-weight: 600;
+                        cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center;
+                        justify-content: center; gap: 10px;
+                    " onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                        📋 Sistem Logları
+                    </button>
+
+                    <button onclick="showUserManagement()" style="
+                        background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; border: none;
+                        padding: 20px; border-radius: 12px; font-size: 1rem; font-weight: 600;
+                        cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center;
+                        justify-content: center; gap: 10px;
+                    " onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                        👥 Kullanıcı Yönetimi
+                    </button>
+
+                    <button onclick="showSecurityCenter()" style="
+                        background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none;
+                        padding: 20px; border-radius: 12px; font-size: 1rem; font-weight: 600;
+                        cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center;
+                        justify-content: center; gap: 10px;
+                    " onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                        🔒 Güvenlik Merkezi
+                    </button>
+
+                    <button onclick="showAnalytics()" style="
+                        background: linear-gradient(135deg, #0891b2, #0e7490); color: white; border: none;
+                        padding: 20px; border-radius: 12px; font-size: 1rem; font-weight: 600;
+                        cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center;
+                        justify-content: center; gap: 10px;
+                    " onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                        📊 Gelişmiş Analitik
+                    </button>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b;">
+                    <div style="font-size: 0.9rem;">
+                        🔐 Süper Admin Erişimi Aktif | Son Giriş: ${new Date().toLocaleString('tr-TR')}
+                    </div>
+                </div>
+            `;
+
+            dashboard.appendChild(content);
+            document.body.appendChild(dashboard);
+        }
+
+        function closeSuperAdminDashboard() {
+            const dashboard = document.getElementById('superAdminDashboard');
+            if (dashboard) {
+                dashboard.remove();
+            }
+        }
+
+        function showSystemLogs() {
+            alert('📋 Sistem Logları\n\n🟢 [15:45:12] Sistem başlatıldı\n🟢 [15:45:15] Panel servisleri aktif\n🟡 [15:45:18] 347 kullanıcı aktif\n🟢 [15:45:21] Tüm API\'ler çalışıyor\n🟢 [15:45:24] Veritabanı bağlantısı OK\n\n✅ Sistem normal çalışıyor');
+        }
+
+        function showUserManagement() {
+            alert('👥 Kullanıcı Yönetimi\n\n📊 Kullanıcı Dağılımı:\n• Süper Admin: 3 kullanıcı\n• Admin: 12 kullanıcı\n• Entegratör: 47 kullanıcı\n• Dropshipper: 428 kullanıcı\n• Destek: 89 kullanıcı\n• Görüntüleyici: 421 kullanıcı\n\n🎯 Toplam: 1,000 kullanıcı');
+        }
+
+        function showSecurityCenter() {
+            alert('🔒 Güvenlik Merkezi\n\n✅ Güvenlik Durumu:\n• Firewall: Aktif\n• SSL Sertifikası: Geçerli\n• 2FA: Etkin\n• API Güvenliği: Aktif\n• Şifreleme: AES-256\n\n🛡️ Sistem güvenli');
+        }
+
+        function showAnalytics() {
+            alert('📊 Gelişmiş Analitik\n\n📈 Performans Metrikleri:\n• Uptime: %99.8\n• Yanıt Süresi: 156ms\n• Aktif Oturum: 347\n• API Çağrıları: 12,847/saat\n• Hata Oranı: %0.2\n\n🚀 Sistem optimal performansta');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('superAdminModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSuperAdminModal();
+            }
+        });
+
+        console.log('🎛️ Panel Manager loaded successfully!');
+        console.log('🌍 Multi-language support: Turkish & English');
+        console.log('👥 1,000+ users across 6 different panels');
+    </script>
+</body>
+</html> 

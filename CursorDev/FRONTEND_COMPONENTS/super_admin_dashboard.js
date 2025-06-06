@@ -29,7 +29,7 @@ class SuperAdminDashboard {
         this.apiOfflineNotified = false;
         
         // Backend API Integration
-        this.apiBaseUrl = '/admin/index.php?route=extension/module/meschain_cursor_integration';
+        this.apiBaseUrl = 'http://localhost:8080/api';
         this.refreshInterval = 30000; // 30 saniye
         this.backendConnected = false;
         

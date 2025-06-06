@@ -1,0 +1,611 @@
+/**
+ * Microsoft 365 Responsive Grid System
+ * Mobile-first responsive layout system
+ * 
+ * @version 2.0.0
+ * @author MesChain Sync Team
+ */
+
+/* CSS Custom Properties (Variables) */
+:root {
+  /* Breakpoints */
+  --ms365-breakpoint-xs: 320px;
+  --ms365-breakpoint-sm: 640px;
+  --ms365-breakpoint-md: 768px;
+  --ms365-breakpoint-lg: 1024px;
+  --ms365-breakpoint-xl: 1280px;
+  --ms365-breakpoint-2xl: 1536px;
+
+  /* Container max-widths */
+  --ms365-container-sm: 640px;
+  --ms365-container-md: 768px;
+  --ms365-container-lg: 1024px;
+  --ms365-container-xl: 1280px;
+  --ms365-container-2xl: 1536px;
+
+  /* Grid columns */
+  --ms365-grid-columns: 12;
+
+  /* Spacing */
+  --ms365-spacing-1: 0.25rem;  /* 4px */
+  --ms365-spacing-2: 0.5rem;   /* 8px */
+  --ms365-spacing-3: 0.75rem;  /* 12px */
+  --ms365-spacing-4: 1rem;     /* 16px */
+  --ms365-spacing-5: 1.25rem;  /* 20px */
+  --ms365-spacing-6: 1.5rem;   /* 24px */
+  --ms365-spacing-8: 2rem;     /* 32px */
+  --ms365-spacing-10: 2.5rem;  /* 40px */
+  --ms365-spacing-12: 3rem;    /* 48px */
+
+  /* Gap sizes */
+  --ms365-gap-xs: var(--ms365-spacing-2);
+  --ms365-gap-sm: var(--ms365-spacing-3);
+  --ms365-gap-md: var(--ms365-spacing-4);
+  --ms365-gap-lg: var(--ms365-spacing-6);
+  --ms365-gap-xl: var(--ms365-spacing-8);
+}
+
+/* Container System */
+.ms365-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--ms365-spacing-4);
+  padding-right: var(--ms365-spacing-4);
+}
+
+.ms365-container-sm {
+  max-width: var(--ms365-container-sm);
+}
+
+.ms365-container-md {
+  max-width: var(--ms365-container-md);
+}
+
+.ms365-container-lg {
+  max-width: var(--ms365-container-lg);
+}
+
+.ms365-container-xl {
+  max-width: var(--ms365-container-xl);
+}
+
+.ms365-container-2xl {
+  max-width: var(--ms365-container-2xl);
+}
+
+.ms365-container-fluid {
+  max-width: 100%;
+  padding-left: var(--ms365-spacing-4);
+  padding-right: var(--ms365-spacing-4);
+}
+
+/* Grid System */
+.ms365-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--ms365-grid-columns), 1fr);
+  gap: var(--ms365-gap-md);
+  width: 100%;
+}
+
+/* Auto-fit Grid */
+.ms365-grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--ms365-gap-md);
+}
+
+.ms365-grid-auto-sm {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.ms365-grid-auto-lg {
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+/* Auto-fill Grid */
+.ms365-grid-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--ms365-gap-md);
+}
+
+.ms365-grid-fill-sm {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.ms365-grid-fill-lg {
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+}
+
+/* Flexbox Grid */
+.ms365-flex-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ms365-gap-md);
+}
+
+.ms365-flex-grid > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Gap Utilities */
+.ms365-gap-0 { gap: 0; }
+.ms365-gap-xs { gap: var(--ms365-gap-xs); }
+.ms365-gap-sm { gap: var(--ms365-gap-sm); }
+.ms365-gap-md { gap: var(--ms365-gap-md); }
+.ms365-gap-lg { gap: var(--ms365-gap-lg); }
+.ms365-gap-xl { gap: var(--ms365-gap-xl); }
+
+/* Row Gap Utilities */
+.ms365-gap-y-0 { row-gap: 0; }
+.ms365-gap-y-xs { row-gap: var(--ms365-gap-xs); }
+.ms365-gap-y-sm { row-gap: var(--ms365-gap-sm); }
+.ms365-gap-y-md { row-gap: var(--ms365-gap-md); }
+.ms365-gap-y-lg { row-gap: var(--ms365-gap-lg); }
+.ms365-gap-y-xl { row-gap: var(--ms365-gap-xl); }
+
+/* Column Gap Utilities */
+.ms365-gap-x-0 { column-gap: 0; }
+.ms365-gap-x-xs { column-gap: var(--ms365-gap-xs); }
+.ms365-gap-x-sm { column-gap: var(--ms365-gap-sm); }
+.ms365-gap-x-md { column-gap: var(--ms365-gap-md); }
+.ms365-gap-x-lg { column-gap: var(--ms365-gap-lg); }
+.ms365-gap-x-xl { column-gap: var(--ms365-gap-xl); }
+
+/* Column Span Utilities - Base (Mobile First) */
+.ms365-col-1 { grid-column: span 1; }
+.ms365-col-2 { grid-column: span 2; }
+.ms365-col-3 { grid-column: span 3; }
+.ms365-col-4 { grid-column: span 4; }
+.ms365-col-5 { grid-column: span 5; }
+.ms365-col-6 { grid-column: span 6; }
+.ms365-col-7 { grid-column: span 7; }
+.ms365-col-8 { grid-column: span 8; }
+.ms365-col-9 { grid-column: span 9; }
+.ms365-col-10 { grid-column: span 10; }
+.ms365-col-11 { grid-column: span 11; }
+.ms365-col-12 { grid-column: span 12; }
+.ms365-col-full { grid-column: 1 / -1; }
+
+/* Row Span Utilities */
+.ms365-row-1 { grid-row: span 1; }
+.ms365-row-2 { grid-row: span 2; }
+.ms365-row-3 { grid-row: span 3; }
+.ms365-row-4 { grid-row: span 4; }
+.ms365-row-5 { grid-row: span 5; }
+.ms365-row-6 { grid-row: span 6; }
+
+/* Start/End Utilities */
+.ms365-col-start-1 { grid-column-start: 1; }
+.ms365-col-start-2 { grid-column-start: 2; }
+.ms365-col-start-3 { grid-column-start: 3; }
+.ms365-col-start-4 { grid-column-start: 4; }
+.ms365-col-start-5 { grid-column-start: 5; }
+.ms365-col-start-6 { grid-column-start: 6; }
+.ms365-col-start-7 { grid-column-start: 7; }
+.ms365-col-start-8 { grid-column-start: 8; }
+.ms365-col-start-9 { grid-column-start: 9; }
+.ms365-col-start-10 { grid-column-start: 10; }
+.ms365-col-start-11 { grid-column-start: 11; }
+.ms365-col-start-12 { grid-column-start: 12; }
+
+.ms365-col-end-1 { grid-column-end: 1; }
+.ms365-col-end-2 { grid-column-end: 2; }
+.ms365-col-end-3 { grid-column-end: 3; }
+.ms365-col-end-4 { grid-column-end: 4; }
+.ms365-col-end-5 { grid-column-end: 5; }
+.ms365-col-end-6 { grid-column-end: 6; }
+.ms365-col-end-7 { grid-column-end: 7; }
+.ms365-col-end-8 { grid-column-end: 8; }
+.ms365-col-end-9 { grid-column-end: 9; }
+.ms365-col-end-10 { grid-column-end: 10; }
+.ms365-col-end-11 { grid-column-end: 11; }
+.ms365-col-end-12 { grid-column-end: 12; }
+.ms365-col-end-13 { grid-column-end: 13; }
+
+/* Responsive Breakpoints */
+
+/* Small devices (640px and up) */
+@media (min-width: 640px) {
+  .ms365-container {
+    padding-left: var(--ms365-spacing-6);
+    padding-right: var(--ms365-spacing-6);
+  }
+
+  /* Column Span - Small */
+  .sm\:ms365-col-1 { grid-column: span 1; }
+  .sm\:ms365-col-2 { grid-column: span 2; }
+  .sm\:ms365-col-3 { grid-column: span 3; }
+  .sm\:ms365-col-4 { grid-column: span 4; }
+  .sm\:ms365-col-5 { grid-column: span 5; }
+  .sm\:ms365-col-6 { grid-column: span 6; }
+  .sm\:ms365-col-7 { grid-column: span 7; }
+  .sm\:ms365-col-8 { grid-column: span 8; }
+  .sm\:ms365-col-9 { grid-column: span 9; }
+  .sm\:ms365-col-10 { grid-column: span 10; }
+  .sm\:ms365-col-11 { grid-column: span 11; }
+  .sm\:ms365-col-12 { grid-column: span 12; }
+  .sm\:ms365-col-full { grid-column: 1 / -1; }
+
+  /* Auto-fit responsive */
+  .sm\:ms365-grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+/* Medium devices (768px and up) */
+@media (min-width: 768px) {
+  .ms365-container {
+    padding-left: var(--ms365-spacing-8);
+    padding-right: var(--ms365-spacing-8);
+  }
+
+  /* Column Span - Medium */
+  .md\:ms365-col-1 { grid-column: span 1; }
+  .md\:ms365-col-2 { grid-column: span 2; }
+  .md\:ms365-col-3 { grid-column: span 3; }
+  .md\:ms365-col-4 { grid-column: span 4; }
+  .md\:ms365-col-5 { grid-column: span 5; }
+  .md\:ms365-col-6 { grid-column: span 6; }
+  .md\:ms365-col-7 { grid-column: span 7; }
+  .md\:ms365-col-8 { grid-column: span 8; }
+  .md\:ms365-col-9 { grid-column: span 9; }
+  .md\:ms365-col-10 { grid-column: span 10; }
+  .md\:ms365-col-11 { grid-column: span 11; }
+  .md\:ms365-col-12 { grid-column: span 12; }
+  .md\:ms365-col-full { grid-column: 1 / -1; }
+
+  /* Grid template columns - Medium */
+  .md\:ms365-grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+  .md\:ms365-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .md\:ms365-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .md\:ms365-grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .md\:ms365-grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .md\:ms365-grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+  .md\:ms365-grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+}
+
+/* Large devices (1024px and up) */
+@media (min-width: 1024px) {
+  /* Column Span - Large */
+  .lg\:ms365-col-1 { grid-column: span 1; }
+  .lg\:ms365-col-2 { grid-column: span 2; }
+  .lg\:ms365-col-3 { grid-column: span 3; }
+  .lg\:ms365-col-4 { grid-column: span 4; }
+  .lg\:ms365-col-5 { grid-column: span 5; }
+  .lg\:ms365-col-6 { grid-column: span 6; }
+  .lg\:ms365-col-7 { grid-column: span 7; }
+  .lg\:ms365-col-8 { grid-column: span 8; }
+  .lg\:ms365-col-9 { grid-column: span 9; }
+  .lg\:ms365-col-10 { grid-column: span 10; }
+  .lg\:ms365-col-11 { grid-column: span 11; }
+  .lg\:ms365-col-12 { grid-column: span 12; }
+  .lg\:ms365-col-full { grid-column: 1 / -1; }
+
+  /* Grid template columns - Large */
+  .lg\:ms365-grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+  .lg\:ms365-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .lg\:ms365-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .lg\:ms365-grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .lg\:ms365-grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .lg\:ms365-grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+  .lg\:ms365-grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+}
+
+/* Extra large devices (1280px and up) */
+@media (min-width: 1280px) {
+  /* Column Span - Extra Large */
+  .xl\:ms365-col-1 { grid-column: span 1; }
+  .xl\:ms365-col-2 { grid-column: span 2; }
+  .xl\:ms365-col-3 { grid-column: span 3; }
+  .xl\:ms365-col-4 { grid-column: span 4; }
+  .xl\:ms365-col-5 { grid-column: span 5; }
+  .xl\:ms365-col-6 { grid-column: span 6; }
+  .xl\:ms365-col-7 { grid-column: span 7; }
+  .xl\:ms365-col-8 { grid-column: span 8; }
+  .xl\:ms365-col-9 { grid-column: span 9; }
+  .xl\:ms365-col-10 { grid-column: span 10; }
+  .xl\:ms365-col-11 { grid-column: span 11; }
+  .xl\:ms365-col-12 { grid-column: span 12; }
+  .xl\:ms365-col-full { grid-column: 1 / -1; }
+
+  /* Grid template columns - Extra Large */
+  .xl\:ms365-grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+  .xl\:ms365-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .xl\:ms365-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .xl\:ms365-grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .xl\:ms365-grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .xl\:ms365-grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+  .xl\:ms365-grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+}
+
+/* 2X Large devices (1536px and up) */
+@media (min-width: 1536px) {
+  /* Column Span - 2X Large */
+  .2xl\:ms365-col-1 { grid-column: span 1; }
+  .2xl\:ms365-col-2 { grid-column: span 2; }
+  .2xl\:ms365-col-3 { grid-column: span 3; }
+  .2xl\:ms365-col-4 { grid-column: span 4; }
+  .2xl\:ms365-col-5 { grid-column: span 5; }
+  .2xl\:ms365-col-6 { grid-column: span 6; }
+  .2xl\:ms365-col-7 { grid-column: span 7; }
+  .2xl\:ms365-col-8 { grid-column: span 8; }
+  .2xl\:ms365-col-9 { grid-column: span 9; }
+  .2xl\:ms365-col-10 { grid-column: span 10; }
+  .2xl\:ms365-col-11 { grid-column: span 11; }
+  .2xl\:ms365-col-12 { grid-column: span 12; }
+  .2xl\:ms365-col-full { grid-column: 1 / -1; }
+
+  /* Grid template columns - 2X Large */
+  .2xl\:ms365-grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+  .2xl\:ms365-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .2xl\:ms365-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .2xl\:ms365-grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .2xl\:ms365-grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .2xl\:ms365-grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+  .2xl\:ms365-grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+}
+
+/* Flexbox Layout Utilities */
+.ms365-flex {
+  display: flex;
+}
+
+.ms365-inline-flex {
+  display: inline-flex;
+}
+
+.ms365-flex-col {
+  flex-direction: column;
+}
+
+.ms365-flex-row {
+  flex-direction: row;
+}
+
+.ms365-flex-wrap {
+  flex-wrap: wrap;
+}
+
+.ms365-flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+/* Flex Grow/Shrink */
+.ms365-flex-1 {
+  flex: 1 1 0%;
+}
+
+.ms365-flex-auto {
+  flex: 1 1 auto;
+}
+
+.ms365-flex-initial {
+  flex: 0 1 auto;
+}
+
+.ms365-flex-none {
+  flex: none;
+}
+
+.ms365-grow {
+  flex-grow: 1;
+}
+
+.ms365-grow-0 {
+  flex-grow: 0;
+}
+
+.ms365-shrink {
+  flex-shrink: 1;
+}
+
+.ms365-shrink-0 {
+  flex-shrink: 0;
+}
+
+/* Justify Content */
+.ms365-justify-start {
+  justify-content: flex-start;
+}
+
+.ms365-justify-end {
+  justify-content: flex-end;
+}
+
+.ms365-justify-center {
+  justify-content: center;
+}
+
+.ms365-justify-between {
+  justify-content: space-between;
+}
+
+.ms365-justify-around {
+  justify-content: space-around;
+}
+
+.ms365-justify-evenly {
+  justify-content: space-evenly;
+}
+
+/* Align Items */
+.ms365-items-start {
+  align-items: flex-start;
+}
+
+.ms365-items-end {
+  align-items: flex-end;
+}
+
+.ms365-items-center {
+  align-items: center;
+}
+
+.ms365-items-baseline {
+  align-items: baseline;
+}
+
+.ms365-items-stretch {
+  align-items: stretch;
+}
+
+/* Align Self */
+.ms365-self-auto {
+  align-self: auto;
+}
+
+.ms365-self-start {
+  align-self: flex-start;
+}
+
+.ms365-self-end {
+  align-self: flex-end;
+}
+
+.ms365-self-center {
+  align-self: center;
+}
+
+.ms365-self-stretch {
+  align-self: stretch;
+}
+
+/* Responsive Flex Utilities */
+@media (min-width: 640px) {
+  .sm\:ms365-flex { display: flex; }
+  .sm\:ms365-flex-col { flex-direction: column; }
+  .sm\:ms365-flex-row { flex-direction: row; }
+  .sm\:ms365-justify-start { justify-content: flex-start; }
+  .sm\:ms365-justify-center { justify-content: center; }
+  .sm\:ms365-justify-between { justify-content: space-between; }
+  .sm\:ms365-items-center { align-items: center; }
+  .sm\:ms365-items-start { align-items: flex-start; }
+}
+
+@media (min-width: 768px) {
+  .md\:ms365-flex { display: flex; }
+  .md\:ms365-flex-col { flex-direction: column; }
+  .md\:ms365-flex-row { flex-direction: row; }
+  .md\:ms365-justify-start { justify-content: flex-start; }
+  .md\:ms365-justify-center { justify-content: center; }
+  .md\:ms365-justify-between { justify-content: space-between; }
+  .md\:ms365-items-center { align-items: center; }
+  .md\:ms365-items-start { align-items: flex-start; }
+}
+
+@media (min-width: 1024px) {
+  .lg\:ms365-flex { display: flex; }
+  .lg\:ms365-flex-col { flex-direction: column; }
+  .lg\:ms365-flex-row { flex-direction: row; }
+  .lg\:ms365-justify-start { justify-content: flex-start; }
+  .lg\:ms365-justify-center { justify-content: center; }
+  .lg\:ms365-justify-between { justify-content: space-between; }
+  .lg\:ms365-items-center { align-items: center; }
+  .lg\:ms365-items-start { align-items: flex-start; }
+}
+
+/* Dashboard Grid Layouts */
+.ms365-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--ms365-gap-lg);
+  padding: var(--ms365-spacing-6);
+}
+
+.ms365-dashboard-sidebar {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: var(--ms365-gap-lg);
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .ms365-dashboard-sidebar {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ms365-dashboard-three-col {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: var(--ms365-gap-lg);
+}
+
+@media (max-width: 1024px) {
+  .ms365-dashboard-three-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card Grid Layouts */
+.ms365-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--ms365-gap-md);
+}
+
+.ms365-card-grid-sm {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.ms365-card-grid-lg {
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+}
+
+/* Form Grid Layouts */
+.ms365-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--ms365-gap-md);
+}
+
+.ms365-form-grid-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ms365-gap-md);
+}
+
+@media (max-width: 640px) {
+  .ms365-form-grid-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .ms365-grid,
+  .ms365-flex-grid {
+    display: block !important;
+  }
+
+  .ms365-grid > *,
+  .ms365-flex-grid > * {
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .ms365-grid,
+  .ms365-flex-grid,
+  .ms365-container {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .ms365-grid {
+    border: 1px solid currentColor;
+  }
+  
+  .ms365-grid > * {
+    border: 1px solid currentColor;
+  }
+} 
