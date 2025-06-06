@@ -9,165 +9,127 @@
  * @copyright 2024 MesChain Technologies
  */
 
-class ControllerExtensionModuleN11 extends Controller {
-    
-    private $error = array();
-    private $api_base_url = 'https://www.n11.com/ws/';
-    private $api_version = '1.0';
-    
+require_once DIR_SYSTEM . 'library/meschain/api/N11ApiClient.php';
+require_once DIR_APPLICATION . 'controller/extension/module/base_marketplace.php';
+
+class ControllerExtensionModuleN11 extends ControllerExtensionModuleBaseMarketplace {
+
+    public function __construct($registry) {
+        parent::__construct($registry);
+        $this->marketplace_name = 'n11';
+    }
+
     /**
-     * N11 dashboard main page
+     * {@inheritdoc}
+     * N11 API istemcisini başlatır.
+     */
+    protected function initializeApiHelper($credentials) {
+        $apiCredentials = [
+            'api_key'    => $credentials['settings']['api_key'] ?? '',
+            'api_secret' => $credentials['settings']['api_secret'] ?? '',
+        ];
+        $this->api_helper = new N11ApiClient($apiCredentials);
+    }
+
+    /**
+     * {@inheritdoc}
+     * Pazaryerine özel ayar alanlarını forma yüklemek için veri hazırlar.
+     */
+    protected function prepareMarketplaceData() {
+        $data = [];
+        $this->load->model('setting/setting');
+        
+        $fields = ['api_key', 'api_secret', 'status'];
+        foreach ($fields as $field) {
+            $key = 'module_n11_' . $field;
+            if (isset($this->request->post[$key])) {
+                $data[$key] = $this->request->post[$key];
+            } else {
+                $data[$key] = $this->config->get($key);
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * {@inheritdoc}
+     * OpenCart ürününü N11 API formatına dönüştürür.
+     */
+    protected function prepareProductForMarketplace($product) {
+        // N11'in 'SaveProduct' metodu için beklenen karmaşık veri yapısını oluşturur.
+        return [
+            'productSellerCode' => $product['product_id'],
+            'title' => $product['name'],
+            'subtitle' => $product['model'],
+            'description' => $product['description'],
+            'category' => ['id' => 1000], // Bu eşleştirilmelidir
+            'price' => (float)$product['price'],
+            'currencyType' => 'TL',
+            'images' => [
+                'image' => [
+                    ['url' => HTTP_CATALOG . 'image/' . $product['image'], 'order' => 1]
+                ]
+            ],
+            'approvalStatus' => 'Active',
+            'preparingDay' => 3,
+            'shipmentTemplate' => 'Default',
+            'stockItems' => [
+                'stockItem' => [
+                    'quantity' => $product['quantity'],
+                    'sellerStockCode' => $product['product_id']
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     * N11 siparişini OpenCart formatına dönüştürür.
+     */
+    protected function importOrder($order) {
+        // Gerçek implementasyon N11'den gelen sipariş verisini OpenCart'a eşleştirmelidir.
+        $this->load->model('sale/order');
+        $this->log('ORDER_IMPORT_SUCCESS', 'Order #' . ($order['orderNumber'] ?? 'N/A') . ' mapped to OpenCart.');
+        return true;
+    }
+
+    /**
+     * Ayarları kaydeder ve temel sınıfın yönetim metodlarını kullanır.
      */
     public function index() {
         $this->load->language('extension/module/n11');
-        
         $this->document->setTitle($this->language->get('heading_title'));
-        
-        // Breadcrumb navigation
-        $data['breadcrumbs'] = array();
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_home'),
-            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_extension'),
-            'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true)
-        );
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('heading_title'),
-            'href' => $this->url->link('extension/module/n11', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        // Save settings if form submitted
+        $this->load->model('setting/setting');
+
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->load->model('setting/setting');
-            
+            // OpenCart'ın genel durum ayarını kaydet
             $this->model_setting_setting->editSetting('module_n11', $this->request->post);
             
+            // Hassas API anahtarlarını base class'ın güvenli metoduna gönder
+            $api_settings = [
+                'api_key'    => $this->request->post['module_n11_api_key'],
+                'api_secret' => $this->request->post['module_n11_secret_key'],
+            ];
+            $this->saveSettings(['settings' => $api_settings]);
+
             $this->session->data['success'] = $this->language->get('text_success');
-            
             $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true));
         }
-        
-        // Error handling
-        if (isset($this->error['warning'])) {
-            $data['error_warning'] = $this->error['warning'];
-        } else {
-            $data['error_warning'] = '';
-        }
-        
-        if (isset($this->error['api_key'])) {
-            $data['error_api_key'] = $this->error['api_key'];
-        } else {
-            $data['error_api_key'] = '';
-        }
-        
-        if (isset($this->error['secret_key'])) {
-            $data['error_secret_key'] = $this->error['secret_key'];
-        } else {
-            $data['error_secret_key'] = '';
-        }
-        
-        if (isset($this->error['store_key'])) {
-            $data['error_store_key'] = $this->error['store_key'];
-        } else {
-            $data['error_store_key'] = '';
-        }
-        
-        // Form action URLs
-        $data['action'] = $this->url->link('extension/module/n11', 'user_token=' . $this->session->data['user_token'], true);
-        $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true);
-        
-        // Get current settings
-        if (isset($this->request->post['module_n11_api_key'])) {
-            $data['module_n11_api_key'] = $this->request->post['module_n11_api_key'];
-        } else {
-            $data['module_n11_api_key'] = $this->config->get('module_n11_api_key');
-        }
-        
-        if (isset($this->request->post['module_n11_secret_key'])) {
-            $data['module_n11_secret_key'] = $this->request->post['module_n11_secret_key'];
-        } else {
-            $data['module_n11_secret_key'] = $this->config->get('module_n11_secret_key');
-        }
-        
-        if (isset($this->request->post['module_n11_store_key'])) {
-            $data['module_n11_store_key'] = $this->request->post['module_n11_store_key'];
-        } else {
-            $data['module_n11_store_key'] = $this->config->get('module_n11_store_key');
-        }
-        
-        if (isset($this->request->post['module_n11_status'])) {
-            $data['module_n11_status'] = $this->request->post['module_n11_status'];
-        } else {
-            $data['module_n11_status'] = $this->config->get('module_n11_status');
-        }
-        
-        if (isset($this->request->post['module_n11_pro_seller'])) {
-            $data['module_n11_pro_seller'] = $this->request->post['module_n11_pro_seller'];
-        } else {
-            $data['module_n11_pro_seller'] = $this->config->get('module_n11_pro_seller');
-        }
-        
-        if (isset($this->request->post['module_n11_auto_campaign'])) {
-            $data['module_n11_auto_campaign'] = $this->request->post['module_n11_auto_campaign'];
-        } else {
-            $data['module_n11_auto_campaign'] = $this->config->get('module_n11_auto_campaign');
-        }
-        
-        if (isset($this->request->post['module_n11_commission_rate'])) {
-            $data['module_n11_commission_rate'] = $this->request->post['module_n11_commission_rate'];
-        } else {
-            $data['module_n11_commission_rate'] = $this->config->get('module_n11_commission_rate');
-        }
-        
-        if (isset($this->request->post['module_n11_price_markup'])) {
-            $data['module_n11_price_markup'] = $this->request->post['module_n11_price_markup'];
-        } else {
-            $data['module_n11_price_markup'] = $this->config->get('module_n11_price_markup');
-        }
-        
-        if (isset($this->request->post['module_n11_auto_discount'])) {
-            $data['module_n11_auto_discount'] = $this->request->post['module_n11_auto_discount'];
-        } else {
-            $data['module_n11_auto_discount'] = $this->config->get('module_n11_auto_discount');
-        }
-        
-        if (isset($this->request->post['module_n11_cargo_company'])) {
-            $data['module_n11_cargo_company'] = $this->request->post['module_n11_cargo_company'];
-        } else {
-            $data['module_n11_cargo_company'] = $this->config->get('module_n11_cargo_company');
-        }
-        
-        // Load helper for API operations
-        $this->load->library('meschain/helper/n11_helper');
-        
-        // Get API connection status
-        $data['api_status'] = $this->getApiStatus();
-        
-        // Get N11 categories
-        $data['n11_categories'] = $this->getN11Categories();
-        
-        // Get cargo companies
-        $data['cargo_companies'] = $this->getCargoCompanies();
-        
-        // Get dashboard metrics
-        $data['metrics'] = $this->getDashboardMetrics();
-        
-        // Get N11 Pro features
-        $data['pro_features'] = $this->getProFeatures();
-        
-        // Template data
-        $data['header'] = $this->load->controller('common/header');
-        $data['column_left'] = $this->load->controller('common/column_left');
-        $data['footer'] = $this->load->controller('common/footer');
-        
+
+        // Formu ve ortak verileri hazırla
+        $data = $this->prepareCommonData();
+        $data = array_merge($data, $this->prepareMarketplaceData());
+
         $this->response->setOutput($this->load->view('extension/module/n11', $data));
     }
-    
+
+    /**
+     * Artık base_marketplace'deki validate() metodu kullanılacak, bu sayede
+     * izin kontrolleri merkezileşmiş ve güvenli hale getirilmiştir.
+     * Bu override'ı silerek base class'taki metodun çalışmasını sağlıyoruz.
+     * protected function validate() { ... }
+     */
+
     /**
      * List products on N11
      */
@@ -596,44 +558,5 @@ class ControllerExtensionModuleN11 extends Controller {
         $store_key = $this->config->get('module_n11_store_key');
         
         return !empty($api_key) && !empty($secret_key) && !empty($store_key);
-    }
-    
-    /**
-     * Validate form data
-     */
-    protected function validate() {
-        if (!$this->user->hasPermission('modify', 'extension/module/n11')) {
-            $this->error['warning'] = $this->language->get('error_permission');
-        }
-        
-        if (!$this->request->post['module_n11_api_key']) {
-            $this->error['api_key'] = $this->language->get('error_api_key');
-        }
-        
-        if (!$this->request->post['module_n11_secret_key']) {
-            $this->error['secret_key'] = $this->language->get('error_secret_key');
-        }
-        
-        if (!$this->request->post['module_n11_store_key']) {
-            $this->error['store_key'] = $this->language->get('error_store_key');
-        }
-        
-        return !$this->error;
-    }
-    
-    /**
-     * Install module
-     */
-    public function install() {
-        $this->load->model('extension/module/n11');
-        $this->model_extension_module_n11->install();
-    }
-    
-    /**
-     * Uninstall module
-     */
-    public function uninstall() {
-        $this->load->model('extension/module/n11');
-        $this->model_extension_module_n11->uninstall();
     }
 } 

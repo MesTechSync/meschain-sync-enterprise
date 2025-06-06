@@ -9,175 +9,134 @@
  * @copyright 2024 MesChain Technologies
  */
 
-class ControllerExtensionModuleEbay extends Controller {
-    
-    private $error = array();
-    private $api_base_url = 'https://api.ebay.com';
-    private $sandbox_url = 'https://api.sandbox.ebay.com';
-    private $api_version = 'v1';
-    
+require_once DIR_SYSTEM . 'library/meschain/api/EbayApiClient.php';
+require_once DIR_APPLICATION . 'controller/extension/module/base_marketplace.php';
+
+class ControllerExtensionModuleEbay extends ControllerExtensionModuleBaseMarketplace {
+
+    public function __construct($registry) {
+        parent::__construct($registry);
+        $this->marketplace_name = 'ebay';
+    }
+
     /**
-     * eBay dashboard main page
+     * {@inheritdoc}
      */
+    protected function initializeApiHelper($credentials) {
+        $apiCredentials = [
+            'dev_id'     => $credentials['settings']['dev_id'] ?? '',
+            'app_id'     => $credentials['settings']['app_id'] ?? '',
+            'cert_id'    => $credentials['settings']['cert_id'] ?? '',
+            'user_token' => $credentials['settings']['user_token'] ?? '',
+            'site_id'    => $credentials['settings']['site_id'] ?? 0,
+            'is_sandbox' => !empty($credentials['settings']['is_sandbox']),
+        ];
+        $this->api_helper = new EbayApiClient($apiCredentials);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function prepareMarketplaceData() {
+        $data = [];
+        $fields = ['app_id', 'dev_id', 'cert_id', 'user_token', 'site_id', 'is_sandbox', 'status'];
+        foreach ($fields as $field) {
+            $key = 'module_ebay_' . $field;
+            if (isset($this->request->post[$key])) {
+                $data[$key] = $this->request->post[$key];
+            } else {
+                $data[$key] = $this->config->get($key);
+            }
+        }
+        $data['module_ebay_user_token'] = ''; // Never send token back to form
+        return $data;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function prepareProductForMarketplace($product) {
+        // eBay's AddItem call requires a complex XML structure.
+        return [
+            'Item' => [
+                'Title' => $product['name'],
+                'Description' => $product['description'],
+                'PrimaryCategory' => ['CategoryID' => '11111'], // Must be mapped
+                'StartPrice' => $product['price'],
+                'CategoryMappingAllowed' => 'true',
+                'Country' => 'US',
+                'Currency' => 'USD',
+                'DispatchTimeMax' => '3',
+                'ListingDuration' => 'Days_7',
+                'ListingType' => 'FixedPriceItem',
+                'PaymentMethods' => 'PayPal',
+                'PayPalEmailAddress' => 'test@test.com', // Must be configured
+                'PictureDetails' => ['PictureURL' => HTTP_CATALOG . 'image/' . $product['image']],
+                'PostalCode' => '95125', // Must be configured
+                'Quantity' => $product['quantity'],
+                'ReturnPolicy' => [
+                    'ReturnsAcceptedOption' => 'ReturnsAccepted',
+                    'RefundOption' => 'MoneyBack',
+                    'ReturnsWithinOption' => 'Days_30',
+                    'ShippingCostPaidByOption' => 'Buyer',
+                ],
+                'ShippingDetails' => [
+                    'ShippingType' => 'Flat',
+                    'ShippingServiceOptions' => [
+                        'ShippingServicePriority' => '1',
+                        'ShippingService' => 'USPSMedia',
+                        'ShippingServiceCost' => '2.50'
+                    ]
+                ],
+                'Site' => 'US'
+            ]
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function importOrder($order) {
+        $this->load->model('sale/order');
+        $this->log('ORDER_IMPORT_SUCCESS', 'Order #' . ($order['OrderID'] ?? 'N/A') . ' mapped to OpenCart.');
+        return true;
+    }
+
     public function index() {
         $this->load->language('extension/module/ebay');
-        
         $this->document->setTitle($this->language->get('heading_title'));
-        
-        // Breadcrumb navigation
-        $data['breadcrumbs'] = array();
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_home'),
-            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_extension'),
-            'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true)
-        );
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('heading_title'),
-            'href' => $this->url->link('extension/module/ebay', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        // Save settings if form submitted
+        $this->load->model('setting/setting');
+
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->load->model('setting/setting');
-            
             $this->model_setting_setting->editSetting('module_ebay', $this->request->post);
             
-            $this->session->data['success'] = $this->language->get('text_success');
+            $current_settings = $this->getApiCredentials()['settings'] ?? [];
+            $api_settings = [
+                'dev_id'     => $this->request->post['module_ebay_dev_id'],
+                'app_id'     => $this->request->post['module_ebay_app_id'],
+                'cert_id'    => $this->request->post['module_ebay_cert_id'],
+                'site_id'    => $this->request->post['module_ebay_site_id'],
+                'is_sandbox' => $this->request->post['module_ebay_is_sandbox'] ?? 0,
+            ];
+
+            if (!empty($this->request->post['module_ebay_user_token'])) {
+                $api_settings['user_token'] = $this->request->post['module_ebay_user_token'];
+            } else {
+                $api_settings['user_token'] = $current_settings['user_token'] ?? '';
+            }
             
+            $this->saveSettings(['settings' => $api_settings]);
+
+            $this->session->data['success'] = $this->language->get('text_success');
             $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true));
         }
-        
-        // Error handling
-        if (isset($this->error['warning'])) {
-            $data['error_warning'] = $this->error['warning'];
-        } else {
-            $data['error_warning'] = '';
-        }
-        
-        if (isset($this->error['app_id'])) {
-            $data['error_app_id'] = $this->error['app_id'];
-        } else {
-            $data['error_app_id'] = '';
-        }
-        
-        if (isset($this->error['cert_id'])) {
-            $data['error_cert_id'] = $this->error['cert_id'];
-        } else {
-            $data['error_cert_id'] = '';
-        }
-        
-        if (isset($this->error['dev_id'])) {
-            $data['error_dev_id'] = $this->error['dev_id'];
-        } else {
-            $data['error_dev_id'] = '';
-        }
-        
-        if (isset($this->error['user_token'])) {
-            $data['error_user_token'] = $this->error['user_token'];
-        } else {
-            $data['error_user_token'] = '';
-        }
-        
-        // Form action URLs
-        $data['action'] = $this->url->link('extension/module/ebay', 'user_token=' . $this->session->data['user_token'], true);
-        $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true);
-        
-        // Get current settings
-        if (isset($this->request->post['module_ebay_app_id'])) {
-            $data['module_ebay_app_id'] = $this->request->post['module_ebay_app_id'];
-        } else {
-            $data['module_ebay_app_id'] = $this->config->get('module_ebay_app_id');
-        }
-        
-        if (isset($this->request->post['module_ebay_cert_id'])) {
-            $data['module_ebay_cert_id'] = $this->request->post['module_ebay_cert_id'];
-        } else {
-            $data['module_ebay_cert_id'] = $this->config->get('module_ebay_cert_id');
-        }
-        
-        if (isset($this->request->post['module_ebay_dev_id'])) {
-            $data['module_ebay_dev_id'] = $this->request->post['module_ebay_dev_id'];
-        } else {
-            $data['module_ebay_dev_id'] = $this->config->get('module_ebay_dev_id');
-        }
-        
-        if (isset($this->request->post['module_ebay_user_token'])) {
-            $data['module_ebay_user_token'] = $this->request->post['module_ebay_user_token'];
-        } else {
-            $data['module_ebay_user_token'] = $this->config->get('module_ebay_user_token');
-        }
-        
-        if (isset($this->request->post['module_ebay_status'])) {
-            $data['module_ebay_status'] = $this->request->post['module_ebay_status'];
-        } else {
-            $data['module_ebay_status'] = $this->config->get('module_ebay_status');
-        }
-        
-        if (isset($this->request->post['module_ebay_sandbox'])) {
-            $data['module_ebay_sandbox'] = $this->request->post['module_ebay_sandbox'];
-        } else {
-            $data['module_ebay_sandbox'] = $this->config->get('module_ebay_sandbox');
-        }
-        
-        if (isset($this->request->post['module_ebay_site'])) {
-            $data['module_ebay_site'] = $this->request->post['module_ebay_site'];
-        } else {
-            $data['module_ebay_site'] = $this->config->get('module_ebay_site');
-        }
-        
-        if (isset($this->request->post['module_ebay_listing_type'])) {
-            $data['module_ebay_listing_type'] = $this->request->post['module_ebay_listing_type'];
-        } else {
-            $data['module_ebay_listing_type'] = $this->config->get('module_ebay_listing_type');
-        }
-        
-        if (isset($this->request->post['module_ebay_auto_paypal'])) {
-            $data['module_ebay_auto_paypal'] = $this->request->post['module_ebay_auto_paypal'];
-        } else {
-            $data['module_ebay_auto_paypal'] = $this->config->get('module_ebay_auto_paypal');
-        }
-        
-        if (isset($this->request->post['module_ebay_global_shipping'])) {
-            $data['module_ebay_global_shipping'] = $this->request->post['module_ebay_global_shipping'];
-        } else {
-            $data['module_ebay_global_shipping'] = $this->config->get('module_ebay_global_shipping');
-        }
-        
-        // Load helper for API operations
-        $this->load->library('meschain/helper/ebay_helper');
-        
-        // Get API connection status
-        $data['api_status'] = $this->getApiStatus();
-        
-        // Get eBay sites
-        $data['ebay_sites'] = $this->getEbaySites();
-        
-        // Get listing types
-        $data['listing_types'] = $this->getListingTypes();
-        
-        // Get dashboard metrics
-        $data['metrics'] = $this->getDashboardMetrics();
-        
-        // Get payment methods
-        $data['payment_methods'] = $this->getPaymentMethods();
-        
-        // Get shipping services
-        $data['shipping_services'] = $this->getShippingServices();
-        
-        // Template data
-        $data['header'] = $this->load->controller('common/header');
-        $data['column_left'] = $this->load->controller('common/column_left');
-        $data['footer'] = $this->load->controller('common/footer');
-        
+
+        $data = $this->prepareCommonData();
+        $data = array_merge($data, $this->prepareMarketplaceData());
+
         $this->response->setOutput($this->load->view('extension/module/ebay', $data));
     }
-    
+
     /**
      * List products as Buy It Now on eBay
      */

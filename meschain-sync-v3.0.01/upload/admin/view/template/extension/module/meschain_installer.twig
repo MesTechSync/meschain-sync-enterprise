@@ -1,0 +1,369 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-install" class="btn btn-primary" onclick="installSystem();">
+          <i class="fa fa-download"></i> {{ button_install }}
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Installation Status Card -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-info-circle"></i> Installation Status</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="status-card">
+              {% if installation_status.status == 'installed' %}
+                <div class="alert alert-success">
+                  <i class="fa fa-check-circle fa-2x pull-left"></i>
+                  <h4>System Installed</h4>
+                  <p>{{ installation_status.message }}</p>
+                  <small>Version: {{ installation_status.version }}</small>
+                </div>
+              {% elseif installation_status.status == 'partial' %}
+                <div class="alert alert-warning">
+                  <i class="fa fa-exclamation-triangle fa-2x pull-left"></i>
+                  <h4>Partial Installation</h4>
+                  <p>{{ installation_status.message }}</p>
+                </div>
+              {% else %}
+                <div class="alert alert-info">
+                  <i class="fa fa-info-circle fa-2x pull-left"></i>
+                  <h4>Not Installed</h4>
+                  <p>{{ installation_status.message }}</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="features-list">
+              <h5>What will be installed:</h5>
+              <ul class="list-unstyled">
+                <li><i class="fa fa-check text-success"></i> Database Tables & Schema</li>
+                <li><i class="fa fa-check text-success"></i> 6 Marketplace Integrations</li>
+                <li><i class="fa fa-check text-success"></i> Advanced Reporting System</li>
+                <li><i class="fa fa-check text-success"></i> Webhook Management</li>
+                <li><i class="fa fa-check text-success"></i> Integration Testing Framework</li>
+                <li><i class="fa fa-check text-success"></i> Log Viewer & Monitoring</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Requirements -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-server"></i> System Requirements</h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Requirement</th>
+                <th>Required</th>
+                <th>Current</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for key, requirement in system_requirements %}
+              <tr>
+                <td>{{ requirement.name }}</td>
+                <td>{{ requirement.required }}</td>
+                <td>{{ requirement.current }}</td>
+                <td>
+                  {% if requirement.status == 'pass' %}
+                    <span class="label label-success"><i class="fa fa-check"></i> Pass</span>
+                  {% elseif requirement.status == 'warning' %}
+                    <span class="label label-warning"><i class="fa fa-exclamation"></i> Warning</span>
+                  {% else %}
+                    <span class="label label-danger"><i class="fa fa-times"></i> Fail</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Database Status -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-database"></i> Database Status</h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Status</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for key, status in database_status %}
+              <tr>
+                <td>{{ status.name }}</td>
+                <td>
+                  {% if status.status == 'pass' %}
+                    <span class="label label-success"><i class="fa fa-check"></i> OK</span>
+                  {% else %}
+                    <span class="label label-danger"><i class="fa fa-times"></i> Error</span>
+                  {% endif %}
+                </td>
+                <td>{{ status.message }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Installation Progress (Hidden by default) -->
+    <div id="installation-progress" class="panel panel-default" style="display: none;">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-cog fa-spin"></i> Installation Progress</h3>
+      </div>
+      <div class="panel-body">
+        <div id="progress-steps"></div>
+        <div class="progress">
+          <div id="progress-bar" class="progress-bar progress-bar-striped active" role="progressbar" style="width: 0%">
+            <span id="progress-text">0%</span>
+          </div>
+        </div>
+        <div id="installation-log" class="well" style="max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px;"></div>
+      </div>
+    </div>
+
+    <!-- Installation Success/Error -->
+    <div id="installation-result" class="panel panel-default" style="display: none;">
+      <div class="panel-body">
+        <div id="installation-message"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.status-card {
+  margin-bottom: 20px;
+}
+
+.features-list {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.features-list li {
+  padding: 5px 0;
+}
+
+.progress {
+  margin: 20px 0;
+}
+
+.installation-step {
+  padding: 10px;
+  border-left: 4px solid #ddd;
+  margin: 10px 0;
+  background: #f8f9fa;
+}
+
+.installation-step.running {
+  border-left-color: #337ab7;
+  background: #e3f2fd;
+}
+
+.installation-step.completed {
+  border-left-color: #5cb85c;
+  background: #d4edda;
+}
+
+.installation-step.failed {
+  border-left-color: #d9534f;
+  background: #f8d7da;
+}
+
+.step-icon {
+  margin-right: 10px;
+}
+
+#installation-log {
+  background: #2d2d2d;
+  color: #ffffff;
+}
+
+.log-entry {
+  margin: 2px 0;
+  padding: 2px 5px;
+}
+
+.log-info {
+  color: #5bc0de;
+}
+
+.log-success {
+  color: #5cb85c;
+}
+
+.log-error {
+  color: #d9534f;
+}
+</style>
+
+<script>
+function installSystem() {
+    // Hide install button and show progress
+    $('#button-install').hide();
+    $('#installation-progress').show();
+    
+    // Initialize progress
+    updateProgress(0, 'Starting installation...');
+    addLogEntry('Starting MesChain-Sync v3.0.1 installation...', 'info');
+    
+    // Start installation
+    $.ajax({
+        url: '{{ install_url }}',
+        type: 'POST',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#installation-log').html('');
+        },
+        success: function(response) {
+            if (response.success) {
+                handleInstallationSuccess(response);
+            } else {
+                handleInstallationError(response.error);
+            }
+        },
+        error: function(xhr, status, error) {
+            handleInstallationError('AJAX Error: ' + error);
+        }
+    });
+}
+
+function handleInstallationSuccess(response) {
+    // Process installation steps
+    if (response.steps) {
+        let completed = 0;
+        let total = response.steps.length;
+        
+        response.steps.forEach(function(step, index) {
+            addInstallationStep(step);
+            if (step.status === 'completed') {
+                completed++;
+            }
+        });
+        
+        let progress = Math.round((completed / total) * 100);
+        updateProgress(progress, completed + ' of ' + total + ' steps completed');
+    }
+    
+    // Show success message
+    setTimeout(function() {
+        updateProgress(100, 'Installation completed successfully!');
+        addLogEntry('MesChain-Sync v3.0.1 has been installed successfully!', 'success');
+        
+        $('#installation-result').show();
+        $('#installation-message').html(
+            '<div class="alert alert-success">' +
+            '<h4><i class="fa fa-check-circle"></i> Installation Complete!</h4>' +
+            '<p>' + response.message + '</p>' +
+            '<p>You can now access all MesChain-Sync features from the Extensions menu.</p>' +
+            '<a href="index.php?route=marketplace/extension&user_token={{ user_token }}&type=module" class="btn btn-primary">' +
+            '<i class="fa fa-arrow-right"></i> Go to Extensions' +
+            '</a>' +
+            '</div>'
+        );
+    }, 1000);
+}
+
+function handleInstallationError(error) {
+    updateProgress(0, 'Installation failed');
+    addLogEntry('Installation failed: ' + error, 'error');
+    
+    $('#installation-result').show();
+    $('#installation-message').html(
+        '<div class="alert alert-danger">' +
+        '<h4><i class="fa fa-exclamation-triangle"></i> Installation Failed!</h4>' +
+        '<p>' + error + '</p>' +
+        '<p>Please check the error log and try again.</p>' +
+        '<button type="button" class="btn btn-default" onclick="location.reload();">' +
+        '<i class="fa fa-refresh"></i> Try Again' +
+        '</button>' +
+        '</div>'
+    );
+    
+    // Show install button again
+    $('#button-install').show();
+}
+
+function addInstallationStep(step) {
+    let statusClass = 'running';
+    let icon = 'fa-spinner fa-spin';
+    
+    if (step.status === 'completed') {
+        statusClass = 'completed';
+        icon = 'fa-check';
+    } else if (step.status === 'failed') {
+        statusClass = 'failed';
+        icon = 'fa-times';
+    }
+    
+    let stepHtml = 
+        '<div class="installation-step ' + statusClass + '">' +
+        '<i class="fa ' + icon + ' step-icon"></i>' +
+        '<strong>Step ' + step.step + ':</strong> ' + step.title +
+        '</div>';
+    
+    $('#progress-steps').append(stepHtml);
+    addLogEntry('Step ' + step.step + ': ' + step.title, step.status === 'completed' ? 'success' : 'info');
+}
+
+function updateProgress(percent, text) {
+    $('#progress-bar').css('width', percent + '%');
+    $('#progress-text').text(percent + '%');
+    
+    if (text) {
+        addLogEntry(text, 'info');
+    }
+}
+
+function addLogEntry(message, type) {
+    let timestamp = new Date().toLocaleTimeString();
+    let logClass = 'log-' + (type || 'info');
+    let entry = '<div class="log-entry ' + logClass + '">[' + timestamp + '] ' + message + '</div>';
+    
+    $('#installation-log').append(entry);
+    $('#installation-log').scrollTop($('#installation-log')[0].scrollHeight);
+}
+
+// Initialize page
+$(document).ready(function() {
+    // Auto-scroll to bottom of log
+    $('#installation-log').scrollTop($('#installation-log')[0].scrollHeight);
+});
+</script>
+
+{{ footer }} 

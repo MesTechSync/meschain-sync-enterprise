@@ -84,6 +84,30 @@
       </div>
     </div>
     
+    <!-- Grafik Raporları -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-line-chart"></i> Aylık Satış Trendi</h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="salesTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-pie-chart"></i> Pazaryeri Satış Dağılımı</h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="marketplaceChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <!-- Pazaryeri Satış Raporu -->
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -350,6 +374,8 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 .huge {
     font-size: 40px;
@@ -453,6 +479,63 @@ $('#generate-custom-report').on('click', function() {
             } else if (json['error']) {
                 alert('Hata: ' + json['error']);
             }
+        }
+    });
+});
+
+// Grafikleri Çiz
+document.addEventListener("DOMContentLoaded", function() {
+    // Aylık Satış Trendi Grafiği (Çizgi)
+    var salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
+    var salesTrendData = JSON.parse('{{ sales_trend_chart_json|e('js') }}');
+    new Chart(salesTrendCtx, {
+        type: 'line',
+        data: {
+            labels: salesTrendData.labels,
+            datasets: [{
+                label: 'Aylık Satış (TL)',
+                data: salesTrendData.data,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Pazaryeri Satış Dağılımı (Pasta)
+    var marketplaceCtx = document.getElementById('marketplaceChart').getContext('2d');
+    var marketplaceData = JSON.parse('{{ marketplace_chart_json|e('js') }}');
+    new Chart(marketplaceCtx, {
+        type: 'pie',
+        data: {
+            labels: marketplaceData.labels,
+            datasets: [{
+                label: 'Satış Dağılımı',
+                data: marketplaceData.data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)'
+                ],
+                borderColor: 'rgba(255, 255, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 });
