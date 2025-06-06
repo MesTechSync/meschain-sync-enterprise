@@ -40,6 +40,45 @@ import { format, subDays, startOfDay, endOfDay, isWithinInterval } from 'date-fn
 import { tr, enUS } from 'date-fns/locale';
 import _ from 'lodash';
 import toast from 'react-hot-toast';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Tabs,
+  Tab,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Button,
+  Chip,
+  IconButton,
+  Tooltip as MuiTooltip,
+  Switch,
+  FormControlLabel,
+  LinearProgress,
+  Alert,
+  Divider,
+} from '@mui/material';
+import {
+  Timeline,
+  TrendingUp,
+  TrendingDown,
+  Assessment,
+  PieChart as MuiPieChart,
+  BarChart as MuiBarChart,
+  ShowChart,
+  TableChart,
+  GetApp,
+  Refresh,
+  FilterList,
+  CompareArrows,
+  Insights,
+  AutoGraph,
+  Analytics as MuiAnalyticsIcon,
+} from '@mui/icons-material';
 
 interface AnalyticsData {
   date: string;
@@ -75,27 +114,30 @@ interface FilterOptions {
   metrics: string[];
 }
 
-const AdvancedAnalytics: React.FC = () => {
+interface AdvancedAnalyticsProps {
+  data?: AnalyticsData;
+  isLoading?: boolean;
+  onExport?: (format: string, data: any) => void;
+  onRefresh?: () => void;
+  onFilterChange?: (filters: any) => void;
+}
+
+const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({
+  data,
+  isLoading = false,
+  onExport,
+  onRefresh,
+  onFilterChange,
+}) => {
   const { t, i18n } = useTranslation();
   const { formatCurrency, formatNumber, getCurrentLanguageData } = useLanguage();
   
-  const [data, setData] = useState<AnalyticsData[]>([]);
-  const [filteredData, setFilteredData] = useState<AnalyticsData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedChart, setSelectedChart] = useState<'line' | 'area' | 'bar' | 'pie' | 'composed' | 'radial' | 'scatter'>('line');
-  const [selectedMetric, setSelectedMetric] = useState<'sales' | 'orders' | 'revenue' | 'profit' | 'visitors' | 'conversionRate'>('revenue');
-  const [filters, setFilters] = useState<FilterOptions>({
-    dateRange: {
-      start: subDays(new Date(), 30),
-      end: new Date()
-    },
-    marketplaces: [],
-    categories: [],
-    regions: [],
-    metrics: ['revenue', 'orders', 'sales']
-  });
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
-  const [isRealTime, setIsRealTime] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+  const [timeRange, setTimeRange] = useState('30d');
+  const [selectedMetrics, setSelectedMetrics] = useState(['revenue', 'orders', 'customers']);
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [forecastEnabled, setForecastEnabled] = useState(true);
+  const [realTimeEnabled, setRealTimeEnabled] = useState(false);
 
   const locale = i18n.language === 'tr' ? tr : enUS;
 
@@ -278,10 +320,10 @@ const AdvancedAnalytics: React.FC = () => {
     const grouped = _.groupBy(filteredData, 'marketplace');
     return Object.entries(grouped).map(([marketplace, items]) => ({
       name: marketplace,
-      value: _.sumBy(items, selectedMetric),
+      value: _.sumBy(items, selectedMetrics[0]),
       count: items.length
     }));
-  }, [filteredData, selectedMetric]);
+  }, [filteredData, selectedMetrics]);
 
   // Category performance data
   const categoryData = useMemo(() => {
@@ -308,11 +350,11 @@ const AdvancedAnalytics: React.FC = () => {
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
-        return <TrendingUpIcon className="w-4 h-4 text-green-500" />;
+        return <TrendingUp color="success" />;
       case 'down':
-        return <TrendingDownIcon className="w-4 h-4 text-red-500" />;
+        return <TrendingDown color="error" />;
       default:
-        return <div className="w-4 h-4 bg-gray-400 rounded-full" />;
+        return null;
     }
   };
 
@@ -510,208 +552,72 @@ const AdvancedAnalytics: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <Box p={3}>
       {/* Header */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {t('analytics.advancedAnalytics')}
-            </h1>
-            <p className="mt-1 text-sm text-gray-600">
-              {t('analytics.comprehensiveInsights')}
-            </p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={exportData}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box>
+          <Typography variant="h4" gutterBottom>
+            Gelişmiş Analiz & İş Zekası
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Kapsamlı performans analizi ve akıllı öneriler
+          </Typography>
+        </Box>
+        <Box display="flex" gap={1}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={realTimeEnabled}
+                onChange={(e) => setRealTimeEnabled(e.target.checked)}
+              />
+            }
+            label="Canlı Veri"
+          />
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Zaman Aralığı</InputLabel>
+            <Select
+              value={timeRange}
+              onChange={(e) => setTimeRange(e.target.value)}
+              label="Zaman Aralığı"
             >
-              <DocumentArrowDownIcon className="w-4 h-4" />
-              <span>{t('common.export')}</span>
-            </button>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-              <Cog6ToothIcon className="w-4 h-4" />
-              <span>{t('common.settings')}</span>
-            </button>
-          </div>
-        </div>
-      </div>
+              <MenuItem value="7d">Son 7 Gün</MenuItem>
+              <MenuItem value="30d">Son 30 Gün</MenuItem>
+              <MenuItem value="90d">Son 3 Ay</MenuItem>
+              <MenuItem value="1y">Son 1 Yıl</MenuItem>
+            </Select>
+          </FormControl>
+          <Tooltip title="Verileri Yenile">
+            <IconButton onClick={onRefresh}>
+              <Refresh />
+            </IconButton>
+          </Tooltip>
+          <Button
+            variant="contained"
+            startIcon={<GetApp />}
+            onClick={() => onExport?.('excel', currentData)}
+          >
+            Export
+          </Button>
+        </Box>
+      </Box>
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-        {metrics.map((metric, index) => (
-          <div key={index} className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className={`w-8 h-8 ${getColorClass(metric.color)} rounded-lg flex items-center justify-center`}>
-                    <metric.icon className="w-5 h-5 text-white" />
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      {metric.title}
-                    </dt>
-                    <dd className="flex items-baseline">
-                      <div className="text-lg font-semibold text-gray-900">
-                        {formatValue(metric.value, metric.format)}
-                      </div>
-                      <div className="ml-2 flex items-baseline text-sm">
-                        {getTrendIcon(metric.trend)}
-                        <span className={`ml-1 ${
-                          metric.trend === 'up' ? 'text-green-600' : 
-                          metric.trend === 'down' ? 'text-red-600' : 'text-gray-500'
-                        }`}>
-                          {Math.abs(metric.change).toFixed(1)}%
-                        </span>
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Loading */}
+      {isLoading && <LinearProgress sx={{ mb: 2 }} />}
 
-      {/* Chart Controls */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center space-x-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('analytics.chartType')}
-              </label>
-              <select
-                value={selectedChart}
-                onChange={(e) => setSelectedChart(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="line">{t('analytics.lineChart')}</option>
-                <option value="area">{t('analytics.areaChart')}</option>
-                <option value="bar">{t('analytics.barChart')}</option>
-                <option value="pie">{t('analytics.pieChart')}</option>
-                <option value="composed">{t('analytics.composedChart')}</option>
-                <option value="radial">{t('analytics.radialChart')}</option>
-                <option value="scatter">{t('analytics.scatterChart')}</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('analytics.metric')}
-              </label>
-              <select
-                value={selectedMetric}
-                onChange={(e) => setSelectedMetric(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="revenue">{t('dashboard.totalRevenue')}</option>
-                <option value="orders">{t('dashboard.totalOrders')}</option>
-                <option value="sales">{t('dashboard.totalSales')}</option>
-                <option value="profit">{t('reports.profitReport')}</option>
-                <option value="visitors">{t('analytics.visitors')}</option>
-                <option value="conversionRate">{t('analytics.conversionRate')}</option>
-              </select>
-            </div>
-          </div>
+      {/* Tabs */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
+          <Tab icon={<MuiAnalyticsIcon />} label="Genel Bakış" />
+          <Tab icon={<ShowChart />} label="Detaylı Analiz" />
+          <Tab icon={<Insights />} label="İş Zekası" />
+        </Tabs>
+      </Box>
 
-          <div className="flex items-center space-x-2">
-            <CalendarIcon className="w-5 h-5 text-gray-400" />
-            <span className="text-sm text-gray-600">
-              {format(filters.dateRange.start, 'MMM dd, yyyy', { locale })} - {format(filters.dateRange.end, 'MMM dd, yyyy', { locale })}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Chart */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          {t('analytics.performanceTrends')}
-        </h3>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setIsRealTime(!isRealTime)}
-              className={`flex items-center space-x-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                isRealTime
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              <ArrowPathIcon className={`w-4 h-4 ${isRealTime ? 'animate-spin' : ''}`} />
-              <span>{t('analytics.realTimeData')}</span>
-            </button>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Cog6ToothIcon className="w-5 h-5 text-gray-400" />
-            <span className="text-sm text-gray-600">{t('common.settings')}</span>
-          </div>
-        </div>
-        <div className="h-96">
-          <ResponsiveContainer width="100%" height="100%">
-            {renderChart()}
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Secondary Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Marketplace Distribution */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            {t('analytics.marketplaceDistribution')}
-          </h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={marketplaceData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {marketplaceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [formatValue(value, selectedMetric === 'conversionRate' ? 'percentage' : selectedMetric === 'visitors' || selectedMetric === 'orders' ? 'number' : 'currency'), t(`dashboard.${selectedMetric}`)]}
-                />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Category Performance */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            {t('analytics.categoryPerformance')}
-          </h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={categoryData} layout="horizontal">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="category" type="category" width={80} />
-                <Tooltip 
-                  formatter={(value: number) => [formatCurrency(value), t('dashboard.totalRevenue')]}
-                />
-                <Bar dataKey="revenue" fill="#3B82F6" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-    </div>
+      {/* Tab Content */}
+      {activeTab === 0 && <OverviewTab />}
+      {activeTab === 1 && <DetailedAnalyticsTab />}
+      {activeTab === 2 && <InsightsTab />}
+    </Box>
   );
 };
 

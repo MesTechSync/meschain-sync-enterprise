@@ -1,632 +1,975 @@
 /**
  * Performance Dashboard Component
- * Priority 5: Performance & Security Optimization
- * 
- * @version 5.0.0
- * @author MesChain Sync Team - Cursor Team Priority 5
+ * Real-time performance monitoring and optimization insights
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { MS365Colors, MS365Typography, MS365Spacing, AdvancedMS365Theme } from '../../theme/microsoft365-advanced';
-import { MS365Card } from '../Microsoft365/MS365Card';
-import { MS365Button } from '../Microsoft365/MS365Button';
-import { MS365Charts } from '../Microsoft365/MS365Charts';
-import PerformanceOptimizer, { PerformanceMetric, defaultPerformanceConfig } from '../../performance/PerformanceOptimizer';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  Badge,
+  Button,
+  Progress,
+  Alert,
+  AlertDescription,
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui';
+import {
+  Activity,
+  Zap,
+  TrendingUp,
+  TrendingDown,
+  Clock,
+  Database,
+  HardDrive,
+  Cpu,
+  Memory,
+  Network,
+  AlertTriangle,
+  CheckCircle,
+  Play,
+  Pause,
+  BarChart3,
+  LineChart,
+  PieChart,
+  Settings,
+  Download,
+  RefreshCw,
+  Gauge,
+  Target,
+  Layers,
+  Package,
+  Globe,
+  Users,
+  Server
+} from 'lucide-react';
+import { 
+  LineChart as RechartsLineChart, 
+  Line, 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip as RechartsTooltip, 
+  Legend, 
+  ResponsiveContainer,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  ComposedChart
+} from 'recharts';
+import PerformanceMonitor, { PerformanceMetrics, PerformanceAlert } from '../../services/performance/PerformanceMonitor';
+import CacheManager from '../../services/performance/CacheManager';
+import DatabaseOptimizer from '../../services/performance/DatabaseOptimizer';
+import BundleOptimizer from '../../services/performance/BundleOptimizer';
 
-// Performance Dashboard Main Component
-export const PerformanceDashboard: React.FC = () => {
-  const [performanceOptimizer] = useState(() => new PerformanceOptimizer(defaultPerformanceConfig));
-  const [metrics, setMetrics] = useState<PerformanceMetric[]>([]);
-  const [realTimeData, setRealTimeData] = useState({
-    pageLoadTime: 1250,
-    apiResponseTime: 180,
-    memoryUsage: 45,
-    bundleSize: 2.1,
-    lastUpdate: new Date()
-  });
-
-  // Update performance data every 5 seconds
-  useEffect(() => {
-    const updateData = () => {
-      const currentMetrics = performanceOptimizer.getPerformanceMetrics();
-      setMetrics(currentMetrics);
-      
-      // Simulate real-time performance data
-      setRealTimeData(prev => ({
-        pageLoadTime: 1000 + Math.random() * 500,
-        apiResponseTime: 150 + Math.random() * 100,
-        memoryUsage: 40 + Math.random() * 20,
-        bundleSize: 2.0 + Math.random() * 0.5,
-        lastUpdate: new Date()
-      }));
-    };
-
-    updateData();
-    const interval = setInterval(updateData, 5000);
-    
-    return () => {
-      clearInterval(interval);
-      performanceOptimizer.destroy();
-    };
-  }, [performanceOptimizer]);
-
-  const performanceScore = useMemo(() => {
-    const report = performanceOptimizer.generateOptimizationReport();
-    return report.score;
-  }, [performanceOptimizer, realTimeData]);
-
-  const webVitals = useMemo(() => {
-    return {
-      lcp: metrics.find(m => m.name.includes('LCP'))?.value || 0,
-      fid: metrics.find(m => m.name.includes('FID'))?.value || 0,
-      cls: metrics.find(m => m.name.includes('CLS'))?.value || 0
-    };
-  }, [metrics]);
-
-  const getPerformanceColor = (score: number) => {
-    if (score >= 90) return MS365Colors.success;
-    if (score >= 70) return MS365Colors.warning;
-    return MS365Colors.error;
-  };
-
-  return (
-    <div style={{ padding: MS365Spacing.l }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: MS365Spacing.l 
-      }}>
-        <h1 style={MS365Typography.h1}>Performance Dashboard</h1>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: MS365Spacing.m,
-          fontSize: '14px',
-          color: MS365Colors.text.secondary 
-        }}>
-          <span>Last Updated: {realTimeData.lastUpdate.toLocaleTimeString()}</span>
-          <div style={{
-            width: '10px',
-            height: '10px',
-            backgroundColor: MS365Colors.success,
-            borderRadius: '50%',
-            animation: 'pulse 2s infinite'
-          }} />
-        </div>
-      </div>
-
-      {/* Performance Score Overview */}
-      <div style={{ marginBottom: MS365Spacing.l }}>
-        <PerformanceScoreCard score={performanceScore} />
-      </div>
-
-      {/* Core Web Vitals */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-        gap: MS365Spacing.m,
-        marginBottom: MS365Spacing.l 
-      }}>
-        <WebVitalCard
-          title="Largest Contentful Paint"
-          value={webVitals.lcp}
-          unit="ms"
-          threshold={{ good: 2500, warning: 4000 }}
-          description="Time to render largest element"
-        />
-        <WebVitalCard
-          title="First Input Delay"
-          value={webVitals.fid}
-          unit="ms"
-          threshold={{ good: 100, warning: 300 }}
-          description="Time to respond to first user interaction"
-        />
-        <WebVitalCard
-          title="Cumulative Layout Shift"
-          value={webVitals.cls}
-          unit=""
-          threshold={{ good: 0.1, warning: 0.25 }}
-          description="Visual stability of page elements"
-        />
-        <PerformanceMetricCard
-          title="Bundle Size"
-          value={realTimeData.bundleSize}
-          unit="MB"
-          color={realTimeData.bundleSize < 2 ? MS365Colors.success : 
-                 realTimeData.bundleSize < 3 ? MS365Colors.warning : MS365Colors.error}
-        />
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: MS365Spacing.l }}>
-        {/* Performance Metrics Chart */}
-        <MS365Card>
-          <h3 style={MS365Typography.h3}>Performance Metrics Timeline</h3>
-          <PerformanceMetricsChart metrics={metrics.slice(0, 20)} />
-        </MS365Card>
-
-        {/* Resource Analysis */}
-        <MS365Card>
-          <h3 style={MS365Typography.h3}>Resource Analysis</h3>
-          <ResourceAnalysisPanel optimizer={performanceOptimizer} />
-        </MS365Card>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: MS365Spacing.l, marginTop: MS365Spacing.l }}>
-        {/* Cache Performance */}
-        <MS365Card>
-          <h3 style={MS365Typography.h3}>Cache Performance</h3>
-          <CachePerformancePanel optimizer={performanceOptimizer} />
-        </MS365Card>
-
-        {/* Optimization Recommendations */}
-        <MS365Card>
-          <h3 style={MS365Typography.h3}>Optimization Recommendations</h3>
-          <OptimizationRecommendations optimizer={performanceOptimizer} />
-        </MS365Card>
-      </div>
-    </div>
-  );
-};
-
-// Performance Score Card Component
-interface PerformanceScoreCardProps {
-  score: number;
+// Types
+interface PerformanceOverview {
+  performanceScore: number;
+  responseTime: number;
+  throughput: number;
+  errorRate: number;
+  uptime: number;
+  activeUsers: number;
+  cacheHitRatio: number;
+  databaseHealth: number;
 }
 
-const PerformanceScoreCard: React.FC<PerformanceScoreCardProps> = ({ score }) => {
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return MS365Colors.success;
-    if (score >= 70) return MS365Colors.warning;
-    return MS365Colors.error;
+interface OptimizationSuggestion {
+  id: string;
+  category: 'FRONTEND' | 'BACKEND' | 'DATABASE' | 'CACHE' | 'INFRASTRUCTURE';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  title: string;
+  description: string;
+  impact: number;
+  effort: 'LOW' | 'MEDIUM' | 'HIGH';
+  estimatedSavings: string;
+}
+
+const PerformanceDashboard: React.FC = () => {
+  // State Management
+  const [performanceMonitor] = useState(() => new PerformanceMonitor());
+  const [cacheManager] = useState(() => new CacheManager());
+  const [databaseOptimizer] = useState(() => new DatabaseOptimizer());
+  const [bundleOptimizer] = useState(() => new BundleOptimizer());
+  
+  const [overview, setOverview] = useState<PerformanceOverview>({
+    performanceScore: 85,
+    responseTime: 245,
+    throughput: 1250,
+    errorRate: 0.8,
+    uptime: 99.9,
+    activeUsers: 847,
+    cacheHitRatio: 89,
+    databaseHealth: 92
+  });
+  
+  const [metrics, setMetrics] = useState<PerformanceMetrics[]>([]);
+  const [alerts, setAlerts] = useState<PerformanceAlert[]>([]);
+  const [suggestions, setSuggestions] = useState<OptimizationSuggestion[]>([]);
+  const [isMonitoring, setIsMonitoring] = useState(true);
+  const [selectedTimeRange, setSelectedTimeRange] = useState('1h');
+  const [autoRefresh, setAutoRefresh] = useState(true);
+
+  // Colors for charts
+  const CHART_COLORS = {
+    primary: '#3b82f6',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#6366f1',
+    secondary: '#8b5cf6'
   };
 
-  const getScoreLabel = (score: number) => {
-    if (score >= 90) return 'Excellent';
-    if (score >= 70) return 'Good';
-    if (score >= 50) return 'Needs Improvement';
-    return 'Poor';
+  // Data Loading
+  useEffect(() => {
+    loadPerformanceData();
+    
+    if (autoRefresh) {
+      const interval = setInterval(loadPerformanceData, 30000); // Every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [autoRefresh]);
+
+  useEffect(() => {
+    // Load optimization suggestions
+    loadOptimizationSuggestions();
+  }, []);
+
+  const loadPerformanceData = useCallback(async () => {
+    try {
+      // Get latest metrics
+      const latestMetrics = performanceMonitor.getMetrics(50);
+      setMetrics(latestMetrics);
+
+      // Get alerts
+      const currentAlerts = performanceMonitor.getAlerts(false);
+      setAlerts(currentAlerts);
+
+      // Update overview
+      const latest = latestMetrics[latestMetrics.length - 1];
+      if (latest) {
+        setOverview({
+          performanceScore: performanceMonitor.getPerformanceScore(),
+          responseTime: latest.application.averageResponseTime,
+          throughput: latest.application.requestsPerSecond,
+          errorRate: latest.application.errorRate,
+          uptime: 99.9,
+          activeUsers: latest.application.activeUsers,
+          cacheHitRatio: latest.database.cacheHitRatio,
+          databaseHealth: 100 - (latest.database.slowQueries * 5)
+        });
+      }
+
+    } catch (error) {
+      console.error('Error loading performance data:', error);
+    }
+  }, [performanceMonitor]);
+
+  const loadOptimizationSuggestions = useCallback(async () => {
+    // Mock optimization suggestions
+    const mockSuggestions: OptimizationSuggestion[] = [
+      {
+        id: '1',
+        category: 'DATABASE',
+        priority: 'HIGH',
+        title: 'Add Database Index',
+        description: 'Products table query optimization with composite index',
+        impact: 65,
+        effort: 'LOW',
+        estimatedSavings: '40% faster queries'
+      },
+      {
+        id: '2',
+        category: 'FRONTEND',
+        priority: 'MEDIUM',
+        title: 'Bundle Code Splitting',
+        description: 'Split vendor bundle to improve initial load time',
+        impact: 35,
+        effort: 'MEDIUM',
+        estimatedSavings: '2.3s faster load'
+      },
+      {
+        id: '3',
+        category: 'CACHE',
+        priority: 'MEDIUM',
+        title: 'Redis Cache Layer',
+        description: 'Implement Redis for frequently accessed data',
+        impact: 50,
+        effort: 'HIGH',
+        estimatedSavings: '60% cache hit rate'
+      },
+      {
+        id: '4',
+        category: 'INFRASTRUCTURE',
+        priority: 'LOW',
+        title: 'CDN Implementation',
+        description: 'Use CDN for static assets delivery',
+        impact: 25,
+        effort: 'MEDIUM',
+        estimatedSavings: '1.5s faster assets'
+      }
+    ];
+
+    setSuggestions(mockSuggestions);
+  }, []);
+
+  // Chart Data
+  const performanceTrendData = useMemo(() => {
+    return metrics.slice(-24).map((metric, index) => ({
+      time: new Date(metric.timestamp).toLocaleTimeString('tr-TR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      }),
+      responseTime: metric.application.averageResponseTime,
+      throughput: metric.application.requestsPerSecond,
+      cpuUsage: metric.cpu.usage,
+      memoryUsage: metric.memory.usage,
+      errorRate: metric.application.errorRate
+    }));
+  }, [metrics]);
+
+  const resourceUtilizationData = useMemo(() => {
+    const latest = metrics[metrics.length - 1];
+    if (!latest) return [];
+
+    return [
+      { name: 'CPU', value: latest.cpu.usage, color: CHART_COLORS.danger },
+      { name: 'Memory', value: latest.memory.usage, color: CHART_COLORS.warning },
+      { name: 'Storage', value: 65, color: CHART_COLORS.info },
+      { name: 'Network', value: 45, color: CHART_COLORS.success }
+    ];
+  }, [metrics]);
+
+  const databaseMetricsData = useMemo(() => {
+    return metrics.slice(-12).map(metric => ({
+      time: new Date(metric.timestamp).toLocaleTimeString('tr-TR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      }),
+      queryTime: metric.database.averageQueryTime,
+      connections: metric.database.connections,
+      slowQueries: metric.database.slowQueries,
+      cacheHit: metric.database.cacheHitRatio
+    }));
+  }, [metrics]);
+
+  // Event Handlers
+  const handleStartProfiling = async () => {
+    const profileId = performanceMonitor.startProfiling('Dashboard Profile');
+    console.log('Started profiling:', profileId);
+    
+    setTimeout(() => {
+      const profile = performanceMonitor.stopProfiling(profileId);
+      console.log('Profiling completed:', profile);
+    }, 10000);
+  };
+
+  const handleGenerateReport = () => {
+    const endTime = new Date();
+    const startTime = new Date(endTime.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
+    
+    const report = performanceMonitor.generateReport(startTime, endTime);
+    
+    // Download report
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `performance-report-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleAcknowledgeAlert = (alertId: string) => {
+    performanceMonitor.acknowledgeAlert(alertId);
+    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'CRITICAL': return 'destructive';
+      case 'HIGH': return 'destructive';
+      case 'MEDIUM': return 'default';
+      case 'LOW': return 'secondary';
+      default: return 'secondary';
+    }
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 90) return 'text-green-600';
+    if (score >= 75) return 'text-yellow-600';
+    if (score >= 60) return 'text-orange-600';
+    return 'text-red-600';
+  };
+
+  const getHealthIcon = (score: number) => {
+    if (score >= 90) return CheckCircle;
+    if (score >= 75) return AlertTriangle;
+    return AlertTriangle;
   };
 
   return (
-    <MS365Card style={{ 
-      padding: MS365Spacing.xl,
-      background: `linear-gradient(135deg, ${getScoreColor(score)}15, ${getScoreColor(score)}05)`,
-      border: `2px solid ${getScoreColor(score)}30`
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: MS365Spacing.l }}>
-        <div style={{ position: 'relative', width: '120px', height: '120px' }}>
-          {/* Circular Progress */}
-          <svg width="120" height="120" style={{ transform: 'rotate(-90deg)' }}>
-            <circle
-              cx="60"
-              cy="60"
-              r="50"
-              fill="none"
-              stroke={MS365Colors.background.secondary}
-              strokeWidth="8"
-            />
-            <circle
-              cx="60"
-              cy="60"
-              r="50"
-              fill="none"
-              stroke={getScoreColor(score)}
-              strokeWidth="8"
-              strokeDasharray={`${(score / 100) * 314.16} 314.16`}
-              style={{ transition: 'stroke-dasharray 1s ease' }}
-            />
-          </svg>
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            textAlign: 'center'
-          }}>
-            <div style={{ ...MS365Typography.h1, color: getScoreColor(score), margin: 0 }}>
-              {Math.round(score)}
-            </div>
-            <div style={{ fontSize: '12px', color: MS365Colors.text.secondary }}>
-              /100
-            </div>
-          </div>
+    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Performans Dashboard</h1>
+          <p className="text-gray-600 mt-1">Gerçek zamanlı performans izleme ve optimizasyon</p>
         </div>
         
-        <div style={{ flex: 1 }}>
-          <h2 style={{ ...MS365Typography.h2, margin: 0, marginBottom: MS365Spacing.s }}>
-            Performance Score: {getScoreLabel(score)}
-          </h2>
-          <p style={{ ...MS365Typography.body, color: MS365Colors.text.secondary, margin: 0 }}>
-            Your application's overall performance based on Core Web Vitals, resource optimization, 
-            and user experience metrics.
-          </p>
-          <div style={{ marginTop: MS365Spacing.m }}>
-            <MS365Button 
-              style={{ 
-                backgroundColor: getScoreColor(score),
-                borderColor: getScoreColor(score)
-              }}
-            >
-              View Detailed Report
-            </MS365Button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Otomatik Yenileme</span>
+            <Switch
+              checked={autoRefresh}
+              onCheckedChange={setAutoRefresh}
+            />
           </div>
-        </div>
-      </div>
-    </MS365Card>
-  );
-};
-
-// Web Vital Card Component
-interface WebVitalCardProps {
-  title: string;
-  value: number;
-  unit: string;
-  threshold: { good: number; warning: number };
-  description: string;
-}
-
-const WebVitalCard: React.FC<WebVitalCardProps> = ({ title, value, unit, threshold, description }) => {
-  const getVitalColor = (val: number) => {
-    if (val <= threshold.good) return MS365Colors.success;
-    if (val <= threshold.warning) return MS365Colors.warning;
-    return MS365Colors.error;
-  };
-
-  const getVitalStatus = (val: number) => {
-    if (val <= threshold.good) return 'Good';
-    if (val <= threshold.warning) return 'Needs Improvement';
-    return 'Poor';
-  };
-
-  return (
-    <MS365Card style={{ 
-      padding: MS365Spacing.l,
-      background: `linear-gradient(135deg, ${getVitalColor(value)}15, ${getVitalColor(value)}05)`,
-      border: `1px solid ${getVitalColor(value)}30`
-    }}>
-      <div style={{ marginBottom: MS365Spacing.m }}>
-        <h4 style={{ ...MS365Typography.h4, color: MS365Colors.text.secondary, margin: 0 }}>
-          {title}
-        </h4>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: MS365Spacing.s }}>
-          <span style={{ ...MS365Typography.h2, color: getVitalColor(value), margin: 0 }}>
-            {value.toFixed(unit === '' ? 3 : 0)}
-          </span>
-          <span style={{ ...MS365Typography.body, color: MS365Colors.text.secondary }}>
-            {unit}
-          </span>
-        </div>
-      </div>
-      
-      <div style={{
-        padding: '4px 8px',
-        borderRadius: '12px',
-        backgroundColor: getVitalColor(value) + '20',
-        color: getVitalColor(value),
-        fontSize: '12px',
-        fontWeight: 'bold',
-        marginBottom: MS365Spacing.s,
-        display: 'inline-block'
-      }}>
-        {getVitalStatus(value)}
-      </div>
-      
-      <p style={{ 
-        ...MS365Typography.caption, 
-        color: MS365Colors.text.secondary, 
-        margin: 0,
-        lineHeight: '1.4'
-      }}>
-        {description}
-      </p>
-    </MS365Card>
-  );
-};
-
-// Performance Metric Card Component
-interface PerformanceMetricCardProps {
-  title: string;
-  value: number;
-  unit: string;
-  color: string;
-}
-
-const PerformanceMetricCard: React.FC<PerformanceMetricCardProps> = ({ title, value, unit, color }) => (
-  <MS365Card style={{ 
-    padding: MS365Spacing.l,
-    background: `linear-gradient(135deg, ${color}15, ${color}05)`,
-    border: `1px solid ${color}30`
-  }}>
-    <h4 style={{ ...MS365Typography.h4, color: MS365Colors.text.secondary, margin: 0 }}>
-      {title}
-    </h4>
-    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: MS365Spacing.s }}>
-      <span style={{ ...MS365Typography.h2, color, margin: 0 }}>
-        {value.toFixed(1)}
-      </span>
-      <span style={{ ...MS365Typography.body, color: MS365Colors.text.secondary }}>
-        {unit}
-      </span>
-    </div>
-  </MS365Card>
-);
-
-// Performance Metrics Chart Component
-interface PerformanceMetricsChartProps {
-  metrics: PerformanceMetric[];
-}
-
-const PerformanceMetricsChart: React.FC<PerformanceMetricsChartProps> = ({ metrics }) => {
-  const chartData = useMemo(() => {
-    const loadingMetrics = metrics.filter(m => m.category === 'loading');
-    const networkMetrics = metrics.filter(m => m.category === 'network');
-    
-    return {
-      labels: loadingMetrics.slice(0, 10).map((_, i) => `T-${9-i}`),
-      datasets: [
-        {
-          label: 'Page Load Time',
-          data: loadingMetrics.slice(0, 10).reverse().map(m => m.value),
-          borderColor: MS365Colors.primary,
-          backgroundColor: MS365Colors.primary + '20',
-          tension: 0.4
-        },
-        {
-          label: 'Network Requests',
-          data: networkMetrics.slice(0, 10).reverse().map(m => m.value),
-          borderColor: MS365Colors.info,
-          backgroundColor: MS365Colors.info + '20',
-          tension: 0.4
-        }
-      ]
-    };
-  }, [metrics]);
-
-  return (
-    <div style={{ height: '300px', padding: MS365Spacing.m }}>
-      <MS365Charts
-        type="line"
-        data={chartData}
-        options={{
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-              position: 'bottom'
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                color: MS365Colors.border
-              }
-            },
-            x: {
-              grid: {
-                display: false
-              }
-            }
-          }
-        }}
-      />
-    </div>
-  );
-};
-
-// Resource Analysis Panel Component
-interface ResourceAnalysisPanelProps {
-  optimizer: PerformanceOptimizer;
-}
-
-const ResourceAnalysisPanel: React.FC<ResourceAnalysisPanelProps> = ({ optimizer }) => {
-  const [bundleAnalysis, setBundleAnalysis] = useState<any>(null);
-  const [networkStats, setNetworkStats] = useState<any>(null);
-
-  useEffect(() => {
-    const updateAnalysis = () => {
-      setBundleAnalysis(optimizer.getBundleAnalysis());
-      setNetworkStats(optimizer.getNetworkStats());
-    };
-
-    updateAnalysis();
-    const interval = setInterval(updateAnalysis, 10000);
-    
-    return () => clearInterval(interval);
-  }, [optimizer]);
-
-  if (!bundleAnalysis || !networkStats) {
-    return <div>Loading analysis...</div>;
-  }
-
-  return (
-    <div>
-      <div style={{ marginBottom: MS365Spacing.m }}>
-        <h5 style={{ ...MS365Typography.h5, margin: 0, marginBottom: MS365Spacing.s }}>
-          Bundle Information
-        </h5>
-        <div style={{ fontSize: '14px', color: MS365Colors.text.secondary }}>
-          <div>Total Size: {(bundleAnalysis.totalSize / (1024 * 1024)).toFixed(2)}MB</div>
-          <div>Gzipped: {(bundleAnalysis.gzippedSize / 1024).toFixed(2)}KB</div>
-          <div>Chunks: {bundleAnalysis.chunks.length}</div>
+          
+          <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
+            <SelectTrigger className="w-24">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1h">1s</SelectItem>
+              <SelectItem value="6h">6s</SelectItem>
+              <SelectItem value="24h">24s</SelectItem>
+              <SelectItem value="7d">7g</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Button onClick={handleGenerateReport} variant="outline">
+            <Download className="w-4 h-4 mr-2" />
+            Rapor İndir
+          </Button>
+          
+          <Button onClick={handleStartProfiling}>
+            <Activity className="w-4 h-4 mr-2" />
+            Profil Başlat
+          </Button>
         </div>
       </div>
 
-      <div style={{ marginBottom: MS365Spacing.m }}>
-        <h5 style={{ ...MS365Typography.h5, margin: 0, marginBottom: MS365Spacing.s }}>
-          Network Performance
-        </h5>
-        <div style={{ fontSize: '14px', color: MS365Colors.text.secondary }}>
-          <div>Avg Response: {networkStats.averageResponseTime.toFixed(0)}ms</div>
-          <div>Cache Hit Rate: {networkStats.cacheHitRate.toFixed(1)}%</div>
-          <div>Total Requests: {networkStats.totalRequests}</div>
-        </div>
-      </div>
-
-      <div>
-        <h5 style={{ ...MS365Typography.h5, margin: 0, marginBottom: MS365Spacing.s }}>
-          Top Issues
-        </h5>
-        <div style={{ fontSize: '12px' }}>
-          {bundleAnalysis.duplicateModules.slice(0, 3).map((module: string, index: number) => (
-            <div key={index} style={{ 
-              padding: '4px 8px', 
-              backgroundColor: MS365Colors.warning + '20',
-              borderRadius: '4px',
-              marginBottom: '4px',
-              color: MS365Colors.warning
-            }}>
-              Duplicate: {module}
+      {/* Performance Score Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Performans Skoru</p>
+                <p className={`text-3xl font-bold ${getScoreColor(overview.performanceScore)}`}>
+                  {overview.performanceScore}
+                </p>
+              </div>
+              <Gauge className="w-8 h-8 text-blue-500" />
             </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+            <Progress value={overview.performanceScore} className="mt-3" />
+          </CardContent>
+        </Card>
 
-// Cache Performance Panel Component
-interface CachePerformancePanelProps {
-  optimizer: PerformanceOptimizer;
-}
-
-const CachePerformancePanel: React.FC<CachePerformancePanelProps> = ({ optimizer }) => {
-  const [cacheStats, setCacheStats] = useState<any>(null);
-
-  useEffect(() => {
-    const updateCacheStats = () => {
-      setCacheStats(optimizer.getCacheStats());
-    };
-
-    updateCacheStats();
-    const interval = setInterval(updateCacheStats, 5000);
-    
-    return () => clearInterval(interval);
-  }, [optimizer]);
-
-  if (!cacheStats) {
-    return <div>Loading cache stats...</div>;
-  }
-
-  return (
-    <div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: MS365Spacing.m, marginBottom: MS365Spacing.m }}>
-        <div>
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: MS365Colors.primary }}>
-            {cacheStats.totalEntries}
-          </div>
-          <div style={{ fontSize: '12px', color: MS365Colors.text.secondary }}>
-            Cache Entries
-          </div>
-        </div>
-        <div>
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: MS365Colors.info }}>
-            {(cacheStats.totalSize / (1024 * 1024)).toFixed(1)}MB
-          </div>
-          <div style={{ fontSize: '12px', color: MS365Colors.text.secondary }}>
-            Total Size
-          </div>
-        </div>
-      </div>
-
-      <div style={{ marginBottom: MS365Spacing.m }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-          <span style={{ fontSize: '14px' }}>Hit Rate</span>
-          <span style={{ fontSize: '14px', fontWeight: 'bold' }}>
-            {cacheStats.hitRate.toFixed(1)}%
-          </span>
-        </div>
-        <div style={{
-          width: '100%',
-          height: '8px',
-          backgroundColor: MS365Colors.background.secondary,
-          borderRadius: '4px',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            width: `${cacheStats.hitRate}%`,
-            height: '100%',
-            backgroundColor: cacheStats.hitRate > 80 ? MS365Colors.success : 
-                           cacheStats.hitRate > 60 ? MS365Colors.warning : MS365Colors.error,
-            transition: 'width 0.3s ease'
-          }} />
-        </div>
-      </div>
-
-      <MS365Button 
-        onClick={() => optimizer.getCachedData('test')}
-        style={{ width: '100%', fontSize: '12px' }}
-      >
-        Test Cache Performance
-      </MS365Button>
-    </div>
-  );
-};
-
-// Optimization Recommendations Component
-interface OptimizationRecommendationsProps {
-  optimizer: PerformanceOptimizer;
-}
-
-const OptimizationRecommendations: React.FC<OptimizationRecommendationsProps> = ({ optimizer }) => {
-  const [report, setReport] = useState<any>(null);
-
-  useEffect(() => {
-    const generateReport = () => {
-      setReport(optimizer.generateOptimizationReport());
-    };
-
-    generateReport();
-    const interval = setInterval(generateReport, 30000);
-    
-    return () => clearInterval(interval);
-  }, [optimizer]);
-
-  if (!report) {
-    return <div>Generating recommendations...</div>;
-  }
-
-  return (
-    <div>
-      {report.issues.length > 0 && (
-        <div style={{ marginBottom: MS365Spacing.m }}>
-          <h5 style={{ ...MS365Typography.h5, margin: 0, marginBottom: MS365Spacing.s, color: MS365Colors.error }}>
-            Issues Found
-          </h5>
-          {report.issues.map((issue: string, index: number) => (
-            <div key={index} style={{
-              padding: '8px',
-              backgroundColor: MS365Colors.error + '10',
-              border: `1px solid ${MS365Colors.error}30`,
-              borderRadius: '4px',
-              marginBottom: '4px',
-              fontSize: '12px'
-            }}>
-              ⚠️ {issue}
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Yanıt Süresi</p>
+                <p className="text-3xl font-bold text-green-600">{overview.responseTime}ms</p>
+              </div>
+              <Clock className="w-8 h-8 text-green-500" />
             </div>
-          ))}
-        </div>
+            <p className="text-sm text-gray-500 mt-2">
+              Hedef: &lt;300ms
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Throughput</p>
+                <p className="text-3xl font-bold text-purple-600">{overview.throughput}</p>
+              </div>
+              <TrendingUp className="w-8 h-8 text-purple-500" />
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              İstek/saniye
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-yellow-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Hata Oranı</p>
+                <p className="text-3xl font-bold text-yellow-600">{overview.errorRate}%</p>
+              </div>
+              <AlertTriangle className="w-8 h-8 text-yellow-500" />
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              Hedef: &lt;1%
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Active Alerts */}
+      {alerts.length > 0 && (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <div className="flex items-center justify-between">
+              <span>{alerts.length} aktif performans uyarısı bulunuyor.</span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setAlerts([])}
+              >
+                Tümünü Onayla
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
       )}
 
-      <div>
-        <h5 style={{ ...MS365Typography.h5, margin: 0, marginBottom: MS365Spacing.s, color: MS365Colors.success }}>
-          Recommendations
-        </h5>
-        {report.recommendations.slice(0, 5).map((recommendation: string, index: number) => (
-          <div key={index} style={{
-            padding: '8px',
-            backgroundColor: MS365Colors.success + '10',
-            border: `1px solid ${MS365Colors.success}30`,
-            borderRadius: '4px',
-            marginBottom: '4px',
-            fontSize: '12px'
-          }}>
-            💡 {recommendation}
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="overview">Genel Bakış</TabsTrigger>
+          <TabsTrigger value="realtime">Gerçek Zamanlı</TabsTrigger>
+          <TabsTrigger value="database">Veritabanı</TabsTrigger>
+          <TabsTrigger value="frontend">Frontend</TabsTrigger>
+          <TabsTrigger value="cache">Cache</TabsTrigger>
+          <TabsTrigger value="optimization">Optimizasyon</TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Performance Trend */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <LineChart className="w-5 h-5" />
+                  Performans Trendi (Son 24 Saat)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsLineChart data={performanceTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <RechartsTooltip />
+                    <Legend />
+                    <Line 
+                      yAxisId="left"
+                      type="monotone" 
+                      dataKey="responseTime" 
+                      stroke={CHART_COLORS.primary}
+                      name="Yanıt Süresi (ms)"
+                    />
+                    <Line 
+                      yAxisId="right"
+                      type="monotone" 
+                      dataKey="throughput" 
+                      stroke={CHART_COLORS.success}
+                      name="Throughput"
+                    />
+                  </RechartsLineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Resource Utilization */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChart className="w-5 h-5" />
+                  Kaynak Kullanımı
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsPieChart>
+                    <Pie
+                      data={resourceUtilizationData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      dataKey="value"
+                      label={({ name, value }) => `${name}: ${value}%`}
+                    >
+                      {resourceUtilizationData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
           </div>
-        ))}
-      </div>
+
+          {/* System Health Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Uptime</p>
+                    <p className="text-2xl font-bold text-green-600">{overview.uptime}%</p>
+                  </div>
+                  <Server className="w-6 h-6 text-green-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Aktif Kullanıcı</p>
+                    <p className="text-2xl font-bold text-blue-600">{overview.activeUsers.toLocaleString('tr-TR')}</p>
+                  </div>
+                  <Users className="w-6 h-6 text-blue-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Cache Hit Oranı</p>
+                    <p className="text-2xl font-bold text-purple-600">{overview.cacheHitRatio}%</p>
+                  </div>
+                  <Database className="w-6 h-6 text-purple-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">DB Sağlığı</p>
+                    <p className="text-2xl font-bold text-green-600">{overview.databaseHealth}%</p>
+                  </div>
+                  <HardDrive className="w-6 h-6 text-green-500" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Real-time Tab */}
+        <TabsContent value="realtime" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* CPU & Memory Usage */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Cpu className="w-5 h-5" />
+                  CPU ve Bellek Kullanımı
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={performanceTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
+                    <YAxis />
+                    <RechartsTooltip />
+                    <Legend />
+                    <Area 
+                      type="monotone" 
+                      dataKey="cpuUsage" 
+                      stackId="1"
+                      stroke={CHART_COLORS.danger}
+                      fill={CHART_COLORS.danger}
+                      name="CPU (%)"
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="memoryUsage" 
+                      stackId="2"
+                      stroke={CHART_COLORS.warning}
+                      fill={CHART_COLORS.warning}
+                      name="Bellek (%)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Error Rate Monitoring */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5" />
+                  Hata Oranı İzleme
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={performanceTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
+                    <YAxis />
+                    <RechartsTooltip />
+                    <Bar 
+                      dataKey="errorRate" 
+                      fill={CHART_COLORS.danger}
+                      name="Hata Oranı (%)"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Active Alerts Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                Aktif Uyarılar
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {alerts.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Zaman</TableHead>
+                      <TableHead>Ciddiyet</TableHead>
+                      <TableHead>Kategori</TableHead>
+                      <TableHead>Mesaj</TableHead>
+                      <TableHead>Öneri</TableHead>
+                      <TableHead>İşlem</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {alerts.slice(0, 10).map((alert) => (
+                      <TableRow key={alert.id}>
+                        <TableCell>{alert.timestamp.toLocaleString('tr-TR')}</TableCell>
+                        <TableCell>
+                          <Badge variant={getPriorityColor(alert.severity)}>
+                            {alert.severity}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{alert.category}</TableCell>
+                        <TableCell className="max-w-md truncate">{alert.message}</TableCell>
+                        <TableCell className="max-w-md truncate">{alert.recommendation}</TableCell>
+                        <TableCell>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleAcknowledgeAlert(alert.id)}
+                          >
+                            Onayla
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <p className="text-center text-gray-500 py-8">Aktif uyarı bulunmuyor</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Database Tab */}
+        <TabsContent value="database" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Database Performance */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="w-5 h-5" />
+                  Veritabanı Performansı
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <ComposedChart data={databaseMetricsData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <RechartsTooltip />
+                    <Legend />
+                    <Bar 
+                      yAxisId="left"
+                      dataKey="queryTime" 
+                      fill={CHART_COLORS.primary}
+                      name="Sorgu Süresi (ms)"
+                    />
+                    <Line 
+                      yAxisId="right"
+                      type="monotone" 
+                      dataKey="cacheHit" 
+                      stroke={CHART_COLORS.success}
+                      name="Cache Hit (%)"
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Connection Pool Status */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Network className="w-5 h-5" />
+                  Bağlantı Havuzu Durumu
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Aktif Bağlantılar</span>
+                    <span className="text-lg font-bold text-blue-600">
+                      {metrics[metrics.length - 1]?.database.connections || 0}
+                    </span>
+                  </div>
+                  <Progress 
+                    value={((metrics[metrics.length - 1]?.database.connections || 0) / 100) * 100} 
+                    className="h-2" 
+                  />
+                  
+                  <div className="grid grid-cols-2 gap-4 mt-6">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-green-600">
+                        {metrics[metrics.length - 1]?.database.cacheHitRatio.toFixed(1) || 0}%
+                      </p>
+                      <p className="text-sm text-gray-600">Cache Hit Oranı</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-red-600">
+                        {metrics[metrics.length - 1]?.database.slowQueries || 0}
+                      </p>
+                      <p className="text-sm text-gray-600">Yavaş Sorgular</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Frontend Tab */}
+        <TabsContent value="frontend" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="w-5 h-5" />
+                  Bundle Boyutu
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-blue-600">2.4 MB</p>
+                  <p className="text-sm text-gray-600 mt-1">Sıkıştırılmış</p>
+                  <Progress value={65} className="mt-4" />
+                  <p className="text-xs text-gray-500 mt-2">Hedef: &lt;2 MB</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  Sayfa Yükleme
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-green-600">1.8s</p>
+                  <p className="text-sm text-gray-600 mt-1">Ortalama</p>
+                  <Progress value={75} className="mt-4" />
+                  <p className="text-xs text-gray-500 mt-2">Hedef: &lt;2s</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="w-5 h-5" />
+                  Core Web Vitals
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm">LCP</span>
+                    <Badge variant="default">İyi</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">FID</span>
+                    <Badge variant="default">İyi</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">CLS</span>
+                    <Badge variant="secondary">Orta</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Cache Tab */}
+        <TabsContent value="cache" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Memory className="w-5 h-5" />
+                  Cache Performansı
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-green-600">89%</p>
+                    <p className="text-sm text-gray-600">Hit Oranı</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-blue-600">45ms</p>
+                    <p className="text-sm text-gray-600">Ortalama Süre</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-purple-600">2.1GB</p>
+                    <p className="text-sm text-gray-600">Kullanılan</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-yellow-600">15,847</p>
+                    <p className="text-sm text-gray-600">Toplam Key</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Layers className="w-5 h-5" />
+                  Cache Stratejileri
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">LRU Cache</span>
+                    <Badge variant="default">Aktif</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Redis Cache</span>
+                    <Badge variant="default">Aktif</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Browser Cache</span>
+                    <Badge variant="secondary">Optimizing</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">CDN Cache</span>
+                    <Badge variant="default">Aktif</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Optimization Tab */}
+        <TabsContent value="optimization" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-5 h-5" />
+                Optimizasyon Önerileri
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {suggestions.map((suggestion) => (
+                  <div key={suggestion.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <Badge variant={getPriorityColor(suggestion.priority)}>
+                          {suggestion.priority}
+                        </Badge>
+                        <Badge variant="outline">{suggestion.category}</Badge>
+                        <h3 className="font-semibold">{suggestion.title}</h3>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-green-600">
+                          {suggestion.estimatedSavings}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          %{suggestion.impact} iyileştirme
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <p className="text-gray-700 mb-3">{suggestion.description}</p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <span>Efor: {suggestion.effort}</span>
+                        <span>Etki: %{suggestion.impact}</span>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        Uygula
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
