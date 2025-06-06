@@ -1,22 +1,27 @@
 <?php
 /**
- * Intelligent Category Mapping Engine with Machine Learning
- * 
- * This model implements advanced ML-based category mapping algorithms
- * based on academic requirements for hybrid auto/manual mapping system
+ * Academic Requirements Implementation - Category Mapping Engine
+ * VSCode Team - ML-Based Category Mapping
+ * Date: June 6, 2025 - Active Implementation Phase 2
+ * Academic Compliance: Advanced Machine Learning Category Matching
  * 
  * Features:
- * - Machine learning prediction engine
- * - Confidence scoring with 90%+ accuracy target
- * - Learning from user feedback
- * - Real-time analytics and improvement tracking
- * - Conflict resolution for mapping disputes
+ * - Neural Network-based classification
+ * - Academic confidence scoring (85%+ threshold)
+ * - Real-time learning and adaptation
+ * - Batch processing capabilities
+ * - Academic compliance validation
+ * - Advanced text feature extraction
  */
 
 class ModelExtensionModuleMeschainCategoryMappingEngine extends Model {
     
-    private $ml_confidence_threshold = 0.85; // 85% confidence threshold
-    private $auto_accept_threshold = 0.95;   // 95% auto-accept threshold
+    // Academic ML Configuration
+    private $ml_confidence_threshold = 0.85; // Academic standard: 85% confidence
+    private $auto_accept_threshold = 0.95;   // Academic standard: 95% auto-accept
+    private $academic_categories = [];
+    private $training_data = [];
+    private $neural_network_weights = [];
     private $marketplaces = ['trendyol', 'amazon', 'n11', 'ebay', 'hepsiburada', 'ozon'];
     
     public function __construct($registry) {

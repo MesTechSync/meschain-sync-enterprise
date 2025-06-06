@@ -463,16 +463,67 @@ class MeschainRbacHelper {
     private function getCurrentUsage($userId, $feature, $tenantId) {
         switch ($feature) {
             case 'max_api_calls_daily':
-                // API çağrı sayısını loglardan hesapla
-                return 0; // TODO: Implement
+                // API çağrı sayısını loglardan hesapla (bugün)
+                $query = $this->db->query("
+                    SELECT COUNT(*) as count 
+                    FROM " . DB_PREFIX . "meschain_api_logs 
+                    WHERE user_id = " . (int)$userId . " 
+                    AND tenant_id = " . (int)$tenantId . "
+                    AND DATE(created_at) = CURDATE()
+                ");
+                return $query->row['count'] ?? 0;
                 
             case 'max_orders_monthly':
                 // Bu ay işlenen sipariş sayısı
-                return 0; // TODO: Implement
+                $query = $this->db->query("
+                    SELECT COUNT(*) as count 
+                    FROM " . DB_PREFIX . "meschain_marketplace_orders 
+                    WHERE user_id = " . (int)$userId . " 
+                    AND tenant_id = " . (int)$tenantId . "
+                    AND MONTH(created_at) = MONTH(CURDATE()) 
+                    AND YEAR(created_at) = YEAR(CURDATE())
+                ");
+                return $query->row['count'] ?? 0;
                 
             case 'max_products':
                 // Yönetilen ürün sayısı
-                return 0; // TODO: Implement
+                $query = $this->db->query("
+                    SELECT COUNT(*) as count 
+                    FROM " . DB_PREFIX . "meschain_marketplace_products 
+                    WHERE user_id = " . (int)$userId . " 
+                    AND tenant_id = " . (int)$tenantId . "
+                    AND status = 1
+                ");
+                return $query->row['count'] ?? 0;
+                
+            case 'max_marketplaces':
+                // Aktif marketplace sayısı
+                $userRole = $this->getUserRole($userId, $tenantId);
+                if ($userRole && !empty($userRole['marketplace_access'])) {
+                    return count($userRole['marketplace_access']);
+                }
+                return 0;
+                
+            case 'max_webhooks':
+                // Aktif webhook sayısı
+                $query = $this->db->query("
+                    SELECT COUNT(*) as count 
+                    FROM " . DB_PREFIX . "meschain_webhook_settings 
+                    WHERE user_id = " . (int)$userId . " 
+                    AND tenant_id = " . (int)$tenantId . "
+                    AND status = 1
+                ");
+                return $query->row['count'] ?? 0;
+                
+            case 'storage_used_mb':
+                // Kullanılan storage (MB)
+                $query = $this->db->query("
+                    SELECT COALESCE(SUM(file_size), 0) as total_size 
+                    FROM " . DB_PREFIX . "meschain_file_storage 
+                    WHERE user_id = " . (int)$userId . " 
+                    AND tenant_id = " . (int)$tenantId . "
+                ");
+                return round(($query->row['total_size'] ?? 0) / (1024 * 1024), 2); // Convert to MB
                 
             default:
                 return 0;

@@ -13,6 +13,7 @@ import {
   ClockIcon
 } from '@heroicons/react/24/outline';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { Microsoft365Theme, getAcademicColorScheme, academicComponentStyles } from '../theme/microsoft365';
 
 // Mock data for charts
 const salesData = [
@@ -41,6 +42,8 @@ interface TrendyolApiStatus {
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
+  const academicColors = getAcademicColorScheme('light');
+  
   const [trendyolStatus, setTrendyolStatus] = useState<TrendyolApiStatus>({
     connected: false,
     testing: false,
