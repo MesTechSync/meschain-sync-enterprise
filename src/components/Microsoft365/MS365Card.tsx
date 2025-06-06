@@ -1,258 +1,570 @@
 /**
- * 🎨 Microsoft 365 Card Component v10.0
- * Academic Requirements: Clean, small typography + subtle shadows
- * Cursor Team - Premium UI Component
+ * MS365Card - Enhanced Card Component with Animations
+ * Microsoft 365 design system compliant card component
+ * 
+ * @version 2.0.0
+ * @author MesChain Sync Team
  */
 
-import React from 'react';
-import { Microsoft365DesignSystem, MS365ComponentTokens } from '../../theme/microsoft365-design-system';
+import React, { useState, useRef, useEffect } from 'react';
+import { MS365Colors, MS365Typography, MS365Spacing, AdvancedMS365Theme } from '../../theme/microsoft365-advanced';
 
+// TypeScript Interfaces
 export interface MS365CardProps {
   title?: string;
   subtitle?: string;
-  children: React.ReactNode;
+  content?: React.ReactNode;
+  children?: React.ReactNode;
   actions?: React.ReactNode;
-  variant?: 'default' | 'success' | 'warning' | 'error' | 'info';
-  size?: 'sm' | 'md' | 'lg';
-  hoverable?: boolean;
-  className?: string;
-  onClick?: () => void;
-  loading?: boolean;
+  headerActions?: React.ReactNode;
   icon?: React.ReactNode;
+  image?: string;
+  imageAlt?: string;
+  variant?: 'default' | 'elevated' | 'outlined' | 'filled' | 'success' | 'warning' | 'error' | 'info';
+  size?: 'small' | 'medium' | 'large';
+  elevation?: 0 | 1 | 2 | 4 | 8 | 16;
+  radius?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  animation?: 'slideIn' | 'fadeIn' | 'scaleIn' | 'none';
+  animationDelay?: number;
+  hoverable?: boolean;
+  clickable?: boolean;
+  collapsible?: boolean;
+  defaultCollapsed?: boolean;
+  loading?: boolean;
+  disabled?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onHover?: (isHovered: boolean) => void;
+  onExpand?: (isExpanded: boolean) => void;
 }
 
-const variantStyles = {
-  default: {
-    background: Microsoft365DesignSystem.colors.neutral.white,
-    border: `1px solid ${Microsoft365DesignSystem.colors.neutral.gray200}`,
-    titleColor: Microsoft365DesignSystem.colors.neutral.gray900
-  },
-  success: {
-    background: Microsoft365DesignSystem.colors.success.lighter,
-    border: `1px solid ${Microsoft365DesignSystem.colors.success.light}`,
-    titleColor: Microsoft365DesignSystem.colors.success.dark
-  },
-  warning: {
-    background: Microsoft365DesignSystem.colors.warning.lighter,
-    border: `1px solid ${Microsoft365DesignSystem.colors.warning.light}`,
-    titleColor: Microsoft365DesignSystem.colors.warning.dark
-  },
-  error: {
-    background: Microsoft365DesignSystem.colors.error.lighter,
-    border: `1px solid ${Microsoft365DesignSystem.colors.error.light}`,
-    titleColor: Microsoft365DesignSystem.colors.error.dark
-  },
-  info: {
-    background: Microsoft365DesignSystem.colors.info.lighter,
-    border: `1px solid ${Microsoft365DesignSystem.colors.info.light}`,
-    titleColor: Microsoft365DesignSystem.colors.info.dark
+// Animation keyframes
+const animationKeyframes = `
+  @keyframes slideIn {
+    from { 
+      transform: translateY(20px); 
+      opacity: 0; 
+    }
+    to { 
+      transform: translateY(0); 
+      opacity: 1; 
+    }
   }
-};
 
-const sizeStyles = {
-  sm: {
-    padding: Microsoft365DesignSystem.spacing[4],
-    titleSize: Microsoft365DesignSystem.typography.fontSize.sm,
-    subtitleSize: Microsoft365DesignSystem.typography.fontSize.xs
-  },
-  md: {
-    padding: Microsoft365DesignSystem.spacing[6],
-    titleSize: Microsoft365DesignSystem.typography.fontSize.base,
-    subtitleSize: Microsoft365DesignSystem.typography.fontSize.sm
-  },
-  lg: {
-    padding: Microsoft365DesignSystem.spacing[8],
-    titleSize: Microsoft365DesignSystem.typography.fontSize.lg,
-    subtitleSize: Microsoft365DesignSystem.typography.fontSize.base
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
-};
 
+  @keyframes scaleIn {
+    from { 
+      transform: scale(0.95); 
+      opacity: 0; 
+    }
+    to { 
+      transform: scale(1); 
+      opacity: 1; 
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+  }
+
+  .ms365-card-hover-transform {
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .ms365-card-hover-transform:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .ms365-card-clickable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .ms365-card-clickable:active {
+    transform: scale(0.98);
+  }
+
+  .ms365-loading-shimmer {
+    background: linear-gradient(
+      90deg,
+      ${MS365Colors.neutral[100]} 0%,
+      ${MS365Colors.neutral[200]} 50%,
+      ${MS365Colors.neutral[100]} 100%
+    );
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+  }
+`;
+
+// MS365Card Component
 export const MS365Card: React.FC<MS365CardProps> = ({
   title,
   subtitle,
+  content,
   children,
   actions,
+  headerActions,
+  icon,
+  image,
+  imageAlt,
   variant = 'default',
-  size = 'md',
-  hoverable = false,
-  className = '',
-  onClick,
+  size = 'medium',
+  elevation = 2,
+  radius = 'md',
+  animation = 'fadeIn',
+  animationDelay = 0,
+  hoverable = true,
+  clickable = false,
+  collapsible = false,
+  defaultCollapsed = false,
   loading = false,
-  icon
+  disabled = false,
+  className,
+  style,
+  onClick,
+  onHover,
+  onExpand
 }) => {
-  const currentVariant = variantStyles[variant];
-  const currentSize = sizeStyles[size];
+  // State Management
+  const [isHovered, setIsHovered] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(!defaultCollapsed);
+  const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  const cardStyle: React.CSSProperties = {
-    background: currentVariant.background,
-    border: currentVariant.border,
-    borderRadius: MS365ComponentTokens.card.borderRadius,
-    padding: currentSize.padding,
-    boxShadow: MS365ComponentTokens.card.shadow,
-    transition: MS365ComponentTokens.card.transition,
-    cursor: onClick ? 'pointer' : 'default',
+  // Intersection Observer for animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            setIsVisible(true);
+          }, animationDelay);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => {
+      if (cardRef.current) {
+        observer.unobserve(cardRef.current);
+      }
+    };
+  }, [animationDelay]);
+
+  // Variant styles
+  const getVariantStyles = () => {
+    const baseStyles = {
+      backgroundColor: MS365Colors.background.primary,
+      borderColor: MS365Colors.neutral[200],
+      color: MS365Colors.neutral[900]
+    };
+
+    switch (variant) {
+      case 'elevated':
+        return {
+          ...baseStyles,
+          backgroundColor: MS365Colors.background.primary,
+          boxShadow: AdvancedMS365Theme.components.cards.elevations[elevation],
+          border: 'none'
+        };
+      
+      case 'outlined':
+        return {
+          ...baseStyles,
+          backgroundColor: 'transparent',
+          border: `2px solid ${MS365Colors.neutral[200]}`,
+          boxShadow: 'none'
+        };
+      
+      case 'filled':
+        return {
+          backgroundColor: MS365Colors.background.secondary,
+          borderColor: MS365Colors.neutral[300],
+          color: MS365Colors.neutral[800],
+          border: `1px solid ${MS365Colors.neutral[300]}`
+        };
+      
+      case 'success':
+        return {
+          backgroundColor: MS365Colors.primary.green[50],
+          borderColor: MS365Colors.primary.green[200],
+          color: MS365Colors.primary.green[800],
+          border: `1px solid ${MS365Colors.primary.green[200]}`
+        };
+      
+      case 'warning':
+        return {
+          backgroundColor: '#fef3c7',
+          borderColor: '#fbbf24',
+          color: '#92400e',
+          border: '1px solid #fbbf24'
+        };
+      
+      case 'error':
+        return {
+          backgroundColor: MS365Colors.primary.red[50],
+          borderColor: MS365Colors.primary.red[200],
+          color: MS365Colors.primary.red[800],
+          border: `1px solid ${MS365Colors.primary.red[200]}`
+        };
+      
+      case 'info':
+        return {
+          backgroundColor: MS365Colors.primary.blue[50],
+          borderColor: MS365Colors.primary.blue[200],
+          color: MS365Colors.primary.blue[800],
+          border: `1px solid ${MS365Colors.primary.blue[200]}`
+        };
+      
+      default:
+        return {
+          ...baseStyles,
+          border: `1px solid ${MS365Colors.neutral[200]}`,
+          boxShadow: AdvancedMS365Theme.components.cards.elevations[elevation]
+        };
+    }
+  };
+
+  // Size styles
+  const getSizeStyles = () => {
+    switch (size) {
+      case 'small':
+        return {
+          padding: MS365Spacing[4],
+          fontSize: MS365Typography.sizes.sm
+        };
+      case 'large':
+        return {
+          padding: MS365Spacing[8],
+          fontSize: MS365Typography.sizes.lg
+        };
+      default:
+        return {
+          padding: MS365Spacing[6],
+          fontSize: MS365Typography.sizes.base
+        };
+    }
+  };
+
+  // Animation styles
+  const getAnimationStyles = () => {
+    if (animation === 'none' || !isVisible) return {};
+    
+    return {
+      animation: `${animation} 0.6s cubic-bezier(0.4, 0.0, 0.2, 1) forwards`,
+      opacity: isVisible ? 1 : 0
+    };
+  };
+
+  // Event handlers
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    onHover?.(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    onHover?.(false);
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (disabled) return;
+    
+    if (collapsible) {
+      const newExpanded = !isExpanded;
+      setIsExpanded(newExpanded);
+      onExpand?.(newExpanded);
+    }
+    
+    onClick?.(event);
+  };
+
+  const handleToggle = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    const newExpanded = !isExpanded;
+    setIsExpanded(newExpanded);
+    onExpand?.(newExpanded);
+  };
+
+  // Combined styles
+  const cardStyles: React.CSSProperties = {
+    ...getVariantStyles(),
+    ...getSizeStyles(),
+    ...getAnimationStyles(),
+    borderRadius: AdvancedMS365Theme.components.cards.radiuses[radius],
+    fontFamily: MS365Typography.fonts.system,
+    transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
     position: 'relative',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    opacity: disabled ? 0.6 : undefined,
+    pointerEvents: disabled ? 'none' : undefined,
+    ...style
   };
 
-  const hoverStyle: React.CSSProperties = hoverable || onClick ? {
-    boxShadow: MS365ComponentTokens.card.hoverShadow,
-    transform: 'translateY(-2px)'
-  } : {};
-
-  const titleStyle: React.CSSProperties = {
-    fontSize: currentSize.titleSize,
-    fontWeight: Microsoft365DesignSystem.typography.fontWeight.semibold,
-    color: currentVariant.titleColor,
-    margin: '0 0 ' + Microsoft365DesignSystem.spacing[2] + ' 0',
-    opacity: Microsoft365DesignSystem.typography.textOpacity.primary
+  const headerStyles: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: (content || children) ? MS365Spacing[4] : 0
   };
 
-  const subtitleStyle: React.CSSProperties = {
-    fontSize: currentSize.subtitleSize,
-    fontWeight: Microsoft365DesignSystem.typography.fontWeight.normal,
-    color: Microsoft365DesignSystem.colors.neutral.gray600,
-    margin: '0 0 ' + Microsoft365DesignSystem.spacing[4] + ' 0',
-    opacity: Microsoft365DesignSystem.typography.textOpacity.secondary
-  };
-
-  const contentStyle: React.CSSProperties = {
-    fontSize: Microsoft365DesignSystem.typography.fontSize.sm,
-    color: Microsoft365DesignSystem.colors.neutral.gray700,
-    lineHeight: Microsoft365DesignSystem.typography.lineHeight.relaxed,
-    opacity: Microsoft365DesignSystem.typography.textOpacity.primary
-  };
-
-  const loadingOverlayStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(255, 255, 255, 0.8)',
+  const titleStyles: React.CSSProperties = {
+    fontSize: size === 'small' ? MS365Typography.sizes.base : size === 'large' ? MS365Typography.sizes['2xl'] : MS365Typography.sizes.lg,
+    fontWeight: MS365Typography.weights.semibold,
+    lineHeight: MS365Typography.lineHeights.tight,
+    margin: 0,
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: Microsoft365DesignSystem.typography.fontSize.sm,
-    color: Microsoft365DesignSystem.colors.primary.main
+    gap: MS365Spacing[2]
   };
 
-  return (
+  const subtitleStyles: React.CSSProperties = {
+    fontSize: MS365Typography.sizes.sm,
+    color: MS365Colors.neutral[600],
+    marginTop: MS365Spacing[1],
+    lineHeight: MS365Typography.lineHeights.normal
+  };
+
+  const contentStyles: React.CSSProperties = {
+    lineHeight: MS365Typography.lineHeights.relaxed
+  };
+
+  const actionsStyles: React.CSSProperties = {
+    display: 'flex',
+    gap: MS365Spacing[2],
+    marginTop: MS365Spacing[4],
+    flexWrap: 'wrap',
+    alignItems: 'center'
+  };
+
+  // Loading overlay
+  const LoadingOverlay = () => (
     <div
-      className={`ms365-card ${className}`}
-      style={cardStyle}
-      onClick={onClick}
-      onMouseEnter={(e) => {
-        if (hoverable || onClick) {
-          Object.assign(e.currentTarget.style, hoverStyle);
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (hoverable || onClick) {
-          Object.assign(e.currentTarget.style, cardStyle);
-        }
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 10
       }}
     >
-      {/* Loading Overlay */}
-      {loading && (
-        <div style={loadingOverlayStyle}>
-          <div className="loading-spinner">⏳ Loading...</div>
-        </div>
-      )}
-
-      {/* Header Section */}
-      {(title || subtitle || icon) && (
-        <div style={{ marginBottom: Microsoft365DesignSystem.spacing[4] }}>
-          {/* Title with Icon */}
-          {(title || icon) && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: Microsoft365DesignSystem.spacing[2] }}>
-              {icon && (
-                <div style={{ 
-                  fontSize: Microsoft365DesignSystem.typography.fontSize.lg,
-                  color: currentVariant.titleColor,
-                  display: 'flex',
-                  alignItems: 'center'
-                }}>
-                  {icon}
-                </div>
-              )}
-              {title && <h3 style={titleStyle}>{title}</h3>}
-            </div>
-          )}
-          
-          {/* Subtitle */}
-          {subtitle && <p style={subtitleStyle}>{subtitle}</p>}
-        </div>
-      )}
-
-      {/* Content */}
-      <div style={contentStyle}>
-        {children}
-      </div>
-
-      {/* Actions */}
-      {actions && (
-        <div style={{
-          marginTop: Microsoft365DesignSystem.spacing[4],
-          paddingTop: Microsoft365DesignSystem.spacing[4],
-          borderTop: `1px solid ${Microsoft365DesignSystem.colors.neutral.gray200}`,
-          display: 'flex',
-          gap: Microsoft365DesignSystem.spacing[2],
-          flexWrap: 'wrap'
-        }}>
-          {actions}
-        </div>
-      )}
+      <div
+        style={{
+          width: '24px',
+          height: '24px',
+          border: `3px solid ${MS365Colors.neutral[300]}`,
+          borderTop: `3px solid ${MS365Colors.primary.blue[500]}`,
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}
+      />
     </div>
   );
-};
 
-// 🎯 Pre-configured Card Variants for Common Use Cases
-export const MS365SuccessCard: React.FC<Omit<MS365CardProps, 'variant'>> = (props) => (
-  <MS365Card {...props} variant="success" icon="✅" />
-);
-
-export const MS365WarningCard: React.FC<Omit<MS365CardProps, 'variant'>> = (props) => (
-  <MS365Card {...props} variant="warning" icon="⚠️" />
-);
-
-export const MS365ErrorCard: React.FC<Omit<MS365CardProps, 'variant'>> = (props) => (
-  <MS365Card {...props} variant="error" icon="❌" />
-);
-
-export const MS365InfoCard: React.FC<Omit<MS365CardProps, 'variant'>> = (props) => (
-  <MS365Card {...props} variant="info" icon="ℹ️" />
-);
-
-// 🔄 Marketplace Specific Cards
-export const MS365MarketplaceCard: React.FC<MS365CardProps & { marketplace: string }> = ({ marketplace, ...props }) => {
-  const marketplaceIcons: { [key: string]: string } = {
-    trendyol: '🛍️',
-    amazon: '📦',
-    n11: '🏪',
-    hepsiburada: '🛒',
-    ozon: '🌐',
-    ebay: '💼'
-  };
-
-  const marketplaceColors: { [key: string]: string } = {
-    trendyol: '#f27a1a',
-    amazon: '#ff9900',
-    n11: '#4e0080',
-    hepsiburada: '#ff6000',
-    ozon: '#005bff',
-    ebay: '#0064d2'
-  };
+  // Loading skeleton
+  const LoadingSkeleton = () => (
+    <div>
+      {title && (
+        <div
+          className="ms365-loading-shimmer"
+          style={{
+            height: '24px',
+            borderRadius: '4px',
+            marginBottom: MS365Spacing[2],
+            width: '60%'
+          }}
+        />
+      )}
+      {subtitle && (
+        <div
+          className="ms365-loading-shimmer"
+          style={{
+            height: '16px',
+            borderRadius: '4px',
+            marginBottom: MS365Spacing[4],
+            width: '40%'
+          }}
+        />
+      )}
+      <div
+        className="ms365-loading-shimmer"
+        style={{
+          height: '60px',
+          borderRadius: '4px',
+          marginBottom: MS365Spacing[2]
+        }}
+      />
+      <div
+        className="ms365-loading-shimmer"
+        style={{
+          height: '16px',
+          borderRadius: '4px',
+          width: '80%'
+        }}
+      />
+    </div>
+  );
 
   return (
-    <MS365Card
-      {...props}
-      icon={
-        <span style={{ color: marketplaceColors[marketplace] || Microsoft365DesignSystem.colors.primary.main }}>
-          {marketplaceIcons[marketplace] || '🏪'}
-        </span>
-      }
-    />
+    <>
+      {/* Inject keyframes */}
+      <style>{animationKeyframes}</style>
+      
+      <div
+        ref={cardRef}
+        className={`
+          ${hoverable ? 'ms365-card-hover-transform' : ''}
+          ${clickable ? 'ms365-card-clickable' : ''}
+          ${className || ''}
+        `}
+        style={cardStyles}
+        onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        role={clickable ? 'button' : undefined}
+        tabIndex={clickable ? 0 : undefined}
+        aria-disabled={disabled}
+        aria-expanded={collapsible ? isExpanded : undefined}
+      >
+        {/* Loading overlay */}
+        {loading && <LoadingOverlay />}
+        
+        {/* Image */}
+        {image && (
+          <div
+            style={{
+              marginBottom: MS365Spacing[4],
+              borderRadius: AdvancedMS365Theme.components.cards.radiuses[radius],
+              overflow: 'hidden',
+              marginTop: `-${getSizeStyles().padding}`,
+              marginLeft: `-${getSizeStyles().padding}`,
+              marginRight: `-${getSizeStyles().padding}`
+            }}
+          >
+            <img
+              src={image}
+              alt={imageAlt || 'Card image'}
+              style={{
+                width: '100%',
+                height: 'auto',
+                display: 'block'
+              }}
+            />
+          </div>
+        )}
+
+        {/* Header */}
+        {(title || subtitle || headerActions || collapsible) && (
+          <div style={headerStyles}>
+            <div style={{ flex: 1 }}>
+              {title && (
+                <h3 style={titleStyles}>
+                  {icon && <span>{icon}</span>}
+                  {loading ? (
+                    <div
+                      className="ms365-loading-shimmer"
+                      style={{ height: '24px', width: '150px', borderRadius: '4px' }}
+                    />
+                  ) : (
+                    title
+                  )}
+                </h3>
+              )}
+              {subtitle && (
+                <p style={subtitleStyles}>
+                  {loading ? (
+                    <div
+                      className="ms365-loading-shimmer"
+                      style={{ height: '16px', width: '100px', borderRadius: '4px' }}
+                    />
+                  ) : (
+                    subtitle
+                  )}
+                </p>
+              )}
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: MS365Spacing[2] }}>
+              {headerActions}
+              {collapsible && (
+                <button
+                  onClick={handleToggle}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: MS365Spacing[1],
+                    borderRadius: '4px',
+                    color: MS365Colors.neutral[600],
+                    transition: 'all 0.2s ease',
+                    fontSize: '16px',
+                    lineHeight: 1
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = MS365Colors.neutral[100];
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                  aria-label={isExpanded ? 'Collapse' : 'Expand'}
+                >
+                  {isExpanded ? '−' : '+'}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Content */}
+        {(!collapsible || isExpanded) && (
+          <div
+            style={{
+              ...contentStyles,
+              overflow: 'hidden',
+              transition: 'all 0.3s ease',
+              maxHeight: collapsible && !isExpanded ? '0' : 'none'
+            }}
+          >
+            {loading ? (
+              <LoadingSkeleton />
+            ) : (
+              <>
+                {content && <div>{content}</div>}
+                {children}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Actions */}
+        {actions && (!collapsible || isExpanded) && !loading && (
+          <div style={actionsStyles}>
+            {actions}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
