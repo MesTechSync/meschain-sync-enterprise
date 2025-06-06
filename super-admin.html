@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Süper Admin Panel - MesChain Sync Enhanced</title>
+    
+    <!-- Modern UI Framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #059669;
+            --danger-color: #dc2626;
+            --warning-color: #d97706;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-muted: #64748b;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            background: var(--light-color);
+            min-height: 100vh;
+            border-radius: 0;
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--dark-color) 0%, #374151 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+        
+        .nav-item {
+            margin: 0.25rem 1rem;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.8) !important;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white !important;
+            transform: translateX(5px);
+        }
+        
+        .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        .main-content {
+            padding: 2rem;
+            background: var(--light-color);
+        }
+        
+        .top-bar {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .admin-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .admin-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .metric-card.users { background: linear-gradient(135deg, var(--primary-color), #3b82f6); color: white; }
+        .metric-card.systems { background: linear-gradient(135deg, var(--secondary-color), #10b981); color: white; }
+        .metric-card.security { background: linear-gradient(135deg, var(--danger-color), #ef4444); color: white; }
+        .metric-card.performance { background: linear-gradient(135deg, var(--warning-color), #f59e0b); color: white; }
+        
+        .admin-btn {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        
+        .admin-btn.secondary {
+            background: var(--secondary-color);
+        }
+        
+        .admin-btn.danger {
+            background: var(--danger-color);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online { background: var(--secondary-color); }
+        .status-offline { background: var(--danger-color); }
+        .status-warning { background: var(--warning-color); }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .system-log {
+            background: #1f2937;
+            color: #10b981;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .api-key-item {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+        
+        .real-time-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--secondary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="sidebar-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-crown me-2 text-warning"></i>
+                        Süper Admin
+                    </h4>
+                    <small class="text-white-50">MesChain-Sync v4.5</small>
+                </div>
+                
+                <nav class="sidebar-nav">
+                    <div class="nav-item">
+                        <a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt"></i>Dashboard
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#users" class="nav-link" onclick="showSection('users')">
+                            <i class="fas fa-users"></i>Kullanıcı Yönetimi
+                            <span class="notification-badge">347</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#apis" class="nav-link" onclick="showSection('apis')">
+                            <i class="fas fa-key"></i>API Anahtarları
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#trendyol" class="nav-link" onclick="openTrendyolAdmin()">
+                            <i class="fas fa-shopping-cart" style="color: #f27a1a;"></i>Trendyol Admin
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#systems" class="nav-link" onclick="showSection('systems')">
+                            <i class="fas fa-server"></i>Sistem Durumu
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#logs" class="nav-link" onclick="showSection('logs')">
+                            <i class="fas fa-file-alt"></i>Log & Hata Takip
+                            <span class="notification-badge">7</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#security" class="nav-link" onclick="showSection('security')">
+                            <i class="fas fa-shield-alt"></i>Güvenlik Merkezi
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#reports" class="nav-link" onclick="showSection('reports')">
+                            <i class="fas fa-chart-bar"></i>Sistem Raporları
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#settings" class="nav-link" onclick="showSection('settings')">
+                            <i class="fas fa-cog"></i>Sistem Ayarları
+                        </a>
+                    </div>
+                </nav>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <!-- Top Bar -->
+                <div class="top-bar d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">👑 Süper Admin Kontrol Paneli</h5>
+                        <small class="text-muted">Sistem geneli yönetim ve kontrol merkezi</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="real-time-badge me-3">
+                            <i class="fas fa-satellite-dish me-1"></i>Canlı İzleme
+                        </span>
+                        <div class="user-avatar">
+                            SA
+                        </div>
+                        <div class="ms-2">
+                            <div class="fw-bold">Süper Admin</div>
+                            <small class="text-muted">Tam Yetki</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Content -->
+                <div class="main-content">
+                    <!-- Dashboard Section -->
+                    <div id="dashboard-section" class="content-section active">
+                        <!-- System Metrics -->
+                        <div class="row mb-4">
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="admin-card metric-card users">
+                                    <i class="fas fa-users fa-2x mb-3"></i>
+                                    <div class="metric-value" id="total-users">1,000</div>
+                                    <div class="metric-label">Toplam Kullanıcı</div>
+                                    <small class="mt-2 d-block">+347 aktif</small>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="admin-card metric-card systems">
+                                    <i class="fas fa-server fa-2x mb-3"></i>
+                                    <div class="metric-value" id="active-systems">6/6</div>
+                                    <div class="metric-label">Panel Sistemi</div>
+                                    <small class="mt-2 d-block">Tüm paneller online</small>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="admin-card metric-card security">
+                                    <i class="fas fa-shield-alt fa-2x mb-3"></i>
+                                    <div class="metric-value" id="security-score">99.8%</div>
+                                    <div class="metric-label">Sistem Uptime</div>
+                                    <small class="mt-2 d-block">Kritik hata yok</small>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="admin-card metric-card performance">
+                                    <i class="fas fa-tachometer-alt fa-2x mb-3"></i>
+                                    <div class="metric-value" id="system-performance">347</div>
+                                    <div class="metric-label">Aktif Oturumlar</div>
+                                    <small class="mt-2 d-block">Optimal performans</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- System Overview Chart -->
+                        <div class="row">
+                            <div class="col-lg-8 mb-4">
+                                <div class="admin-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-chart-line text-primary me-2"></i>
+                                            Sistem Performansı (7 Gün)
+                                        </h6>
+                                        <span class="real-time-badge">Canlı</span>
+                                    </div>
+                                    <div class="chart-container">
+                                        <canvas id="systemPerformanceChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 mb-4">
+                                <div class="admin-card">
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-users-cog text-info me-2"></i>
+                                        Rol Dağılımı (6 Panel)
+                                    </h6>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span><span class="status-indicator status-online"></span>Süper Admin</span>
+                                            <span class="badge bg-danger">3 Kullanıcı</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span><span class="status-indicator status-online"></span>Admin</span>
+                                            <span class="badge bg-warning">25 Kullanıcı</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span><span class="status-indicator status-online"></span>Entegratör</span>
+                                            <span class="badge bg-info">147 Kullanıcı</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span><span class="status-indicator status-online"></span>Dropshipper</span>
+                                            <span class="badge bg-success">623 Kullanıcı</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span><span class="status-indicator status-online"></span>Destek</span>
+                                            <span class="badge bg-primary">89 Kullanıcı</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span><span class="status-indicator status-online"></span>Görüntüleyici</span>
+                                            <span class="badge bg-secondary">113 Kullanıcı</span>
+                                        </div>
+                                    </div>
+                                    <button class="admin-btn w-100" onclick="showSection('users')">
+                                        <i class="fas fa-users me-1"></i>Kullanıcı Yönetimi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="admin-card">
+                            <h6 class="mb-3">
+                                <i class="fas fa-bolt text-warning me-2"></i>
+                                Hızlı İşlemler
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-3 mb-2">
+                                    <button class="admin-btn w-100" onclick="backupSystem()">
+                                        <i class="fas fa-download me-2"></i>Sistem Yedekle
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="admin-btn w-100" onclick="openTrendyolAdmin()">
+                                        <i class="fas fa-shopping-cart me-2"></i>Trendyol Admin
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="admin-btn secondary w-100" onclick="showSection('logs')">
+                                        <i class="fas fa-file-alt me-2"></i>Sistem Logları
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="admin-btn w-100" onclick="showSection('security')">
+                                        <i class="fas fa-shield-alt me-2"></i>Güvenlik Merkezi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Users Section -->
+                    <div id="users-section" class="content-section">
+                        <div class="admin-card">
+                            <h5><i class="fas fa-users me-2"></i>Kullanıcı Yönetimi</h5>
+                            <div class="row mt-4">
+                                <div class="col-md-4 mb-3">
+                                    <div class="metric-card text-center p-3 bg-primary text-white rounded">
+                                        <h3>1,000</h3>
+                                        <p class="mb-0">Toplam Kullanıcı</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="metric-card text-center p-3 bg-success text-white rounded">
+                                        <h3>347</h3>
+                                        <p class="mb-0">Aktif Oturumlar</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="metric-card text-center p-3 bg-info text-white rounded">
+                                        <h3>6</h3>
+                                        <p class="mb-0">Kullanıcı Rolleri</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- APIs Section -->
+                    <div id="apis-section" class="content-section">
+                        <div class="admin-card">
+                            <h5><i class="fas fa-key me-2"></i>API Anahtarları</h5>
+                            <div class="api-key-item">
+                                <strong>Trendyol API:</strong> <span class="api-key-masked">trd_••••••••••••••••••••••••3a5d</span>
+                                <span class="badge bg-success ms-2">Aktif</span>
+                            </div>
+                            <div class="api-key-item">
+                                <strong>Amazon API:</strong> <span class="api-key-masked">amz_••••••••••••••••••••••••8k7m</span>
+                                <span class="badge bg-success ms-2">Aktif</span>
+                            </div>
+                            <div class="api-key-item">
+                                <strong>N11 API:</strong> <span class="api-key-masked">n11_••••••••••••••••••••••••2p9q</span>
+                                <span class="badge bg-warning ms-2">Test</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Systems Section -->
+                    <div id="systems-section" class="content-section">
+                        <div class="admin-card">
+                            <h5><i class="fas fa-server me-2"></i>Sistem Durumu</h5>
+                            <div class="system-log">
+                                [2025-01-17 03:42:15] INFO: Sistem başlatıldı<br>
+                                [2025-01-17 03:42:16] SUCCESS: Tüm paneller yüklendi<br>
+                                [2025-01-17 03:42:17] INFO: 347 aktif kullanıcı oturumu<br>
+                                [2025-01-17 03:42:18] SUCCESS: API'ler test edildi - Tümü çalışıyor<br>
+                                [2025-01-17 03:42:19] INFO: Bellek kullanımı: %68<br>
+                                [2025-01-17 03:42:20] INFO: CPU kullanımı: %23<br>
+                                [2025-01-17 03:42:21] SUCCESS: Sistem sağlıklı durumda
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logs Section -->
+                    <div id="logs-section" class="content-section">
+                        <div class="admin-card">
+                            <h5><i class="fas fa-file-alt me-2"></i>Log & Hata Takip</h5>
+                            <div class="system-log">
+                                [2025-01-17 03:35:12] ERROR: Trendyol API geçici bağlantı hatası<br>
+                                [2025-01-17 03:35:45] SUCCESS: Trendyol API bağlantısı yeniden kuruldu<br>
+                                [2025-01-17 03:36:03] WARNING: eBay API yanıt süresi yavaş (2.3s)<br>
+                                [2025-01-17 03:38:21] INFO: Dropshipper kullanıcı limiti %85'e ulaştı<br>
+                                [2025-01-17 03:40:15] SUCCESS: Günlük yedekleme tamamlandı<br>
+                                [2025-01-17 03:42:01] INFO: Güvenlik taraması başlatıldı<br>
+                                [2025-01-17 03:42:33] SUCCESS: Güvenlik taraması temiz - tehdit bulunamadı
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Section -->
+                    <div id="security-section" class="content-section">
+                        <div class="admin-card">
+                            <h5><i class="fas fa-shield-alt me-2"></i>Güvenlik Merkezi</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Güvenlik Durumu</h6>
+                                    <div class="mb-2">
+                                        <span class="status-indicator status-online"></span>Firewall: Aktif
+                                    </div>
+                                    <div class="mb-2">
+                                        <span class="status-indicator status-online"></span>SSL Sertifikası: Geçerli
+                                    </div>
+                                    <div class="mb-2">
+                                        <span class="status-indicator status-online"></span>2FA: Zorunlu
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Son Güvenlik Taraması</h6>
+                                    <p>Tarih: 17 Ocak 2025, 03:42<br>
+                                    Durum: <span class="text-success">Temiz</span><br>
+                                    Tarama Süresi: 0.8 saniye</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reports Section -->
+                    <div id="reports-section" class="content-section">
+                        <div class="admin-card">
+                            <h5><i class="fas fa-chart-bar me-2"></i>Sistem Raporları</h5>
+                            <div class="chart-container">
+                                <canvas id="reportsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Section -->
+                    <div id="settings-section" class="content-section">
+                        <div class="admin-card">
+                            <h5><i class="fas fa-cog me-2"></i>Sistem Ayarları</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Genel Ayarlar</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" checked>
+                                        <label class="form-check-label">Otomatik Yedekleme</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" checked>
+                                        <label class="form-check-label">Güvenlik Bildirimleri</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox">
+                                        <label class="form-check-label">Debug Modu</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>API Ayarları</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" checked>
+                                        <label class="form-check-label">Rate Limiting</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" checked>
+                                        <label class="form-check-label">API Logları</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sidebar navigation
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Add active class to clicked nav link
+            const targetLink = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+            if (targetLink) {
+                targetLink.classList.add('active');
+            }
+        }
+
+        // Open Trendyol Admin
+        function openTrendyolAdmin() {
+            window.open('trendyol-admin.html', '_blank');
+        }
+
+        // Quick action functions
+        function backupSystem() {
+            alert('🔄 Sistem Yedeklemesi Başlatıldı!\n\n📊 Yedeklenen Veriler:\n• Kullanıcı verileri: 1,000 kayıt\n• API konfigürasyonları: 6 pazaryeri\n• Sistem logları: Son 30 gün\n• Güvenlik ayarları: Tüm konfigürasyon\n\n✅ Tahmini süre: 2-3 dakika');
+        }
+
+        function runDiagnostics() {
+            alert('🔍 Sistem Tanılaması Çalıştırılıyor...\n\n✅ Sonuçlar:\n• CPU Kullanımı: %23 (Normal)\n• RAM Kullanımı: %68 (İyi)\n• Disk Alanı: %42 (Optimal)\n• API Yanıt Süreleri: 0.3s ortalama\n• Aktif Bağlantılar: 347\n• Hata Sayısı: 0\n\n🎯 Sistem Sağlık Skoru: 99.8%');
+        }
+
+        function updateSystem() {
+            alert('🚀 Sistem Güncellemesi Başlatıldı!\n\n📋 Güncelleme Detayları:\n• MesChain-Sync v4.5 → v4.6\n• Yeni özellikler: 12 adet\n• Güvenlik yamaları: 5 adet\n• Performans iyileştirmeleri\n\n⏱️ Güncelleme süresi: 5-7 dakika\n🔄 Sistem otomatik olarak yeniden başlatılacak');
+        }
+
+        function emergencyMode() {
+            if(confirm('⚠️ ACİL DURUM MODU AKTIVASYONU\n\nBu mod sistemi güvenli duruma geçirir:\n• Tüm API bağlantıları durdurulur\n• Kullanıcı erişimi kısıtlanır\n• Sadece süper admin erişimi kalır\n• Tüm işlemler loglanır\n\nDevam etmek istediğinizden emin misiniz?')) {
+                alert('🚨 ACİL DURUM MODU AKTİF!\n\n🔒 Sistem güvenli duruma geçirildi\n📝 Olay kaydedildi\n👑 Sadece süper admin erişimi aktif\n\nNormal moda dönmek için güvenlik merkezini kullanın');
+            }
+        }
+
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // System Performance Chart
+            const performanceCtx = document.getElementById('systemPerformanceChart').getContext('2d');
+            new Chart(performanceCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'],
+                    datasets: [{
+                        label: 'Sistem Performansı (%)',
+                        data: [98.5, 99.2, 97.8, 99.8, 98.9, 99.5, 99.1],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 95,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Reports Chart
+            const reportsCtx = document.getElementById('reportsChart');
+            if (reportsCtx) {
+                new Chart(reportsCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Süper Admin', 'Admin', 'Entegratör', 'Dropshipper', 'Destek', 'Görüntüleyici'],
+                        datasets: [{
+                            data: [3, 25, 147, 623, 89, 113],
+                            backgroundColor: [
+                                '#dc2626',
+                                '#d97706',
+                                '#059669',
+                                '#2563eb',
+                                '#7c3aed',
+                                '#64748b'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Real-time updates
+            setInterval(function() {
+                const now = new Date();
+                document.getElementById('total-users').textContent = '1,000';
+                document.getElementById('active-systems').textContent = '6/6';
+                document.getElementById('security-score').textContent = '99.8%';
+                document.getElementById('system-performance').textContent = '347';
+            }, 5000);
+        });
+    </script>
+</body>
+</html> 

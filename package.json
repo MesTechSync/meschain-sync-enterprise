@@ -1,44 +1,37 @@
 {
   "name": "meschain-sync",
   "version": "4.5.0",
-  "description": "MesChain-Sync - Professional Multi-Marketplace Integration Platform for OpenCart 3.0.4.0",
-  "main": "index.html",
+  "description": "OpenCart 3.0.4.0 based multi-marketplace integration system",
+  "main": "index.js",
   "scripts": {
-    "dev": "live-server --port=3000 --entry-file=index.html --mount=/uploads:uploads --open=/CursorDev/dist/html/",
+    "dev": "live-server --port=3000 --entry-file=index.html --mount=/uploads:uploads --open=/",
+    "dev:config": "live-server --port=3001 --entry-file=configuration.html --open=/configuration",
+    "dev:panels": "live-server --port=3003 --entry-file=panels.html --open=/panels",
+    "dev:trendyol": "live-server --port=3004 --entry-file=trendyol-admin.html --open=/trendyol-admin",
+    "dev:admin": "live-server --port=3005 --entry-file=super-admin.html --open=/super-admin",
     "start": "npm run dev",
-    "build": "npm run minify-js && npm run minify-css",
-    "test": "echo \"Running tests for MesChain-Sync\" && exit 0",
-    "minify-js": "terser CursorDev/MARKETPLACE_UIS/*.js --compress --mangle --output=dist/js/meschain-sync.min.js",
-    "minify-css": "cleancss -o dist/css/meschain-sync.min.css CursorDev/css/*.css",
-    "serve": "http-server -p 3000 -o",
-    "lint": "eslint CursorDev/MARKETPLACE_UIS/*.js",
-    "validate": "html-validate CursorDev/dist/html/*.html"
+    "start:all": "node scripts/start-all-services.js",
+    "health": "node scripts/health-check.js",
+    "test": "echo \"Tests to be implemented\" && exit 0",
+    "build": "echo 'Build process would go here'"
   },
   "keywords": [
     "opencart",
     "marketplace",
-    "e-commerce",
     "trendyol",
     "n11",
-    "hepsiburada",
     "amazon",
     "ebay",
+    "hepsiburada",
     "ozon",
     "integration",
-    "turkish-marketplace",
-    "meschain",
-    "sync"
+    "e-commerce"
   ],
   "author": "MesChain Development Team",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/meschain/meschain-sync.git"
+  "devDependencies": {
+    "live-server": "^1.2.2"
   },
-  "bugs": {
-    "url": "https://github.com/meschain/meschain-sync/issues"
-  },
-  "homepage": "https://meschain.com",
   "dependencies": {
     "axios": "^1.9.0",
     "bootstrap": "^5.3.0",
@@ -64,18 +57,8 @@
     "node": ">=14.0.0",
     "npm": ">=6.0.0"
   },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead",
-    "ie >= 11"
-  ],
-  "config": {
-    "port": 3000,
-    "host": "localhost"
-  },
-  "directories": {
-    "doc": "docs",
-    "test": "tests"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meschain/meschain-sync-enterprise.git"
   }
 }
