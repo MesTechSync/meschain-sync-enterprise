@@ -17,93 +17,53 @@ class ControllerExtensionModuleDropshipping extends Controller {
     public function index() {
         $this->load->language('extension/module/dropshipping');
         $this->document->setTitle($this->language->get('heading_title'));
-        
-        $this->load->model('extension/module/dropshipping');
+        $this->load->model('setting/setting');
         
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->model_extension_module_dropshipping->saveSettings($this->request->post);
+            $this->model_setting_setting->editSetting('module_dropshipping', $this->request->post);
             $this->session->data['success'] = $this->language->get('text_success');
-            $this->response->redirect($this->url->link('extension/module/dropshipping', 'user_token=' . $this->session->data['user_token'], true));
+            $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'], '&type=module', true));
         }
         
-        $data['heading_title'] = $this->language->get('heading_title');
-        $data['text_edit'] = $this->language->get('text_edit');
-        $data['text_enabled'] = $this->language->get('text_enabled');
-        $data['text_disabled'] = $this->language->get('text_disabled');
-        
-        $data['entry_status'] = $this->language->get('entry_status');
-        $data['entry_auto_order'] = $this->language->get('entry_auto_order');
-        $data['entry_price_markup'] = $this->language->get('entry_price_markup');
-        $data['entry_default_supplier'] = $this->language->get('entry_default_supplier');
-        
-        $data['button_save'] = $this->language->get('button_save');
-        $data['button_cancel'] = $this->language->get('button_cancel');
-        
+        // Load all language strings
+        $data = $this->loadLanguageStrings([
+            'heading_title', 'text_edit', 'text_enabled', 'text_disabled', 'text_no_results',
+            'text_add_supplier', 'text_select', 'tab_general', 'tab_suppliers', 
+            'column_supplier_name', 'column_supplier_type', 'column_action',
+            'entry_status', 'entry_auto_order', 'entry_supplier_type', 'entry_supplier_name',
+            'button_save', 'button_cancel', 'button_edit', 'button_add_supplier'
+        ]);
+
+        $data['user_token'] = $this->session->data['user_token'];
+
         if (isset($this->error['warning'])) {
             $data['error_warning'] = $this->error['warning'];
         } else {
             $data['error_warning'] = '';
         }
         
-        $data['breadcrumbs'] = array();
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_home'),
-            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_extension'),
-            'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true)
-        );
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('heading_title'),
-            'href' => $this->url->link('extension/module/dropshipping', 'user_token=' . $this->session->data['user_token'], true)
-        );
+        $data['breadcrumbs'] = [];
+        $data['breadcrumbs'][] = ['text' => $this->language->get('text_home'), 'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)];
+        $data['breadcrumbs'][] = ['text' => $this->language->get('text_extension'), 'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true)];
+        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_title'), 'href' => $this->url->link('extension/module/dropshipping', 'user_token=' . $this->session->data['user_token'], true)];
         
         $data['action'] = $this->url->link('extension/module/dropshipping', 'user_token=' . $this->session->data['user_token'], true);
         $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true);
         
-        // Ayarları yükle
-        $settings = $this->model_extension_module_dropshipping->getSettings();
+        $data['module_dropshipping_status'] = $this->config->get('module_dropshipping_status');
+        $data['module_dropshipping_auto_order'] = $this->config->get('module_dropshipping_auto_order');
         
-        if (isset($this->request->post['dropshipping_status'])) {
-            $data['dropshipping_status'] = $this->request->post['dropshipping_status'];
-        } else {
-            $data['dropshipping_status'] = $settings['status'] ?? 0;
+        $this->load->model('extension/module/dropshipping');
+        $data['suppliers'] = [];
+        $results = $this->model_extension_module_dropshipping->getSuppliers();
+        foreach ($results as $result) {
+            $data['suppliers'][] = [
+                'supplier_id' => $result['supplier_id'],
+                'name'        => ucfirst($result['supplier_name']),
+                'type'        => $result['supplier_name'],
+                'edit'        => $this->url->link('extension/module/dropshipping/editSupplier', 'user_token=' . $this->session->data['user_token'] . '&supplier_id=' . $result['supplier_id'], true)
+            ];
         }
-        
-        if (isset($this->request->post['dropshipping_auto_order'])) {
-            $data['dropshipping_auto_order'] = $this->request->post['dropshipping_auto_order'];
-        } else {
-            $data['dropshipping_auto_order'] = $settings['auto_order'] ?? 0;
-        }
-        
-        if (isset($this->request->post['dropshipping_price_markup'])) {
-            $data['dropshipping_price_markup'] = $this->request->post['dropshipping_price_markup'];
-        } else {
-            $data['dropshipping_price_markup'] = $settings['price_markup'] ?? 20;
-        }
-        
-        if (isset($this->request->post['dropshipping_default_supplier'])) {
-            $data['dropshipping_default_supplier'] = $this->request->post['dropshipping_default_supplier'];
-        } else {
-            $data['dropshipping_default_supplier'] = $settings['default_supplier'] ?? 'trendyol';
-        }
-        
-        // Tedarikçi listesi
-        $data['suppliers'] = [
-            'trendyol' => 'Trendyol',
-            'n11' => 'n11',
-            'amazon' => 'Amazon',
-            'ebay' => 'eBay',
-            'hepsiburada' => 'Hepsiburada',
-            'ozon' => 'Ozon'
-        ];
-        
-        // Ürün listesini yükle
-        $data['products'] = $this->getDropshippingProducts();
         
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
@@ -267,5 +227,106 @@ class ControllerExtensionModuleDropshipping extends Controller {
         $date = date('Y-m-d H:i:s');
         $log = "[$date] [$user] [$action] $message\n";
         file_put_contents($log_file, $log, FILE_APPEND);
+    }
+
+    public function addSupplier() {
+        $this->load->language('extension/module/dropshipping');
+        $this->load->model('extension/module/dropshipping');
+        $json = array();
+
+        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+            $supplier_data = [
+                'supplier_name' => strtolower($this->request->post['supplier_type']),
+                'api_key'       => $this->request->post['api_key'],
+                'api_secret'    => $this->request->post['api_secret'],
+                'api_config'    => $this->request->post['api_config'] ?? [],
+                'status'        => 1
+            ];
+            
+            $supplier_id = $this->model_extension_module_dropshipping->addSupplier($supplier_data);
+            
+            if ($supplier_id) {
+                $json['success'] = $this->language->get('text_supplier_added');
+            } else {
+                $json['error'] = $this->language->get('error_supplier_add');
+            }
+        } else {
+            $json['error'] = $this->error['warning'] ?? $this->language->get('error_permission');
+        }
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    private function loadLanguageStrings($keys) {
+        $data = [];
+        foreach ($keys as $key) {
+            $data[$key] = $this->language->get($key);
+        }
+        return $data;
+    }
+
+    public function getSupplier() {
+        $json = [];
+        if (isset($this->request->get['supplier_id'])) {
+            $this->load->model('extension/module/dropshipping');
+            $supplier_info = $this->model_extension_module_dropshipping->getSupplier((int)$this->request->get['supplier_id']);
+            if ($supplier_info) {
+                // Decode api_config for the form
+                $supplier_info['api_config'] = json_decode($supplier_info['api_config'], true);
+                $json['success'] = true;
+                $json['supplier'] = $supplier_info;
+            } else {
+                $json['error'] = 'Supplier not found.';
+            }
+        } else {
+            $json['error'] = 'Missing supplier ID.';
+        }
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    public function editSupplier() {
+        $this->load->language('extension/module/dropshipping');
+        $this->load->model('extension/module/dropshipping');
+        $json = array();
+
+        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+            $supplier_id = $this->request->get['supplier_id'];
+            if ($supplier_id) {
+                $supplier_data = [
+                    'supplier_name' => strtolower($this->request->post['supplier_type']),
+                    'api_key'       => $this->request->post['api_key'],
+                    'api_secret'    => $this->request->post['api_secret'],
+                    'api_config'    => $this->request->post['api_config'] ?? [],
+                    'status'        => 1
+                ];
+                $this->model_extension_module_dropshipping->editSupplier($supplier_id, $supplier_data);
+                $json['success'] = $this->language->get('text_supplier_edited');
+            } else {
+                 $json['error'] = 'Missing supplier ID for edit operation.';
+            }
+        } else {
+            $json['error'] = $this->error['warning'] ?? $this->language->get('error_permission');
+        }
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    public function deleteSupplier() {
+        $this->load->language('extension/module/dropshipping');
+        $this->load->model('extension/module/dropshipping');
+        $json = array();
+
+        if (isset($this->request->post['supplier_id']) && $this->validate()) {
+            $this->model_extension_module_dropshipping->deleteSupplier($this->request->post['supplier_id']);
+            $json['success'] = $this->language->get('text_supplier_deleted');
+        } else {
+            $json['error'] = $this->error['warning'] ?? $this->language->get('error_permission');
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
     }
 } 

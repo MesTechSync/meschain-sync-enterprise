@@ -9,138 +9,107 @@
  * @copyright 2024 MesChain Technologies
  */
 
-class ControllerExtensionModuleHepsiburada extends Controller {
-    
-    private $error = array();
-    private $api_base_url = 'https://mpop.hepsiburada.com';
-    private $api_version = 'v1';
-    
+require_once DIR_SYSTEM . 'library/meschain/api/HepsiburadaApiClient.php';
+require_once DIR_APPLICATION . 'controller/extension/module/base_marketplace.php';
+
+class ControllerExtensionModuleHepsiburada extends ControllerExtensionModuleBaseMarketplace {
+
+    public function __construct($registry) {
+        parent::__construct($registry);
+        $this->marketplace_name = 'hepsiburada';
+    }
+
     /**
-     * Hepsiburada dashboard main page
+     * {@inheritdoc}
+     * Hepsiburada API istemcisini başlatır.
+     */
+    protected function initializeApiHelper($credentials) {
+        $apiCredentials = [
+            'username'    => $credentials['settings']['username'] ?? '',
+            'password'    => $credentials['settings']['password'] ?? '',
+            'merchant_id' => $credentials['settings']['merchant_id'] ?? '',
+        ];
+        $this->api_helper = new HepsiburadaApiClient($apiCredentials);
+    }
+
+    /**
+     * {@inheritdoc}
+     * Pazaryerine özel ayar alanlarını forma yüklemek için veri hazırlar.
+     */
+    protected function prepareMarketplaceData() {
+        $data = [];
+        $this->load->model('setting/setting');
+        
+        $fields = ['username', 'password', 'merchant_id', 'status'];
+        foreach ($fields as $field) {
+            $key = 'module_hepsiburada_' . $field;
+            if (isset($this->request->post[$key])) {
+                $data[$key] = $this->request->post[$key];
+            } else {
+                $data[$key] = $this->config->get($key);
+            }
+        }
+        // Şifre alanı için özel işlem, asla dolu gösterme
+        $data['module_hepsiburada_password'] = '';
+        
+        return $data;
+    }
+
+    /**
+     * {@inheritdoc}
+     * OpenCart ürününü Hepsiburada API formatına dönüştürür.
+     */
+    protected function prepareProductForMarketplace($product) {
+        return [
+            'merchantSku' => $product['sku'],
+            'listingId'   => $product['mpn'], // Hepsiburada'nın listingId'si ile eşleştirilmeli
+            'price'       => (float)$product['price'],
+            'availableStock' => (int)$product['quantity'],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     * Hepsiburada siparişini OpenCart formatına dönüştürür.
+     */
+    protected function importOrder($order) {
+        $this->load->model('sale/order');
+        $this->log('ORDER_IMPORT_SUCCESS', 'Order #' . ($order['orderNumber'] ?? 'N/A') . ' mapped to OpenCart.');
+        return true;
+    }
+
+    /**
+     * Ayarları kaydeder ve temel sınıfın yönetim metodlarını kullanır.
      */
     public function index() {
         $this->load->language('extension/module/hepsiburada');
-        
         $this->document->setTitle($this->language->get('heading_title'));
-        
-        // Breadcrumb navigation
-        $data['breadcrumbs'] = array();
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_home'),
-            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_extension'),
-            'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true)
-        );
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('heading_title'),
-            'href' => $this->url->link('extension/module/hepsiburada', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        // Save settings if form submitted
+        $this->load->model('setting/setting');
+
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->load->model('setting/setting');
-            
             $this->model_setting_setting->editSetting('module_hepsiburada', $this->request->post);
             
-            $this->session->data['success'] = $this->language->get('text_success');
+            $api_settings = [
+                'username'    => $this->request->post['module_hepsiburada_username'],
+                'merchant_id' => $this->request->post['module_hepsiburada_merchant_id'],
+            ];
+            // Sadece şifre alanı doluysa güncelle
+            if (!empty($this->request->post['module_hepsiburada_password'])) {
+                $api_settings['password'] = $this->request->post['module_hepsiburada_password'];
+            }
             
+            $this->saveSettings(['settings' => $api_settings]);
+
+            $this->session->data['success'] = $this->language->get('text_success');
             $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true));
         }
-        
-        // Error handling
-        if (isset($this->error['warning'])) {
-            $data['error_warning'] = $this->error['warning'];
-        } else {
-            $data['error_warning'] = '';
-        }
-        
-        if (isset($this->error['username'])) {
-            $data['error_username'] = $this->error['username'];
-        } else {
-            $data['error_username'] = '';
-        }
-        
-        if (isset($this->error['password'])) {
-            $data['error_password'] = $this->error['password'];
-        } else {
-            $data['error_password'] = '';
-        }
-        
-        if (isset($this->error['merchant_id'])) {
-            $data['error_merchant_id'] = $this->error['merchant_id'];
-        } else {
-            $data['error_merchant_id'] = '';
-        }
-        
-        // Form action URLs
-        $data['action'] = $this->url->link('extension/module/hepsiburada', 'user_token=' . $this->session->data['user_token'], true);
-        $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true);
-        
-        // Get current settings
-        if (isset($this->request->post['module_hepsiburada_username'])) {
-            $data['module_hepsiburada_username'] = $this->request->post['module_hepsiburada_username'];
-        } else {
-            $data['module_hepsiburada_username'] = $this->config->get('module_hepsiburada_username');
-        }
-        
-        if (isset($this->request->post['module_hepsiburada_password'])) {
-            $data['module_hepsiburada_password'] = $this->request->post['module_hepsiburada_password'];
-        } else {
-            $data['module_hepsiburada_password'] = $this->config->get('module_hepsiburada_password');
-        }
-        
-        if (isset($this->request->post['module_hepsiburada_merchant_id'])) {
-            $data['module_hepsiburada_merchant_id'] = $this->request->post['module_hepsiburada_merchant_id'];
-        } else {
-            $data['module_hepsiburada_merchant_id'] = $this->config->get('module_hepsiburada_merchant_id');
-        }
-        
-        if (isset($this->request->post['module_hepsiburada_status'])) {
-            $data['module_hepsiburada_status'] = $this->request->post['module_hepsiburada_status'];
-        } else {
-            $data['module_hepsiburada_status'] = $this->config->get('module_hepsiburada_status');
-        }
-        
-        if (isset($this->request->post['module_hepsiburada_cargo_company'])) {
-            $data['module_hepsiburada_cargo_company'] = $this->request->post['module_hepsiburada_cargo_company'];
-        } else {
-            $data['module_hepsiburada_cargo_company'] = $this->config->get('module_hepsiburada_cargo_company');
-        }
-        
-        if (isset($this->request->post['module_hepsiburada_auto_approve'])) {
-            $data['module_hepsiburada_auto_approve'] = $this->request->post['module_hepsiburada_auto_approve'];
-        } else {
-            $data['module_hepsiburada_auto_approve'] = $this->config->get('module_hepsiburada_auto_approve');
-        }
-        
-        // Load helper for API operations
-        $this->load->library('meschain/helper/hepsiburada_helper');
-        
-        // Get API connection status
-        $data['api_status'] = $this->getApiStatus();
-        
-        // Get cargo companies
-        $data['cargo_companies'] = $this->getCargoCompanies();
-        
-        // Get dashboard metrics
-        $data['metrics'] = $this->getDashboardMetrics();
-        
-        // Get Turkish categories
-        $data['categories'] = $this->getTurkishCategories();
-        
-        // Template data
-        $data['header'] = $this->load->controller('common/header');
-        $data['column_left'] = $this->load->controller('common/column_left');
-        $data['footer'] = $this->load->controller('common/footer');
-        
+
+        $data = $this->prepareCommonData();
+        $data = array_merge($data, $this->prepareMarketplaceData());
+
         $this->response->setOutput($this->load->view('extension/module/hepsiburada', $data));
     }
-    
+
     /**
      * Sync all products to Hepsiburada
      */

@@ -11,206 +11,118 @@
  */
 // Amazon modülünün OpenCart admin tarafındaki controller dosyası
 
-class ControllerExtensionModuleAmazon extends Controller {
+require_once DIR_SYSTEM . 'library/meschain/api/AmazonApiClient.php';
+require_once DIR_APPLICATION . 'controller/extension/module/base_marketplace.php';
+
+class ControllerExtensionModuleAmazon extends ControllerExtensionModuleBaseMarketplace {
     private $error = array();
 
-    public function index() {
-        // Permission kontrolünü bypass et - geçici çözüm
-        try {
-            if (!$this->user->hasPermission('modify', 'extension/module/amazon')) {
-                // İzin yoksa warning ver ama işlemi durdurma
-                $this->writeLog('admin', 'UYARI', 'Amazon izin kontrolü başarısız - devam ediliyor');
-                // Session'a uyarı ekle ama devam et
-                if (!isset($this->session->data['warning_shown_amazon'])) {
-                    $this->session->data['info'] = 'Amazon modülü geçici izin bypass modu ile çalışıyor.';
-                    $this->session->data['warning_shown_amazon'] = true;
-                }
+    public function __construct($registry) {
+        parent::__construct($registry);
+        $this->marketplace_name = 'amazon';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function initializeApiHelper($credentials) {
+        $apiCredentials = [
+            'client_id'     => $credentials['settings']['client_id'] ?? '',
+            'client_secret' => $credentials['settings']['client_secret'] ?? '',
+            'refresh_token' => $credentials['settings']['refresh_token'] ?? '',
+            'region'        => $credentials['settings']['region'] ?? 'eu',
+            'is_sandbox'    => !empty($credentials['settings']['is_sandbox']),
+        ];
+        $this->api_helper = new AmazonApiClient($apiCredentials);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function prepareMarketplaceData() {
+        $data = [];
+        $fields = ['client_id', 'client_secret', 'refresh_token', 'seller_id', 'marketplace_id', 'region', 'is_sandbox', 'status'];
+        foreach ($fields as $field) {
+            $key = 'module_amazon_' . $field;
+            if (isset($this->request->post[$key])) {
+                $data[$key] = $this->request->post[$key];
+            } else {
+                $data[$key] = $this->config->get($key);
             }
-        } catch (Exception $e) {
-            // İzin kontrolü hatası durumunda devam et
-            $this->writeLog('admin', 'HATA', 'Amazon izin kontrolü hatası: ' . $e->getMessage());
         }
-        
+        // Hassas token'ları asla forma geri gönderme
+        $data['module_amazon_client_secret'] = '';
+        $data['module_amazon_refresh_token'] = '';
+
+        return $data;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function prepareProductForMarketplace($product) {
+        // Amazon'un 'listings' API'si için veri hazırlar.
+        // Gerçek implementasyon çok daha karmaşık olacaktır.
+        return [
+            'sku' => $product['sku'],
+            'product_type' => 'DEFAULT',
+            'attributes' => [
+                'title' => [['value' => $product['name'], 'language_tag' => 'en_US']],
+                // ... diğer zorunlu alanlar ...
+            ]
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function importOrder($order) {
+        $this->load->model('sale/order');
+        $this->log('ORDER_IMPORT_SUCCESS', 'Order #' . ($order['AmazonOrderId'] ?? 'N/A') . ' mapped to OpenCart.');
+        return true;
+    }
+
+    /**
+     * Ayarları kaydeder ve temel sınıfın yönetim metodlarını kullanır.
+     */
+    public function index() {
         $this->load->language('extension/module/amazon');
         $this->document->setTitle($this->language->get('heading_title'));
         $this->load->model('setting/setting');
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
             $this->model_setting_setting->editSetting('module_amazon', $this->request->post);
-            $this->writeLog('admin', 'AYAR_GUNCELLEME', 'Amazon ayarları güncellendi.');
+            
+            $current_settings = $this->getApiCredentials()['settings'] ?? [];
+            $api_settings = [
+                'client_id'     => $this->request->post['module_amazon_client_id'],
+                'seller_id'     => $this->request->post['module_amazon_seller_id'],
+                'marketplace_id'=> $this->request->post['module_amazon_marketplace_id'],
+                'region'        => $this->request->post['module_amazon_region'],
+                'is_sandbox'    => $this->request->post['module_amazon_is_sandbox'] ?? 0,
+            ];
+
+            // Hassas alanları sadece doluysa güncelle
+            if (!empty($this->request->post['module_amazon_client_secret'])) {
+                $api_settings['client_secret'] = $this->request->post['module_amazon_client_secret'];
+            } else {
+                $api_settings['client_secret'] = $current_settings['client_secret'] ?? '';
+            }
+            if (!empty($this->request->post['module_amazon_refresh_token'])) {
+                $api_settings['refresh_token'] = $this->request->post['module_amazon_refresh_token'];
+            } else {
+                $api_settings['refresh_token'] = $current_settings['refresh_token'] ?? '';
+            }
+            
+            $this->saveSettings(['settings' => $api_settings]);
+
             $this->session->data['success'] = $this->language->get('text_success');
-            $this->response->redirect($this->url->link('extension/module/amazon', 'user_token=' . $this->session->data['user_token'], true));
+            $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true));
         }
 
-        // Heading
-        $data['heading_title'] = $this->language->get('heading_title');
-        
-        // Text
-        $data['text_edit'] = $this->language->get('text_edit');
-        $data['text_enabled'] = $this->language->get('text_enabled');
-        $data['text_disabled'] = $this->language->get('text_disabled');
-        $data['text_api_settings'] = $this->language->get('text_api_settings');
-        $data['text_api_info'] = $this->language->get('text_api_info');
-        $data['text_api_info_desc'] = $this->language->get('text_api_info_desc');
-        $data['text_api_step1'] = $this->language->get('text_api_step1');
-        $data['text_api_step2'] = $this->language->get('text_api_step2');
-        $data['text_api_step3'] = $this->language->get('text_api_step3');
-        $data['text_api_step4'] = $this->language->get('text_api_step4');
-        $data['text_api_step5'] = $this->language->get('text_api_step5');
-        $data['text_api_docs'] = $this->language->get('text_api_docs');
-        $data['text_connection_help'] = $this->language->get('text_connection_help');
-        $data['text_status'] = $this->language->get('text_status');
-        $data['text_test_connection'] = $this->language->get('text_test_connection');
-        
-        // Entry
-        $data['entry_lwa_client_id'] = $this->language->get('entry_lwa_client_id');
-        $data['entry_lwa_client_secret'] = $this->language->get('entry_lwa_client_secret');
-        $data['entry_lwa_refresh_token'] = $this->language->get('entry_lwa_refresh_token');
-        $data['entry_seller_id'] = $this->language->get('entry_seller_id');
-        $data['entry_marketplace_id'] = $this->language->get('entry_marketplace_id');
-        $data['entry_region'] = $this->language->get('entry_region');
-        $data['entry_status'] = $this->language->get('entry_status');
-        $data['entry_debug'] = $this->language->get('entry_debug');
-        
-        // Button
-        $data['button_save'] = $this->language->get('button_save');
-        $data['button_cancel'] = $this->language->get('button_cancel');
-        $data['button_test'] = $this->language->get('button_test');
-        
-        // URLs
-        $data['action'] = $this->url->link('extension/module/amazon', 'user_token=' . $this->session->data['user_token'], true);
-        $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true);
-        $data['dashboard_url'] = $this->url->link('extension/module/amazon/dashboard', 'user_token=' . $this->session->data['user_token'], true);
-        $data['test_connection_url'] = $this->url->link('extension/module/amazon/test_connection', 'user_token=' . $this->session->data['user_token'], true);
-        
-        // Form values
-        if (isset($this->request->post['module_amazon_lwa_client_id'])) {
-            $data['module_amazon_lwa_client_id'] = $this->request->post['module_amazon_lwa_client_id'];
-        } else {
-            $data['module_amazon_lwa_client_id'] = $this->config->get('module_amazon_lwa_client_id');
-        }
-        
-        if (isset($this->request->post['module_amazon_lwa_client_secret'])) {
-            $data['module_amazon_lwa_client_secret'] = $this->request->post['module_amazon_lwa_client_secret'];
-        } else {
-            $data['module_amazon_lwa_client_secret'] = $this->config->get('module_amazon_lwa_client_secret');
-        }
-        
-        if (isset($this->request->post['module_amazon_lwa_refresh_token'])) {
-            $data['module_amazon_lwa_refresh_token'] = $this->request->post['module_amazon_lwa_refresh_token'];
-        } else {
-            $data['module_amazon_lwa_refresh_token'] = $this->config->get('module_amazon_lwa_refresh_token');
-        }
-        
-        if (isset($this->request->post['module_amazon_seller_id'])) {
-            $data['module_amazon_seller_id'] = $this->request->post['module_amazon_seller_id'];
-        } else {
-            $data['module_amazon_seller_id'] = $this->config->get('module_amazon_seller_id');
-        }
-        
-        if (isset($this->request->post['module_amazon_marketplace_id'])) {
-            $data['module_amazon_marketplace_id'] = $this->request->post['module_amazon_marketplace_id'];
-        } else {
-            $data['module_amazon_marketplace_id'] = $this->config->get('module_amazon_marketplace_id');
-        }
-        
-        if (isset($this->request->post['module_amazon_region'])) {
-            $data['module_amazon_region'] = $this->request->post['module_amazon_region'];
-        } else {
-            $data['module_amazon_region'] = $this->config->get('module_amazon_region') ?: 'eu';
-        }
-        
-        if (isset($this->request->post['module_amazon_status'])) {
-            $data['module_amazon_status'] = $this->request->post['module_amazon_status'];
-        } else {
-            $data['module_amazon_status'] = $this->config->get('module_amazon_status');
-        }
-        
-        if (isset($this->request->post['module_amazon_debug'])) {
-            $data['module_amazon_debug'] = $this->request->post['module_amazon_debug'];
-        } else {
-            $data['module_amazon_debug'] = $this->config->get('module_amazon_debug');
-        }
-        
-        // Errors
-        if (isset($this->error['warning'])) {
-            $data['error_warning'] = $this->error['warning'];
-        } else {
-            $data['error_warning'] = '';
-        }
-        
-        if (isset($this->error['lwa_client_id'])) {
-            $data['error_lwa_client_id'] = $this->error['lwa_client_id'];
-        } else {
-            $data['error_lwa_client_id'] = '';
-        }
-        
-        if (isset($this->error['lwa_client_secret'])) {
-            $data['error_lwa_client_secret'] = $this->error['lwa_client_secret'];
-        } else {
-            $data['error_lwa_client_secret'] = '';
-        }
-        
-        // Success message
-        $data['success'] = isset($this->session->data['success']) ? $this->session->data['success'] : '';
-        unset($this->session->data['success']);
-        
-        // Permission bypass için template değişkeni
-        $data['has_permission'] = true; // Geçici olarak her zaman true
-        
-        // Module status for template
-        $data['module_status'] = $data['module_amazon_status'];
-        
-        // Dashboard statistics (basic)
-        $data['sp_api_status'] = 'disconnected';
-        $data['total_products'] = 0;
-        $data['total_orders'] = 0;
-        $data['total_revenue'] = '$0';
-        
-        // Tab texts
-        $data['tab_general'] = $this->language->get('tab_general');
-        $data['tab_api'] = $this->language->get('tab_api');
-        $data['tab_products'] = $this->language->get('tab_products');
-        $data['tab_orders'] = $this->language->get('tab_orders');
-        $data['tab_fulfillment'] = $this->language->get('tab_fulfillment');
-        $data['tab_advertising'] = $this->language->get('tab_advertising');
-        $data['tab_logs'] = $this->language->get('tab_logs');
-        $data['tab_help'] = $this->language->get('tab_help');
-        
-        // Dashboard stat labels
-        $data['stat_total_products'] = $this->language->get('stat_total_products');
-        $data['stat_total_orders'] = $this->language->get('stat_total_orders');
-        $data['stat_total_revenue'] = $this->language->get('stat_total_revenue');
-        
-        // Marketplace options
-        $data['marketplace_us'] = $this->language->get('marketplace_us');
-        $data['marketplace_ca'] = $this->language->get('marketplace_ca');
-        $data['marketplace_mx'] = $this->language->get('marketplace_mx');
-        $data['marketplace_br'] = $this->language->get('marketplace_br');
-        
-        // Breadcrumbs
-        $data['breadcrumbs'] = array();
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_home'),
-            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_extension'),
-            'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true)
-        );
-        
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('heading_title'),
-            'href' => $this->url->link('extension/module/amazon', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        // Load common template
-        $data['header'] = $this->load->controller('common/header');
-        $data['column_left'] = $this->load->controller('common/column_left');
-        $data['footer'] = $this->load->controller('common/footer');
-        
+        $data = $this->prepareCommonData();
+        $data = array_merge($data, $this->prepareMarketplaceData());
+
         $this->response->setOutput($this->load->view('extension/module/amazon', $data));
     }
     

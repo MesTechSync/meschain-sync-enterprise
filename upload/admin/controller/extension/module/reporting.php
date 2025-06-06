@@ -41,6 +41,23 @@ class ControllerExtensionModuleReporting extends Controller {
         // Aylık satış trendi (son 12 ay)
         $data['sales_trend'] = $reportingHelper->getMonthlySalesTrend(12);
         
+        // Grafik verilerini hazırla
+        $sales_trend_labels = [];
+        $sales_trend_data = [];
+        foreach ($data['sales_trend'] as $trend) {
+            $sales_trend_labels[] = $trend['month'];
+            $sales_trend_data[] = $trend['total_sales'];
+        }
+        $data['sales_trend_chart_json'] = json_encode(['labels' => $sales_trend_labels, 'data' => $sales_trend_data]);
+
+        $marketplace_labels = [];
+        $marketplace_data = [];
+        foreach ($data['marketplace_sales'] as $marketplace => $stats) {
+            $marketplace_labels[] = $stats['name'];
+            $marketplace_data[] = $stats['total_sales'];
+        }
+        $data['marketplace_chart_json'] = json_encode(['labels' => $marketplace_labels, 'data' => $marketplace_data]);
+
         // Dropshipping raporu
         $data['dropshipping_report'] = $reportingHelper->getDropshippingReport();
         

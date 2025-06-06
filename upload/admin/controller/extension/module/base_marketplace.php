@@ -166,7 +166,7 @@ abstract class ControllerExtensionModuleBaseMarketplace extends Controller {
             
             if ($orders) {
                 foreach ($orders as $order) {
-                    if ($this->importOrder($order)) {
+                    if ($this->triggerOrderImport($order)) {
                         $imported_count++;
                     }
                 }
@@ -193,6 +193,16 @@ abstract class ControllerExtensionModuleBaseMarketplace extends Controller {
         $this->$model_name->install();
         
         $this->log('INSTALL', $this->marketplace_name . ' modülü kuruldu');
+        
+        // Add event for marketplace tracking on order creation
+        $this->load->model('setting/event');
+        $this->model_setting_event->addEvent(
+            'meschain_marketplace_order', // code
+            'catalog/model/checkout/order/addOrderHistory/after', // trigger
+            'extension/event/meschain_events/addMarketplaceToOrder', // action
+            1, // status
+            0 // sort_order
+        );
     }
     
     /**
@@ -204,6 +214,10 @@ abstract class ControllerExtensionModuleBaseMarketplace extends Controller {
         $this->$model_name->uninstall();
         
         $this->log('UNINSTALL', $this->marketplace_name . ' modülü kaldırıldı');
+        
+        // Remove the event on uninstall
+        $this->load->model('setting/event');
+        $this->model_setting_event->deleteEventByCode('meschain_marketplace_order');
     }
     
     // Abstract metodlar - Alt sınıflar tarafından uygulanmalı
@@ -211,6 +225,14 @@ abstract class ControllerExtensionModuleBaseMarketplace extends Controller {
     abstract protected function prepareProductForMarketplace($product);
     abstract protected function importOrder($order);
     abstract protected function initializeApiHelper($credentials);
+    
+    protected function triggerOrderImport($order) {
+        // Set the marketplace context before doing anything
+        $this->load->controller('extension/event/meschain_events/setMarketplaceContext', $this->marketplace_name);
+        
+        // Call the marketplace-specific import logic
+        $this->importOrder($order);
+    }
     
     // Yardımcı metodlar
     protected function prepareCommonData() {

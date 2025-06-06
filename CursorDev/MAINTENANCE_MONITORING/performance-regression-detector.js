@@ -622,13 +622,20 @@ class PerformanceRegressionDetector {
      */
     loadHistoricalBaselines() {
         try {
-            const stored = localStorage.getItem('selinay_performance_baselines');
-            if (stored) {
-                const data = JSON.parse(stored);
-                Object.entries(data).forEach(([metric, baseline]) => {
-                    this.performanceBaselines.set(metric, baseline);
-                });
-                console.log('📚 Historical baselines loaded');
+            // Add environment check for localStorage
+            if (typeof localStorage !== 'undefined') {
+                const stored = localStorage.getItem('selinay_performance_baselines');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    Object.entries(data).forEach(([metric, baseline]) => {
+                        this.performanceBaselines.set(metric, baseline);
+                    });
+                    console.log('📚 Historical baselines loaded');
+                } else {
+                    console.warn('⚠️ localStorage not available. Skipping historical baselines loading.');
+                }
+            } else {
+                console.warn('⚠️ localStorage not available. Skipping historical baselines loading.');
             }
         } catch (error) {
             console.warn('⚠️ Could not load historical baselines:', error);
@@ -640,8 +647,13 @@ class PerformanceRegressionDetector {
      */
     saveBaselines() {
         try {
-            const data = Object.fromEntries(this.performanceBaselines);
-            localStorage.setItem('selinay_performance_baselines', JSON.stringify(data));
+            // Add environment check for localStorage
+            if (typeof localStorage !== 'undefined') {
+                const data = Object.fromEntries(this.performanceBaselines);
+                localStorage.setItem('selinay_performance_baselines', JSON.stringify(data));
+            } else {
+                console.warn('⚠️ localStorage not available. Skipping baselines saving.');
+            }
         } catch (error) {
             console.warn('⚠️ Could not save baselines:', error);
         }
@@ -651,46 +663,44 @@ class PerformanceRegressionDetector {
      * Send dashboard alert
      */
     sendDashboardAlert(alert) {
-        // Emit custom event for dashboard
-        const event = new CustomEvent('selinayRegressionAlert', {
-            detail: alert
-        });
-        window.dispatchEvent(event);
-    }
-
-    /**
-     * Update regression metrics
-     */
-    updateRegressionMetrics(regression) {
-        if (regression.severity === 'critical') {
-            this.metrics.prevented++;
+        // Add environment check for window and CustomEvent
+        if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') {
+            // Emit custom event for dashboard
+            const event = new CustomEvent('selinayRegressionAlert', {
+                detail: alert
+            });
+            window.dispatchEvent(event);
+        } else {
+            console.warn('⚠️ window or CustomEvent not available. Skipping dashboard alert.');
         }
-        
-        // Calculate accuracy based on false positives vs true positives
-        // Simplified calculation for this implementation
-        this.metrics.accuracy = Math.min(0.95, this.metrics.accuracy + 0.01);
     }
 
     /**
-     * Trigger automatic mitigation
+     * Trigger automatic mitigation actions
      */
     triggerAutoMitigation(metricName, regression) {
         console.log(`🔧 Triggering auto-mitigation for ${metricName}`);
         
         const mitigations = {
             memoryUsage: () => {
-                // Force garbage collection if available
-                if (window.gc) window.gc();
+                // Add environment check for window
+                if (typeof window !== 'undefined' && typeof window.gc === 'function') {
+                    window.gc();
+                }
                 // Clear caches
                 this.clearPerformanceCaches();
             },
             apiResponseTime: () => {
-                // Implement request throttling
-                this.implementRequestThrottling();
+                // Scale backend resources (placeholder for actual implementation)
+                console.log('🔧 Scaling backend resources for API response time');
+            },
+            networkLatency: () => {
+                // Optimize network settings (placeholder for actual implementation)
+                console.log('🔧 Optimizing network settings for latency');
             },
             loadTime: () => {
-                // Optimize resource loading
-                this.optimizeResourceLoading();
+                // Preload critical resources (placeholder for actual implementation)
+                console.log('🔧 Preloading critical resources to improve load time');
             }
         };
 
@@ -705,156 +715,81 @@ class PerformanceRegressionDetector {
      */
     storeRegressionData(alert) {
         try {
-            const stored = JSON.parse(localStorage.getItem('selinay_regression_history') || '[]');
-            stored.push(alert);
-            
-            // Keep only last 100 alerts
-            if (stored.length > 100) {
-                stored.splice(0, stored.length - 100);
+            // Add environment check for localStorage
+            if (typeof localStorage !== 'undefined') {
+                const stored = JSON.parse(localStorage.getItem('selinay_regression_history') || '[]');
+                stored.push(alert);
+                
+                // Limit storage to last 100 entries
+                if (stored.length > 100) {
+                    stored.splice(0, stored.length - 100);
+                }
+                
+                localStorage.setItem('selinay_regression_history', JSON.stringify(stored));
+            } else {
+                console.warn('⚠️ localStorage not available. Skipping regression data storage.');
             }
-            
-            localStorage.setItem('selinay_regression_history', JSON.stringify(stored));
         } catch (error) {
             console.warn('⚠️ Could not store regression data:', error);
         }
     }
 
     /**
-     * Analyze time patterns
-     */
-    analyzeTimePatterns() {
-        // Simplified time pattern analysis
-        const now = new Date();
-        const hour = now.getHours();
-        
-        return {
-            peakHours: [9, 10, 11, 14, 15, 16],
-            currentHour: hour,
-            isPeakTime: [9, 10, 11, 14, 15, 16].includes(hour),
-            pattern: 'business_hours'
-        };
-    }
-
-    /**
-     * Analyze day patterns
-     */
-    analyzeDayPatterns() {
-        const now = new Date();
-        const day = now.getDay();
-        
-        return {
-            peakDays: [1, 2, 3, 4, 5], // Monday to Friday
-            currentDay: day,
-            isPeakDay: [1, 2, 3, 4, 5].includes(day),
-            pattern: 'weekday_focused'
-        };
-    }
-
-    /**
-     * Analyze load patterns
-     */
-    analyzeLoadPatterns() {
-        return {
-            loadThresholds: [70, 85, 95],
-            currentLoad: this.estimateCurrentLoad(),
-            pattern: 'moderate_load'
-        };
-    }
-
-    /**
-     * Analyze seasonal patterns
-     */
-    analyzeSeasonalPatterns() {
-        return {
-            season: this.getCurrentSeason(),
-            pattern: 'stable',
-            trends: []
-        };
-    }
-
-    /**
      * Get current session ID
      */
     getCurrentSessionId() {
-        return sessionStorage.getItem('selinay_session_id') || 'default';
+        // Add environment check for sessionStorage
+        if (typeof sessionStorage !== 'undefined') {
+            return sessionStorage.getItem('selinay_session_id') || 'default_node_session';
+        }
+        return 'default_node_session'; // Fallback for Node.js
     }
 
     /**
-     * Estimate current load
-     */
-    estimateCurrentLoad() {
-        // Simplified load estimation
-        return Math.floor(Math.random() * 50) + 25; // 25-75%
-    }
-
-    /**
-     * Get current season
-     */
-    getCurrentSeason() {
-        const month = new Date().getMonth();
-        if (month >= 2 && month <= 4) return 'spring';
-        if (month >= 5 && month <= 7) return 'summer';
-        if (month >= 8 && month <= 10) return 'autumn';
-        return 'winter';
-    }
-
-    /**
-     * Clear performance caches
+     * Clear performance-related caches
      */
     clearPerformanceCaches() {
-        // Clear various performance caches
-        if ('serviceWorker' in navigator) {
+        // Add environment check for navigator and caches
+        if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator && typeof caches !== 'undefined') {
             caches.keys().then(names => {
                 names.forEach(name => caches.delete(name));
             });
+        } else {
+            console.warn('⚠️ navigator.serviceWorker or caches API not available. Skipping cache clearing.');
         }
     }
 
     /**
-     * Implement request throttling
-     */
-    implementRequestThrottling() {
-        // Simple request throttling implementation
-        console.log('🚦 Request throttling implemented');
-    }
-
-    /**
-     * Optimize resource loading
-     */
-    optimizeResourceLoading() {
-        // Resource loading optimization
-        console.log('⚡ Resource loading optimized');
-    }
-
-    /**
-     * Emit status update
+     * Emit status updates to the dashboard
      */
     emitStatusUpdate(event, data = {}) {
-        const statusEvent = new CustomEvent('selinayRegressionStatus', {
-            detail: {
-                event: event,
-                timestamp: Date.now(),
-                metrics: this.metrics,
-                data: data
-            }
-        });
-        window.dispatchEvent(statusEvent);
+        // Add environment check for window and CustomEvent
+        if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') {
+            const statusEvent = new CustomEvent('selinayRegressionStatus', {
+                detail: {
+                    event: event,
+                    timestamp: Date.now(),
+                    metrics: this.metrics,
+                    data: data
+                }
+            });
+            window.dispatchEvent(statusEvent);
+        } else {
+            console.warn('⚠️ window or CustomEvent not available. Skipping status update.');
+        }
     }
 
     /**
-     * Subscribe to alerts
-     */
-    subscribeToAlerts(callback) {
-        this.alertChannels.realtime.push(callback);
-        console.log('🔔 Alert subscription added');
-    }
-
-    /**
-     * Get regression history
+     * Get regression history from storage
      */
     getRegressionHistory() {
         try {
-            return JSON.parse(localStorage.getItem('selinay_regression_history') || '[]');
+            // Add environment check for localStorage
+            if (typeof localStorage !== 'undefined') {
+                return JSON.parse(localStorage.getItem('selinay_regression_history') || '[]');
+            }
+            console.warn('⚠️ localStorage not available. Returning empty regression history.');
+            return [];
         } catch (error) {
             console.warn('⚠️ Could not load regression history:', error);
             return [];
@@ -862,115 +797,40 @@ class PerformanceRegressionDetector {
     }
 
     /**
-     * Get current metrics
-     */
-    getMetrics() {
-        return {
-            ...this.metrics,
-            isMonitoring: this.isMonitoring,
-            totalBaselines: this.performanceBaselines.size,
-            totalHistory: Array.from(this.performanceHistory.values()).reduce((sum, hist) => sum + hist.length, 0),
-            alertsCount: this.regressionAlerts.length,
-            lastUpdate: Date.now()
-        };
-    }
-
-    /**
-     * Get system status
-     */
-    getSystemStatus() {
-        return {
-            status: this.isMonitoring ? 'active' : 'inactive',
-            health: this.regressionAlerts.filter(a => a.severity === 'critical').length === 0 ? 'healthy' : 'warning',
-            uptime: Date.now() - (this.startTime || Date.now()),
-            version: '2.0.0',
-            metrics: this.getMetrics(),
-            config: this.config
-        };
-    }
-
-    /**
-     * Generate comprehensive report
-     */
-    generateReport() {
-        const report = {
-            timestamp: new Date().toISOString(),
-            summary: {
-                totalRegressions: this.metrics.detected,
-                preventedIssues: this.metrics.prevented,
-                accuracy: `${(this.metrics.accuracy * 100).toFixed(1)}%`,
-                lastDetection: this.metrics.lastDetection ? new Date(this.metrics.lastDetection).toISOString() : 'None'
-            },
-            baselines: Object.fromEntries(this.performanceBaselines),
-            recentAlerts: this.regressionAlerts.slice(-10),
-            patterns: this.performancePatterns || {},
-            systemStatus: this.getSystemStatus(),
-            recommendations: this.generateRecommendations()
-        };
-
-        console.log('📊 Performance regression report generated');
-        return report;
-    }
-
-    /**
-     * Generate recommendations
-     */
-    generateRecommendations() {
-        const recommendations = [];
-
-        if (this.metrics.detected > 10) {
-            recommendations.push({
-                type: 'optimization',
-                priority: 'high',
-                description: 'High number of regressions detected. Consider implementing preventive measures.',
-                action: 'review_optimization_strategies'
-            });
-        }
-
-        if (this.metrics.accuracy < 0.8) {
-            recommendations.push({
-                type: 'tuning',
-                priority: 'medium',
-                description: 'Detection accuracy could be improved. Consider adjusting sensitivity settings.',
-                action: 'tune_detection_parameters'
-            });
-        }
-
-        return recommendations;
-    }
-
-    /**
-     * Export data for analysis
+     * Export regression data as JSON file
      */
     exportData() {
-        const exportData = {
-            baselines: Object.fromEntries(this.performanceBaselines),
-            history: Object.fromEntries(this.performanceHistory),
-            alerts: this.regressionAlerts,
-            metrics: this.metrics,
-            config: this.config,
-            exportedAt: new Date().toISOString()
-        };
+        // Add environment check for Blob, URL, document
+        if (typeof Blob !== 'undefined' && typeof URL !== 'undefined' && typeof document !== 'undefined' && typeof document.createElement === 'function') {
+            const exportData = {
+                baselines: Object.fromEntries(this.performanceBaselines),
+                history: this.getRegressionHistory(),
+                config: this.config
+            };
 
-        // Create downloadable file
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `selinay_regression_data_${Date.now()}.json`;
-        a.click();
-        
-        URL.revokeObjectURL(url);
-        console.log('📁 Regression data exported');
+            // Create downloadable file
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `selinay_regression_data_${Date.now()}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            console.log('📁 Regression data exported');
+        } else {
+            console.warn('⚠️ Browser-specific APIs (Blob, URL, document) not available. Skipping data export.');
+        }
     }
 }
 
 // Export for global use
-window.PerformanceRegressionDetector = PerformanceRegressionDetector;
-
-// Initialize for automatic use
+// Add environment check for window
 if (typeof window !== 'undefined') {
+    window.PerformanceRegressionDetector = PerformanceRegressionDetector;
+
+    // Initialize for automatic use
     window.addEventListener('DOMContentLoaded', () => {
         if (!window.selinayRegressionDetector) {
             window.selinayRegressionDetector = new PerformanceRegressionDetector({
@@ -984,6 +844,9 @@ if (typeof window !== 'undefined') {
             console.log('🔍 Selinay Performance Regression Detector auto-initialized');
         }
     });
+} else {
+    // Export for Node.js environments if needed
+    module.exports = PerformanceRegressionDetector;
 }
 
 console.log('🔍 Performance Regression Detector v2.0 loaded successfully!');
