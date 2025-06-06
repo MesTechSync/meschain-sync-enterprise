@@ -1,0 +1,33 @@
+{
+  "development": {
+    "main": 3000,
+    "config": 3001,
+    "api": 3002,
+    "websocket": 8080,
+    "panels": 3003
+  },
+  "production": {
+    "main": 80,
+    "config": 443,
+    "api": 8080,
+    "websocket": 8081,
+    "panels": 8082
+  },
+  "services": {
+    "meschain-sync": {
+      "port": 3000,
+      "description": "Main MesChain-Sync Application",
+      "health_check": "/health"
+    },
+    "configuration": {
+      "port": 3001,
+      "description": "Configuration Panel",
+      "health_check": "/configuration/health"
+    },
+    "panel-manager": {
+      "port": 3003,
+      "description": "Microsoft 365 Panel Manager",
+      "health_check": "/panels/health"
+    }
+  }
+} 
