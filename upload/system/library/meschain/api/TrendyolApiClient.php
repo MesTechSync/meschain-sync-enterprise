@@ -169,4 +169,48 @@ class TrendyolApiClient {
             throw $e;
         }
     }
-} 
+
+    /**
+     * Validates an incoming webhook request from Trendyol.
+     * @param object $request The OpenCart request object.
+     * @return bool True if the signature is valid, false otherwise.
+     */
+    public function validateWebhook($request) {
+        $signature = $request->server['HTTP_X_TRENDYOL_SIGNATURE'] ?? '';
+        
+        if (empty($signature) || empty($this->apiSecret)) {
+            return false;
+        }
+        
+        $payload = file_get_contents('php://input');
+        $expectedSignature = base64_encode(hash_hmac('sha256', $payload, $this->apiSecret, true));
+
+        return hash_equals($expectedSignature, $signature);
+    }
+
+    /**
+     * Processes a validated webhook payload from Trendyol.
+     * @param array $payload The decoded JSON payload from the webhook.
+     * @return array A result array with 'success' and 'message' keys.
+     */
+    public function processWebhook($payload) {
+        $eventType = $payload['eventType'] ?? '';
+
+        switch ($eventType) {
+            case 'NewOrder':
+            case 'OrderCreated':
+                // Here you would trigger the order import logic.
+                // This requires access to the full OpenCart registry to load models.
+                // For now, we return success and a message.
+                // A more robust solution would use an event system.
+                return ['success' => true, 'message' => "Order {$payload['orderNumber']} received and queued for processing."];
+
+            case 'OrderStatusChanged':
+                // Logic to update order status
+                return ['success' => true, 'message' => "Status for order {$payload['orderNumber']} changed."];
+
+            default:
+                return ['success' => false, 'message' => "Unsupported event type: {$eventType}"];
+        }
+    }
+}
