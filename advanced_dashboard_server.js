@@ -19,6 +19,9 @@ app.use((req, res, next) => {
 // Static file serving
 app.use(express.static(path.join(__dirname)));
 
+// Serve CursorDev files explicitly
+app.use('/CursorDev', express.static(path.join(__dirname, 'CursorDev')));
+
 // JSON parsing middleware
 app.use(express.json());
 
@@ -31,6 +34,55 @@ app.get('/', (req, res) => {
     res.status(500).json({ 
       error: 'Dashboard yüklenemedi',
       message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Handle CursorDev/dist/html path routing for HTML files
+app.get('/CursorDev/dist/html/super_admin_dashboard.html', (req, res) => {
+  try {
+    res.sendFile(path.join(__dirname, 'CursorDev/FRONTEND_COMPONENTS/super_admin_dashboard.html'));
+  } catch (error) {
+    console.error('Super Admin dashboard file serving error:', error);
+    res.status(500).json({ 
+      error: 'Super Admin dashboard file not found',
+      message: error.message,
+      actualPath: '/CursorDev/FRONTEND_COMPONENTS/super_admin_dashboard.html',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Handle other dist/html files
+app.get('/CursorDev/dist/html/:filename', (req, res) => {
+  try {
+    const filename = req.params.filename;
+    // Map dist/html files to their actual locations
+    let actualPath;
+    
+    if (filename === 'super_admin_dashboard.html') {
+      actualPath = path.join(__dirname, 'CursorDev/FRONTEND_COMPONENTS/super_admin_dashboard.html');
+    } else if (filename === 'dashboard.html') {
+      actualPath = path.join(__dirname, 'CursorDev/FRONTEND_COMPONENTS/dashboard.html');
+    } else if (filename === 'admin_dashboard.html') {
+      actualPath = path.join(__dirname, 'CursorDev/FRONTEND_COMPONENTS/admin_dashboard.html');
+    } else {
+      // Try to find in FRONTEND_COMPONENTS first
+      actualPath = path.join(__dirname, 'CursorDev/FRONTEND_COMPONENTS/', filename);
+    }
+    
+    res.sendFile(actualPath);
+  } catch (error) {
+    console.error('HTML file serving error:', error);
+    res.status(404).json({ 
+      error: 'HTML file not found',
+      message: `File ${req.params.filename} not found in expected locations`,
+      availableFiles: [
+        'super_admin_dashboard.html',
+        'dashboard.html', 
+        'admin_dashboard.html'
+      ],
       timestamp: new Date().toISOString()
     });
   }

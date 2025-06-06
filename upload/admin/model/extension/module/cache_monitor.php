@@ -1,261 +1,462 @@
 <?php
 /**
- * MesChain Cache Monitor Model
+ * Cache Monitor Model
+ * MesChain-Sync OpenCart Extension
  * 
- * OpenCart Extension - Cache Monitoring System
- * 
- * @category   Model
- * @package    MesChain-Sync
- * @version    2.5.0
- * @author     MesTech Team
- * @license    Commercial License
- * @link       https://meschain.com
+ * @package MesChain-Sync
+ * @version 3.0.4.0
+ * @author MesChain Development Team
  */
 
 class ModelExtensionModuleCacheMonitor extends Model {
     
-    /**
-     * Model installation
-     */
-    public function install() {
-        // Create cache monitor table
-        $this->db->query("
-            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "meschain_cache_log` (
-                `cache_id` int(11) NOT NULL AUTO_INCREMENT,
-                `cache_key` varchar(255) NOT NULL,
-                `cache_size` int(11) NOT NULL DEFAULT '0',
-                `cache_type` varchar(50) NOT NULL,
-                `hits` int(11) NOT NULL DEFAULT '0',
-                `misses` int(11) NOT NULL DEFAULT '0',
-                `created_at` datetime NOT NULL,
-                `last_accessed` datetime NOT NULL,
-                PRIMARY KEY (`cache_id`),
-                KEY `cache_key` (`cache_key`),
-                KEY `cache_type` (`cache_type`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-        ");
-        
-        // Create cache statistics table
-        $this->db->query("
-            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "meschain_cache_stats` (
-                `stat_id` int(11) NOT NULL AUTO_INCREMENT,
-                `total_size` bigint(20) NOT NULL DEFAULT '0',
-                `total_files` int(11) NOT NULL DEFAULT '0',
-                `hit_ratio` decimal(5,2) NOT NULL DEFAULT '0.00',
-                `last_cleanup` datetime NULL,
-                `created_at` datetime NOT NULL,
-                PRIMARY KEY (`stat_id`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-        ");
+    private $cache_stats_table = 'meschain_cache_stats';
+    private $cache_directory;
+    
+    public function __construct($registry) {
+        parent::__construct($registry);
+        $this->cache_directory = DIR_CACHE;
     }
     
     /**
-     * Model uninstallation
+     * Initialize cache monitoring tables
+     *
+     * @return void
      */
-    public function uninstall() {
-        // Note: We don't drop tables on uninstall to preserve data
-        // Only remove settings
-        $this->db->query("DELETE FROM " . DB_PREFIX . "setting WHERE code LIKE 'module_cache_monitor%'");
+    public function install() {
+        $this->db->query("
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . $this->cache_stats_table . "` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `cache_type` varchar(50) NOT NULL,
+                `cache_key` varchar(255) NOT NULL,
+                `size_bytes` bigint(20) DEFAULT 0,
+                `hit_count` int(11) DEFAULT 0,
+                `miss_count` int(11) DEFAULT 0,
+                `last_access` datetime,
+                `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+                `expires_at` datetime,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `cache_key_unique` (`cache_type`, `cache_key`),
+                KEY `cache_type` (`cache_type`),
+                KEY `last_access` (`last_access`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        ");
     }
     
     /**
      * Get cache statistics
+     *
+     * @return array Cache statistics
      */
-    public function getCacheStats() {
-        $data = array();
+    public function getCacheStatistics() {
+        $stats = [
+            'file_cache' => $this->getFileCacheStats(),
+            'database_cache' => $this->getDatabaseCacheStats(),
+            'memory_usage' => $this->getMemoryUsage(),
+            'total_size' => 0,
+            'total_files' => 0
+        ];
         
-        // Get OpenCart cache directory
-        $cache_dir = DIR_CACHE;
+        $stats['total_size'] = $stats['file_cache']['total_size'];
+        $stats['total_files'] = $stats['file_cache']['total_files'];
         
-        if (is_dir($cache_dir)) {
-            $data['cache_dir'] = $cache_dir;
-            $data['total_size'] = $this->getDirectorySize($cache_dir);
-            $data['total_files'] = $this->countFiles($cache_dir);
-            $data['readable'] = is_readable($cache_dir);
-            $data['writable'] = is_writable($cache_dir);
-        } else {
-            $data['cache_dir'] = $cache_dir;
-            $data['total_size'] = 0;
-            $data['total_files'] = 0;
-            $data['readable'] = false;
-            $data['writable'] = false;
-        }
-        
-        return $data;
+        return $stats;
     }
     
     /**
-     * Get cache files list
+     * Get file cache statistics
+     *
+     * @return array File cache stats
      */
-    public function getCacheFiles($start = 0, $limit = 20) {
-        $files = array();
-        $cache_dir = DIR_CACHE;
+    private function getFileCacheStats() {
+        $stats = [
+            'total_files' => 0,
+            'total_size' => 0,
+            'total_size_formatted' => '0 B',
+            'by_type' => []
+        ];
         
-        if (is_dir($cache_dir)) {
+        if (is_dir($this->cache_directory)) {
             $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($cache_dir)
+                new RecursiveDirectoryIterator($this->cache_directory)
             );
             
-            $count = 0;
             foreach ($iterator as $file) {
                 if ($file->isFile()) {
-                    if ($count >= $start && count($files) < $limit) {
-                        $files[] = array(
-                            'name' => $file->getFilename(),
-                            'path' => $file->getPathname(),
-                            'size' => $file->getSize(),
-                            'modified' => date('Y-m-d H:i:s', $file->getMTime())
-                        );
+                    $size = $file->getSize();
+                    $ext = $file->getExtension();
+                    
+                    $stats['total_files']++;
+                    $stats['total_size'] += $size;
+                    
+                    if (!isset($stats['by_type'][$ext])) {
+                        $stats['by_type'][$ext] = [
+                            'count' => 0,
+                            'size' => 0
+                        ];
                     }
-                    $count++;
+                    
+                    $stats['by_type'][$ext]['count']++;
+                    $stats['by_type'][$ext]['size'] += $size;
                 }
             }
         }
         
-        return $files;
+        $stats['total_size_formatted'] = $this->formatBytes($stats['total_size']);
+        
+        return $stats;
     }
     
     /**
-     * Clear all cache
+     * Get database cache statistics
+     *
+     * @return array Database cache stats
      */
-    public function clearAllCache() {
-        $cache_dir = DIR_CACHE;
+    private function getDatabaseCacheStats() {
+        $stats = [
+            'total_entries' => 0,
+            'by_type' => [],
+            'hit_miss_ratio' => 0
+        ];
         
-        if (is_dir($cache_dir)) {
-            return $this->deleteDirectory($cache_dir, true);
-        }
+        $query = $this->db->query("
+            SELECT 
+                cache_type,
+                COUNT(*) as count,
+                SUM(size_bytes) as total_size,
+                SUM(hit_count) as total_hits,
+                SUM(miss_count) as total_misses
+            FROM " . DB_PREFIX . $this->cache_stats_table . "
+            GROUP BY cache_type
+        ");
         
-        return false;
-    }
-    
-    /**
-     * Clear specific cache file
-     */
-    public function clearCacheFile($filename) {
-        $cache_dir = DIR_CACHE;
-        $file_path = $cache_dir . $filename;
+        $total_hits = 0;
+        $total_misses = 0;
         
-        if (file_exists($file_path) && is_writable($file_path)) {
-            return unlink($file_path);
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Get directory size
-     */
-    private function getDirectorySize($directory) {
-        $size = 0;
-        
-        if (is_dir($directory)) {
-            $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($directory)
-            );
+        foreach ($query->rows as $row) {
+            $stats['total_entries'] += (int)$row['count'];
+            $total_hits += (int)$row['total_hits'];
+            $total_misses += (int)$row['total_misses'];
             
-            foreach ($iterator as $file) {
-                if ($file->isFile()) {
-                    $size += $file->getSize();
-                }
-            }
+            $stats['by_type'][$row['cache_type']] = [
+                'count' => (int)$row['count'],
+                'size' => (int)$row['total_size'],
+                'hits' => (int)$row['total_hits'],
+                'misses' => (int)$row['total_misses']
+            ];
         }
         
-        return $size;
-    }
-    
-    /**
-     * Count files in directory
-     */
-    private function countFiles($directory) {
-        $count = 0;
-        
-        if (is_dir($directory)) {
-            $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($directory)
-            );
-            
-            foreach ($iterator as $file) {
-                if ($file->isFile()) {
-                    $count++;
-                }
-            }
-        }
-        
-        return $count;
-    }
-    
-    /**
-     * Delete directory contents
-     */
-    private function deleteDirectory($dir, $preserve_dir = true) {
-        if (!is_dir($dir)) {
-            return false;
-        }
-        
-        $files = array_diff(scandir($dir), array('.', '..'));
-        
-        foreach ($files as $file) {
-            $path = $dir . DIRECTORY_SEPARATOR . $file;
-            
-            if (is_dir($path)) {
-                $this->deleteDirectory($path, false);
-            } else {
-                unlink($path);
-            }
-        }
-        
-        if (!$preserve_dir) {
-            return rmdir($dir);
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Format file size
-     */
-    public function formatFileSize($size) {
-        $units = array('B', 'KB', 'MB', 'GB', 'TB');
-        $power = $size > 0 ? floor(log($size, 1024)) : 0;
-        return number_format($size / pow(1024, $power), 2, '.', ',') . ' ' . $units[$power];
-    }
-    
-    /**
-     * Dashboard widget için istatistikleri getir
-     * 
-     * @return array Dashboard istatistikleri
-     */
-    public function getDashboardStats() {
-        $stats = array();
-        
-        // Cache dizin bilgilerini al
-        $cache_stats = $this->getCacheStats();
-        
-        // Toplam cache dosya sayısı
-        $stats['total_products'] = $cache_stats['total_files'];
-        
-        // Cache boyutu (MB olarak)
-        $stats['total_orders'] = round($cache_stats['total_size'] / 1024 / 1024, 2);
-        
-        // Cache temizleme sayısı (bu ay)
-        $query = $this->db->query("SELECT COUNT(*) as total FROM " . DB_PREFIX . "meschain_cache_log WHERE DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
-        $stats['total_sync'] = $query->num_rows ? $query->row['total'] : 0;
-        
-        // Son cache temizleme tarihi
-        $query = $this->db->query("SELECT MAX(last_cleanup) as last_cleanup FROM " . DB_PREFIX . "meschain_cache_stats");
-        $stats['last_sync'] = ($query->num_rows && $query->row['last_cleanup']) ? 
-            date('d.m.Y H:i', strtotime($query->row['last_cleanup'])) : 'Hiçbir zaman';
-        
-        // Cache durumu
-        $stats['status'] = ($cache_stats['readable'] && $cache_stats['writable']) ? 'connected' : 'error';
-        
-        // Son aktivite
-        if ($cache_stats['total_size'] > 0) {
-            $stats['recent_activity'] = 'Cache boyutu: ' . $this->formatFileSize($cache_stats['total_size']);
-        } else {
-            $stats['recent_activity'] = 'Cache boş';
+        if ($total_hits + $total_misses > 0) {
+            $stats['hit_miss_ratio'] = round(($total_hits / ($total_hits + $total_misses)) * 100, 2);
         }
         
         return $stats;
     }
-} 
+    
+    /**
+     * Get memory usage information
+     *
+     * @return array Memory usage stats
+     */
+    private function getMemoryUsage() {
+        $stats = [
+            'current_usage' => memory_get_usage(true),
+            'current_usage_formatted' => $this->formatBytes(memory_get_usage(true)),
+            'peak_usage' => memory_get_peak_usage(true),
+            'peak_usage_formatted' => $this->formatBytes(memory_get_peak_usage(true)),
+            'limit' => ini_get('memory_limit'),
+            'percentage_used' => 0
+        ];
+        
+        $limit_bytes = $this->parseMemoryLimit($stats['limit']);
+        if ($limit_bytes > 0) {
+            $stats['percentage_used'] = round(($stats['current_usage'] / $limit_bytes) * 100, 2);
+        }
+        
+        return $stats;
+    }
+    
+    /**
+     * Clear cache by type
+     *
+     * @param string $type Cache type to clear
+     * @return array Result with success status and message
+     */
+    public function clearCache($type = 'all') {
+        $result = [
+            'success' => false,
+            'message' => '',
+            'cleared_items' => 0
+        ];
+        
+        try {
+            switch ($type) {
+                case 'file':
+                    $result = $this->clearFileCache();
+                    break;
+                    
+                case 'database':
+                    $result = $this->clearDatabaseCache();
+                    break;
+                    
+                case 'system':
+                    $result = $this->clearSystemCache();
+                    break;
+                    
+                case 'all':
+                default:
+                    $file_result = $this->clearFileCache();
+                    $db_result = $this->clearDatabaseCache();
+                    $system_result = $this->clearSystemCache();
+                    
+                    $result['success'] = $file_result['success'] && $db_result['success'] && $system_result['success'];
+                    $result['cleared_items'] = $file_result['cleared_items'] + $db_result['cleared_items'] + $system_result['cleared_items'];
+                    $result['message'] = 'All cache types cleared successfully';
+                    break;
+            }
+            
+            // Log cache clear operation
+            $this->logCacheOperation('clear', $type, $result);
+            
+        } catch (Exception $e) {
+            $result['success'] = false;
+            $result['message'] = 'Error clearing cache: ' . $e->getMessage();
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Clear file cache
+     *
+     * @return array Result
+     */
+    private function clearFileCache() {
+        $result = [
+            'success' => false,
+            'message' => '',
+            'cleared_items' => 0
+        ];
+        
+        try {
+            if (is_dir($this->cache_directory)) {
+                $iterator = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($this->cache_directory),
+                    RecursiveIteratorIterator::CHILD_FIRST
+                );
+                
+                foreach ($iterator as $file) {
+                    if ($file->isFile() && $file->getFilename() !== '.htaccess') {
+                        if (unlink($file->getRealPath())) {
+                            $result['cleared_items']++;
+                        }
+                    }
+                }
+                
+                $result['success'] = true;
+                $result['message'] = "Cleared {$result['cleared_items']} cache files";
+            }
+        } catch (Exception $e) {
+            $result['message'] = 'Error clearing file cache: ' . $e->getMessage();
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Clear database cache
+     *
+     * @return array Result
+     */
+    private function clearDatabaseCache() {
+        $result = [
+            'success' => false,
+            'message' => '',
+            'cleared_items' => 0
+        ];
+        
+        try {
+            // Get count before deletion
+            $count_query = $this->db->query("SELECT COUNT(*) as count FROM " . DB_PREFIX . $this->cache_stats_table);
+            $result['cleared_items'] = $count_query->row['count'];
+            
+            // Clear database cache entries
+            $this->db->query("DELETE FROM " . DB_PREFIX . $this->cache_stats_table);
+            
+            $result['success'] = true;
+            $result['message'] = "Cleared {$result['cleared_items']} database cache entries";
+            
+        } catch (Exception $e) {
+            $result['message'] = 'Error clearing database cache: ' . $e->getMessage();
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Clear system cache (OpCache, APC, etc.)
+     *
+     * @return array Result
+     */
+    private function clearSystemCache() {
+        $result = [
+            'success' => false,
+            'message' => '',
+            'cleared_items' => 0
+        ];
+        
+        $cleared_types = [];
+        
+        // Clear OpCache if available
+        if (function_exists('opcache_reset')) {
+            if (opcache_reset()) {
+                $cleared_types[] = 'OpCache';
+                $result['cleared_items']++;
+            }
+        }
+        
+        // Clear APC cache if available
+        if (function_exists('apc_clear_cache')) {
+            if (apc_clear_cache()) {
+                $cleared_types[] = 'APC';
+                $result['cleared_items']++;
+            }
+        }
+        
+        // Clear APCu cache if available
+        if (function_exists('apcu_clear_cache')) {
+            if (apcu_clear_cache()) {
+                $cleared_types[] = 'APCu';
+                $result['cleared_items']++;
+            }
+        }
+        
+        if (!empty($cleared_types)) {
+            $result['success'] = true;
+            $result['message'] = 'Cleared system caches: ' . implode(', ', $cleared_types);
+        } else {
+            $result['success'] = true;
+            $result['message'] = 'No system caches available to clear';
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Get cache performance metrics
+     *
+     * @param int $days Number of days to analyze
+     * @return array Performance metrics
+     */
+    public function getCachePerformanceMetrics($days = 7) {
+        $metrics = [
+            'hit_rate' => 0,
+            'miss_rate' => 0,
+            'total_requests' => 0,
+            'daily_stats' => []
+        ];
+        
+        $query = $this->db->query("
+            SELECT 
+                DATE(created_at) as date,
+                SUM(hit_count) as daily_hits,
+                SUM(miss_count) as daily_misses
+            FROM " . DB_PREFIX . $this->cache_stats_table . "
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL " . (int)$days . " DAY)
+            GROUP BY DATE(created_at)
+            ORDER BY date DESC
+        ");
+        
+        $total_hits = 0;
+        $total_misses = 0;
+        
+        foreach ($query->rows as $row) {
+            $daily_hits = (int)$row['daily_hits'];
+            $daily_misses = (int)$row['daily_misses'];
+            $daily_total = $daily_hits + $daily_misses;
+            
+            $total_hits += $daily_hits;
+            $total_misses += $daily_misses;
+            
+            $metrics['daily_stats'][] = [
+                'date' => $row['date'],
+                'hits' => $daily_hits,
+                'misses' => $daily_misses,
+                'total' => $daily_total,
+                'hit_rate' => $daily_total > 0 ? round(($daily_hits / $daily_total) * 100, 2) : 0
+            ];
+        }
+        
+        $metrics['total_requests'] = $total_hits + $total_misses;
+        
+        if ($metrics['total_requests'] > 0) {
+            $metrics['hit_rate'] = round(($total_hits / $metrics['total_requests']) * 100, 2);
+            $metrics['miss_rate'] = round(($total_misses / $metrics['total_requests']) * 100, 2);
+        }
+        
+        return $metrics;
+    }
+    
+    /**
+     * Log cache operation
+     *
+     * @param string $operation Operation type
+     * @param string $type Cache type
+     * @param array $result Operation result
+     * @return void
+     */
+    private function logCacheOperation($operation, $type, $result) {
+        if (method_exists($this, 'log')) {
+            $this->log('info', "Cache {$operation} operation", [
+                'cache_type' => $type,
+                'success' => $result['success'],
+                'cleared_items' => $result['cleared_items'] ?? 0,
+                'message' => $result['message']
+            ], 'cache_monitor');
+        }
+    }
+    
+    /**
+     * Parse memory limit string to bytes
+     *
+     * @param string $limit Memory limit string
+     * @return int Bytes
+     */
+    private function parseMemoryLimit($limit) {
+        if ($limit == -1) {
+            return -1;
+        }
+        
+        $limit = trim($limit);
+        $last = strtolower($limit[strlen($limit) - 1]);
+        $value = (int)$limit;
+        
+        switch ($last) {
+            case 'g':
+                $value *= 1024;
+            case 'm':
+                $value *= 1024;
+            case 'k':
+                $value *= 1024;
+        }
+        
+        return $value;
+    }
+    
+    /**
+     * Format bytes to human readable format
+     *
+     * @param int $bytes Bytes
+     * @param int $precision Decimal precision
+     * @return string Formatted size
+     */
+    private function formatBytes($bytes, $precision = 2) {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        
+        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+            $bytes /= 1024;
+        }
+        
+        return round($bytes, $precision) . ' ' . $units[$i];
+    }
+}
