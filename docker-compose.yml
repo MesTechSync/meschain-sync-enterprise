@@ -1,0 +1,238 @@
+# 🐳 MesChain-Sync Enterprise - Docker Compose Configuration
+# Development and production deployment orchestration
+
+version: '3.8'
+
+# ====================================
+# 🔧 SERVICES DEFINITION
+# ====================================
+services:
+  # 🌐 Frontend Application
+  meschain-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VERSION: ${VERSION:-latest}
+        BUILD_TIME: ${BUILD_TIME:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
+        COMMIT_SHA: ${COMMIT_SHA:-$(git rev-parse HEAD)}
+    image: meschain-sync-enterprise:${VERSION:-latest}
+    container_name: meschain-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:8080"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - REACT_APP_API_URL=${API_URL:-http://localhost:3001}
+      - REACT_APP_WS_URL=${WS_URL:-ws://localhost:3001}
+      - REACT_APP_VERSION=${VERSION:-latest}
+    volumes:
+      - ./logs/nginx:/var/log/nginx
+    networks:
+      - meschain-network
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/health-check.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.meschain-frontend.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.meschain-frontend.tls=true"
+      - "traefik.http.services.meschain-frontend.loadbalancer.server.port=8080"
+
+  # 🔧 Backend API Service (Mock for development)
+  meschain-api:
+    image: node:18-alpine
+    container_name: meschain-api
+    restart: unless-stopped
+    working_dir: /app
+    command: >
+      sh -c "
+        npm install -g json-server &&
+        echo '{}' > db.json &&
+        json-server --watch db.json --port 3001 --host 0.0.0.0
+      "
+    ports:
+      - "${API_PORT:-3001}:3001"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+    networks:
+      - meschain-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 🗄️ PostgreSQL Database
+  meschain-db:
+    image: postgres:15-alpine
+    container_name: meschain-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-meschain}
+      POSTGRES_USER: ${DB_USER:-meschain}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-meschain2025}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    networks:
+      - meschain-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-meschain} -d ${DB_NAME:-meschain}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # 🔴 Redis Cache
+  meschain-redis:
+    image: redis:7-alpine
+    container_name: meschain-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-meschain2025}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - meschain-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 📊 Monitoring - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: meschain-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    networks:
+      - meschain-network
+    profiles:
+      - monitoring
+
+  # 📈 Monitoring - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: meschain-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    networks:
+      - meschain-network
+    profiles:
+      - monitoring
+
+  # 🔍 Log Management - ELK Stack (Elasticsearch)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: meschain-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+    networks:
+      - meschain-network
+    profiles:
+      - logging
+
+  # 📋 Log Management - Kibana
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: meschain-kibana
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "${KIBANA_PORT:-5601}:5601"
+    networks:
+      - meschain-network
+    depends_on:
+      - elasticsearch
+    profiles:
+      - logging
+
+  # 🚦 Reverse Proxy - Traefik
+  traefik:
+    image: traefik:v3.0
+    container_name: meschain-traefik
+    restart: unless-stopped
+    command:
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@meschain.com}
+      - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+    ports:
+      - "80:80"
+      - "443:443"
+      - "${TRAEFIK_PORT:-8888}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_data:/acme.json
+    networks:
+      - meschain-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.traefik.tls=true"
+    profiles:
+      - proxy
+
+# ====================================
+# 📦 VOLUMES DEFINITION
+# ====================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  traefik_data:
+    driver: local
+
+# ====================================
+# 🌐 NETWORKS DEFINITION
+# ====================================
+networks:
+  meschain-network:
+    driver: bridge
+    name: meschain-network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 
