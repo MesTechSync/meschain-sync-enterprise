@@ -189,4 +189,157 @@ Veritabanı şeması doğrudan incelenemese de, sorgulardan yola çıkarak yapı
 
 ---
 
-*Bu raporun "Genel Yazılım Mimarisi ve Kod Analizi" bölümü tamamlanmıştır. Rapor, `Yazılım Analiz.md` dosyasındaki diğer bölümlerle (Tedarik Zinciri, Dropshipping, Pazar Yerleri vb.) devam edecektir.* 
+*Bu raporun "Genel Yazılım Mimarisi ve Kod Analizi" bölümü tamamlanmıştır. Rapor, `Yazılım Analiz.md` dosyasındaki diğer bölümlerle (Tedarik Zinciri, Dropshipping, Pazar Yerleri vb.) devam edecektir.*
+
+## 2. Dropshipping ve Tedarik Zinciri Analizi
+
+Bu bölüm, `Yazılım Analiz.md` dosyasındaki "Tedarik Zinciri Yönetimi" ve "Dropshipping Entegrasyonu" başlıklarını, kod tabanında bulunan `dropshipping` modülü özelinde birleştirerek analiz etmektedir.
+
+### 2.1. Modül İşlevleri ve Süreçleri
+
+Dropshipping modülü, tedarikçi tabanlı ürün satışını otomatikleştirmek için kapsamlı bir altyapı sunmaktadır. Kontrolcü (`dropshipping.php`) ve Model (`dropshipping.php`) katmanları, MVC prensiplerine uygun şekilde ayrılmıştır.
+
+**Veri Yönetimi:**
+*   Modül, tedarikçileri, ürünleri, siparişleri ve otomasyon kurallarını yönetmek için dört adet özel veritabanı tablosu (`dropshipping_suppliers`, `dropshipping_products`, `dropshipping_orders`, `dropshipping_rules`) kullanmaktadır.
+*   **Tedarikçi Verileri:** Her tedarikçi için iletişim bilgileri, API uç noktası, API anahtarları, komisyon oranları ve kargo maliyetleri gibi detaylı veriler saklanmaktadır.
+*   **Ürün Verileri:** OpenCart'taki bir ürün, bir tedarikçiye ve tedarikçinin ürün koduna (SKU) bağlanır. Tedarikçinin satış fiyatı, stok durumu ve bu fiyata uygulanacak kar marjı (sabit veya yüzdesel) gibi veriler yönetilir.
+
+**Ana Süreçler:**
+1.  **Tedarikçi Tanımlama:** Sisteme yeni tedarikçiler ve bu tedarikçilerin API bilgileri eklenir.
+2.  **Ürün Eşleştirme:** OpenCart'taki bir ürün, sistemdeki bir tedarikçinin ürünüyle eşleştirilir.
+3.  **Otomatik Sipariş Oluşturma:** Bir müşteri OpenCart üzerinden dropshipping olarak işaretlenmiş bir ürünü satın aldığında, `processAutoOrder` metodu tetiklenir. Bu metot, `dropshipping_orders` tablosuna ilgili tedarikçi için "beklemede" (pending) durumunda yeni bir sipariş kaydı oluşturur.
+4.  **Stok Senkronizasyonu:** `syncStock` metodu, tedarikçideki stok miktarını OpenCart'taki ürünün stok miktarıyla eşitlemek için tasarlanmıştır.
+5.  **Fiyat Optimizasyonu:** `optimizeProfitMargins` metodu, tanımlanmış hedef kar marjlarına göre ürünlerin satış fiyatlarını otomatik olarak güncelleyebilir.
+
+### 2.2. Entegrasyon ve Otomasyon
+
+*   **Tedarikçi Entegrasyonu (KRİTİK EKSİKLİK):**
+    *   **Sorun:** Modülün en kritik eksiği, **hiçbir gerçek tedarikçi API entegrasyonu içermemesidir.** Tedarikçiden stok bilgisi alması gereken `getSupplierStock` metodu, API çağrısı yapmak yerine `return rand(0, 100);` koduyla **rastgele bir değer döndürmektedir.** Tedarikçiye sipariş iletmesi gereken bir mekanizma ise hiç bulunmamaktadır.
+    *   **Sonuç:** Modül, şu anki haliyle **işlevsel değildir.** Tedarikçilerle otomatik stok veya sipariş iletişimi kuramaz. Veritabanı ve metot altyapısı hazırlanmış, ancak en önemli adım olan entegrasyon kısmı tamamen boştur. Bu, modülün bir "iskelet" veya "konsept kanıtı" (Proof of Concept) aşamasında olduğunu göstermektedir.
+
+*   **Veri Doğruluğu ve Güvenilirlik:**
+    *   API entegrasyonu olmadığı için, tedarikçi verilerinin (stok, fiyat) doğruluğunu ve bütünlüğünü sağlayacak herhangi bir mekanizma mevcut değildir. Tüm veriler manuel girişe veya çalışmayan senkronizasyon metotlarına dayanmaktadır. Bu durum, yanlış stokla ürün satma veya yanlış fiyatlandırma gibi ciddi operasyonel riskler doğurur.
+
+*   **Riskler ve Azaltma Stratejileri:**
+    *   **Mevcut Riskler:** Tedarikçi stok sorunları, kargo gecikmeleri, fiyat değişiklikleri gibi tüm dropshipping riskleri şu anda yönetilememektedir çünkü sistemin tedarikçiden haberi yoktur.
+    *   **Öneri:** Gerçek API entegrasyonları yapılmalıdır. Bu entegrasyonlar yapılırken, API hatalarını (örn: bağlantı kopması, yetki hatası), geçersiz yanıtları ve veri formatı uyumsuzluklarını yakalamak için **kapsamlı hata yönetimi (try-catch blokları) ve loglama** mekanizmaları eklenmelidir. Stok ve fiyat senkronizasyonu, düzenli aralıklarla çalışan **zamanlanmış görevler (cron jobs)** ile otomatikleştirilmelidir.
+
+### 2.3. Performans ve Raporlama
+
+*   **Performans:**
+    *   Model dosyasındaki veritabanı sorguları genel olarak verimlidir ve gerekli `JOIN` işlemlerini içermektedir. Tablolarda temel indekslemeler mevcuttur.
+    *   Ancak, `bulkUpdateProducts` gibi toplu işlem metotları, işlemleri döngü içinde tek tek yapar. Çok sayıda ürünü güncellerken bu, N+1 sorgu problemine yol açabilir.
+*   **Raporlama ve Analitik:**
+    *   `getAdvancedAnalytics` metodu, **son derece güçlü bir analitik altyapısı** sunmaktadır. Gelir trendleri, tedarikçi performans karşılaştırması (ortalama sipariş hazırlama süresi, başarı oranı vb.), ürün karlılık analizi ve otomasyon verimliliği gibi metrikler hesaplanmaktadır.
+    *   Bu, modülün sadece bir operasyon aracı değil, aynı zamanda **karar destek sistemi** olarak da tasarlandığını gösteren çok olumlu bir özelliktir. Ancak, bu raporlar da API entegrasyonu olmadığı için şu anda sadece sistemdeki mevcut (ve muhtemelen güncel olmayan) verilere dayanarak çalışmaktadır.
+
+## 3. Entegratör ve Pazar Yerleri Entegrasyonu
+
+Bu bölüm, yazılımın Trendyol, N11, Amazon gibi pazar yerleri ile olan entegrasyonunu, "Genel Analiz" bölümünde incelenen kontrolcü ve `server.js` dosyaları temelinde değerlendirmektedir.
+
+### 3.1. Entegrasyon Mimarisi ve Veri Akışı
+
+Yazılım, pazar yerleriyle entegrasyon için birbiriyle çelişen **iki farklı mimari** kullanmaktadır. Bu, projenin en temel mimari sorunlarından biridir.
+
+1.  **PHP Kontrolcüleri İçinde Doğrudan API Çağrıları:** `trendyol.php` gibi bazı modüller, pazar yeri API'lerine doğrudan cURL kullanarak senkron çağrılar yapmaktadır. Bu yöntem esnek değildir, bakımı zordur ve kod tekrarına yol açar.
+2.  **Node.js Proxy Sunucusu (`server.js`):** React tabanlı arayüz, veri çekmek için bu Node.js sunucusunu bir API ağ geçidi (gateway) olarak kullanır. Bu sunucu da kendi içinden pazar yeri API'lerine çağrılar yapar.
+
+Bu ikili yapı, "tek doğru kaynak" (single source of truth) prensibini bozar ve hangi yöntemin ne zaman kullanıldığını anlamayı zorlaştırır.
+
+**Veri Senkronizasyonu:**
+*   **Ürün/Stok Senkronizasyonu:** Ürün ve stok verilerinin pazar yerlerine aktarılması için `sync_products` gibi metotlar mevcuttur. Ancak bu metotlar, kullanıcı tarafından manuel olarak tetiklenmek zorundadır. Otomatik ve düzenli bir senkronizasyon için zamanlanmış görevlerin (cron jobs) kurulması gerekmektedir.
+*   **Sipariş Senkronizasyonu:** Benzer şekilde, siparişler de `get_orders` metoduyla manuel olarak çekilebilir. Her pazar yeri için `*_webhooks.php` dosyalarının varlığı, anlık sipariş bildirimi (webhook) altyapısının düşünüldüğünü ancak henüz tüm modüller için standart ve işlevsel hale getirilmediğini göstermektedir.
+*   **Fiyatlandırma ve İade Yönetimi:** Kod tabanında, farklı pazar yerlerine özel dinamik fiyatlandırma stratejileri veya iade süreçlerini yöneten belirgin bir iş mantığı **bulunmamaktadır.**
+
+### 3.2. Entegrasyon Sorunları ve Çözüm Stratejileri
+
+Pazar yeri entegrasyonları, projenin en fazla sorun barındıran alanıdır.
+
+**Temel Sorunlar:**
+1.  **Mimari Karmaşa:** İkili API çağırma yapısı (`PHP` ve `Node.js`), kod tekrarı ve bakım kabusuna yol açar.
+2.  **Güvenlik Zafiyetleri:** Güvensiz API bağlantıları (`CURLOPT_SSL_VERIFYPEER`=false) ve devre dışı bırakılmış yetki kontrolleri, entegrasyonları dış tehditlere açık hale getirir.
+3.  **Dayanıksızlık:** API istek limitlerine veya geçici bağlantı sorunlarına karşı bir dayanıklılık (resiliency) mekanizması (örn: yeniden deneme mekanizması, circuit breaker deseni) bulunmamaktadır.
+4.  **Manuel Süreçler:** Sistem, büyük ölçüde manuel tetiklenen senkronizasyon süreçlerine dayanmaktadır, bu da ölçeklenebilir değildir ve hataya açıktır.
+
+**Stratejik Çözüm Önerileri:**
+1.  **Merkezi API Katmanı Oluşturun:** **En acil ve önemli adım budur.** Tüm pazar yeri API çağrıları, `system/library/meschain/api/` altında, her pazar yeri için özel (`TrendyolApiClient.php`, `N11ApiClient.php` vb.) ve yeniden kullanılabilir API istemci sınıfları üzerinden yapılmalıdır. Bu sınıflar, güvenli bağlantı ayarlarını, loglamayı ve temel hata yönetimini standart olarak içermelidir. Projenin geri kalanı (kontrolcüler, modeller, Node.js sunucusu) sadece bu merkezi sınıfları kullanmalıdır.
+2.  **Webhook Altyapısını Standartlaştırın:** Anlık veri güncellemeleri (yeni sipariş, stok değişimi) için webhook tabanlı bir sistem, tüm pazar yeri modüllerinin çekirdek özelliği haline getirilmelidir. Bu, manuel senkronizasyon ihtiyacını ortadan kaldırır.
+3.  **Asenkron İşlemler için Kuyruk Sistemi Kurun:** Özellikle çok sayıda ürünü pazar yerine gönderme veya güncelleme gibi uzun süren ve API limitlerini zorlayabilecek işlemler, anında yapılmak yerine bir **mesaj kuyruğuna (örn: RabbitMQ, Redis Queue)** atılmalıdır. Arka planda çalışan bir "worker" süreci, bu kuyruktaki işleri kontrollü bir hızda ve sırayla işleyerek sistemi daha kararlı ve ölçeklenebilir hale getirir.
+4.  **Performans Metrikleri Ekleyin:** Merkezi API katmanına, her API çağrısının ne kadar sürdüğünü ve başarı/hata oranlarını kaydeden bir metrik sistemi eklenmelidir. Bu, yavaş çalışan veya sık hata veren entegrasyonların kolayca tespit edilmesini sağlar.
+
+## 4. Muhasebe Entegrasyonu
+
+Kod tabanında yapılan arama ve analizler sonucunda, projede şu anda **işlevsel bir muhasebe entegrasyonu modülünün bulunmadığı** tespit edilmiştir.
+
+### 4.1. Mevcut Durum
+
+*   **Entegrasyon Eksikliği:** Yazılımın SAP, Oracle, Netsis gibi harici muhasebe sistemleriyle veya yerel bir e-fatura/e-arşiv sağlayıcısıyla herhangi bir entegrasyonu yoktur.
+*   **Otomatik Süreçlerin Yokluğu:** Satış faturalarını, alış faturalarını veya diğer finansal işlemleri otomatik olarak oluşturan, işleyen veya bir muhasebe sistemine aktaran bir mekanizma mevcut değildir.
+*   **Raporlama Eksikliği:** Gelir tablosu, bilanço, nakit akış tablosu gibi standart muhasebe raporlarını üreten bir altyapı bulunmamaktadır. `dropshipping` modülündeki analitik özellikleri finansal veriler sunsa da, bunlar resmi muhasebe standartlarına uygun değildir.
+
+### 4.2. Değerlendirme ve Sonuç
+
+`Yazılım Analiz.md` dosyasındaki "Muhasebe Entegrasyonu" başlığı altında yer alan soruların tamamı için mevcut durum "uygulanmamış" veya "mevcut değil" şeklindedir.
+
+Bu durum, sistemin şu anki haliyle finansal kayıtları ve resmi muhasebe süreçlerini manuel olarak yönetmek zorunda olduğu anlamına gelir. Bu, operasyonel verimsizliğe ve insan hatasına açık bir süreçtir.
+
+**Öneri ve Gelecek Geliştirme Alanı:**
+*   Muhasebe entegrasyonu, projenin gelecekteki yol haritası için **yüksek öncelikli bir geliştirme alanı** olarak değerlendirilmelidir.
+*   Entegrasyon için popüler yerel muhasebe yazılımlarının (Netsis, Logo, Paraşüt vb.) API'leri veya uluslararası standartlar (örn: UBL-TR) hedeflenebilir.
+*   Entegrasyon geliştirilirken, finansal verilerin doğruluğu, bütünlüğü ve güvenliği en üst düzeyde tutulmalı, tüm işlemlerin loglanması ve geri alınabilir (rollback) olması sağlanmalıdır.
+
+## 5. Grafik ve Kullanıcı Arayüzü (UI) Tasarımı
+
+Yazılımın yönetici paneli, geleneksel OpenCart arayüzünden ayrılarak, modern bir **React tabanlı Tek Sayfa Uygulaması (Single Page Application - SPA)** olarak geliştirilmiştir. Bu, projenin kullanıcı deneyimine önem verdiğini gösteren stratejik bir karardır.
+
+### 5.1. Teknoloji ve Tasarım Felsefesi
+
+*   **Modern Teknoloji Yığını:** Arayüz, **React 18**, **TypeScript** ve **Tailwind CSS** gibi güncel ve endüstri standardı teknolojiler üzerine inşa edilmiştir. Bu teknoloji seçimi, esnek, sürdürülebilir ve performanslı bir arayüz geliştirmek için sağlam bir temel oluşturur.
+*   **Tasarım Tutarlılığı:** **Tailwind CSS**'in birincil stil aracı olarak kullanılması, tüm arayüz bileşenlerinde tutarlı bir tasarım dili (renkler, boşluklar, tipografi) uygulanmasını kolaylaştırır. **Headless UI**, **Heroicons** ve **Lucide** gibi kütüphanelerin varlığı, hem tasarım tutarlılığına hem de erişilebilirliğe dikkat edildiğini göstermektedir.
+*   **Bileşen Tabanlı Mimari:** React'in doğası gereği arayüz, yeniden kullanılabilir bileşenlerden (butonlar, kartlar, tablolar vb.) oluşur. Bu, gelecekte yeni özellikler eklemeyi veya mevcut tasarımı güncellemeyi kolaylaştırır.
+
+### 5.2. Kullanıcı Deneyimi (UX) ve Erişilebilirlik
+
+*   **Olumlu Yönler:**
+    *   **Akıcı ve Hızlı Deneyim:** SPA mimarisi, sayfa geçişlerinin yeniden yükleme olmadan anında gerçekleşmesini sağlayarak, geleneksel web sitelerine göre çok daha akıcı bir kullanıcı deneyimi sunar.
+    *   **Veri Odaklı Arayüz:** `Chart.js` ve `Recharts` gibi veri görselleştirme kütüphanelerinin kullanımı, karmaşık satış ve performans verilerinin kullanıcılar için anlaşılır grafiklere dönüştürülmesini sağlar. Bu, kullanıcıların veri odaklı kararlar almasını destekleyen önemli bir UX artısıdır.
+    *   **Uluslararasılaştırma (i18n):** `i18next` kütüphanesinin projeye dahil edilmesi, arayüzün birden fazla dili destekleyecek şekilde planlandığını gösterir ve bu, projenin potansiyel kullanım alanını genişletir.
+
+*   **Potansiyel İyileştirme Alanları:**
+    *   **Gerçek Dünya Performansı:** `server.js` dosyasının, API yavaşlıklarına karşı sahte veri döndürme gibi mekanizmalar içermesi, gerçek API'lerden veri çekerken arayüzde yavaşlıklar yaşanabileceğine işaret etmektedir. Arayüzün performansı, yavaş ağ koşullarında ve büyük veri setleriyle (binlerce ürün, sipariş vb.) kapsamlı bir şekilde test edilmelidir.
+    *   **Kullanıcı Geri Bildirimi:** Kod tabanında, anketler, kullanıcı testleri veya yorum toplama gibi doğrudan kullanıcı geri bildirimi almak için bir mekanizma bulunmamaktadır. Arayüzü iyileştirmenin en iyi yolu, gerçek kullanıcıların deneyimlerini analiz etmektir.
+    *   **Erişilebilirlik (a11y):** `package.json` dosyasında `lighthouse` denetimi için bir komut bulunması olumludur. Ancak projenin renk kontrast oranları, tüm interaktif elemanların klavye ile erişilebilirliği ve ekran okuyucu uyumluluğu gibi WCAG (Web Content Accessibility Guidelines) standartlarına tam uyumluluğu, düzenli denetimlerle garanti altına alınmalıdır.
+
+## 6. Veri Güvenliği ve Gizliliği
+
+Bu bölüm, yazılımın genel veri güvenliği duruşunu ve kişisel verilerin korunmasına yönelik yaklaşımlarını, önceki bölümlerdeki bulguları birleştirerek değerlendirmektedir.
+
+### 6.1. Güvenlik Önlemleri ve Hassas Veri Yönetimi
+
+*   **Şifreleme (Tutarsız Uygulama):**
+    *   **Olumlu:** `base_marketplace.php` ve `dropshipping` modülü, API anahtarları gibi hassas verileri veritabanına yazmadan önce şifrelemek için bir `MeschainEncryption` kütüphanesi kullanmaktadır. Bu, veri güvenliği için **doğru ve proaktif** bir yaklaşımdır.
+    *   **Olumsuz:** Bu olumlu yaklaşım, projenin tamamında **tutarlı bir şekilde uygulanmamaktadır.** Özellikle `trendyol.php` ve `server.js` modülleri bu şifreleme katmanını kullanmaz ve hassas verileri (API anahtarları) ya düz metin olarak veritabanında saklar. Bu durum, şifrelemenin sağladığı korumayı büyük ölçüde anlamsız kılmaktadır.
+
+*   **Erişim Kontrolleri (Bozuk):**
+    *   Uygulama içi erişim kontrolleri, `trendyol.php` modülünde kasıtlı olarak devre dışı bırakılmıştır. Bu, **Bozuk Erişim Kontrolü (Broken Access Control)** zafiyetine yol açar ve projenin en kritik güvenlik sorunudur.
+
+*   **Hassas Verilerin Korunması:**
+    *   **API Anahtarları:** Projenin en hassas verisi olan pazar yeri API anahtarları, üç farklı yöntemle (şifreli, şifresiz, düz metin dosya) yönetilmektedir. Bu, **güvenli olmayan ve yönetimi imkansız** bir yapıdır.
+    *   **Kişisel Veriler:** Siparişler yoluyla işlenen müşteri adı, adresi, telefonu gibi kişisel verilerin veritabanında şifrelendiğine dair bir kanıt yoktur. Bu verilerin düz metin olarak saklanması, bir veritabanı sızıntısı durumunda riskleri artırır.
+
+### 6.2. Yasal Uyumluluk ve Testler
+
+*   **Veri Gizliliği Düzenlemeleri (GDPR/KVKK):**
+    *   Kod tabanında, KVKK ve GDPR gibi yasal düzenlemelerin gerektirdiği "unutulma hakkı" (veri silme), veri anonimleştirme veya detaylı kullanıcı onayı yönetimi gibi mekanizmalar **bulunmamaktadır.** Bu durum, projenin hizmet verdiği coğrafyalara bağlı olarak yasal riskler oluşturabilir.
+
+*   **Güvenlik Testleri:**
+    *   Kod tabanında veya geliştirme süreçlerinde, düzenli olarak sızma testleri veya otomatik güvenlik açığı taramaları yapıldığına dair bir kanıt yoktur. `CURLOPT_SSL_VERIFYPEER`'in kapatılması ve yetki kontrollerinin bypass edilmesi gibi temel güvenlik hatalarının varlığı, bu tür testlerin yapılmadığını veya sonuçlarının dikkate alınmadığını düşündürmektedir.
+
+### 6.3. Genel Değerlendirme ve Öneriler
+
+Projede veri güvenliği konusunda adımlar atılmış olsa da, tutarsız uygulamalar ve temel güvenlik prensiplerinin ihlali, sistemin genel güvenlik duruşunu önemli ölçüde zayıflatmaktadır.
+
+*   **Öneri 1 (Merkezileştirme):** Hassas verileri korumak için kullanılan `MeschainEncryption` kütüphanesi, **projedeki tek ve zorunlu standart haline getirilmelidir.** Düz metin `config.json` dosyası gibi tüm diğer güvensiz yöntemler derhal kaldırılmalıdır.
+*   **Öneri 2 (Erişim Kontrolü):** Bozuk erişim kontrolleri acilen düzeltilmeli ve RBAC sistemi tüm modüllerde tutarlı bir şekilde uygulanmalıdır.
+*   **Öneri 3 (Kişisel Veriler):** Veritabanı sızıntısı riskini azaltmak için, müşteri kişisel verilerinin de (adres, telefon vb.) veritabanında şifrelenerek saklanması (encryption at rest) değerlendirilmelidir.
+*   **Öneri 4 (Yasal Uyumluk):** KVKK/GDPR uyumluluğu için gerekli olan veri yönetimi özellikleri (silme, anonimleştirme) için bir yol haritası oluşturulmalıdır. 

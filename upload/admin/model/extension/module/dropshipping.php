@@ -152,6 +152,14 @@ class ModelExtensionModuleDropshipping extends Model {
     }
     
     /**
+     * Get a single supplier by ID
+     */
+    public function getSupplier($supplier_id) {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "dropshipping_suppliers WHERE supplier_id = '" . (int)$supplier_id . "'");
+        return $query->row;
+    }
+    
+    /**
      * Add supplier
      */
     public function addSupplier($data) {
@@ -175,6 +183,38 @@ class ModelExtensionModuleDropshipping extends Model {
         $supplier_id = $this->db->getLastId();
         $this->writeLog('ADD_SUPPLIER', 'Supplier added: ' . $data['supplier_name']);
         return $supplier_id;
+    }
+    
+    /**
+     * Edit supplier
+     */
+    public function editSupplier($supplier_id, $data) {
+        $this->db->query("UPDATE " . DB_PREFIX . "dropshipping_suppliers SET
+            supplier_name = '" . $this->db->escape($data['supplier_name']) . "',
+            contact_name = '" . $this->db->escape($data['contact_name'] ?? '') . "',
+            email = '" . $this->db->escape($data['email'] ?? '') . "',
+            phone = '" . $this->db->escape($data['phone'] ?? '') . "',
+            website = '" . $this->db->escape($data['website'] ?? '') . "',
+            api_key = '" . $this->db->escape($data['api_key'] ?? '') . "',
+            api_secret = '" . $this->db->escape($data['api_secret'] ?? '') . "',
+            api_config = '" . $this->db->escape(json_encode($data['api_config'] ?? [])) . "',
+            status = '" . (int)($data['status'] ?? 1) . "',
+            updated_at = NOW()
+            WHERE supplier_id = '" . (int)$supplier_id . "'");
+        
+        $this->writeLog('EDIT_SUPPLIER', 'Supplier updated: ' . $data['supplier_name']);
+    }
+    
+    /**
+     * Delete supplier
+     */
+    public function deleteSupplier($supplier_id) {
+        $this->db->query("DELETE FROM " . DB_PREFIX . "dropshipping_suppliers WHERE supplier_id = '" . (int)$supplier_id . "'");
+        // Also delete related products and orders if needed (cascading delete logic)
+        $this->db->query("DELETE FROM " . DB_PREFIX . "dropshipping_products WHERE supplier_id = '" . (int)$supplier_id . "'");
+        $this->db->query("DELETE FROM " . DB_PREFIX . "dropshipping_orders WHERE supplier_id = '" . (int)$supplier_id . "'");
+        
+        $this->writeLog('DELETE_SUPPLIER', 'Supplier deleted with ID: ' . $supplier_id);
     }
     
     /**
@@ -282,7 +322,182 @@ class ModelExtensionModuleDropshipping extends Model {
     }
     
     /**
+     * Create dropshipping order and send it to the supplier API.
+     */
+    public function createSupplierOrder($opencart_order_id) {
+        $this->load->model('sale/order');
+        $order_info = $this->model_sale_order->getOrder($opencart_order_id);
+        if (!$order_info) {
+            $this->writeLog('ORDER_CREATION_ERROR', "OpenCart order ID {$opencart_order_id} not found.");
+            return false;
+        }
+
+        $order_products = $this->model_sale_order->getOrderProducts($opencart_order_id);
+        
+        // Group products by supplier
+        $supplier_orders = [];
+        foreach ($order_products as $product) {
+            $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "dropshipping_products WHERE product_id = '" . (int)$product['product_id'] . "' AND status = 1");
+            if ($query->num_rows) {
+                $dropship_product = $query->row;
+                $supplier_id = $dropship_product['supplier_id'];
+                if (!isset($supplier_orders[$supplier_id])) {
+                    $supplier_orders[$supplier_id] = [
+                        'supplier_info' => $this->getSupplierInfo($supplier_id),
+                        'line_items' => []
+                    ];
+                }
+                $supplier_orders[$supplier_id]['line_items'][] = [
+                    'quantity' => (int)$product['quantity'],
+                    'sku' => $dropship_product['supplier_sku'],
+                    'price' => (float)$dropship_product['supplier_price']
+                ];
+            }
+        }
+
+        $success_count = 0;
+        foreach ($supplier_orders as $supplier_id => $order_data) {
+            try {
+                $apiClient = $this->getApiClientBySupplierId($supplier_id);
+                if (!$apiClient) {
+                    throw new Exception("Could not get API client for supplier ID {$supplier_id}");
+                }
+
+                $supplier_name = strtolower($order_data['supplier_info']['supplier_name']);
+                
+                // Prepare payload for the specific supplier
+                $payload = $this->prepareOrderPayload($supplier_name, $order_info, $order_data['line_items']);
+                
+                $apiResponse = null;
+                switch ($supplier_name) {
+                    case 'trendyol':
+                        $apiResponse = $apiClient->createShipmentPackage($payload);
+                        break;
+                    case 'n11':
+                        $apiResponse = $apiClient->createOrder($payload);
+                        break;
+                    case 'ozon':
+                        $apiResponse = $apiClient->createFbsPosting($payload);
+                        break;
+                    case 'hepsiburada':
+                        $apiResponse = $apiClient->processOrder($payload['order_number'], $payload['line_items']);
+                        break;
+                    case 'amazon':
+                        $apiResponse = $apiClient->submitOrderAcknowledgement($payload['amazon_order_id'], $payload['merchant_order_id'], $payload['marketplace_id']);
+                        break;
+                }
+                
+                if ($apiResponse) {
+                    $supplier_order_id = $apiResponse['id'] ?? $apiResponse['shipmentId'] ?? $apiResponse['orderNumber'] ?? $apiResponse['feedId'] ?? 'N/A';
+                    $this->saveDropshippingOrder($opencart_order_id, $supplier_id, $supplier_order_id, $apiResponse);
+                    $success_count++;
+                }
+
+            } catch (Exception $e) {
+                $this->writeLog('ORDER_CREATION_EXCEPTION', "Failed to create order for supplier {$supplier_id}: " . $e->getMessage());
+            }
+        }
+        
+        return $success_count > 0;
+    }
+
+    /**
+     * Prepares the order payload for different suppliers.
+     */
+    private function prepareOrderPayload($supplier_name, $order_info, $line_items) {
+        $shipping_address = [
+            'firstName' => $order_info['shipping_firstname'],
+            'lastName'  => $order_info['shipping_lastname'],
+            'address1'  => $order_info['shipping_address_1'],
+            'city'      => $order_info['shipping_city'],
+            'postcode'  => $order_info['shipping_postcode'],
+            'country'   => $order_info['shipping_country'],
+        ];
+
+        switch ($supplier_name) {
+            case 'trendyol':
+                return [
+                    'shippingAddress' => $shipping_address,
+                    'invoiceAddress' => [
+                        'firstName' => $order_info['payment_firstname'],
+                        'lastName' => $order_info['payment_lastname'],
+                        'address1' => $order_info['payment_address_1'],
+                        'city' => $order_info['payment_city'],
+                        'postcode' => $order_info['payment_postcode'],
+                        'country' => $order_info['payment_country'],
+                    ],
+                    'lines' => array_map(function($item) {
+                        return [
+                            'quantity' => $item['quantity'],
+                            'salesCampaignId' => 0, // Needs logic
+                            'productContentId' => $item['sku'] // Assuming SKU is productContentId
+                        ];
+                    }, $line_items),
+                    'shipmentPackageType' => 'STANDARD'
+                ];
+            case 'n11':
+                // N11'in sipariş oluşturma/onaylama API'sinin beklediği yapıya göre düzenlenmeli.
+                // Bu bir varsayımdır.
+                return [
+                    'id' => $order_info['marketplace_order_id'], // Varsayım: OpenCart siparişinde N11 sipariş ID'si tutuluyor
+                    'items' => $line_items
+                ];
+            case 'ozon':
+                // Ozon'un fbs/ship metodunun beklediği yapıya göre düzenlenmeli.
+                return [
+                    'packages' => [
+                        [
+                            'products' => array_map(function($item) {
+                                return [
+                                    'product_id' => (int)$item['sku'], // Ozon product_id'si ile eşleşmeli
+                                    'quantity' => (int)$item['quantity']
+                                ];
+                            }, $line_items)
+                        ]
+                    ],
+                    'posting_number' => $order_info['marketplace_order_id'] // Varsayım
+                ];
+            case 'hepsiburada':
+                return [
+                    'order_number' => $order_info['marketplace_order_id'], // Varsayım
+                    'line_items' => $line_items
+                ];
+            case 'amazon':
+                $api_config = json_decode($this->getSupplierInfo($order_info['supplier_id'])['api_config'], true);
+                return [
+                    'amazon_order_id' => $order_info['marketplace_order_id'], // Varsayım
+                    'merchant_order_id' => $order_info['order_id'],
+                    'marketplace_id' => $api_config['marketplace_id'] ?? ''
+                ];
+        }
+        return [];
+    }
+
+    /**
+     * Saves the created dropshipping order to the database.
+     */
+    private function saveDropshippingOrder($opencart_order_id, $supplier_id, $supplier_order_id, $apiResponse) {
+        $total_amount = array_reduce($apiResponse['lines'] ?? [], function($sum, $item) {
+            return $sum + ($item['price'] * $item['quantity']);
+        }, 0);
+
+        $this->db->query("INSERT INTO " . DB_PREFIX . "dropshipping_orders SET
+            opencart_order_id = '" . (int)$opencart_order_id . "',
+            supplier_id = '" . (int)$supplier_id . "',
+            supplier_order_id = '" . $this->db->escape($supplier_order_id) . "',
+            status = 'processing',
+            total_amount = '" . (float)$total_amount . "',
+            order_data = '" . $this->db->escape(json_encode($apiResponse)) . "',
+            submitted_at = NOW(),
+            created_at = NOW(),
+            updated_at = NOW()");
+        
+        $this->writeLog('ORDER_CREATED', "Dropshipping order {$supplier_order_id} created for OpenCart order {$opencart_order_id}");
+    }
+
+    /**
      * Create dropshipping order
+     * @deprecated use createSupplierOrder instead
      */
     private function createDropshippingOrder($opencart_order_id, $dropship_product, $order_product) {
         $order_data = array(
@@ -860,5 +1075,58 @@ class ModelExtensionModuleDropshipping extends Model {
         $rule_id = $this->db->getLastId();
         $this->writeLog('ADD_RULE', 'Automation rule added: ' . $data['rule_name']);
         return $rule_id;
+    }
+
+    /**
+     * Load API client by supplier ID
+     */
+    private function getApiClientBySupplierId($supplier_id) {
+        $supplier_info = $this->getSupplierInfo($supplier_id);
+        if (!$supplier_info) {
+            return null;
+        }
+
+        $supplier_name = strtolower($supplier_info['supplier_name']);
+        $api_config = json_decode($supplier_info['api_config'], true);
+
+        if (!$api_config) {
+            $this->writeLog('API_CONFIG_ERROR', "API config not found for supplier ID {$supplier_id}");
+            return null;
+        }
+
+        $client_class_name = 'TrendyolApiClient'; // Assuming Trendyol as the default supplier
+        $credentials = [
+            'api_endpoint' => $supplier_info['api_endpoint'],
+            'api_key' => $supplier_info['api_key'],
+            'api_secret' => $supplier_info['api_secret'],
+            'commission_rate' => $supplier_info['commission_rate'],
+            'minimum_order' => $supplier_info['minimum_order'],
+            'shipping_cost' => $supplier_info['shipping_cost'],
+            'processing_time' => $supplier_info['processing_time'],
+            'marketplace_id' => $api_config['marketplace_id'] ?? '',
+        ];
+
+        switch ($supplier_name) {
+            case 'trendyol':
+                $client_class_name = 'TrendyolApiClient';
+                break;
+            case 'n11':
+                $client_class_name = 'N11ApiClient';
+                break;
+            case 'ozon':
+                $client_class_name = 'OzonApiClient';
+                break;
+            case 'hepsiburada':
+                $client_class_name = 'HepsiburadaApiClient';
+                break;
+            case 'amazon':
+                $client_class_name = 'AmazonApiClient';
+                break;
+            default:
+                $this->writeLog('API_CLIENT_ERROR', "Unknown supplier type: {$supplier_name}");
+                return null;
+        }
+
+        return new $client_class_name($credentials, $this->cache);
     }
 } 

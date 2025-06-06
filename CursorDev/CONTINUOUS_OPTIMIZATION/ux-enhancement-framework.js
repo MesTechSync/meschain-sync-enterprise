@@ -361,31 +361,617 @@ class UXEnhancementFramework {
     }
 
     /**
-     * Monitor Mobile Performance
+     * Implement Responsive Optimizations
      */
-    async monitorMobilePerformance() {
-        const devices = ['iPhone 12', 'Samsung Galaxy S21', 'iPad Pro'];
-        const metrics = [];
+    async implementResponsiveOptimizations(mobileConfig) {
+        console.log('📐 Implementing responsive design optimizations...');
+        
+        try {
+            // 1. Apply responsive breakpoints
+            await this.applyResponsiveBreakpoints(mobileConfig.responsiveDesign.breakpoints);
+            
+            // 2. Implement fluid typography
+            if (mobileConfig.responsiveDesign.fluidTypography) {
+                await this.implementFluidTypography();
+            }
+            
+            // 3. Optimize images for different screen sizes
+            if (mobileConfig.responsiveDesign.flexibleImages) {
+                await this.implementFlexibleImages();
+            }
+            
+            // 4. Touch optimization
+            if (mobileConfig.responsiveDesign.touchOptimization) {
+                await this.optimizeTouchTargets();
+            }
+            
+            // 5. Performance optimizations
+            await this.implementMobilePerformanceOptimizations(mobileConfig.performance);
+            
+            // 6. Gesture support
+            await this.implementGestureSupport(mobileConfig.gestures);
+            
+            console.log('✅ Responsive optimizations implemented successfully');
+            
+        } catch (error) {
+            console.error('❌ Responsive optimization implementation failed:', error);
+            throw error;
+        }
+    }    /**
+     * Apply Responsive Breakpoints
+     */
+    async applyResponsiveBreakpoints(breakpoints) {
+        console.log('📏 Applying responsive breakpoints...');
+        
+        const breakpointCSS = `
+            /* Mobile First Responsive Design */
+            .responsive-container {
+                width: 100%;
+                max-width: 100%;
+                padding: 0 16px;
+                margin: 0 auto;
+            }
+            
+            /* Small devices (landscape phones, 576px and up) */
+            @media (min-width: ${breakpoints[0]}px) {
+                .responsive-container {
+                    max-width: 540px;
+                }
+            }
+            
+            /* Medium devices (tablets, 768px and up) */
+            @media (min-width: ${breakpoints[1]}px) {
+                .responsive-container {
+                    max-width: 720px;
+                    padding: 0 24px;
+                }
+            }
+            
+            /* Large devices (desktops, 992px and up) */
+            @media (min-width: ${breakpoints[2]}px) {
+                .responsive-container {
+                    max-width: 960px;
+                }
+            }
+            
+            /* Extra large devices (large desktops, 1200px and up) */
+            @media (min-width: ${breakpoints[3]}px) {
+                .responsive-container {
+                    max-width: 1140px;
+                }
+            }
+        `;
+        
+        // Inject CSS
+        this.injectCSS(breakpointCSS, 'responsive-breakpoints');
+        
+        // Add responsive classes to existing elements (browser only)
+        if (typeof document !== 'undefined') {
+            const containers = document.querySelectorAll('.container, .main-content, .layout-container');
+            containers.forEach(container => {
+                container.classList.add('responsive-container');
+            });
+        }
+    }    /**
+     * Implement Fluid Typography
+     */
+    async implementFluidTypography() {
+        console.log('🔤 Implementing fluid typography...');
+        
+        const typographyCSS = `
+            /* Fluid Typography */
+            html {
+                font-size: calc(14px + 0.5vw);
+            }
+            
+            h1 {
+                font-size: clamp(1.8rem, 4vw, 3rem);
+                line-height: 1.2;
+            }
+            
+            h2 {
+                font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+                line-height: 1.3;
+            }
+            
+            h3 {
+                font-size: clamp(1.3rem, 3vw, 2rem);
+                line-height: 1.4;
+            }
+            
+            p, .body-text {
+                font-size: clamp(0.9rem, 2vw, 1.1rem);
+                line-height: 1.6;
+            }
+            
+            .small-text {
+                font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+            }
+            
+            /* Responsive spacing */
+            .responsive-spacing {
+                margin: clamp(0.5rem, 2vw, 2rem) 0;
+            }
+        `;
+        
+        this.injectCSS(typographyCSS, 'fluid-typography');
+        
+        // Apply responsive spacing classes (browser only)
+        if (typeof document !== 'undefined') {
+            const textElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p');
+            textElements.forEach(element => {
+                element.classList.add('responsive-spacing');
+            });
+        }
+    }    /**
+     * Implement Flexible Images
+     */
+    async implementFlexibleImages() {
+        console.log('🖼️ Implementing flexible images...');
+        
+        const imageCSS = `
+            /* Flexible Images */
+            .responsive-image {
+                max-width: 100%;
+                height: auto;
+                display: block;
+            }
+            
+            .responsive-image-container {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            /* Picture element responsive support */
+            picture {
+                display: block;
+                width: 100%;
+            }
+            
+            /* Lazy loading indicators */
+            .lazy-loading {
+                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                background-size: 200% 100%;
+                animation: loading 1.5s infinite;
+            }
+            
+            @keyframes loading {
+                0% { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+            }
+            
+            /* Image optimization for different densities */
+            @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+                .high-dpi-image {
+                    /* High DPI optimizations */
+                }
+            }
+        `;
+        
+        this.injectCSS(imageCSS, 'flexible-images');
+        
+        // Apply responsive image classes (browser only)
+        if (typeof document !== 'undefined') {
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.classList.add('responsive-image');
+                
+                // Add lazy loading if not already present
+                if (!img.hasAttribute('loading')) {
+                    img.setAttribute('loading', 'lazy');
+                }
+                
+                // Wrap in container if needed
+                if (!img.parentElement.classList.contains('responsive-image-container')) {
+                    const container = document.createElement('div');
+                    container.className = 'responsive-image-container';
+                    img.parentNode.insertBefore(container, img);
+                    container.appendChild(img);
+                }
+            });
+        }
+    }    /**
+     * Optimize Touch Targets
+     */
+    async optimizeTouchTargets() {
+        console.log('👆 Optimizing touch targets...');
+        
+        const touchCSS = `
+            /* Touch Target Optimization */
+            .touch-target {
+                min-height: 44px;
+                min-width: 44px;
+                padding: 8px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+            }
+            
+            button, .btn, a, input, select, textarea {
+                min-height: 44px;
+                touch-action: manipulation;
+            }
+            
+            /* Improve button spacing */
+            .button-group .touch-target {
+                margin: 4px;
+            }
+            
+            /* Touch feedback */
+            .touch-feedback:active {
+                transform: scale(0.98);
+                transition: transform 0.1s ease;
+            }
+            
+            /* Prevent double-tap zoom on buttons */
+            .no-zoom {
+                touch-action: manipulation;
+            }
+        `;
+        
+        this.injectCSS(touchCSS, 'touch-optimization');
+        
+        // Apply touch optimization to interactive elements (browser only)
+        if (typeof document !== 'undefined') {
+            const interactiveElements = document.querySelectorAll('button, .btn, a[href], input, select, textarea, [role="button"]');
+            interactiveElements.forEach(element => {
+                element.classList.add('touch-target', 'touch-feedback', 'no-zoom');
+            });
+        }
+    }
 
-        for (const device of devices) {
-            try {
-                const deviceMetrics = await this.getMobileMetrics(device);
-                metrics.push({
-                    device,
-                    timestamp: new Date().toISOString(),
-                    ...deviceMetrics
-                });
-            } catch (error) {
-                console.error(`❌ Mobile metrics failed for ${device}:`, error);
+    /**
+     * Implement Mobile Performance Optimizations
+     */
+    async implementMobilePerformanceOptimizations(performanceConfig) {
+        console.log('⚡ Implementing mobile performance optimizations...');
+        
+        // 1. Critical CSS inlining
+        if (performanceConfig.criticalCSS) {
+            await this.inlineCriticalCSS();
+        }
+        
+        // 2. Resource hints
+        if (performanceConfig.resourceHints) {
+            await this.addResourceHints();
+        }
+        
+        // 3. Adaptive loading
+        if (performanceConfig.adaptiveLoading) {
+            await this.implementAdaptiveLoading();
+        }
+    }    /**
+     * Inline Critical CSS
+     */
+    async inlineCriticalCSS() {
+        // Skip DOM manipulation in Node.js environment
+        if (typeof document === 'undefined') {
+            console.log('📝 Critical CSS would be inlined in browser environment');
+            return;
+        }
+        
+        const criticalCSS = `
+            /* Critical CSS for above-the-fold content */
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+            
+            .header, .navigation, .hero {
+                will-change: transform;
+            }
+            
+            /* Essential layout styles */
+            .main-content {
+                min-height: 100vh;
+            }
+        `;
+        
+        // Inline critical CSS in head
+        const style = document.createElement('style');
+        style.textContent = criticalCSS;
+        style.id = 'critical-css';
+        document.head.insertBefore(style, document.head.firstChild);
+    }    /**
+     * Add Resource Hints
+     */
+    async addResourceHints() {
+        // Skip DOM manipulation in Node.js environment
+        if (typeof document === 'undefined') {
+            console.log('📝 Resource hints would be added in browser environment');
+            return;
+        }
+        
+        const hints = [
+            { rel: 'dns-prefetch', href: '//fonts.googleapis.com' },
+            { rel: 'dns-prefetch', href: '//api.example.com' },
+            { rel: 'preconnect', href: '//cdn.example.com' },
+            { rel: 'prefetch', href: '/api/user/preferences' }
+        ];
+        
+        hints.forEach(hint => {
+            const link = document.createElement('link');
+            link.rel = hint.rel;
+            link.href = hint.href;
+            if (hint.rel === 'preconnect') {
+                link.crossOrigin = '';
+            }
+            document.head.appendChild(link);
+        });
+    }
+
+    /**
+     * Implement Adaptive Loading
+     */
+    async implementAdaptiveLoading() {
+        // Check connection quality
+        if ('connection' in navigator) {
+            const connection = navigator.connection;
+            const isSlowConnection = connection.effectiveType === 'slow-2g' || 
+                                   connection.effectiveType === '2g' ||
+                                   connection.downlink < 1.5;
+            
+            if (isSlowConnection) {
+                // Reduce image quality
+                this.adaptImageQuality('low');
+                
+                // Disable animations
+                this.disableAnimations();
+                
+                // Defer non-critical resources
+                this.deferNonCriticalResources();
             }
         }
+    }
 
-        this.mobileMetrics.push(...metrics);
+    /**
+     * Implement Gesture Support
+     */
+    async implementGestureSupport(gestureConfig) {
+        console.log('🖐️ Implementing gesture support...');
         
-        // Check for mobile performance issues
-        await this.checkMobilePerformanceThresholds(metrics);
+        if (gestureConfig.swipeNavigation) {
+            await this.implementSwipeNavigation();
+        }
+        
+        if (gestureConfig.pinchZoom) {
+            await this.enablePinchZoom();
+        }
+        
+        if (!gestureConfig.tapHighlight) {
+            this.disableTapHighlight();
+        }
+    }    /**
+     * Implement Swipe Navigation
+     */
+    async implementSwipeNavigation() {
+        // Skip DOM events in Node.js environment
+        if (typeof document === 'undefined' || typeof window === 'undefined') {
+            console.log('📝 Swipe navigation would be enabled in browser environment');
+            return;
+        }
+        
+        let startX = 0;
+        let startY = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        document.addEventListener('touchend', (e) => {
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+            
+            // Check if horizontal swipe
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                if (deltaX > 0) {
+                    // Swipe right - go back
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    }
+                } else {
+                    // Swipe left - go forward (if available)
+                    window.history.forward();
+                }
+            }
+        }, { passive: true });
+    }    /**
+     * Enable Pinch Zoom
+     */
+    async enablePinchZoom() {
+        // Skip DOM manipulation in Node.js environment
+        if (typeof document === 'undefined') {
+            console.log('📝 Pinch zoom would be enabled in browser environment');
+            return;
+        }
+        
+        // Ensure viewport allows zooming
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+            viewport.content = viewport.content.replace(/user-scalable=no/g, 'user-scalable=yes');
+            viewport.content = viewport.content.replace(/maximum-scale=[^,]*/g, 'maximum-scale=3.0');
+        }
+    }
 
-        return metrics;
+    /**
+     * Disable Tap Highlight
+     */
+    disableTapHighlight() {
+        const tapHighlightCSS = `
+            * {
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+            
+            input, textarea, [contenteditable] {
+                -webkit-user-select: auto;
+                -khtml-user-select: auto;
+                -moz-user-select: auto;
+                -ms-user-select: auto;
+                user-select: auto;
+            }
+        `;
+        
+        this.injectCSS(tapHighlightCSS, 'tap-highlight-disable');
+    }
+
+    /**
+     * Setup Mobile Performance Monitoring
+     */
+    async setupMobilePerformanceMonitoring() {
+        // Monitor mobile-specific metrics
+        if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
+            const observer = new PerformanceObserver((list) => {
+                list.getEntries().forEach(entry => {
+                    this.recordMobileMetric(entry);
+                });
+            });
+            
+            observer.observe({ entryTypes: ['navigation', 'paint', 'largest-contentful-paint'] });
+        }
+    }
+
+    /**
+     * Record Mobile Metric
+     */
+    recordMobileMetric(entry) {
+        const metric = {
+            type: entry.entryType,
+            name: entry.name,
+            value: entry.value || entry.startTime,
+            timestamp: Date.now(),
+            isMobile: this.isMobileDevice()
+        };
+        
+        this.mobileMetrics.push(metric);
+    }
+
+    /**
+     * Check if Mobile Device
+     */
+    isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+               window.innerWidth <= 768;
+    }
+
+    /**
+     * Optimize Touch Experience
+     */
+    async optimizeTouchExperience() {
+        // Add touch-specific optimizations
+        const touchExperienceCSS = `
+            /* Smooth scrolling */
+            html {
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Improve scroll performance */
+            .scrollable {
+                will-change: scroll-position;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Touch-friendly form controls */
+            input[type="range"] {
+                -webkit-appearance: none;
+                height: 44px;
+                background: #ddd;
+                border-radius: 22px;
+            }
+            
+            input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                height: 44px;
+                width: 44px;
+                border-radius: 50%;
+                background: #007AFF;
+                cursor: pointer;
+            }
+        `;
+        
+        this.injectCSS(touchExperienceCSS, 'touch-experience');
+    }    /**
+     * Inject CSS Helper
+     */
+    injectCSS(css, id) {
+        // Check if document is available (browser environment)
+        if (typeof document === 'undefined') {
+            console.log(`📝 CSS would be injected in browser: ${id}`);
+            return;
+        }
+        
+        // Remove existing style with same id
+        const existing = document.getElementById(id);
+        if (existing) {
+            existing.remove();
+        }
+        
+        // Create and inject new style
+        const style = document.createElement('style');
+        style.id = id;
+        style.textContent = css;
+        document.head.appendChild(style);
+    }
+
+    /**
+     * Adapt Image Quality
+     */
+    adaptImageQuality(quality) {
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            if (quality === 'low') {
+                img.style.imageRendering = 'pixelated';
+            }
+        });
+    }
+
+    /**
+     * Disable Animations
+     */
+    disableAnimations() {
+        const noAnimationCSS = `
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        `;
+        
+        this.injectCSS(noAnimationCSS, 'no-animations');
+    }
+
+    /**
+     * Defer Non-Critical Resources
+     */
+    deferNonCriticalResources() {
+        // Defer non-critical scripts
+        const scripts = document.querySelectorAll('script:not([data-critical])');
+        scripts.forEach(script => {
+            if (!script.hasAttribute('defer') && !script.hasAttribute('async')) {
+                script.defer = true;
+            }
+        });
+        
+        // Lazy load non-critical images
+        const images = document.querySelectorAll('img:not([data-critical])');
+        images.forEach(img => {
+            if (!img.hasAttribute('loading')) {
+                img.loading = 'lazy';
+            }
+        });
     }
 
     /**

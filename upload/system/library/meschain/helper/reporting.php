@@ -88,7 +88,7 @@ class ReportingHelper {
                         AVG(total) as avg_order_value
                     FROM " . DB_PREFIX . "order 
                     WHERE order_status_id > 0 
-                    AND comment LIKE '%" . $marketplace . "%'
+                    AND marketplace = '" . $this->db->escape($marketplace) . "'
                     AND DATE(date_added) BETWEEN '" . $this->db->escape($startDate) . "' AND '" . $this->db->escape($endDate) . "'
                 ");
                 

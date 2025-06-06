@@ -78,6 +78,12 @@ class UserExperienceTracker {
      */
     async setupInteractionTracking() {
         try {
+            // Add environment check for document
+            if (typeof document === 'undefined') {
+                console.warn('⚠️ document not available. Skipping interaction tracking.');
+                return;
+            }
+
             // Click tracking
             document.addEventListener('click', (event) => {
                 this.trackInteraction('click', {
@@ -147,6 +153,12 @@ class UserExperienceTracker {
      */
     async setupScrollTracking() {
         try {
+            // Add environment check for window
+            if (typeof window === 'undefined') {
+                console.warn('⚠️ window not available. Skipping scroll tracking.');
+                return;
+            }
+
             let scrollThrottle = null;
             let maxScrollDepth = 0;
             
@@ -200,6 +212,12 @@ class UserExperienceTracker {
      */
     async setupFormTracking() {
         try {
+            // Add environment check for document
+            if (typeof document === 'undefined') {
+                console.warn('⚠️ document not available. Skipping form tracking.');
+                return;
+            }
+
             // Form field interactions
             document.addEventListener('focus', (event) => {
                 if (this.isFormElement(event.target)) {
@@ -258,6 +276,12 @@ class UserExperienceTracker {
      */
     async setupErrorTracking() {
         try {
+            // Add environment check for window
+            if (typeof window === 'undefined') {
+                console.warn('⚠️ window not available. Skipping error tracking.');
+                return;
+            }
+
             // JavaScript errors
             window.addEventListener('error', (event) => {
                 this.trackError('javascript', {
@@ -324,6 +348,12 @@ class UserExperienceTracker {
      */
     async setupPerformanceTracking() {
         try {
+            // Add environment check for window
+            if (typeof window === 'undefined') {
+                console.warn('⚠️ window not available. Skipping performance tracking.');
+                return;
+            }
+
             // Page load performance
             window.addEventListener('load', () => {
                 setTimeout(() => {
@@ -374,6 +404,12 @@ class UserExperienceTracker {
         try {
             if (!this.config.accessibilityMonitoring) return;
 
+            // Add environment check for document
+            if (typeof document === 'undefined') {
+                console.warn('⚠️ document not available. Skipping accessibility tracking.');
+                return;
+            }
+
             // Keyboard navigation monitoring
             document.addEventListener('keydown', (event) => {
                 if (event.key === 'Tab') {
@@ -415,6 +451,12 @@ class UserExperienceTracker {
         try {
             if (Math.random() > this.config.heatmapSampling) {
                 console.log('📊 User not selected for heatmap sampling');
+                return;
+            }
+
+            // Add environment check for document
+            if (typeof document === 'undefined') {
+                console.warn('⚠️ document not available. Skipping heatmap tracking.');
                 return;
             }
 
@@ -476,7 +518,7 @@ class UserExperienceTracker {
             data: data,
             sessionId: this.sessionData.sessionId,
             timestamp: Date.now(),
-            url: window.location.href
+            url: typeof window !== 'undefined' ? window.location.href : 'unknown'
         };
 
         this.interactions.push(interaction);
@@ -485,9 +527,11 @@ class UserExperienceTracker {
         this.storeInteractionData(interaction);
 
         // Dispatch event for real-time processing
-        window.dispatchEvent(new CustomEvent('userInteraction', {
-            detail: interaction
-        }));
+        if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('userInteraction', {
+                detail: interaction
+            }));
+        }
     }
 
     /**
@@ -759,14 +803,22 @@ class UserExperienceTracker {
     }
 
     getUserId() {
-        return localStorage.getItem('userId') || 'anonymous';
+        // Add environment check for localStorage
+        if (typeof localStorage !== 'undefined') {
+            return localStorage.getItem('userId') || 'anonymous';
+        }
+        return 'anonymous_node_user';
     }
 
     getViewportSize() {
-        return {
-            width: window.innerWidth,
-            height: window.innerHeight
-        };
+        // Add environment check for window
+        if (typeof window !== 'undefined') {
+            return {
+                width: window.innerWidth,
+                height: window.innerHeight
+            };
+        }
+        return { width: 1920, height: 1080 }; // Default for Node.js
     }
 
     getElementSelector(element) {
@@ -789,6 +841,11 @@ class UserExperienceTracker {
     }
 
     calculateScrollDepth() {
+        // Add environment check for window and document
+        if (typeof window === 'undefined' || typeof document === 'undefined') {
+            return 0;
+        }
+
         const windowHeight = window.innerHeight;
         const documentHeight = document.documentElement.scrollHeight;
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -823,6 +880,11 @@ class UserExperienceTracker {
     }
 
     hasVisibleFocus(element) {
+        // Add environment check for window
+        if (typeof window === 'undefined' || !element) {
+            return false;
+        }
+
         const computedStyle = window.getComputedStyle(element);
         return computedStyle.outline !== 'none' || 
                computedStyle.outlineStyle !== 'none' ||
@@ -920,9 +982,14 @@ class UserExperienceTracker {
     identifyPotentialIssues() { return []; }
 
     updateUXDashboard(data) {
-        window.dispatchEvent(new CustomEvent('uxTrackingUpdate', { 
-            detail: data || this.exportUXReport() 
-        }));
+        // Add environment check for window and CustomEvent
+        if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('uxTrackingUpdate', { 
+                detail: data || this.exportUXReport() 
+            }));
+        } else {
+            console.warn('⚠️ window or CustomEvent not available. Skipping UX dashboard update.');
+        }
     }
 
     logUXEvent(eventType, message) {
@@ -934,20 +1001,26 @@ class UserExperienceTracker {
     }
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('👥 User Experience Tracker initializing...');
-    
-    // Create global instance
-    window.userExperienceTracker = new UserExperienceTracker();
-    
-    // Add global convenience methods
-    window.getUXReport = () => window.userExperienceTracker.exportUXReport();
-    window.getUXInsights = () => window.userExperienceTracker.generateUXInsights();
-    window.getSatisfactionScore = () => window.userExperienceTracker.satisfactionScore;
-    
-    console.log('✅ User Experience Tracker available globally');
-});
+// Initialize when DOM is ready, only in browser environment
+if (typeof document !== 'undefined' && typeof window !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('👥 User Experience Tracker initializing...');
+        
+        // Create global instance
+        window.userExperienceTracker = new UserExperienceTracker();
+        
+        // Add global convenience methods
+        window.getUXReport = () => window.userExperienceTracker.exportUXReport();
+        window.getUXInsights = () => window.userExperienceTracker.generateUXInsights();
+        window.getSatisfactionScore = () => window.userExperienceTracker.satisfactionScore;
+        
+        console.log('✅ User Experience Tracker available globally');
+    });
+} else if (typeof module !== 'undefined' && module.exports) {
+    // For Node.js environments
+    module.exports = UserExperienceTracker;
+    console.log('👥 User Experience Tracker ready for Node.js environment');
+}
 
 // Export for module use
 if (typeof module !== 'undefined' && module.exports) {

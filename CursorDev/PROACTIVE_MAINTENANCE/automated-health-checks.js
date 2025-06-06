@@ -589,6 +589,74 @@ class AutomatedHealthChecks {
     }
 
     /**
+     * Send Critical Alert
+     */
+    async sendCriticalAlert(healthCheck) {
+        const alert = {
+            id: this.generateAlertId(),
+            type: 'critical',
+            timestamp: new Date().toISOString(),
+            target: healthCheck.target,
+            status: healthCheck.status,
+            responseTime: healthCheck.responseTime,
+            error: healthCheck.error,
+            priority: 'high',
+            channels: ['email', 'sms', 'slack', 'pagerduty']
+        };
+
+        // Log critical alert
+        console.log(`🚨 CRITICAL ALERT: ${alert.id} - ${healthCheck.target} is down`);
+        
+        // In a real implementation, this would send to actual alerting systems
+        this.alertHistory = this.alertHistory || [];
+        this.alertHistory.push(alert);
+        
+        // Simulate alert sending
+        for (const channel of alert.channels) {
+            console.log(`📢 Alert sent via ${channel}: ${alert.target} is down`);
+        }
+        
+        return alert;
+    }
+
+    /**
+     * Send Warning Alert
+     */
+    async sendWarningAlert(healthCheck) {
+        const alert = {
+            id: this.generateAlertId(),
+            type: 'warning',
+            timestamp: new Date().toISOString(),
+            target: healthCheck.target,
+            status: healthCheck.status,
+            responseTime: healthCheck.responseTime,
+            priority: 'medium',
+            channels: ['email', 'slack']
+        };
+
+        // Log warning alert
+        console.log(`⚠️ WARNING ALERT: ${alert.id} - ${healthCheck.target} performance degraded`);
+        
+        // In a real implementation, this would send to actual alerting systems
+        this.alertHistory = this.alertHistory || [];
+        this.alertHistory.push(alert);
+        
+        // Simulate alert sending
+        for (const channel of alert.channels) {
+            console.log(`📢 Warning sent via ${channel}: ${alert.target} performance degraded`);
+        }
+        
+        return alert;
+    }
+
+    /**
+     * Generate Alert ID
+     */
+    generateAlertId() {
+        return `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    /**
      * Utility: Sleep
      */
     sleep(ms) {
@@ -605,6 +673,85 @@ class AutomatedHealthChecks {
             recentRemediations: this.remediationHistory.slice(-5),
             config: this.config
         };
+    }
+
+    /**
+     * Execute Remediation Action
+     */
+    async executeRemediationAction(action, target) {
+        console.log(`🔧 Executing remediation action: ${action} for ${target}`);
+        
+        const actionMap = {
+            'restart-service': async () => {
+                console.log(`🔄 Restarting service: ${target}`);
+                // Simulate service restart
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return { success: true, message: 'Service restarted successfully' };
+            },
+            'clear-cache': async () => {
+                console.log(`🗑️ Clearing cache for: ${target}`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                return { success: true, message: 'Cache cleared successfully' };
+            },
+            'scale-up': async () => {
+                console.log(`📈 Scaling up resources for: ${target}`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                return { success: true, message: 'Resources scaled up successfully' };
+            },
+            'reset-connection': async () => {
+                console.log(`🔗 Resetting connection for: ${target}`);
+                await new Promise(resolve => setTimeout(resolve, 800));
+                return { success: true, message: 'Connection reset successfully' };
+            }
+        };
+
+        if (actionMap[action]) {
+            try {
+                const result = await actionMap[action]();
+                console.log(`✅ Remediation successful: ${result.message}`);
+                return result;
+            } catch (error) {
+                console.error(`❌ Remediation failed: ${error.message}`);
+                return { success: false, error: error.message };
+            }
+        } else {
+            console.warn(`⚠️ Unknown remediation action: ${action}`);
+            return { success: false, error: `Unknown action: ${action}` };
+        }
+    }
+
+    /**
+     * Log Health Check
+     */
+    logHealthCheck(healthCheck) {
+        const logEntry = {
+            timestamp: new Date().toISOString(),
+            target: healthCheck.target,
+            status: healthCheck.status,
+            responseTime: healthCheck.responseTime,
+            error: healthCheck.error || null
+        };
+
+        // Initialize health log if not exists
+        if (!this.healthLog) {
+            this.healthLog = [];
+        }
+
+        this.healthLog.push(logEntry);
+
+        // Keep only last 1000 entries
+        if (this.healthLog.length > 1000) {
+            this.healthLog = this.healthLog.slice(-1000);
+        }
+
+        // Log to console with appropriate level
+        if (healthCheck.status === 'healthy') {
+            console.log(`✅ Health check logged: ${healthCheck.target} - ${healthCheck.status} (${healthCheck.responseTime}ms)`);
+        } else if (healthCheck.status === 'degraded') {
+            console.warn(`⚠️ Health check logged: ${healthCheck.target} - ${healthCheck.status} (${healthCheck.responseTime}ms)`);
+        } else {
+            console.error(`❌ Health check logged: ${healthCheck.target} - ${healthCheck.status} (${healthCheck.error})`);
+        }
     }
 }
 

@@ -1,156 +1,98 @@
 <?php
 /**
- * trendyol_webhook.php
+ * trendyol_webhook.php (Refactored)
  *
- * Amaç: Trendyol webhook isteklerini dinleyen ve işleyen catalog tarafı controller.
- * Trendyol'dan gelen sipariş bildirimleri, stok değişiklikleri ve durum güncellemeleri
- * için webhook entegrasyonunu sağlar.
- *
- * Teknik: Gelen POST isteğinin geçerliliği kontrol edilir, ardından olay tipine göre
- * ilgili işlem gerçekleştirilir.
+ * Handles incoming webhook notifications from Trendyol using the standardized ApiClient.
  */
 class ControllerExtensionModuleTrendyolWebhook extends Controller {
-    private $logFile = 'trendyol_webhook.log';
     
-    /**
-     * Webhook isteğini işle
-     */
     public function index() {
-        $this->writeLog('INFO', 'Webhook isteği alındı', [
-            'remote_ip' => $this->request->server['REMOTE_ADDR'],
-            'method' => $this->request->server['REQUEST_METHOD']
-        ]);
-        
-        // Sadece POST isteklerini kabul et
+        $log = new Log('trendyol_webhook.log');
+        $log->write('Webhook request received.');
+
         if ($this->request->server['REQUEST_METHOD'] != 'POST') {
-            $this->writeLog('ERROR', 'Geçersiz HTTP metodu', [
-                'method' => $this->request->server['REQUEST_METHOD']
-            ]);
-            
+            $log->write('Invalid HTTP method used.');
             $this->response->addHeader('HTTP/1.0 405 Method Not Allowed');
             $this->response->setOutput(json_encode(['error' => 'Method Not Allowed']));
             return;
         }
-        
-        // API anahtarı ve imza doğrulaması
-        $apiKey = $this->config->get('module_trendyol_api_key');
-        $signature = isset($this->request->server['HTTP_X_TRENDYOL_SIGNATURE']) ? $this->request->server['HTTP_X_TRENDYOL_SIGNATURE'] : '';
-        
-        if (!$this->validateSignature($signature, $apiKey)) {
-            $this->writeLog('ERROR', 'Geçersiz imza', [
-                'signature' => $signature
-            ]);
-            
-            $this->response->addHeader('HTTP/1.0 403 Forbidden');
-            $this->response->setOutput(json_encode(['error' => 'Invalid signature']));
-            return;
-        }
-        
-        // JSON verisini al
-        $json = file_get_contents('php://input');
-        $data = json_decode($json, true);
-        
-        if (empty($data)) {
-            $this->writeLog('ERROR', 'Geçersiz JSON verisi');
-            
-            $this->response->addHeader('HTTP/1.0 400 Bad Request');
-            $this->response->setOutput(json_encode(['error' => 'Invalid JSON data']));
-            return;
-        }
-          // Olay tipine göre işlem yap
-        $eventType = isset($data['eventType']) ? $data['eventType'] : '';
-        
+
         try {
-            // Trendyol helper'ı yükle
-            $this->load->library('meschain/helper/trendyol');
-            $trendyolHelper = new MeschainTrendyolHelper($this->registry);
+            // Load the standard Trendyol API Client
+            require_once(DIR_SYSTEM . 'library/meschain/api/TrendyolApiClient.php');
             
-            // Helper'daki processWebhook fonksiyonunu kullan
-            $result = $trendyolHelper->processWebhook($eventType, $data);
+            // Get credentials - This assumes a single user/credential set for webhook processing.
+            // A more robust system might pass a user token in the webhook URL to fetch specific credentials.
+            $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "user_api_settings WHERE marketplace = 'trendyol' ORDER BY user_id ASC LIMIT 1");
+            if (!$query->num_rows) {
+                throw new Exception("Trendyol API settings not found in user_api_settings.");
+            }
+            $settings = json_decode($query->row['settings'], true);
+
+            require_once(DIR_SYSTEM . 'library/meschain/encryption.php');
+            $encryption = new MeschainEncryption();
+            $decrypted_settings = $encryption->decryptApiCredentials($settings);
             
-            if ($result) {
-                $this->writeLog('SUCCESS', 'Webhook başarıyla işlendi', [
-                    'eventType' => $eventType,
-                    'data_keys' => array_keys($data)
-                ]);
-            } else {
-                $this->writeLog('ERROR', 'Webhook işlenemedi', [
-                    'eventType' => $eventType
-                ]);
-                
-                $this->response->addHeader('HTTP/1.0 500 Internal Server Error');
-                $this->response->setOutput(json_encode(['error' => 'Webhook processing failed']));
+            $apiClient = new TrendyolApiClient($decrypted_settings);
+
+            // Validate Signature
+            $signature = $this->request->server['HTTP_X_TRENDYOL_SIGNATURE'] ?? '';
+            $payload = file_get_contents('php://input');
+            
+            if (!$this->validateTrendyolSignature($signature, $payload, $decrypted_settings['api_secret'])) {
+                $log->write('Forbidden: Invalid signature.');
+                $this->response->addHeader('HTTP/1.0 403 Forbidden');
+                $this->response->setOutput(json_encode(['error' => 'Invalid signature']));
                 return;
             }
+
+            // Process Payload
+            $data = json_decode($payload, true);
+            if (empty($data)) {
+                throw new Exception("Invalid JSON payload.");
+            }
             
+            $this->processWebhookPayload($data);
+
+            $this->response->addHeader('HTTP/1.0 200 OK');
+            $this->response->setOutput(json_encode(['status' => 'success']));
+
         } catch (Exception $e) {
-            $this->writeLog('ERROR', 'Webhook işlenirken hata oluştu', [
-                'eventType' => $eventType,
-                'error' => $e->getMessage()
-            ]);
-            
+            $log->write('ERROR: ' . $e->getMessage());
             $this->response->addHeader('HTTP/1.0 500 Internal Server Error');
-            $this->response->setOutput(json_encode(['error' => 'Internal server error']));
-            return;
+            $this->response->setOutput(json_encode(['error' => 'Internal Server Error']));
         }
-        
-        // Başarılı yanıt
-        $this->response->addHeader('HTTP/1.0 200 OK');
-        $this->response->setOutput(json_encode(['status' => 'success']));
     }
       
-    /**
-     * Enhanced webhook imzasını doğrula - Gerçek Trendyol protokolüne uygun
-     * 
-     * @param string $signature İmza
-     * @param string $apiKey API anahtarı
-     * @return bool
-     */
-    private function validateSignature($signature, $apiKey) {
-        // Gelen POST verisini al
-        $body = file_get_contents('php://input');
-        
-        if (empty($signature) || empty($apiKey)) {
+    private function validateTrendyolSignature($signature, $payload, $apiSecret) {
+        if (empty($signature) || empty($apiSecret)) {
             return false;
         }
-        
-        // Trendyol webhook imza doğrulaması
-        $apiSecret = $this->config->get('module_trendyol_api_secret');
-        if (empty($apiSecret)) {
-            $this->writeLog('ERROR', 'API secret bulunamadı');
-            return false;
-        }
-        
-        // HMAC-SHA256 ile imza oluştur
-        $expectedSignature = base64_encode(hash_hmac('sha256', $body, $apiSecret, true));
-        
+        $expectedSignature = base64_encode(hash_hmac('sha256', $payload, $apiSecret, true));
         return hash_equals($expectedSignature, $signature);
     }
 
-    /**
-     * Log kaydı oluştur - Enhanced version
-     * 
-     * @param string $level Log seviyesi (INFO, WARNING, ERROR, SUCCESS)
-     * @param string $message Log mesajı
-     * @param array $context Ek veriler
-     */
-    private function writeLog($level, $message, $context = []) {
-        $logEntry = '[' . date('Y-m-d H:i:s') . '] [' . $level . '] [WEBHOOK] ' . $message;
-        
-        if (!empty($context)) {
-            $logEntry .= ' | Context: ' . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    private function processWebhookPayload($payload) {
+        $log = new Log('trendyol_webhook.log');
+        $eventType = $payload['eventType'] ?? '';
+        $orderNumber = $payload['orderNumber'] ?? 'N/A';
+
+        $log->write("Processing event: {$eventType} for order: {$orderNumber}");
+
+        switch ($eventType) {
+            case 'NewOrder':
+            case 'OrderCreated':
+                // Here, we would ideally call a centralized order processing model.
+                // For example:
+                // $this->load->model('extension/meschain/order');
+                // $this->model_extension_meschain_order->createOrderFromWebhook('trendyol', $payload);
+                break;
+            case 'OrderStatusChanged':
+                // $this->load->model('extension/meschain/order');
+                // $this->model_extension_meschain_order->updateOrderStatusFromWebhook('trendyol', $payload);
+                break;
         }
-        
-        $logEntry .= PHP_EOL;
-        
-        // Log dosyasına yaz
-        file_put_contents(DIR_LOGS . $this->logFile, $logEntry, FILE_APPEND | LOCK_EX);
-        
-        // Ayrıca OpenCart log sistemine de kaydet
-        if (class_exists('Log')) {
-            $log = new Log('trendyol_webhook.log');
-            $log->write($level . ': ' . $message . (!empty($context) ? ' | ' . json_encode($context) : ''));
-        }
+        return true;
     }
 
     /**

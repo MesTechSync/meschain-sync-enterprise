@@ -59,22 +59,28 @@ class PredictiveAnalyticsEngine {
      */
     async loadHistoricalData() {
         try {
-            // Load from localStorage
-            const storedData = localStorage.getItem('performanceMetrics');
-            if (storedData) {
-                const metrics = JSON.parse(storedData);
-                metrics.forEach(metric => {
-                    const key = `${metric.name}_${metric.timestamp}`;
-                    this.historicalData.set(key, metric);
-                });
+            // Load from localStorage if available
+            if (typeof localStorage !== 'undefined') {
+                const storedData = localStorage.getItem('performanceMetrics');
+                if (storedData) {
+                    const metrics = JSON.parse(storedData);
+                    metrics.forEach(metric => {
+                        const key = `${metric.name}_${metric.timestamp}`;
+                        this.historicalData.set(key, metric);
+                    });
+                }
+            } else {
+                console.warn("⚠️ localStorage not available. Skipping loading from localStorage.");
             }
 
             // Load from performance monitoring if available
-            if (window.advancedPerformanceMonitor) {
+            if (typeof window !== 'undefined' && window.advancedPerformanceMonitor) {
                 const currentMetrics = window.advancedPerformanceMonitor.metrics;
                 currentMetrics.forEach((metric, key) => {
                     this.historicalData.set(key, metric);
                 });
+            } else {
+                console.warn("⚠️ window.advancedPerformanceMonitor not available. Skipping loading from advancedPerformanceMonitor.");
             }
 
             // Clean old data
@@ -761,7 +767,11 @@ class PredictiveAnalyticsEngine {
     updateTrendAnalysis() { return Promise.resolve(); }
 
     updatePredictiveDashboard(data) {
-        window.dispatchEvent(new CustomEvent('predictiveAnalyticsUpdate', { detail: data }));
+        if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('predictiveAnalyticsUpdate', { detail: data }));
+        } else {
+            console.warn("⚠️ window or CustomEvent not available. Skipping predictive dashboard update.");
+        }
     }
 
     logAnalyticsEvent(eventType, message) {
@@ -773,22 +783,28 @@ class PredictiveAnalyticsEngine {
     }
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🤖 Predictive Analytics Engine initializing...');
-    
-    // Create global instance
-    window.predictiveAnalyticsEngine = new PredictiveAnalyticsEngine();
-    
-    // Add global convenience methods
-    window.getPredictiveInsights = () => window.predictiveAnalyticsEngine.generatePerformanceInsights();
-    window.exportPredictiveReport = () => window.predictiveAnalyticsEngine.exportPredictiveReport();
-    window.getCurrentPredictions = () => Array.from(window.predictiveAnalyticsEngine.predictions.values()).slice(-5);
-    
-    console.log('✅ Predictive Analytics Engine available globally');
-});
+// Initialize when DOM is ready, if in a browser environment
+if (typeof document !== 'undefined' && typeof window !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('🤖 Predictive Analytics Engine initializing...');
+        
+        // Create global instance
+        window.predictiveAnalyticsEngine = new PredictiveAnalyticsEngine();
+        
+        // Add global convenience methods
+        window.getPredictiveInsights = () => window.predictiveAnalyticsEngine.generatePerformanceInsights();
+        window.exportPredictiveReport = () => window.predictiveAnalyticsEngine.exportPredictiveReport();
+        window.getCurrentPredictions = () => Array.from(window.predictiveAnalyticsEngine.predictions.values()).slice(-5);
+        
+        console.log('✅ Predictive Analytics Engine available globally');
+    });
+} else if (typeof module !== 'undefined' && module.exports) {
+    // For Node.js environments, just export the class
+    module.exports = PredictiveAnalyticsEngine;
+    console.log('🤖 Predictive Analytics Engine ready for Node.js environment');
+}
 
-// Export for module use
+// Export for module use (this might be redundant if the above else if handles Node.js)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = PredictiveAnalyticsEngine;
 }

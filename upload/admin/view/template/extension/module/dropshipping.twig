@@ -1,0 +1,286 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-dropshipping" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-dropshipping" class="form-horizontal">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
+            <li><a href="#tab-suppliers" data-toggle="tab">{{ tab_suppliers }}</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab-general">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_dropshipping_status" id="input-status" class="form-control">
+                    {% if module_dropshipping_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+               <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-auto-order">{{ entry_auto_order }}</label>
+                <div class="col-sm-10">
+                   <label class="switch">
+                        <input type="checkbox" name="module_dropshipping_auto_order" value="1" {% if module_dropshipping_auto_order %}checked="checked"{% endif %} />
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-suppliers">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <td class="text-left">{{ column_supplier_name }}</td>
+                      <td class="text-left">{{ column_supplier_type }}</td>
+                      <td class="text-right">{{ column_action }}</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% if suppliers %}
+                    {% for supplier in suppliers %}
+                    <tr>
+                      <td class="text-left">{{ supplier.name }}</td>
+                      <td class="text-left">{{ supplier.type }}</td>
+                      <td class="text-right">
+                        <button type="button" onclick="editSupplier('{{ supplier.supplier_id }}');" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></button>
+                        <button type="button" onclick="deleteSupplier('{{ supplier.supplier_id }}');" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></button>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                      <td class="text-center" colspan="3">{{ text_no_results }}</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="text-right">
+                <button type="button" data-toggle="modal" data-target="#supplier-modal" class="btn btn-primary"><i class="fa fa-plus-circle"></i> {{ button_add_supplier }}</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supplier Modal -->
+  <div class="modal fade" id="supplier-modal" tabindex="-1" role="dialog" aria-labelledby="supplier-modal-label">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="supplier-modal-label">{{ text_add_supplier }}</h4>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" name="supplier_id" value="" id="supplier-id" />
+            <div class="form-group">
+                <label for="supplier-type" class="control-label">{{ entry_supplier_type }}</label>
+                <select name="supplier_type" id="supplier-type" class="form-control">
+                    <option value="">{{ text_select }}</option>
+                    <option value="trendyol">Trendyol</option>
+                    <option value="n11">N11</option>
+                    <option value="ozon">Ozon</option>
+                    <option value="hepsiburada">Hepsiburada</option>
+                    <option value="amazon">Amazon</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="supplier-name" class="control-label">{{ entry_supplier_name }}</label>
+                <input type="text" name="supplier_name" value="" placeholder="{{ entry_supplier_name }}" id="supplier-name" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="api-key" class="control-label">API Key</label>
+                <input type="text" name="api_key" value="" placeholder="API Key" id="api-key" class="form-control" />
+            </div>
+             <div class="form-group">
+                <label for="api-secret" class="control-label">API Secret</label>
+                <input type="text" name="api_secret" value="" placeholder="API Secret" id="api-secret" class="form-control" />
+            </div>
+
+            <!-- Dynamic Fields -->
+            <div id="dynamic-fields"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_cancel }}</button>
+          <button type="button" id="button-save-supplier" class="btn btn-primary">{{ button_save }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+function clearModal() {
+    $('#supplier-modal #supplier-id').val('');
+    $('#supplier-modal #supplier-type').val('').trigger('change');
+    $('#supplier-modal #supplier-name').val('');
+    $('#supplier-modal #api-key').val('');
+    $('#supplier-modal #api-secret').val('');
+    $('#supplier-modal .modal-title').text('{{ text_add_supplier }}');
+}
+
+$('#add-supplier-btn').on('click', function() {
+    clearModal();
+    $('#supplier-modal').modal('show');
+});
+
+function editSupplier(supplier_id) {
+    clearModal();
+    $.ajax({
+        url: 'index.php?route=extension/module/dropshipping/getSupplier&user_token={{ user_token }}&supplier_id=' + supplier_id,
+        type: 'get',
+        dataType: 'json',
+        success: function(json) {
+            if (json['success']) {
+                var supplier = json.supplier;
+                $('#supplier-modal .modal-title').text('{{ text_edit_supplier }}');
+                $('#supplier-modal #supplier-id').val(supplier.supplier_id);
+                $('#supplier-modal #supplier-type').val(supplier.supplier_name).trigger('change');
+                $('#supplier-modal #supplier-name').val(supplier.contact_name); // Assuming this mapping
+                $('#supplier-modal #api-key').val(supplier.api_key);
+                $('#supplier-modal #api-secret').val(supplier.api_secret);
+
+                // Populate dynamic fields
+                if (supplier.api_config) {
+                    setTimeout(function() { // Wait for dynamic fields to be created
+                        for (var key in supplier.api_config) {
+                            $('#dynamic-fields [name="api_config[' + key + ']"]').val(supplier.api_config[key]);
+                        }
+                    }, 200);
+                }
+                
+                $('#supplier-modal').modal('show');
+            } else if (json['error']) {
+                alert(json['error']);
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+}
+
+function deleteSupplier(supplier_id) {
+    if (confirm('{{ text_confirm }}')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/dropshipping/deleteSupplier&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            data: { supplier_id: supplier_id },
+            success: function(json) {
+                if (json['success']) {
+                    location.reload();
+                } else if (json['error']) {
+                    alert(json['error']);
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    }
+}
+
+$('#supplier-type').on('change', function() {
+    var supplierType = $(this).val();
+    var dynamicFields = $('#dynamic-fields');
+    dynamicFields.empty();
+
+    var fields = '';
+
+    switch (supplierType) {
+        case 'trendyol':
+            fields += '<div class="form-group">';
+            fields += '<label for="config-supplier-id" class="control-label">Supplier ID</label>';
+            fields += '<input type="text" name="api_config[supplier_id]" value="" placeholder="Supplier ID" id="config-supplier-id" class="form-control" />';
+            fields += '</div>';
+            break;
+        case 'hepsiburada':
+            fields += '<div class="form-group">';
+            fields += '<label for="config-merchant-id" class="control-label">Merchant ID</label>';
+            fields += '<input type="text" name="api_config[merchant_id]" value="" placeholder="Merchant ID" id="config-merchant-id" class="form-control" />';
+            fields += '</div>';
+            break;
+        case 'amazon':
+            fields += '<div class="form-group">';
+            fields += '<label for="config-refresh-token" class="control-label">Refresh Token</label>';
+            fields += '<input type="text" name="api_config[refresh_token]" value="" placeholder="Refresh Token" id="config-refresh-token" class="form-control" />';
+            fields += '</div>';
+            fields += '<div class="form-group">';
+            fields += '<label for="config-region" class="control-label">Region</label>';
+            fields += '<input type="text" name="api_config[region]" value="eu" placeholder="Region (eu, na, fe)" id="config-region" class="form-control" />';
+            fields += '</div>';
+             fields += '<div class="form-group">';
+            fields += '<label for="config-marketplace-id" class="control-label">Marketplace ID</label>';
+            fields += '<input type="text" name="api_config[marketplace_id]" value="" placeholder="Marketplace ID" id="config-marketplace-id" class="form-control" />';
+            fields += '</div>';
+            break;
+    }
+    
+    dynamicFields.html(fields);
+});
+
+$('#button-save-supplier').on('click', function() {
+    var supplier_id = $('#supplier-id').val();
+    var url = '';
+
+    if (supplier_id) {
+        url = 'index.php?route=extension/module/dropshipping/editSupplier&user_token={{ user_token }}&supplier_id=' + supplier_id;
+    } else {
+        url = 'index.php?route=extension/module/dropshipping/addSupplier&user_token={{ user_token }}';
+    }
+
+    $.ajax({
+        url: url,
+        type: 'post',
+        dataType: 'json',
+        data: $('#supplier-modal input, #supplier-modal select'),
+        success: function(json) {
+            if (json['error']) {
+                alert(json['error']);
+            }
+            if (json['success']) {
+                alert(json['success']);
+                $('#supplier-modal').modal('hide');
+                location.reload();
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+</script>
+{{ footer }} 
