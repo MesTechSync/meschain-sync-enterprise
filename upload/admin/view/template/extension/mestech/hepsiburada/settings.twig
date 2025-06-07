@@ -1,0 +1,436 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-hepsiburada" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fa fa-save"></i>
+        </button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+          <i class="fa fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> Hepsiburada Marketplace Entegrasyonu</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-hepsiburada" class="form-horizontal">
+          
+          <!-- Navigation Tabs -->
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="active"><a href="#tab-general" data-toggle="tab">Genel Ayarlar</a></li>
+            <li><a href="#tab-api" data-toggle="tab">API Ayarları</a></li>
+            <li><a href="#tab-sync" data-toggle="tab">Senkronizasyon</a></li>
+            <li><a href="#tab-delivery" data-toggle="tab">Teslimat Seçenekleri</a></li>
+            <li><a href="#tab-dashboard" data-toggle="tab">Dashboard</a></li>
+          </ul>
+          
+          <div class="tab-content">
+            
+            <!-- General Settings Tab -->
+            <div class="tab-pane active" id="tab-general">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">Durum</label>
+                <div class="col-sm-10">
+                  <select name="mestech_hepsiburada_status" id="input-status" class="form-control">
+                    {% if mestech_hepsiburada_status %}
+                    <option value="1" selected="selected">Etkin</option>
+                    <option value="0">Devre Dışı</option>
+                    {% else %}
+                    <option value="1">Etkin</option>
+                    <option value="0" selected="selected">Devre Dışı</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-environment">Ortam</label>
+                <div class="col-sm-10">
+                  <select name="mestech_hepsiburada_environment" id="input-environment" class="form-control">
+                    <option value="sandbox" {% if mestech_hepsiburada_environment == 'sandbox' %}selected{% endif %}>Test (Sandbox)</option>
+                    <option value="production" {% if mestech_hepsiburada_environment == 'production' %}selected{% endif %}>Canlı (Production)</option>
+                  </select>
+                  <div class="help-block">Test ortamında API'yi test edebilirsiniz.</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-debug">Debug Modu</label>
+                <div class="col-sm-10">
+                  <select name="mestech_hepsiburada_debug_mode" id="input-debug" class="form-control">
+                    <option value="1" {% if mestech_hepsiburada_debug_mode %}selected{% endif %}>Etkin</option>
+                    <option value="0" {% if not mestech_hepsiburada_debug_mode %}selected{% endif %}>Devre Dışı</option>
+                  </select>
+                  <div class="help-block">Debug modu etkinleştirildiğinde detaylı loglar tutulur.</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- API Settings Tab -->
+            <div class="tab-pane" id="tab-api">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-api-key">API Anahtarı</label>
+                <div class="col-sm-10">
+                  <input type="text" name="mestech_hepsiburada_api_key" value="{{ mestech_hepsiburada_api_key }}" placeholder="Hepsiburada API Anahtarınızı girin" id="input-api-key" class="form-control" />
+                  <div class="help-block">Hepsiburada Merchant Panel'den alacağınız API anahtarı.</div>
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-api-secret">API Gizli Anahtarı</label>
+                <div class="col-sm-10">
+                  <input type="password" name="mestech_hepsiburada_api_secret" value="{{ mestech_hepsiburada_api_secret }}" placeholder="API Gizli Anahtarınızı girin" id="input-api-secret" class="form-control" />
+                  <div class="help-block">Hepsiburada API gizli anahtarınız.</div>
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-merchant-id">Mağaza ID</label>
+                <div class="col-sm-10">
+                  <input type="text" name="mestech_hepsiburada_merchant_id" value="{{ mestech_hepsiburada_merchant_id }}" placeholder="Hepsiburada Mağaza ID'nizi girin" id="input-merchant-id" class="form-control" />
+                  <div class="help-block">Hepsiburada mağaza kimlik numaranız.</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-webhook-url">Webhook URL</label>
+                <div class="col-sm-10">
+                  <input type="url" name="mestech_hepsiburada_webhook_url" value="{{ mestech_hepsiburada_webhook_url }}" placeholder="https://yourdomain.com/webhook/hepsiburada" id="input-webhook-url" class="form-control" />
+                  <div class="help-block">Hepsiburada'dan gelen bildirimleri almak için webhook URL'i.</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="button" id="test-connection" class="btn btn-info">
+                    <i class="fa fa-plug"></i> Bağlantıyı Test Et
+                  </button>
+                  <span id="connection-status" class="help-block"></span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Sync Settings Tab -->
+            <div class="tab-pane" id="tab-sync">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-auto-sync">Otomatik Senkronizasyon</label>
+                <div class="col-sm-10">
+                  <select name="mestech_hepsiburada_auto_sync" id="input-auto-sync" class="form-control">
+                    <option value="1" {% if mestech_hepsiburada_auto_sync %}selected{% endif %}>Etkin</option>
+                    <option value="0" {% if not mestech_hepsiburada_auto_sync %}selected{% endif %}>Devre Dışı</option>
+                  </select>
+                  <div class="help-block">Otomatik senkronizasyon etkinleştirildiğinde ürünler ve siparişler otomatik olarak senkronize edilir.</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-sync-interval">Senkronizasyon Aralığı (dakika)</label>
+                <div class="col-sm-10">
+                  <input type="number" name="mestech_hepsiburada_sync_interval" value="{{ mestech_hepsiburada_sync_interval }}" placeholder="60" id="input-sync-interval" class="form-control" min="5" max="1440" />
+                  <div class="help-block">Otomatik senkronizasyon aralığı (5-1440 dakika arası).</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <div class="btn-group">
+                    <button type="button" id="sync-products" class="btn btn-success">
+                      <i class="fa fa-refresh"></i> Ürünleri Senkronize Et
+                    </button>
+                    <button type="button" id="sync-orders" class="btn btn-warning">
+                      <i class="fa fa-shopping-cart"></i> Siparişleri Senkronize Et
+                    </button>
+                  </div>
+                  <div id="sync-status" class="help-block"></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Delivery Options Tab -->
+            <div class="tab-pane" id="tab-delivery">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-fast-delivery">Hızlı Teslimat</label>
+                <div class="col-sm-10">
+                  <select name="mestech_hepsiburada_fast_delivery" id="input-fast-delivery" class="form-control">
+                    <option value="1" {% if mestech_hepsiburada_fast_delivery %}selected{% endif %}>Etkin</option>
+                    <option value="0" {% if not mestech_hepsiburada_fast_delivery %}selected{% endif %}>Devre Dışı</option>
+                  </select>
+                  <div class="help-block">Hızlı teslimat seçeneğini etkinleştirin.</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-same-day-delivery">Aynı Gün Teslimat</label>
+                <div class="col-sm-10">
+                  <select name="mestech_hepsiburada_same_day_delivery" id="input-same-day-delivery" class="form-control">
+                    <option value="1" {% if mestech_hepsiburada_same_day_delivery %}selected{% endif %}>Etkin</option>
+                    <option value="0" {% if not mestech_hepsiburada_same_day_delivery %}selected{% endif %}>Devre Dışı</option>
+                  </select>
+                  <div class="help-block">Aynı gün teslimat seçeneğini etkinleştirin (sadece uygun şehirler için).</div>
+                </div>
+              </div>
+              
+              <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i>
+                <strong>Teslimat Bilgileri:</strong>
+                <ul class="list-unstyled" style="margin-top: 10px;">
+                  <li>• Hızlı teslimat: 1-2 iş günü içinde teslimat</li>
+                  <li>• Aynı gün teslimat: İstanbul, Ankara, İzmir için geçerli</li>
+                  <li>• Teslimat seçenekleri komisyon oranlarını etkileyebilir</li>
+                </ul>
+              </div>
+            </div>
+            
+            <!-- Dashboard Tab -->
+            <div class="tab-pane" id="tab-dashboard">
+              <div class="row" id="hepsiburada-dashboard">
+                <div class="col-lg-3 col-md-6">
+                  <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <div class="row">
+                        <div class="col-xs-3">
+                          <i class="fa fa-box fa-3x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                          <div class="huge" id="total-products">{{ stats.products.total_products|default(0) }}</div>
+                          <div>Toplam Ürün</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                  <div class="panel panel-success">
+                    <div class="panel-heading">
+                      <div class="row">
+                        <div class="col-xs-3">
+                          <i class="fa fa-check fa-3x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                          <div class="huge" id="active-products">{{ stats.products.active_products|default(0) }}</div>
+                          <div>Aktif Ürün</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                  <div class="panel panel-warning">
+                    <div class="panel-heading">
+                      <div class="row">
+                        <div class="col-xs-3">
+                          <i class="fa fa-shopping-cart fa-3x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                          <div class="huge" id="total-orders">{{ stats.orders.total_orders|default(0) }}</div>
+                          <div>Toplam Sipariş</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                  <div class="panel panel-info">
+                    <div class="panel-heading">
+                      <div class="row">
+                        <div class="col-xs-3">
+                          <i class="fa fa-lira fa-3x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                          <div class="huge" id="total-revenue">{{ stats.orders.total_revenue|default(0)|number_format(2) }}</div>
+                          <div>Toplam Gelir (₺)</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="button" id="refresh-dashboard" class="btn btn-primary">
+                    <i class="fa fa-refresh"></i> Dashboard'u Yenile
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Test connection
+    $('#test-connection').on('click', function() {
+        var btn = $(this);
+        var status = $('#connection-status');
+        
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Test ediliyor...');
+        status.removeClass().addClass('help-block text-info').html('Bağlantı test ediliyor...');
+        
+        $.ajax({
+            url: '{{ test_connection_url }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    status.removeClass().addClass('help-block text-success').html('<i class="fa fa-check"></i> Bağlantı başarılı!');
+                } else {
+                    status.removeClass().addClass('help-block text-danger').html('<i class="fa fa-times"></i> Hata: ' + json.error);
+                }
+            },
+            error: function() {
+                status.removeClass().addClass('help-block text-danger').html('<i class="fa fa-times"></i> Bağlantı hatası!');
+            },
+            complete: function() {
+                btn.prop('disabled', false).html('<i class="fa fa-plug"></i> Bağlantıyı Test Et');
+            }
+        });
+    });
+    
+    // Sync products
+    $('#sync-products').on('click', function() {
+        var btn = $(this);
+        var status = $('#sync-status');
+        
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Senkronize ediliyor...');
+        status.removeClass().addClass('help-block text-info').html('Ürünler senkronize ediliyor...');
+        
+        $.ajax({
+            url: '{{ sync_products_url }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    status.removeClass().addClass('help-block text-success').html('<i class="fa fa-check"></i> ' + json.synced_count + ' ürün senkronize edildi!');
+                } else {
+                    status.removeClass().addClass('help-block text-danger').html('<i class="fa fa-times"></i> Hata: ' + json.error);
+                }
+            },
+            error: function() {
+                status.removeClass().addClass('help-block text-danger').html('<i class="fa fa-times"></i> Senkronizasyon hatası!');
+            },
+            complete: function() {
+                btn.prop('disabled', false).html('<i class="fa fa-refresh"></i> Ürünleri Senkronize Et');
+            }
+        });
+    });
+    
+    // Sync orders
+    $('#sync-orders').on('click', function() {
+        var btn = $(this);
+        var status = $('#sync-status');
+        
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Senkronize ediliyor...');
+        status.removeClass().addClass('help-block text-info').html('Siparişler senkronize ediliyor...');
+        
+        $.ajax({
+            url: '{{ sync_orders_url }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    status.removeClass().addClass('help-block text-success').html('<i class="fa fa-check"></i> ' + json.synced_count + ' sipariş senkronize edildi!');
+                } else {
+                    status.removeClass().addClass('help-block text-danger').html('<i class="fa fa-times"></i> Hata: ' + json.error);
+                }
+            },
+            error: function() {
+                status.removeClass().addClass('help-block text-danger').html('<i class="fa fa-times"></i> Senkronizasyon hatası!');
+            },
+            complete: function() {
+                btn.prop('disabled', false).html('<i class="fa fa-shopping-cart"></i> Siparişleri Senkronize Et');
+            }
+        });
+    });
+    
+    // Refresh dashboard
+    $('#refresh-dashboard').on('click', function() {
+        var btn = $(this);
+        
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Yenileniyor...');
+        
+        $.ajax({
+            url: '{{ dashboard_data_url }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    $('#total-products').text(json.data.total_products);
+                    $('#active-products').text(json.data.active_products);
+                    $('#total-orders').text(json.data.total_orders);
+                    $('#total-revenue').text(json.data.total_revenue);
+                }
+            },
+            complete: function() {
+                btn.prop('disabled', false).html('<i class="fa fa-refresh"></i> Dashboard\'u Yenile');
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.huge {
+    font-size: 40px;
+}
+
+.panel-primary > .panel-heading {
+    background-color: #337ab7;
+    border-color: #337ab7;
+}
+
+.panel-success > .panel-heading {
+    background-color: #5cb85c;
+    border-color: #5cb85c;
+}
+
+.panel-warning > .panel-heading {
+    background-color: #f0ad4e;
+    border-color: #f0ad4e;
+}
+
+.panel-info > .panel-heading {
+    background-color: #5bc0de;
+    border-color: #5bc0de;
+}
+
+.panel-heading .fa {
+    color: rgba(255,255,255,0.8);
+}
+</style>
+
+{{ footer }}

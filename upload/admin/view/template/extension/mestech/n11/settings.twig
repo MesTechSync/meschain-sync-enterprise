@@ -1,0 +1,584 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-n11" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fa fa-save"></i>
+        </button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+          <i class="fa fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-n11" class="form-horizontal">
+          
+          <!-- API Configuration Tab -->
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
+            <li><a href="#tab-api" data-toggle="tab">{{ tab_api }}</a></li>
+            <li><a href="#tab-sync" data-toggle="tab">{{ tab_sync }}</a></li>
+            <li><a href="#tab-advanced" data-toggle="tab">{{ tab_advanced }}</a></li>
+            <li><a href="#tab-logs" data-toggle="tab">{{ tab_logs }}</a></li>
+          </ul>
+          
+          <div class="tab-content">
+            
+            <!-- General Settings Tab -->
+            <div class="tab-pane active" id="tab-general">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_status" id="input-status" class="form-control">
+                    {% if module_n11_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-store-name">{{ entry_store_name }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_n11_store_name" value="{{ module_n11_store_name }}" placeholder="{{ entry_store_name }}" id="input-store-name" class="form-control" />
+                  <small class="help-block">{{ help_store_name }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-default-category">{{ entry_default_category }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_default_category" id="input-default-category" class="form-control">
+                    <option value="">{{ text_select }}</option>
+                    {% for category in n11_categories %}
+                    {% if category.id == module_n11_default_category %}
+                    <option value="{{ category.id }}" selected="selected">{{ category.name }}</option>
+                    {% else %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                  <small class="help-block">{{ help_default_category }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-commission-rate">{{ entry_commission_rate }}</label>
+                <div class="col-sm-10">
+                  <div class="input-group">
+                    <input type="text" name="module_n11_commission_rate" value="{{ module_n11_commission_rate }}" placeholder="8.00" id="input-commission-rate" class="form-control" />
+                    <span class="input-group-addon">%</span>
+                  </div>
+                  <small class="help-block">{{ help_commission_rate }}</small>
+                </div>
+              </div>
+            </div>
+            
+            <!-- API Configuration Tab -->
+            <div class="tab-pane" id="tab-api">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-api-key">{{ entry_api_key }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_n11_api_key" value="{{ module_n11_api_key }}" placeholder="{{ entry_api_key }}" id="input-api-key" class="form-control" />
+                  {% if error_api_key %}
+                  <div class="text-danger">{{ error_api_key }}</div>
+                  {% endif %}
+                  <small class="help-block">{{ help_api_key }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-api-secret">{{ entry_api_secret }}</label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_n11_api_secret" value="{{ module_n11_api_secret }}" placeholder="{{ entry_api_secret }}" id="input-api-secret" class="form-control" />
+                  {% if error_api_secret %}
+                  <div class="text-danger">{{ error_api_secret }}</div>
+                  {% endif %}
+                  <small class="help-block">{{ help_api_secret }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_connection_test }}</label>
+                <div class="col-sm-10">
+                  <button type="button" id="test-connection" class="btn btn-info">
+                    <i class="fa fa-plug"></i> {{ button_test_connection }}
+                  </button>
+                  <div id="connection-result" class="mt-2"></div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-api-timeout">{{ entry_api_timeout }}</label>
+                <div class="col-sm-10">
+                  <div class="input-group">
+                    <input type="text" name="module_n11_api_timeout" value="{{ module_n11_api_timeout }}" placeholder="30" id="input-api-timeout" class="form-control" />
+                    <span class="input-group-addon">{{ text_seconds }}</span>
+                  </div>
+                  <small class="help-block">{{ help_api_timeout }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-rate-limit">{{ entry_rate_limit }}</label>
+                <div class="col-sm-10">
+                  <div class="input-group">
+                    <input type="text" name="module_n11_rate_limit" value="{{ module_n11_rate_limit }}" placeholder="100" id="input-rate-limit" class="form-control" />
+                    <span class="input-group-addon">{{ text_per_minute }}</span>
+                  </div>
+                  <small class="help-block">{{ help_rate_limit }}</small>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Sync Settings Tab -->
+            <div class="tab-pane" id="tab-sync">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-auto-sync">{{ entry_auto_sync }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_auto_sync" id="input-auto-sync" class="form-control">
+                    {% if module_n11_auto_sync %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <small class="help-block">{{ help_auto_sync }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-sync-interval">{{ entry_sync_interval }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_sync_interval" id="input-sync-interval" class="form-control">
+                    <option value="15" {% if module_n11_sync_interval == '15' %}selected="selected"{% endif %}>{{ text_15_minutes }}</option>
+                    <option value="30" {% if module_n11_sync_interval == '30' %}selected="selected"{% endif %}>{{ text_30_minutes }}</option>
+                    <option value="60" {% if module_n11_sync_interval == '60' %}selected="selected"{% endif %}>{{ text_1_hour }}</option>
+                    <option value="180" {% if module_n11_sync_interval == '180' %}selected="selected"{% endif %}>{{ text_3_hours }}</option>
+                    <option value="360" {% if module_n11_sync_interval == '360' %}selected="selected"{% endif %}>{{ text_6_hours }}</option>
+                    <option value="720" {% if module_n11_sync_interval == '720' %}selected="selected"{% endif %}>{{ text_12_hours }}</option>
+                    <option value="1440" {% if module_n11_sync_interval == '1440' %}selected="selected"{% endif %}>{{ text_24_hours }}</option>
+                  </select>
+                  <small class="help-block">{{ help_sync_interval }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-stock-sync">{{ entry_stock_sync }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_stock_sync" id="input-stock-sync" class="form-control">
+                    {% if module_n11_stock_sync %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <small class="help-block">{{ help_stock_sync }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-price-sync">{{ entry_price_sync }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_price_sync" id="input-price-sync" class="form-control">
+                    {% if module_n11_price_sync %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <small class="help-block">{{ help_price_sync }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-order-sync">{{ entry_order_sync }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_order_sync" id="input-order-sync" class="form-control">
+                    {% if module_n11_order_sync %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <small class="help-block">{{ help_order_sync }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_manual_sync }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group" role="group">
+                    <button type="button" id="sync-products" class="btn btn-success">
+                      <i class="fa fa-refresh"></i> {{ button_sync_products }}
+                    </button>
+                    <button type="button" id="sync-orders" class="btn btn-warning">
+                      <i class="fa fa-shopping-cart"></i> {{ button_sync_orders }}
+                    </button>
+                    <button type="button" id="sync-categories" class="btn btn-info">
+                      <i class="fa fa-sitemap"></i> {{ button_sync_categories }}
+                    </button>
+                  </div>
+                  <div id="sync-result" class="mt-2"></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Advanced Settings Tab -->
+            <div class="tab-pane" id="tab-advanced">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-preparing-days">{{ entry_preparing_days }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_preparing_days" id="input-preparing-days" class="form-control">
+                    <option value="1" {% if module_n11_preparing_days == '1' %}selected="selected"{% endif %}>1 {{ text_day }}</option>
+                    <option value="2" {% if module_n11_preparing_days == '2' %}selected="selected"{% endif %}>2 {{ text_days }}</option>
+                    <option value="3" {% if module_n11_preparing_days == '3' %}selected="selected"{% endif %}>3 {{ text_days }}</option>
+                    <option value="5" {% if module_n11_preparing_days == '5' %}selected="selected"{% endif %}>5 {{ text_days }}</option>
+                    <option value="7" {% if module_n11_preparing_days == '7' %}selected="selected"{% endif %}>7 {{ text_days }}</option>
+                    <option value="10" {% if module_n11_preparing_days == '10' %}selected="selected"{% endif %}>10 {{ text_days }}</option>
+                  </select>
+                  <small class="help-block">{{ help_preparing_days }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-batch-size">{{ entry_batch_size }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_batch_size" id="input-batch-size" class="form-control">
+                    <option value="10" {% if module_n11_batch_size == '10' %}selected="selected"{% endif %}>10</option>
+                    <option value="25" {% if module_n11_batch_size == '25' %}selected="selected"{% endif %}>25</option>
+                    <option value="50" {% if module_n11_batch_size == '50' %}selected="selected"{% endif %}>50</option>
+                    <option value="100" {% if module_n11_batch_size == '100' %}selected="selected"{% endif %}>100</option>
+                  </select>
+                  <small class="help-block">{{ help_batch_size }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-webhook-url">{{ entry_webhook_url }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_n11_webhook_url" value="{{ module_n11_webhook_url }}" placeholder="{{ entry_webhook_url }}" id="input-webhook-url" class="form-control" readonly />
+                  <small class="help-block">{{ help_webhook_url }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-debug-mode">{{ entry_debug_mode }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_debug_mode" id="input-debug-mode" class="form-control">
+                    {% if module_n11_debug_mode %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <small class="help-block">{{ help_debug_mode }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-error-notification">{{ entry_error_notification }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_error_notification" id="input-error-notification" class="form-control">
+                    {% if module_n11_error_notification %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <small class="help-block">{{ help_error_notification }}</small>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Logs Tab -->
+            <div class="tab-pane" id="tab-logs">
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_log_level }}</label>
+                <div class="col-sm-10">
+                  <select name="module_n11_log_level" class="form-control">
+                    <option value="error" {% if module_n11_log_level == 'error' %}selected="selected"{% endif %}>{{ text_error_only }}</option>
+                    <option value="warning" {% if module_n11_log_level == 'warning' %}selected="selected"{% endif %}>{{ text_warning_above }}</option>
+                    <option value="info" {% if module_n11_log_level == 'info' %}selected="selected"{% endif %}>{{ text_info_above }}</option>
+                    <option value="debug" {% if module_n11_log_level == 'debug' %}selected="selected"{% endif %}>{{ text_debug_all }}</option>
+                  </select>
+                  <small class="help-block">{{ help_log_level }}</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_log_actions }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group" role="group">
+                    <a href="{{ view_logs_url }}" class="btn btn-info" target="_blank">
+                      <i class="fa fa-eye"></i> {{ button_view_logs }}
+                    </a>
+                    <button type="button" id="clear-logs" class="btn btn-warning">
+                      <i class="fa fa-trash"></i> {{ button_clear_logs }}
+                    </button>
+                    <button type="button" id="download-logs" class="btn btn-success">
+                      <i class="fa fa-download"></i> {{ button_download_logs }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_recent_logs }}</label>
+                <div class="col-sm-10">
+                  <div id="recent-logs" class="well" style="height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+                    {{ recent_logs|raw }}
+                  </div>
+                  <button type="button" id="refresh-logs" class="btn btn-default btn-sm">
+                    <i class="fa fa-refresh"></i> {{ button_refresh }}
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Status Panel -->
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-info-circle"></i> {{ text_status_info }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="stat-box">
+              <h4>{{ text_connection_status }}</h4>
+              <span id="connection-status" class="label label-{{ connection_status_class }}">
+                {{ connection_status_text }}
+              </span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-box">
+              <h4>{{ text_last_sync }}</h4>
+              <span class="text-muted">{{ last_sync_time }}</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-box">
+              <h4>{{ text_total_products }}</h4>
+              <span class="text-primary">{{ total_products }}</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-box">
+              <h4>{{ text_pending_orders }}</h4>
+              <span class="text-warning">{{ pending_orders }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Test Connection
+    $('#test-connection').on('click', function() {
+        var btn = $(this);
+        var result = $('#connection-result');
+        
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ text_testing }}');
+        
+        $.ajax({
+            url: '{{ test_connection_url }}',
+            type: 'POST',
+            data: {
+                api_key: $('#input-api-key').val(),
+                api_secret: $('#input-api-secret').val()
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    result.html('<div class="alert alert-success"><i class="fa fa-check"></i> ' + response.message + '</div>');
+                } else {
+                    result.html('<div class="alert alert-danger"><i class="fa fa-times"></i> ' + response.message + '</div>');
+                }
+            },
+            error: function() {
+                result.html('<div class="alert alert-danger"><i class="fa fa-times"></i> {{ text_connection_error }}</div>');
+            },
+            complete: function() {
+                btn.prop('disabled', false).html('<i class="fa fa-plug"></i> {{ button_test_connection }}');
+            }
+        });
+    });
+    
+    // Manual Sync Functions
+    $('#sync-products').on('click', function() {
+        performSync('products', $(this));
+    });
+    
+    $('#sync-orders').on('click', function() {
+        performSync('orders', $(this));
+    });
+    
+    $('#sync-categories').on('click', function() {
+        performSync('categories', $(this));
+    });
+    
+    function performSync(type, btn) {
+        var result = $('#sync-result');
+        var originalText = btn.html();
+        
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ text_syncing }}');
+        
+        $.ajax({
+            url: '{{ sync_url }}',
+            type: 'POST',
+            data: { type: type },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    result.html('<div class="alert alert-success"><i class="fa fa-check"></i> ' + response.message + '</div>');
+                } else {
+                    result.html('<div class="alert alert-danger"><i class="fa fa-times"></i> ' + response.message + '</div>');
+                }
+            },
+            error: function() {
+                result.html('<div class="alert alert-danger"><i class="fa fa-times"></i> {{ text_sync_error }}</div>');
+            },
+            complete: function() {
+                btn.prop('disabled', false).html(originalText);
+            }
+        });
+    }
+    
+    // Clear Logs
+    $('#clear-logs').on('click', function() {
+        if (confirm('{{ text_confirm_clear_logs }}')) {
+            var btn = $(this);
+            btn.prop('disabled', true);
+            
+            $.ajax({
+                url: '{{ clear_logs_url }}',
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        $('#recent-logs').html('{{ text_logs_cleared }}');
+                        alert('{{ text_logs_cleared_success }}');
+                    }
+                },
+                complete: function() {
+                    btn.prop('disabled', false);
+                }
+            });
+        }
+    });
+    
+    // Refresh Logs
+    $('#refresh-logs').on('click', function() {
+        var btn = $(this);
+        btn.prop('disabled', true);
+        
+        $.ajax({
+            url: '{{ refresh_logs_url }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#recent-logs').html(response.logs);
+                }
+            },
+            complete: function() {
+                btn.prop('disabled', false);
+            }
+        });
+    });
+    
+    // Download Logs
+    $('#download-logs').on('click', function() {
+        window.open('{{ download_logs_url }}', '_blank');
+    });
+    
+    // Auto-refresh logs every 30 seconds if on logs tab
+    setInterval(function() {
+        if ($('#tab-logs').hasClass('active')) {
+            $('#refresh-logs').click();
+        }
+    }, 30000);
+});
+</script>
+
+<style>
+.stat-box {
+    text-align: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.stat-box h4 {
+    margin-top: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.mt-2 {
+    margin-top: 10px;
+}
+
+#recent-logs {
+    background-color: #f8f8f8;
+    color: #333;
+    white-space: pre-wrap;
+}
+</style>
+
+{{ footer }}
+</rewritten_file>

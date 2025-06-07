@@ -1,0 +1,557 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" data-toggle="tooltip" title="{{ button_sync }}" class="btn btn-info" onclick="syncOrders();"><i class="fa fa-refresh"></i></button>
+        <button type="button" data-toggle="tooltip" title="{{ button_filter }}" onclick="filter();" class="btn btn-default"><i class="fa fa-filter"></i></button>
+      </div>
+      <h1>{{ heading_title }} - {{ text_orders }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="well">
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-order-number">{{ entry_order_number }}</label>
+                <input type="text" name="filter_order_number" value="{{ filter_order_number }}" placeholder="{{ entry_order_number }}" id="input-order-number" class="form-control" />
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-posting-number">{{ entry_posting_number }}</label>
+                <input type="text" name="filter_posting_number" value="{{ filter_posting_number }}" placeholder="{{ entry_posting_number }}" id="input-posting-number" class="form-control" />
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-status">{{ entry_status }}</label>
+                <select name="filter_status" id="input-status" class="form-control">
+                  <option value="">{{ text_all_status }}</option>
+                  {% if filter_status == 'awaiting_packaging' %}
+                  <option value="awaiting_packaging" selected="selected">{{ text_awaiting_packaging }}</option>
+                  {% else %}
+                  <option value="awaiting_packaging">{{ text_awaiting_packaging }}</option>
+                  {% endif %}
+                  {% if filter_status == 'awaiting_deliver' %}
+                  <option value="awaiting_deliver" selected="selected">{{ text_awaiting_deliver }}</option>
+                  {% else %}
+                  <option value="awaiting_deliver">{{ text_awaiting_deliver }}</option>
+                  {% endif %}
+                  {% if filter_status == 'delivering' %}
+                  <option value="delivering" selected="selected">{{ text_delivering }}</option>
+                  {% else %}
+                  <option value="delivering">{{ text_delivering }}</option>
+                  {% endif %}
+                  {% if filter_status == 'delivered' %}
+                  <option value="delivered" selected="selected">{{ text_delivered }}</option>
+                  {% else %}
+                  <option value="delivered">{{ text_delivered }}</option>
+                  {% endif %}
+                  {% if filter_status == 'cancelled' %}
+                  <option value="cancelled" selected="selected">{{ text_cancelled }}</option>
+                  {% else %}
+                  <option value="cancelled">{{ text_cancelled }}</option>
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">
+              <button type="button" id="button-filter" class="btn btn-primary pull-right"><i class="fa fa-search"></i> {{ button_filter }}</button>
+            </div>
+            <div class="col-sm-6">
+              <button type="button" id="button-clear" class="btn btn-default pull-left"><i class="fa fa-refresh"></i> {{ button_clear }}</button>
+            </div>
+          </div>
+        </div>
+        <form action="" method="post" enctype="multipart/form-data" id="form-order">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\\'selected\\']').prop('checked', this.checked);" /></td>
+                  {% if sort == 'o.order_number' %}
+                  <td class="text-left"><a href="{{ sort_order_number }}" class="{{ order|lower }}">{{ column_order_number }}</a></td>
+                  {% else %}
+                  <td class="text-left"><a href="{{ sort_order_number }}">{{ column_order_number }}</a></td>
+                  {% endif %}
+                  {% if sort == 'o.posting_number' %}
+                  <td class="text-left"><a href="{{ sort_posting_number }}" class="{{ order|lower }}">{{ column_posting_number }}</a></td>
+                  {% else %}
+                  <td class="text-left"><a href="{{ sort_posting_number }}">{{ column_posting_number }}</a></td>
+                  {% endif %}
+                  <td class="text-left">{{ column_customer }}</td>
+                  {% if sort == 'o.order_total' %}
+                  <td class="text-right"><a href="{{ sort_total }}" class="{{ order|lower }}">{{ column_total }}</a></td>
+                  {% else %}
+                  <td class="text-right"><a href="{{ sort_total }}">{{ column_total }}</a></td>
+                  {% endif %}
+                  {% if sort == 'o.status' %}
+                  <td class="text-left"><a href="{{ sort_status }}" class="{{ order|lower }}">{{ column_status }}</a></td>
+                  {% else %}
+                  <td class="text-left"><a href="{{ sort_status }}">{{ column_status }}</a></td>
+                  {% endif %}
+                  <td class="text-center">{{ column_sync_status }}</td>
+                  {% if sort == 'o.created_at' %}
+                  <td class="text-left"><a href="{{ sort_date_added }}" class="{{ order|lower }}">{{ column_date_added }}</a></td>
+                  {% else %}
+                  <td class="text-left"><a href="{{ sort_date_added }}">{{ column_date_added }}</a></td>
+                  {% endif %}
+                  <td class="text-right">{{ column_action }}</td>
+                </tr>
+              </thead>
+              <tbody>
+                {% if orders %}
+                {% for order in orders %}
+                <tr>
+                  <td class="text-center">{% if order.selected %}
+                    <input type="checkbox" name="selected[]" value="{{ order.ozon_order_id }}" checked="checked" />
+                    {% else %}
+                    <input type="checkbox" name="selected[]" value="{{ order.ozon_order_id }}" />
+                    {% endif %}</td>
+                  <td class="text-left">
+                    <strong>{{ order.order_number }}</strong><br/>
+                    <small>Ozon ID: {{ order.ozon_id }}</small>
+                  </td>
+                  <td class="text-left">
+                    {% if order.posting_number %}
+                    <strong>{{ order.posting_number }}</strong>
+                    {% else %}
+                    <span class="text-muted">{{ text_not_assigned }}</span>
+                    {% endif %}
+                    {% if order.tracking_number %}
+                    <br/><small>{{ text_tracking }}: {{ order.tracking_number }}</small>
+                    {% endif %}
+                  </td>
+                  <td class="text-left">
+                    {% if order.customer_name %}
+                    <strong>{{ order.customer_name }}</strong>
+                    {% endif %}
+                    {% if order.customer_email %}
+                    <br/><small>{{ order.customer_email }}</small>
+                    {% endif %}
+                    {% if order.customer_phone %}
+                    <br/><small>{{ order.customer_phone }}</small>
+                    {% endif %}
+                  </td>
+                  <td class="text-right">
+                    <strong>{{ order.order_total }} {{ order.currency_code }}</strong>
+                    {% if order.opencart_total %}
+                    <br/><small class="text-muted">OpenCart: {{ order.opencart_total }}</small>
+                    {% endif %}
+                  </td>
+                  <td class="text-left">
+                    {% if order.status == 'awaiting_packaging' %}
+                    <span class="label label-warning">{{ text_awaiting_packaging }}</span>
+                    {% elseif order.status == 'awaiting_deliver' %}
+                    <span class="label label-info">{{ text_awaiting_deliver }}</span>
+                    {% elseif order.status == 'delivering' %}
+                    <span class="label label-primary">{{ text_delivering }}</span>
+                    {% elseif order.status == 'delivered' %}
+                    <span class="label label-success">{{ text_delivered }}</span>
+                    {% elseif order.status == 'cancelled' %}
+                    <span class="label label-danger">{{ text_cancelled }}</span>
+                    {% elseif order.status == 'arbitration' %}
+                    <span class="label label-danger">{{ text_arbitration }}</span>
+                    {% else %}
+                    <span class="label label-default">{{ order.status }}</span>
+                    {% endif %}
+                    {% if order.substatus %}
+                    <br/><small>{{ order.substatus }}</small>
+                    {% endif %}
+                  </td>
+                  <td class="text-center">
+                    {% if order.sync_status == 'synced' %}
+                    <span class="label label-success">{{ text_synced }}</span>
+                    {% elseif order.sync_status == 'pending' %}
+                    <span class="label label-warning">{{ text_pending }}</span>
+                    {% elseif order.sync_status == 'error' %}
+                    <span class="label label-danger">{{ text_error }}</span>
+                    {% else %}
+                    <span class="label label-default">{{ order.sync_status }}</span>
+                    {% endif %}
+                    {% if order.last_sync %}
+                    <br/><small>{{ order.last_sync }}</small>
+                    {% endif %}
+                  </td>
+                  <td class="text-left">{{ order.created_at }}</td>
+                  <td class="text-right">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-cog"></i> <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="javascript:void(0);" onclick="viewOrder('{{ order.ozon_order_id }}');"><i class="fa fa-eye"></i> {{ text_view }}</a></li>
+                        {% if order.order_id %}
+                        <li><a href="{{ order.edit_url }}" target="_blank"><i class="fa fa-pencil"></i> {{ text_edit_opencart }}</a></li>
+                        {% endif %}
+                        <li><a href="javascript:void(0);" onclick="syncOrder('{{ order.ozon_order_id }}');"><i class="fa fa-refresh"></i> {{ text_sync }}</a></li>
+                        {% if order.status == 'awaiting_packaging' %}
+                        <li class="divider"></li>
+                        <li><a href="javascript:void(0);" onclick="shipOrder('{{ order.ozon_order_id }}');"><i class="fa fa-truck"></i> {{ text_ship }}</a></li>
+                        {% endif %}
+                        {% if order.status == 'awaiting_deliver' %}
+                        <li class="divider"></li>
+                        <li><a href="javascript:void(0);" onclick="cancelOrder('{{ order.ozon_order_id }}');"><i class="fa fa-times"></i> {{ text_cancel }}</a></li>
+                        {% endif %}
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                  <td class="text-center" colspan="9">{{ text_no_results }}</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+        <div class="row">
+          <div class="col-sm-6 text-left">{{ pagination }}</div>
+          <div class="col-sm-6 text-right">{{ results }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sipariş Detay Modal -->
+<div class="modal fade" id="modal-order" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_order_details }}</h4>
+      </div>
+      <div class="modal-body" id="order-details">
+        <div class="text-center">
+          <i class="fa fa-spinner fa-spin fa-3x"></i>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Kargo Gönderim Modal -->
+<div class="modal fade" id="modal-ship" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_ship_order }}</h4>
+      </div>
+      <div class="modal-body">
+        <form id="form-ship">
+          <div class="form-group">
+            <label for="tracking-number">{{ entry_tracking_number }}</label>
+            <input type="text" id="tracking-number" name="tracking_number" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="delivery-method">{{ entry_delivery_method }}</label>
+            <select id="delivery-method" name="delivery_method" class="form-control">
+              <option value="">{{ text_select_delivery_method }}</option>
+              <option value="1">{{ text_ozon_logistics }}</option>
+              <option value="2">{{ text_seller_logistics }}</option>
+            </select>
+          </div>
+          <input type="hidden" id="ship-order-id" name="order_id" />
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_cancel }}</button>
+        <button type="button" class="btn btn-primary" onclick="confirmShip();">{{ button_ship }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+// Filtreleme
+$('#button-filter').on('click', function() {
+    filter();
+});
+
+$('#button-clear').on('click', function() {
+    $('input[name="filter_order_number"]').val('');
+    $('input[name="filter_posting_number"]').val('');
+    $('select[name="filter_status"]').val('');
+    filter();
+});
+
+function filter() {
+    url = 'index.php?route=extension/mestech/ozon/orders&user_token={{ user_token }}';
+    
+    var filter_order_number = $('input[name="filter_order_number"]').val();
+    if (filter_order_number) {
+        url += '&filter_order_number=' + encodeURIComponent(filter_order_number);
+    }
+    
+    var filter_posting_number = $('input[name="filter_posting_number"]').val();
+    if (filter_posting_number) {
+        url += '&filter_posting_number=' + encodeURIComponent(filter_posting_number);
+    }
+    
+    var filter_status = $('select[name="filter_status"]').val();
+    if (filter_status) {
+        url += '&filter_status=' + encodeURIComponent(filter_status);
+    }
+    
+    location = url;
+}
+
+// Enter tuşu ile filtreleme
+$('#input-order-number, #input-posting-number').keydown(function(e) {
+    if (e.keyCode == 13) {
+        filter();
+    }
+});
+
+// Sipariş senkronizasyonu
+function syncOrders() {
+    $.ajax({
+        url: 'index.php?route=extension/mestech/ozon/syncOrders&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#content').prepend('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> {{ text_syncing }}</div>');
+        },
+        complete: function() {
+            $('.alert').remove();
+        },
+        success: function(json) {
+            if (json['success']) {
+                $('#content').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            }
+            
+            if (json['error']) {
+                $('#content').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+}
+
+// Tekil sipariş senkronizasyonu
+function syncOrder(order_id) {
+    $.ajax({
+        url: 'index.php?route=extension/mestech/ozon/syncOrder&user_token={{ user_token }}',
+        type: 'POST',
+        data: 'order_id=' + order_id,
+        dataType: 'json',
+        beforeSend: function() {
+            $('#content').prepend('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> {{ text_syncing_order }}</div>');
+        },
+        complete: function() {
+            $('.alert').remove();
+        },
+        success: function(json) {
+            if (json['success']) {
+                $('#content').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+            }
+            
+            if (json['error']) {
+                $('#content').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+}
+
+// Sipariş detaylarını görüntüle
+function viewOrder(order_id) {
+    $.ajax({
+        url: 'index.php?route=extension/mestech/ozon/getOrder&user_token={{ user_token }}',
+        type: 'POST',
+        data: 'order_id=' + order_id,
+        dataType: 'json',
+        beforeSend: function() {
+            $('#order-details').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+            $('#modal-order').modal('show');
+        },
+        success: function(json) {
+            if (json['order']) {
+                var html = '<div class="row">';
+                html += '<div class="col-sm-6">';
+                html += '<h4>{{ text_order_info }}</h4>';
+                html += '<p><strong>{{ column_order_number }}:</strong> ' + json['order']['order_number'] + '</p>';
+                html += '<p><strong>{{ column_posting_number }}:</strong> ' + (json['order']['posting_number'] || '{{ text_not_assigned }}') + '</p>';
+                html += '<p><strong>{{ column_status }}:</strong> ' + json['order']['status'] + '</p>';
+                html += '<p><strong>{{ column_total }}:</strong> ' + json['order']['order_total'] + ' ' + json['order']['currency_code'] + '</p>';
+                if (json['order']['tracking_number']) {
+                    html += '<p><strong>{{ text_tracking }}:</strong> ' + json['order']['tracking_number'] + '</p>';
+                }
+                html += '</div>';
+                html += '<div class="col-sm-6">';
+                html += '<h4>{{ text_customer_info }}</h4>';
+                if (json['order']['customer_name']) {
+                    html += '<p><strong>{{ text_name }}:</strong> ' + json['order']['customer_name'] + '</p>';
+                }
+                if (json['order']['customer_email']) {
+                    html += '<p><strong>{{ text_email }}:</strong> ' + json['order']['customer_email'] + '</p>';
+                }
+                if (json['order']['customer_phone']) {
+                    html += '<p><strong>{{ text_phone }}:</strong> ' + json['order']['customer_phone'] + '</p>';
+                }
+                html += '</div>';
+                html += '</div>';
+                
+                if (json['order']['products']) {
+                    html += '<hr/>';
+                    html += '<h4>{{ text_products }}</h4>';
+                    html += '<div class="table-responsive">';
+                    html += '<table class="table table-bordered">';
+                    html += '<thead><tr><th>{{ column_name }}</th><th>{{ column_quantity }}</th><th>{{ column_price }}</th></tr></thead>';
+                    html += '<tbody>';
+                    var products = JSON.parse(json['order']['products']);
+                    for (var i = 0; i < products.length; i++) {
+                        html += '<tr>';
+                        html += '<td>' + products[i].name + '</td>';
+                        html += '<td>' + products[i].quantity + '</td>';
+                        html += '<td>' + products[i].price + ' ' + json['order']['currency_code'] + '</td>';
+                        html += '</tr>';
+                    }
+                    html += '</tbody>';
+                    html += '</table>';
+                    html += '</div>';
+                }
+                
+                $('#order-details').html(html);
+            } else {
+                $('#order-details').html('<div class="alert alert-danger">{{ error_order_not_found }}</div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            $('#order-details').html('<div class="alert alert-danger">{{ error_ajax }}</div>');
+        }
+    });
+}
+
+// Sipariş gönderim
+function shipOrder(order_id) {
+    $('#ship-order-id').val(order_id);
+    $('#tracking-number').val('');
+    $('#delivery-method').val('');
+    $('#modal-ship').modal('show');
+}
+
+function confirmShip() {
+    var order_id = $('#ship-order-id').val();
+    var tracking_number = $('#tracking-number').val();
+    var delivery_method = $('#delivery-method').val();
+    
+    if (!tracking_number) {
+        alert('{{ error_tracking_required }}');
+        return;
+    }
+    
+    $.ajax({
+        url: 'index.php?route=extension/mestech/ozon/shipOrder&user_token={{ user_token }}',
+        type: 'POST',
+        data: {
+            order_id: order_id,
+            tracking_number: tracking_number,
+            delivery_method: delivery_method
+        },
+        dataType: 'json',
+        beforeSend: function() {
+            $('#modal-ship').modal('hide');
+            $('#content').prepend('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> {{ text_shipping }}</div>');
+        },
+        complete: function() {
+            $('.alert').remove();
+        },
+        success: function(json) {
+            if (json['success']) {
+                $('#content').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+            }
+            
+            if (json['error']) {
+                $('#content').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+}
+
+// Sipariş iptal
+function cancelOrder(order_id) {
+    if (confirm('{{ text_confirm_cancel }}')) {
+        $.ajax({
+            url: 'index.php?route=extension/mestech/ozon/cancelOrder&user_token={{ user_token }}',
+            type: 'POST',
+            data: 'order_id=' + order_id,
+            dataType: 'json',
+            beforeSend: function() {
+                $('#content').prepend('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> {{ text_cancelling }}</div>');
+            },
+            complete: function() {
+                $('.alert').remove();
+            },
+            success: function(json) {
+                if (json['success']) {
+                    $('#content').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                    
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                }
+                
+                if (json['error']) {
+                    $('#content').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    }
+}
+</script>
+
+{{ footer }}
