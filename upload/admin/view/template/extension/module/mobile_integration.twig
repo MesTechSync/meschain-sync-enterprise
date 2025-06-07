@@ -1,0 +1,766 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-mobile-integration" data-toggle="tooltip" title="Save" class="btn btn-primary">
+          <i class="fa fa-save"></i>
+        </button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="Cancel" class="btn btn-default">
+          <i class="fa fa-reply"></i>
+        </a>
+      </div>
+      <h1>📱 ATOM-M025: Mobile App Integration Platform</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Mobile Platform Status Cards -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-mobile fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ mobile_dashboard.supported_platforms }}</div>
+                <div>Mobile Platforms</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">iOS, Android, React Native, Flutter</span>
+            <span class="pull-right"><i class="fa fa-check text-success"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-users fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ mobile_dashboard.app_performance.daily_active_users|number_format }}</div>
+                <div>Daily Active Users</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">MAU: {{ mobile_dashboard.app_performance.monthly_active_users|number_format }}</span>
+            <span class="pull-right"><i class="fa fa-arrow-up text-success"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-star fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ mobile_dashboard.app_performance.app_store_rating }}</div>
+                <div>App Store Rating</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">{{ mobile_dashboard.app_performance.total_downloads|number_format }} Downloads</span>
+            <span class="pull-right"><i class="fa fa-star text-warning"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-bolt fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ mobile_dashboard.quantum_acceleration }}</div>
+                <div>Quantum Speedup</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Quantum Enhanced</span>
+            <span class="pull-right"><i class="fa fa-flash text-info"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mobile Integration Control Panels -->
+    <div class="row">
+      <!-- Mobile App Generation Panel -->
+      <div class="col-lg-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">📱 Mobile App Generation</h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Platform</label>
+              <select id="mobile-platform" class="form-control">
+                <option value="react_native">React Native (Cross-platform)</option>
+                <option value="flutter">Flutter (Cross-platform)</option>
+                <option value="ios">iOS Native (Swift)</option>
+                <option value="android">Android Native (Kotlin)</option>
+                <option value="xamarin">Xamarin (.NET)</option>
+                <option value="progressive_web_app">Progressive Web App</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>App Type</label>
+              <select id="mobile-app-type" class="form-control">
+                <option value="hybrid">Hybrid App</option>
+                <option value="native">Native App</option>
+                <option value="web">Web App</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Target Audience</label>
+              <select id="mobile-target-audience" class="form-control">
+                <option value="general">General Users</option>
+                <option value="business">Business Users</option>
+                <option value="enterprise">Enterprise Users</option>
+                <option value="developers">Developers</option>
+              </select>
+            </div>
+            <button type="button" id="btn-generate-mobile-app" class="btn btn-primary btn-block">
+              <i class="fa fa-mobile"></i> Generate Mobile App
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Push Notifications Panel -->
+      <div class="col-lg-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title">🔔 Push Notification System</h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Notification Type</label>
+              <select id="notification-type" class="form-control">
+                <option value="promotional">Promotional</option>
+                <option value="transactional">Transactional</option>
+                <option value="behavioral">Behavioral</option>
+                <option value="location_based">Location-based</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Target Audience</label>
+              <select id="notification-audience" class="form-control">
+                <option value="all_users">All Users</option>
+                <option value="active_users">Active Users</option>
+                <option value="new_users">New Users</option>
+                <option value="premium_users">Premium Users</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Scheduling</label>
+              <select id="notification-scheduling" class="form-control">
+                <option value="immediate">Send Immediately</option>
+                <option value="scheduled">Schedule for Later</option>
+                <option value="optimal">Optimal Time (AI)</option>
+              </select>
+            </div>
+            <button type="button" id="btn-implement-push-notifications" class="btn btn-success btn-block">
+              <i class="fa fa-bell"></i> Implement Push Notifications
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <!-- Offline Sync Panel -->
+      <div class="col-lg-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h3 class="panel-title">🔄 Offline Synchronization</h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Sync Strategy</label>
+              <select id="sync-strategy" class="form-control">
+                <option value="incremental">Incremental Sync</option>
+                <option value="full">Full Sync</option>
+                <option value="conflict_resolution">Conflict Resolution</option>
+                <option value="merge">Smart Merge</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Data Types</label>
+              <select id="sync-data-types" class="form-control" multiple>
+                <option value="products" selected>Products</option>
+                <option value="orders" selected>Orders</option>
+                <option value="customers" selected>Customers</option>
+                <option value="inventory">Inventory</option>
+                <option value="analytics">Analytics</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Sync Frequency</label>
+              <select id="sync-frequency" class="form-control">
+                <option value="auto">Automatic</option>
+                <option value="manual">Manual</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="real_time">Real-time</option>
+              </select>
+            </div>
+            <button type="button" id="btn-setup-offline-sync" class="btn btn-warning btn-block">
+              <i class="fa fa-refresh"></i> Setup Offline Sync
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Performance Optimization Panel -->
+      <div class="col-lg-6">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title">⚡ Performance Optimization</h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Optimization Type</label>
+              <select id="optimization-type" class="form-control">
+                <option value="comprehensive">Comprehensive</option>
+                <option value="performance">Performance Only</option>
+                <option value="memory">Memory Optimization</option>
+                <option value="battery">Battery Optimization</option>
+                <option value="network">Network Optimization</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Target Metrics</label>
+              <select id="optimization-metrics" class="form-control" multiple>
+                <option value="launch_time" selected>Launch Time</option>
+                <option value="memory_usage" selected>Memory Usage</option>
+                <option value="battery_life" selected>Battery Life</option>
+                <option value="network_usage">Network Usage</option>
+                <option value="crash_rate">Crash Rate</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Optimization Level</label>
+              <select id="optimization-level" class="form-control">
+                <option value="basic">Basic</option>
+                <option value="advanced">Advanced</option>
+                <option value="maximum" selected>Maximum</option>
+                <option value="quantum">Quantum Enhanced</option>
+              </select>
+            </div>
+            <button type="button" id="btn-optimize-app-performance" class="btn btn-info btn-block">
+              <i class="fa fa-tachometer"></i> Optimize Performance
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mobile Analytics Dashboard -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">📊 Mobile Analytics Dashboard</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <!-- App Performance Metrics -->
+              <div class="col-lg-4">
+                <h4>📱 App Performance</h4>
+                <table class="table table-striped">
+                  <tr>
+                    <td>Session Duration</td>
+                    <td><span class="label label-success">{{ mobile_dashboard.app_performance.session_duration }}</span></td>
+                  </tr>
+                  <tr>
+                    <td>Launch Time</td>
+                    <td><span class="label label-info">{{ mobile_dashboard.app_performance.app_launch_time }}</span></td>
+                  </tr>
+                  <tr>
+                    <td>Crash Rate</td>
+                    <td><span class="label label-success">{{ mobile_dashboard.app_performance.crash_rate }}</span></td>
+                  </tr>
+                  <tr>
+                    <td>Platform Distribution</td>
+                    <td>
+                      <small>iOS: {{ mobile_dashboard.app_performance.platform_distribution.ios }}%</small><br>
+                      <small>Android: {{ mobile_dashboard.app_performance.platform_distribution.android }}%</small>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              
+              <!-- User Engagement Metrics -->
+              <div class="col-lg-4">
+                <h4>👥 User Engagement</h4>
+                <table class="table table-striped">
+                  <tr>
+                    <td>Day 1 Retention</td>
+                    <td><span class="label label-success">{{ mobile_dashboard.user_engagement.retention_rate_day_1 }}%</span></td>
+                  </tr>
+                  <tr>
+                    <td>Day 7 Retention</td>
+                    <td><span class="label label-warning">{{ mobile_dashboard.user_engagement.retention_rate_day_7 }}%</span></td>
+                  </tr>
+                  <tr>
+                    <td>Day 30 Retention</td>
+                    <td><span class="label label-info">{{ mobile_dashboard.user_engagement.retention_rate_day_30 }}%</span></td>
+                  </tr>
+                  <tr>
+                    <td>Conversion Rate</td>
+                    <td><span class="label label-primary">{{ mobile_dashboard.user_engagement.conversion_rate }}%</span></td>
+                  </tr>
+                  <tr>
+                    <td>Screens per Session</td>
+                    <td><span class="label label-default">{{ mobile_dashboard.user_engagement.screens_per_session }}</span></td>
+                  </tr>
+                </table>
+              </div>
+              
+              <!-- Business Metrics -->
+              <div class="col-lg-4">
+                <h4>💰 Business Metrics</h4>
+                <table class="table table-striped">
+                  <tr>
+                    <td>Mobile Revenue Share</td>
+                    <td><span class="label label-success">{{ mobile_dashboard.business_metrics.mobile_revenue_share }}%</span></td>
+                  </tr>
+                  <tr>
+                    <td>Mobile Traffic Share</td>
+                    <td><span class="label label-info">{{ mobile_dashboard.business_metrics.mobile_traffic_share }}%</span></td>
+                  </tr>
+                  <tr>
+                    <td>Avg Order Value</td>
+                    <td><span class="label label-primary">${{ mobile_dashboard.business_metrics.average_order_value_mobile }}</span></td>
+                  </tr>
+                  <tr>
+                    <td>Cost per Acquisition</td>
+                    <td><span class="label label-warning">${{ mobile_dashboard.business_metrics.cost_per_acquisition }}</span></td>
+                  </tr>
+                  <tr>
+                    <td>Lifetime Value</td>
+                    <td><span class="label label-success">${{ mobile_dashboard.business_metrics.lifetime_value }}</span></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Feature Usage Analytics -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🎯 Feature Usage Analytics</h3>
+          </div>
+          <div class="panel-body">
+            <div class="progress-group">
+              <span class="progress-group-text">Authentication</span>
+              <span class="float-right"><b>{{ mobile_dashboard.feature_usage.authentication }}%</b></span>
+              <div class="progress progress-sm">
+                <div class="progress-bar progress-bar-success" style="width: {{ mobile_dashboard.feature_usage.authentication }}%"></div>
+              </div>
+            </div>
+            
+            <div class="progress-group">
+              <span class="progress-group-text">Offline Sync</span>
+              <span class="float-right"><b>{{ mobile_dashboard.feature_usage.offline_sync }}%</b></span>
+              <div class="progress progress-sm">
+                <div class="progress-bar progress-bar-info" style="width: {{ mobile_dashboard.feature_usage.offline_sync }}%"></div>
+              </div>
+            </div>
+            
+            <div class="progress-group">
+              <span class="progress-group-text">Push Notifications</span>
+              <span class="float-right"><b>{{ mobile_dashboard.feature_usage.push_notifications }}%</b></span>
+              <div class="progress progress-sm">
+                <div class="progress-bar progress-bar-warning" style="width: {{ mobile_dashboard.feature_usage.push_notifications }}%"></div>
+              </div>
+            </div>
+            
+            <div class="progress-group">
+              <span class="progress-group-text">Real-time Updates</span>
+              <span class="float-right"><b>{{ mobile_dashboard.feature_usage.real_time_updates }}%</b></span>
+              <div class="progress progress-sm">
+                <div class="progress-bar progress-bar-primary" style="width: {{ mobile_dashboard.feature_usage.real_time_updates }}%"></div>
+              </div>
+            </div>
+            
+            <div class="progress-group">
+              <span class="progress-group-text">Mobile Payments</span>
+              <span class="float-right"><b>{{ mobile_dashboard.feature_usage.mobile_payments }}%</b></span>
+              <div class="progress progress-sm">
+                <div class="progress-bar progress-bar-success" style="width: {{ mobile_dashboard.feature_usage.mobile_payments }}%"></div>
+              </div>
+            </div>
+            
+            <div class="progress-group">
+              <span class="progress-group-text">Social Integration</span>
+              <span class="float-right"><b>{{ mobile_dashboard.feature_usage.social_integration }}%</b></span>
+              <div class="progress progress-sm">
+                <div class="progress-bar progress-bar-info" style="width: {{ mobile_dashboard.feature_usage.social_integration }}%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Platform Performance Comparison -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">📊 Platform Performance Comparison</h3>
+          </div>
+          <div class="panel-body">
+            <h5>iOS Performance</h5>
+            <table class="table table-condensed">
+              <tr>
+                <td>App Store Rating</td>
+                <td><span class="label label-success">{{ mobile_dashboard.platform_performance.ios.app_store_rating }}</span></td>
+              </tr>
+              <tr>
+                <td>Crash Rate</td>
+                <td><span class="label label-success">{{ mobile_dashboard.platform_performance.ios.crash_rate }}</span></td>
+              </tr>
+              <tr>
+                <td>Launch Time</td>
+                <td><span class="label label-info">{{ mobile_dashboard.platform_performance.ios.launch_time }}</span></td>
+              </tr>
+            </table>
+            
+            <h5>Android Performance</h5>
+            <table class="table table-condensed">
+              <tr>
+                <td>Play Store Rating</td>
+                <td><span class="label label-success">{{ mobile_dashboard.platform_performance.android.play_store_rating }}</span></td>
+              </tr>
+              <tr>
+                <td>Crash Rate</td>
+                <td><span class="label label-warning">{{ mobile_dashboard.platform_performance.android.crash_rate }}</span></td>
+              </tr>
+              <tr>
+                <td>Launch Time</td>
+                <td><span class="label label-info">{{ mobile_dashboard.platform_performance.android.launch_time }}</span></td>
+              </tr>
+            </table>
+            
+            <h5>Cross-Platform Efficiency</h5>
+            <table class="table table-condensed">
+              <tr>
+                <td>React Native</td>
+                <td><span class="label label-primary">{{ mobile_dashboard.platform_performance.react_native.cross_platform_efficiency }}</span></td>
+              </tr>
+              <tr>
+                <td>Flutter</td>
+                <td><span class="label label-success">{{ mobile_dashboard.platform_performance.flutter.cross_platform_efficiency }}</span></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quantum Enhancement Metrics -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">⚛️ Quantum Enhancement Metrics</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-3">
+                <div class="metric-box text-center">
+                  <h3 class="text-primary">{{ mobile_dashboard.quantum_metrics.processing_speedup }}x</h3>
+                  <p>Processing Speedup</p>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="metric-box text-center">
+                  <h3 class="text-success">{{ mobile_dashboard.quantum_metrics.quantum_fidelity }}%</h3>
+                  <p>Quantum Fidelity</p>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="metric-box text-center">
+                  <h3 class="text-info">{{ mobile_dashboard.quantum_metrics.quantum_error_rate }}%</h3>
+                  <p>Error Rate</p>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="metric-box text-center">
+                  <h3 class="text-warning">{{ mobile_dashboard.quantum_metrics.quantum_optimization_impact }}</h3>
+                  <p>Optimization Impact</p>
+                </div>
+              </div>
+            </div>
+            <div class="alert alert-info">
+              <strong>Quantum Advantage:</strong> {{ mobile_dashboard.quantum_metrics.quantum_advantage|title }} performance boost achieved through quantum-enhanced mobile processing.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Real-time Status Updates -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🔄 Real-time Mobile Platform Status</h3>
+            <div class="pull-right">
+              <button type="button" id="btn-refresh-dashboard" class="btn btn-xs btn-default">
+                <i class="fa fa-refresh"></i> Refresh
+              </button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="mobile-status-container">
+              <div class="alert alert-success">
+                <strong>All Systems Operational:</strong> Mobile integration platform is running optimally with quantum enhancement active.
+                <br><small>Last updated: {{ mobile_dashboard.timestamp }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.metric-box {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.progress-group {
+  margin-bottom: 15px;
+}
+
+.progress-group-text {
+  font-weight: 600;
+}
+
+.huge {
+  font-size: 40px;
+}
+
+.panel-footer {
+  background-color: rgba(0,0,0,0.1);
+}
+
+.float-right {
+  float: right;
+}
+</style>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Generate Mobile App
+    $('#btn-generate-mobile-app').click(function() {
+        var platform = $('#mobile-platform').val();
+        var appType = $('#mobile-app-type').val();
+        var targetAudience = $('#mobile-target-audience').val();
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/mobile_integration/generateMobileApp&user_token={{ user_token }}',
+            type: 'post',
+            data: {
+                platform: platform,
+                app_type: appType,
+                target_audience: targetAudience
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                $('#btn-generate-mobile-app').button('loading');
+            },
+            complete: function() {
+                $('#btn-generate-mobile-app').button('reset');
+            },
+            success: function(json) {
+                if (json.error) {
+                    alert('Error: ' + json.error);
+                } else {
+                    alert('Success: ' + json.message);
+                    location.reload();
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    });
+    
+    // Implement Push Notifications
+    $('#btn-implement-push-notifications').click(function() {
+        var type = $('#notification-type').val();
+        var audience = $('#notification-audience').val();
+        var scheduling = $('#notification-scheduling').val();
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/mobile_integration/implementPushNotifications&user_token={{ user_token }}',
+            type: 'post',
+            data: {
+                type: type,
+                audience: audience,
+                scheduling: scheduling
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                $('#btn-implement-push-notifications').button('loading');
+            },
+            complete: function() {
+                $('#btn-implement-push-notifications').button('reset');
+            },
+            success: function(json) {
+                if (json.error) {
+                    alert('Error: ' + json.error);
+                } else {
+                    alert('Success: ' + json.message);
+                    location.reload();
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    });
+    
+    // Setup Offline Sync
+    $('#btn-setup-offline-sync').click(function() {
+        var strategy = $('#sync-strategy').val();
+        var dataTypes = $('#sync-data-types').val();
+        var frequency = $('#sync-frequency').val();
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/mobile_integration/setupOfflineSync&user_token={{ user_token }}',
+            type: 'post',
+            data: {
+                strategy: strategy,
+                data_types: dataTypes,
+                sync_frequency: frequency
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                $('#btn-setup-offline-sync').button('loading');
+            },
+            complete: function() {
+                $('#btn-setup-offline-sync').button('reset');
+            },
+            success: function(json) {
+                if (json.error) {
+                    alert('Error: ' + json.error);
+                } else {
+                    alert('Success: ' + json.message);
+                    location.reload();
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    });
+    
+    // Optimize App Performance
+    $('#btn-optimize-app-performance').click(function() {
+        var type = $('#optimization-type').val();
+        var metrics = $('#optimization-metrics').val();
+        var level = $('#optimization-level').val();
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/mobile_integration/optimizeAppPerformance&user_token={{ user_token }}',
+            type: 'post',
+            data: {
+                type: type,
+                metrics: metrics,
+                optimization_level: level
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                $('#btn-optimize-app-performance').button('loading');
+            },
+            complete: function() {
+                $('#btn-optimize-app-performance').button('reset');
+            },
+            success: function(json) {
+                if (json.error) {
+                    alert('Error: ' + json.error);
+                } else {
+                    alert('Success: ' + json.message);
+                    location.reload();
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    });
+    
+    // Refresh Dashboard
+    $('#btn-refresh-dashboard').click(function() {
+        $.ajax({
+            url: 'index.php?route=extension/module/mobile_integration/getMobileAnalyticsDashboard&user_token={{ user_token }}',
+            type: 'get',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#btn-refresh-dashboard').button('loading');
+            },
+            complete: function() {
+                $('#btn-refresh-dashboard').button('reset');
+            },
+            success: function(json) {
+                if (json.error) {
+                    alert('Error: ' + json.error);
+                } else {
+                    $('#mobile-status-container').html(
+                        '<div class="alert alert-success">' +
+                        '<strong>Dashboard Refreshed:</strong> Latest mobile analytics data loaded successfully.' +
+                        '<br><small>Last updated: ' + new Date().toLocaleString() + '</small>' +
+                        '</div>'
+                    );
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    });
+    
+    // Auto-refresh dashboard every 30 seconds
+    setInterval(function() {
+        $('#btn-refresh-dashboard').click();
+    }, 30000);
+});
+</script>
+
+{{ footer }} 
