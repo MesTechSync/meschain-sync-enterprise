@@ -1,0 +1,851 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-right">
+        <div class="btn-group">
+          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-download"></i> {{ text_export }}
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" onclick="exportReport('pdf')"><i class="fas fa-file-pdf"></i> PDF</a>
+            <a class="dropdown-item" onclick="exportReport('excel')"><i class="fas fa-file-excel"></i> Excel</a>
+            <a class="dropdown-item" onclick="exportReport('json')"><i class="fas fa-file-code"></i> JSON</a>
+          </div>
+        </div>
+        <button type="button" class="btn btn-success" onclick="refreshDashboard()">
+          <i class="fas fa-sync"></i> {{ text_refresh }}
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{ home }}">{{ text_home }}</a></li>
+          <li class="breadcrumb-item"><a href="{{ extension }}">{{ text_extension }}</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ heading_title }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Alert Zone -->
+    <div id="alert-zone"></div>
+
+    <!-- Executive Summary Cards -->
+    <div class="row mb-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-primary text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h5 class="card-title">{{ text_scaling_readiness }}</h5>
+                <h2 id="scaling-readiness-score">0%</h2>
+                <small>{{ text_overall_readiness }}</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-chart-line fa-3x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-success text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h5 class="card-title">{{ text_capacity_increase }}</h5>
+                <h2 id="capacity-increase">0%</h2>
+                <small>{{ text_projected_capacity }}</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-expand-arrows-alt fa-3x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-info text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h5 class="card-title">{{ text_cost_optimization }}</h5>
+                <h2 id="cost-optimization">0%</h2>
+                <small>{{ text_cost_savings }}</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-dollar-sign fa-3x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-warning text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h5 class="card-title">{{ text_recommendations }}</h5>
+                <h2 id="recommendations-count">0</h2>
+                <small>{{ text_action_items }}</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-lightbulb fa-3x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="row">
+      <!-- Microservices Architecture -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-cube"></i> {{ text_microservices_architecture }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <canvas id="microservicesReadinessChart" width="200" height="200"></canvas>
+              </div>
+              <div class="col-md-6">
+                <h6>{{ text_readiness_metrics }}</h6>
+                <div class="progress mb-2">
+                  <div class="progress-bar bg-success" id="code-modularity-bar" role="progressbar" style="width: 0%">
+                    <span id="code-modularity-text">0%</span>
+                  </div>
+                </div>
+                <small>{{ text_code_modularity }}</small>
+                
+                <div class="progress mb-2 mt-3">
+                  <div class="progress-bar bg-info" id="data-separation-bar" role="progressbar" style="width: 0%">
+                    <span id="data-separation-text">0%</span>
+                  </div>
+                </div>
+                <small>{{ text_data_separation }}</small>
+                
+                <div class="progress mb-2 mt-3">
+                  <div class="progress-bar bg-warning" id="team-readiness-bar" role="progressbar" style="width: 0%">
+                    <span id="team-readiness-text">0%</span>
+                  </div>
+                </div>
+                <small>{{ text_team_readiness }}</small>
+              </div>
+            </div>
+            
+            <hr>
+            <h6>{{ text_migration_plan }}</h6>
+            <div id="migration-timeline"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto-Scaling Configuration -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-chart-area"></i> {{ text_auto_scaling }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <ul class="nav nav-tabs" id="scalingTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="horizontal-tab" data-toggle="tab" href="#horizontal" role="tab">
+                  {{ text_horizontal_scaling }}
+                </a>
+              </li>
+              <li class="nav-item" role="presentation">
+                <a class="nav-link" id="vertical-tab" data-toggle="tab" href="#vertical" role="tab">
+                  {{ text_vertical_scaling }}
+                </a>
+              </li>
+              <li class="nav-item" role="presentation">
+                <a class="nav-link" id="predictive-tab" data-toggle="tab" href="#predictive" role="tab">
+                  {{ text_predictive_scaling }}
+                </a>
+              </li>
+            </ul>
+            <div class="tab-content" id="scalingTabContent">
+              <div class="tab-pane fade show active" id="horizontal" role="tabpanel">
+                <canvas id="horizontalScalingChart" width="400" height="200"></canvas>
+                <div class="mt-3">
+                  <div class="row">
+                    <div class="col-4 text-center">
+                      <h6 id="min-instances">2</h6>
+                      <small>{{ text_min_instances }}</small>
+                    </div>
+                    <div class="col-4 text-center">
+                      <h6 id="current-instances">3</h6>
+                      <small>{{ text_current_instances }}</small>
+                    </div>
+                    <div class="col-4 text-center">
+                      <h6 id="max-instances">10</h6>
+                      <small>{{ text_max_instances }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="vertical" role="tabpanel">
+                <canvas id="verticalScalingChart" width="400" height="200"></canvas>
+              </div>
+              <div class="tab-pane fade" id="predictive" role="tabpanel">
+                <canvas id="predictiveScalingChart" width="400" height="200"></canvas>
+                <div class="mt-3 text-center">
+                  <span class="badge badge-success">{{ text_ml_accuracy }}: <span id="ml-accuracy">92.5%</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Container Orchestration & Database Clustering -->
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+              <i class="fab fa-docker"></i> {{ text_container_orchestration }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="text-center">
+                  <canvas id="kubernetesNodesChart" width="150" height="150"></canvas>
+                  <h6 class="mt-2">{{ text_cluster_nodes }}</h6>
+                </div>
+              </div>
+              <div class="col-md-8">
+                <h6>{{ text_deployments }}</h6>
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>{{ text_service }}</th>
+                        <th>{{ text_replicas }}</th>
+                        <th>{{ text_status }}</th>
+                        <th>{{ text_resources }}</th>
+                      </tr>
+                    </thead>
+                    <tbody id="k8s-deployments">
+                      <!-- Dynamic content -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-database"></i> {{ text_database_clustering }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <canvas id="databaseTopologyChart" width="200" height="200"></canvas>
+              </div>
+              <div class="col-md-6">
+                <h6>{{ text_cluster_health }}</h6>
+                <div class="list-group list-group-flush">
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ text_master_node }}
+                    <span class="badge badge-success" id="master-status">{{ text_healthy }}</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ text_slave_node }}
+                    <span class="badge badge-success" id="slave-status">{{ text_healthy }}</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ text_read_replicas }}
+                    <span class="badge badge-info" id="replicas-count">3</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ text_redis_cluster }}
+                    <span class="badge badge-warning" id="redis-status">{{ text_configured }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load Balancer & CDN -->
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-balance-scale"></i> {{ text_load_balancer }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <canvas id="loadBalancerChart" width="400" height="200"></canvas>
+            <div class="mt-3">
+              <div class="row">
+                <div class="col-md-6">
+                  <h6>{{ text_global_routing }}</h6>
+                  <div id="global-regions"></div>
+                </div>
+                <div class="col-md-6">
+                  <h6>{{ text_performance_metrics }}</h6>
+                  <ul class="list-unstyled">
+                    <li><strong>{{ text_response_time }}:</strong> <span id="lb-response-time">45ms</span></li>
+                    <li><strong>{{ text_throughput }}:</strong> <span id="lb-throughput">1.2K req/s</span></li>
+                    <li><strong>{{ text_ssl_termination }}:</strong> <span class="text-success">{{ text_enabled }}</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-purple text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-globe"></i> {{ text_cdn_integration }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <canvas id="cdnPerformanceChart" width="200" height="200"></canvas>
+              </div>
+              <div class="col-md-6">
+                <h6>{{ text_cdn_metrics }}</h6>
+                <div class="row">
+                  <div class="col-12 mb-3">
+                    <div class="d-flex justify-content-between">
+                      <span>{{ text_cache_hit_ratio }}</span>
+                      <strong id="cache-hit-ratio">95.2%</strong>
+                    </div>
+                    <div class="progress">
+                      <div class="progress-bar bg-success" id="cache-hit-bar" style="width: 95.2%"></div>
+                    </div>
+                  </div>
+                  <div class="col-12 mb-3">
+                    <div class="d-flex justify-content-between">
+                      <span>{{ text_bandwidth_savings }}</span>
+                      <strong id="bandwidth-savings">78%</strong>
+                    </div>
+                    <div class="progress">
+                      <div class="progress-bar bg-info" id="bandwidth-bar" style="width: 78%"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-center mt-3">
+                  <span class="badge badge-primary">{{ text_edge_locations }}: 200</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CI/CD Pipeline Enhancement -->
+    <div class="row">
+      <div class="col-12 mb-4">
+        <div class="card">
+          <div class="card-header bg-gradient-primary text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-code-branch"></i> {{ text_cicd_pipeline }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-lg-8">
+                <h6>{{ text_pipeline_visualization }}</h6>
+                <div id="pipeline-stages" class="d-flex justify-content-between align-items-center mb-4">
+                  <!-- Pipeline stages will be rendered here -->
+                </div>
+                
+                <h6>{{ text_deployment_strategies }}</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="card border-success">
+                      <div class="card-body text-center">
+                        <i class="fas fa-exchange-alt fa-2x text-success mb-2"></i>
+                        <h6>{{ text_blue_green_deployment }}</h6>
+                        <span class="badge badge-success">{{ text_enabled }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="card border-warning">
+                      <div class="card-body text-center">
+                        <i class="fas fa-chart-pie fa-2x text-warning mb-2"></i>
+                        <h6>{{ text_canary_deployment }}</h6>
+                        <span class="badge badge-warning">{{ text_configured }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <h6>{{ text_quality_gates }}</h6>
+                <canvas id="qualityGatesChart" width="300" height="200"></canvas>
+                <div class="mt-3">
+                  <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> {{ text_code_coverage }}: 85%</li>
+                    <li><i class="fas fa-check text-success"></i> {{ text_security_scan }}</li>
+                    <li><i class="fas fa-check text-success"></i> {{ text_dependency_check }}</li>
+                    <li><i class="fas fa-check text-success"></i> {{ text_performance_tests }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendations & Next Steps -->
+    <div class="row">
+      <div class="col-lg-8 mb-4">
+        <div class="card">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+              <i class="fas fa-lightbulb"></i> {{ text_recommendations }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div id="recommendations-list">
+              <!-- Dynamic recommendations will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4 mb-4">
+        <div class="card">
+          <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-tasks"></i> {{ text_next_steps }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <h6 class="text-danger">{{ text_immediate }}</h6>
+            <ul id="immediate-tasks" class="list-unstyled mb-3">
+              <!-- Immediate tasks -->
+            </ul>
+            
+            <h6 class="text-warning">{{ text_short_term }}</h6>
+            <ul id="short-term-tasks" class="list-unstyled mb-3">
+              <!-- Short-term tasks -->
+            </ul>
+            
+            <h6 class="text-success">{{ text_long_term }}</h6>
+            <ul id="long-term-tasks" class="list-unstyled">
+              <!-- Long-term tasks -->
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Global variables
+let refreshInterval;
+let charts = {};
+
+// Initialize dashboard
+$(document).ready(function() {
+    initializeDashboard();
+    loadScalingData();
+    
+    // Auto-refresh every 30 seconds
+    refreshInterval = setInterval(loadScalingData, 30000);
+});
+
+// Initialize all charts and components
+function initializeDashboard() {
+    initializeCharts();
+    setupEventHandlers();
+}
+
+// Setup event handlers
+function setupEventHandlers() {
+    // Tab switching
+    $('#scalingTabs a').on('click', function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+}
+
+// Initialize all charts
+function initializeCharts() {
+    // Microservices Readiness Chart (Doughnut)
+    const microservicesCtx = document.getElementById('microservicesReadinessChart').getContext('2d');
+    charts.microservicesReadiness = new Chart(microservicesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Code Modularity', 'Data Separation', 'Team Readiness', 'Infrastructure'],
+            datasets: [{
+                data: [85, 70, 90, 75],
+                backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#dc3545'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                position: 'bottom'
+            }
+        }
+    });
+
+    // Horizontal Scaling Chart (Line)
+    const horizontalCtx = document.getElementById('horizontalScalingChart').getContext('2d');
+    charts.horizontalScaling = new Chart(horizontalCtx, {
+        type: 'line',
+        data: {
+            labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+            datasets: [{
+                label: 'CPU Utilization %',
+                data: [45, 55, 75, 80, 65, 50],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                fill: true
+            }, {
+                label: 'Instance Count',
+                data: [2, 3, 5, 6, 4, 3],
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                fill: true,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    beginAtZero: true,
+                    max: 10
+                }
+            }
+        }
+    });
+
+    // Load Balancer Chart (Bar)
+    const loadBalancerCtx = document.getElementById('loadBalancerChart').getContext('2d');
+    charts.loadBalancer = new Chart(loadBalancerCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Europe', 'Asia', 'Americas'],
+            datasets: [{
+                label: 'Response Time (ms)',
+                data: [45, 65, 55],
+                backgroundColor: ['#007bff', '#28a745', '#ffc107']
+            }, {
+                label: 'Load %',
+                data: [75, 85, 70],
+                backgroundColor: ['#17a2b8', '#dc3545', '#6c757d']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Additional charts initialization...
+    initializeAdditionalCharts();
+}
+
+function initializeAdditionalCharts() {
+    // Kubernetes Nodes Chart (Pie)
+    const k8sCtx = document.getElementById('kubernetesNodesChart').getContext('2d');
+    charts.kubernetesNodes = new Chart(k8sCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Master Nodes', 'Worker Nodes'],
+            datasets: [{
+                data: [3, 6],
+                backgroundColor: ['#007bff', '#28a745']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Database Topology Chart (Radar)
+    const dbCtx = document.getElementById('databaseTopologyChart').getContext('2d');
+    charts.databaseTopology = new Chart(dbCtx, {
+        type: 'radar',
+        data: {
+            labels: ['Master', 'Slave', 'Read Replica 1', 'Read Replica 2', 'Read Replica 3', 'Redis'],
+            datasets: [{
+                label: 'Health Score',
+                data: [100, 98, 95, 97, 96, 92],
+                backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                borderColor: '#28a745',
+                pointBackgroundColor: '#28a745'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+// Load scaling data from API
+function loadScalingData() {
+    $.ajax({
+        url: 'index.php?route=extension/module/infrastructure_scaling_dashboard/getMetrics&user_token={{ user_token }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            updateDashboard(data);
+        },
+        error: function(xhr, status, error) {
+            showAlert('error', 'Failed to load scaling data: ' + error);
+        }
+    });
+}
+
+// Update dashboard with new data
+function updateDashboard(data) {
+    if (data.error) {
+        showAlert('error', data.message);
+        return;
+    }
+
+    // Update summary cards
+    updateSummaryCards(data.executive_summary);
+    
+    // Update charts
+    updateCharts(data);
+    
+    // Update recommendations
+    updateRecommendations(data.recommendations || []);
+    
+    // Update next steps
+    updateNextSteps(data.next_steps);
+    
+    // Update last refresh time
+    $('#last-refresh').text(new Date().toLocaleTimeString());
+}
+
+// Update summary cards
+function updateSummaryCards(summary) {
+    $('#scaling-readiness-score').text(summary.scaling_readiness_score + '%');
+    $('#capacity-increase').text(summary.estimated_capacity_increase);
+    $('#cost-optimization').text(summary.cost_optimization);
+    $('#recommendations-count').text(summary.recommendations_count);
+}
+
+// Update all charts with new data
+function updateCharts(data) {
+    // Update microservices readiness
+    if (data.architecture_assessment && data.architecture_assessment.microservices_readiness) {
+        const readiness = data.architecture_assessment.microservices_readiness;
+        charts.microservicesReadiness.data.datasets[0].data = [
+            readiness.code_modularity,
+            readiness.data_separation,
+            readiness.team_readiness,
+            readiness.infrastructure_readiness
+        ];
+        charts.microservicesReadiness.update();
+        
+        // Update progress bars
+        updateProgressBar('code-modularity', readiness.code_modularity);
+        updateProgressBar('data-separation', readiness.data_separation);
+        updateProgressBar('team-readiness', readiness.team_readiness);
+    }
+}
+
+// Update progress bar
+function updateProgressBar(id, value) {
+    $('#' + id + '-bar').css('width', value + '%');
+    $('#' + id + '-text').text(value + '%');
+}
+
+// Update recommendations
+function updateRecommendations(recommendations) {
+    const container = $('#recommendations-list');
+    container.empty();
+    
+    if (recommendations.length === 0) {
+        container.html('<div class="alert alert-success">{{ text_no_recommendations }}</div>');
+        return;
+    }
+    
+    recommendations.forEach(function(rec, index) {
+        const priorityClass = rec.priority === 'high' ? 'danger' : (rec.priority === 'medium' ? 'warning' : 'info');
+        const html = `
+            <div class="alert alert-${priorityClass} alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <h6><i class="fas fa-exclamation-triangle"></i> ${rec.description}</h6>
+                <small><strong>{{ text_estimated_effort }}:</strong> ${rec.estimated_effort}</small>
+            </div>
+        `;
+        container.append(html);
+    });
+}
+
+// Update next steps
+function updateNextSteps(nextSteps) {
+    if (!nextSteps) return;
+    
+    updateTaskList('immediate-tasks', nextSteps.immediate || []);
+    updateTaskList('short-term-tasks', nextSteps.short_term || []);
+    updateTaskList('long-term-tasks', nextSteps.long_term || []);
+}
+
+// Update task list
+function updateTaskList(listId, tasks) {
+    const list = $('#' + listId);
+    list.empty();
+    
+    tasks.forEach(function(task) {
+        list.append(`<li><i class="fas fa-check-circle text-success"></i> ${task}</li>`);
+    });
+}
+
+// Refresh dashboard
+function refreshDashboard() {
+    showAlert('info', '{{ text_refreshing }}');
+    loadScalingData();
+}
+
+// Export report
+function exportReport(format) {
+    const url = `index.php?route=extension/module/infrastructure_scaling_dashboard/exportReport&format=${format}&user_token={{ user_token }}`;
+    window.open(url, '_blank');
+}
+
+// Show alert
+function showAlert(type, message) {
+    const alertClass = type === 'error' ? 'danger' : type;
+    const html = `
+        <div class="alert alert-${alertClass} alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            ${message}
+        </div>
+    `;
+    $('#alert-zone').html(html);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(function() {
+        $('#alert-zone').empty();
+    }, 5000);
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+});
+</script>
+
+<!-- Custom Styles -->
+<style>
+.bg-purple {
+    background-color: #6f42c1 !important;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.progress {
+    height: 1rem;
+}
+
+.progress-bar span {
+    color: white;
+    font-weight: bold;
+    line-height: 1rem;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+
+#pipeline-stages .stage {
+    flex: 1;
+    text-align: center;
+    padding: 1rem;
+    margin: 0 0.5rem;
+    border: 2px solid #dee2e6;
+    border-radius: 0.375rem;
+    background: #f8f9fa;
+}
+
+#pipeline-stages .stage.active {
+    border-color: #007bff;
+    background: #e3f2fd;
+}
+
+#migration-timeline {
+    height: 100px;
+    background: linear-gradient(90deg, #28a745 33%, #ffc107 66%, #dc3545 100%);
+    border-radius: 0.375rem;
+    position: relative;
+}
+
+#migration-timeline::after {
+    content: 'Phase 1 → Phase 2 → Phase 3';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+}
+</style>
+
+{{ footer }}
+</rewritten_file>

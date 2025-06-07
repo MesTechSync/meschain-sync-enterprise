@@ -1,0 +1,477 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" class="btn btn-success" onclick="generateReport();"><i class="fa fa-chart-bar"></i> {{ text_generate_report }}</button>
+        <button type="button" class="btn btn-info" onclick="exportReport();"><i class="fa fa-download"></i> {{ text_export_report }}</button>
+        <a href="{{ cancel }}" class="btn btn-default"><i class="fa fa-reply"></i> {{ button_cancel }}</a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <!-- System Status Cards -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h3>{{ system_status.performance_metrics.total_reports_generated }}</h3>
+                <p>{{ text_total_reports }}</p>
+              </div>
+              <div class="align-self-center">
+                <i class="fa fa-chart-line fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h3>{{ system_status.performance_metrics.export_success_rate }}%</h3>
+                <p>{{ text_success_rate }}</p>
+              </div>
+              <div class="align-self-center">
+                <i class="fa fa-check-circle fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-info text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h3>{{ system_status.bi_metrics.data_accuracy_score }}%</h3>
+                <p>{{ text_data_accuracy }}</p>
+              </div>
+              <div class="align-self-center">
+                <i class="fa fa-bullseye fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-warning text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h3>{{ system_status.performance_metrics.average_generation_time }}s</h3>
+                <p>{{ text_avg_generation_time }}</p>
+              </div>
+              <div class="align-self-center">
+                <i class="fa fa-clock fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Real-time Dashboard -->
+    <div class="row mt-4">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">{{ text_performance_analytics }}</h3>
+            <div class="card-tools">
+              <button type="button" class="btn btn-sm btn-primary" onclick="refreshDashboard();">
+                <i class="fa fa-sync-alt"></i> {{ text_refresh }}
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <canvas id="performanceChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">{{ text_bi_metrics }}</h3>
+          </div>
+          <div class="card-body">
+            <div class="progress-group">
+              <span class="progress-text">{{ text_insight_generation }}</span>
+              <span class="float-right"><b>{{ system_status.bi_metrics.insight_generation_rate }}%</b></span>
+              <div class="progress progress-sm">
+                <div class="progress-bar bg-success" style="width: {{ system_status.bi_metrics.insight_generation_rate }}%"></div>
+              </div>
+            </div>
+            
+            <div class="progress-group">
+              <span class="progress-text">{{ text_prediction_accuracy }}</span>
+              <span class="float-right"><b>{{ system_status.bi_metrics.prediction_accuracy }}%</b></span>
+              <div class="progress progress-sm">
+                <div class="progress-bar bg-info" style="width: {{ system_status.bi_metrics.prediction_accuracy }}%"></div>
+              </div>
+            </div>
+            
+            <div class="progress-group">
+              <span class="progress-text">{{ text_automated_analysis }}</span>
+              <span class="float-right"><b>{{ system_status.bi_metrics.automated_analysis_score }}%</b></span>
+              <div class="progress progress-sm">
+                <div class="progress-bar bg-warning" style="width: {{ system_status.bi_metrics.automated_analysis_score }}%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Reports Management -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">{{ text_reports_overview }}</h3>
+          </div>
+          <div class="card-body">
+            <ul class="nav nav-tabs" id="reportsTab" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" id="financial-tab" data-toggle="tab" href="#financial" role="tab">{{ text_financial_reports }}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="operational-tab" data-toggle="tab" href="#operational" role="tab">{{ text_operational_reports }}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="performance-tab" data-toggle="tab" href="#performance" role="tab">{{ text_performance_reports }}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="compliance-tab" data-toggle="tab" href="#compliance" role="tab">{{ text_compliance_reports }}</a>
+              </li>
+            </ul>
+            
+            <div class="tab-content" id="reportsTabContent">
+              <div class="tab-pane fade show active" id="financial" role="tabpanel">
+                <div id="financialReportsTable"></div>
+              </div>
+              <div class="tab-pane fade" id="operational" role="tabpanel">
+                <div id="operationalReportsTable"></div>
+              </div>
+              <div class="tab-pane fade" id="performance" role="tabpanel">
+                <div id="performanceReportsTable"></div>
+              </div>
+              <div class="tab-pane fade" id="compliance" role="tabpanel">
+                <div id="complianceReportsTable"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- System Health -->
+    <div class="row mt-4">
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">{{ text_system_health }}</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                <div class="description-block border-right">
+                  <span class="description-percentage text-success"><i class="fas fa-caret-up"></i> {{ system_status.system_health.cpu_usage }}%</span>
+                  <h5 class="description-header">{{ text_cpu_usage }}</h5>
+                  <span class="description-text">{{ text_current_usage }}</span>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="description-block">
+                  <span class="description-percentage text-info"><i class="fas fa-caret-up"></i> {{ system_status.system_health.memory_usage }}%</span>
+                  <h5 class="description-header">{{ text_memory_usage }}</h5>
+                  <span class="description-text">{{ text_current_usage }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">{{ text_recent_activities }}</h3>
+          </div>
+          <div class="card-body">
+            <div class="timeline">
+              {% for activity in dashboard_data.recent_reports %}
+              <div class="time-label">
+                <span class="bg-info">{{ activity.created_at|date('d M Y') }}</span>
+              </div>
+              <div>
+                <i class="fas fa-chart-bar bg-primary"></i>
+                <div class="timeline-item">
+                  <span class="time"><i class="far fa-clock"></i> {{ activity.created_at|date('H:i') }}</span>
+                  <h3 class="timeline-header">{{ activity.report_name }}</h3>
+                  <div class="timeline-body">
+                    {{ activity.description }}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Report Generation Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ text_generate_report }}</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="reportForm">
+          <div class="form-group">
+            <label for="reportType">{{ text_report_type }}</label>
+            <select class="form-control" id="reportType" name="report_type">
+              <option value="financial">{{ text_financial_report }}</option>
+              <option value="operational">{{ text_operational_report }}</option>
+              <option value="performance">{{ text_performance_report }}</option>
+              <option value="compliance">{{ text_compliance_report }}</option>
+              <option value="custom">{{ text_custom_report }}</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="reportPeriod">{{ text_report_period }}</label>
+            <select class="form-control" id="reportPeriod" name="report_period">
+              <option value="today">{{ text_today }}</option>
+              <option value="week">{{ text_this_week }}</option>
+              <option value="month">{{ text_this_month }}</option>
+              <option value="quarter">{{ text_this_quarter }}</option>
+              <option value="year">{{ text_this_year }}</option>
+              <option value="custom">{{ text_custom_period }}</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="reportFormat">{{ text_output_format }}</label>
+            <select class="form-control" id="reportFormat" name="output_format">
+              <option value="pdf">PDF</option>
+              <option value="excel">Excel</option>
+              <option value="csv">CSV</option>
+              <option value="json">JSON</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_cancel }}</button>
+        <button type="button" class="btn btn-primary" onclick="processReportGeneration();">{{ text_generate }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript">
+// Performance Chart
+const ctx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+        datasets: [{
+            label: '{{ text_reports_generated }}',
+            data: [12, 19, 15, 25, 22, 18],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1
+        }, {
+            label: '{{ text_processing_time }}',
+            data: [8, 12, 10, 15, 18, 14],
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: '{{ text_reporting_performance }}'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Functions
+function generateReport() {
+    $('#reportModal').modal('show');
+}
+
+function processReportGeneration() {
+    const formData = $('#reportForm').serialize();
+    
+    $.ajax({
+        url: '{{ url_generate_report }}',
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        beforeSend: function() {
+            $('#reportModal').modal('hide');
+            showLoading('{{ text_generating_report }}');
+        },
+        success: function(json) {
+            hideLoading();
+            if (json.success) {
+                showSuccess('{{ text_report_generated_successfully }}');
+                refreshDashboard();
+            } else {
+                showError(json.error || '{{ text_generation_failed }}');
+            }
+        },
+        error: function() {
+            hideLoading();
+            showError('{{ text_ajax_error }}');
+        }
+    });
+}
+
+function refreshDashboard() {
+    $.ajax({
+        url: '{{ url_realtime_data }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                updateDashboardData(json.data);
+            }
+        }
+    });
+}
+
+function exportReport() {
+    // Export functionality
+    window.open('{{ url_export_report }}', '_blank');
+}
+
+function updateDashboardData(data) {
+    // Update dashboard with real-time data
+    performanceChart.update();
+}
+
+function showLoading(message) {
+    // Show loading indicator
+    $('body').append('<div class="loading-overlay"><div class="loading-content"><i class="fa fa-spinner fa-spin"></i> ' + message + '</div></div>');
+}
+
+function hideLoading() {
+    $('.loading-overlay').remove();
+}
+
+function showSuccess(message) {
+    $('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + message + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>').prependTo('#content .container-fluid');
+}
+
+function showError(message) {
+    $('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + message + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>').prependTo('#content .container-fluid');
+}
+
+// Auto-refresh dashboard every 30 seconds
+setInterval(refreshDashboard, 30000);
+
+// Initialize dashboard
+$(document).ready(function() {
+    refreshDashboard();
+});
+</script>
+
+<style>
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.progress-group {
+    margin-bottom: 15px;
+}
+
+.timeline {
+    position: relative;
+    margin: 0 0 30px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.timeline:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #ddd;
+    left: 31px;
+    margin: 0;
+    border-radius: 2px;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-content {
+    color: white;
+    font-size: 18px;
+}
+
+.bg-primary { background-color: #007bff !important; }
+.bg-success { background-color: #28a745 !important; }
+.bg-info { background-color: #17a2b8 !important; }
+.bg-warning { background-color: #ffc107 !important; }
+</style>
+
+{{ footer }} 
