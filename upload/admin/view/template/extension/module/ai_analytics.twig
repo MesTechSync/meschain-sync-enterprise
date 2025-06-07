@@ -1,0 +1,828 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-save" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <!-- AI Analytics Dashboard -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-brain"></i> AI Analytics & Reporting Engine Dashboard</h3>
+      </div>
+      <div class="panel-body">
+        
+        <!-- Real-time Status Cards -->
+        <div class="row">
+          <div class="col-lg-3 col-md-6">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-3">
+                    <i class="fa fa-robot fa-5x"></i>
+                  </div>
+                  <div class="col-xs-9 text-right">
+                    <div class="huge" id="active-models">{{ analytics_dashboard.ai_models_active }}</div>
+                    <div>Active AI Models</div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <span class="pull-left">Quantum Enhanced</span>
+                <span class="pull-right"><i class="fa fa-atom"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-3 col-md-6">
+            <div class="panel panel-green">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-3">
+                    <i class="fa fa-chart-line fa-5x"></i>
+                  </div>
+                  <div class="col-xs-9 text-right">
+                    <div class="huge" id="predictions-24h">{{ analytics_dashboard.predictions_made_24h }}</div>
+                    <div>Predictions (24h)</div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <span class="pull-left">{{ analytics_dashboard.quantum_acceleration }}</span>
+                <span class="pull-right"><i class="fa fa-bolt"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-3 col-md-6">
+            <div class="panel panel-yellow">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-3">
+                    <i class="fa fa-file-alt fa-5x"></i>
+                  </div>
+                  <div class="col-xs-9 text-right">
+                    <div class="huge" id="reports-24h">{{ analytics_dashboard.reports_generated_24h }}</div>
+                    <div>Reports (24h)</div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <span class="pull-left">AI Insights Included</span>
+                <span class="pull-right"><i class="fa fa-lightbulb"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-3 col-md-6">
+            <div class="panel panel-red">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-3">
+                    <i class="fa fa-exclamation-triangle fa-5x"></i>
+                  </div>
+                  <div class="col-xs-9 text-right">
+                    <div class="huge" id="anomalies-24h">{{ analytics_dashboard.anomalies_detected_24h }}</div>
+                    <div>Anomalies (24h)</div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <span class="pull-left">Real-time Detection</span>
+                <span class="pull-right"><i class="fa fa-shield-alt"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- AI Analytics Control Panels -->
+        <div class="row">
+          <!-- Sales Forecasting Panel -->
+          <div class="col-md-6">
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-chart-line"></i> Sales Forecasting</h4>
+              </div>
+              <div class="panel-body">
+                <form id="sales-forecast-form">
+                  <div class="form-group">
+                    <label>Forecast Horizon</label>
+                    <select name="horizon" class="form-control">
+                      <option value="30 days">30 Days</option>
+                      <option value="60 days">60 Days</option>
+                      <option value="90 days" selected>90 Days</option>
+                      <option value="180 days">180 Days</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Confidence Level</label>
+                    <select name="confidence" class="form-control">
+                      <option value="90">90%</option>
+                      <option value="95" selected>95%</option>
+                      <option value="99">99%</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>
+                      <input type="checkbox" name="include_seasonality" checked> Include Seasonality
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label>
+                      <input type="checkbox" name="include_trends" checked> Include Trends
+                    </label>
+                  </div>
+                  <button type="button" id="generate-forecast" class="btn btn-primary btn-block">
+                    <i class="fa fa-magic"></i> Generate AI Forecast
+                  </button>
+                </form>
+                <div id="forecast-results" class="mt-3" style="display: none;">
+                  <h5>Forecast Results</h5>
+                  <div id="forecast-data"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Customer Segmentation Panel -->
+          <div class="col-md-6">
+            <div class="panel panel-success">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-users"></i> Customer Segmentation</h4>
+              </div>
+              <div class="panel-body">
+                <form id="segmentation-form">
+                  <div class="form-group">
+                    <label>Number of Segments</label>
+                    <select name="segments" class="form-control">
+                      <option value="8">8 Segments</option>
+                      <option value="10">10 Segments</option>
+                      <option value="12" selected>12 Segments</option>
+                      <option value="15">15 Segments</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Algorithm</label>
+                    <select name="algorithm" class="form-control">
+                      <option value="k_means_deep_learning" selected>K-Means + Deep Learning</option>
+                      <option value="hierarchical_clustering">Hierarchical Clustering</option>
+                      <option value="dbscan">DBSCAN</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Time Period</label>
+                    <select name="time_period" class="form-control">
+                      <option value="6 months">6 Months</option>
+                      <option value="1 year" selected>1 Year</option>
+                      <option value="2 years">2 Years</option>
+                    </select>
+                  </div>
+                  <button type="button" id="perform-segmentation" class="btn btn-success btn-block">
+                    <i class="fa fa-sitemap"></i> Perform AI Segmentation
+                  </button>
+                </form>
+                <div id="segmentation-results" class="mt-3" style="display: none;">
+                  <h5>Segmentation Results</h5>
+                  <div id="segmentation-data"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <!-- Inventory Optimization Panel -->
+          <div class="col-md-6">
+            <div class="panel panel-warning">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-boxes"></i> Inventory Optimization</h4>
+              </div>
+              <div class="panel-body">
+                <form id="optimization-form">
+                  <div class="form-group">
+                    <label>Algorithm</label>
+                    <select name="algorithm" class="form-control">
+                      <option value="reinforcement_learning" selected>Reinforcement Learning</option>
+                      <option value="genetic_algorithm">Genetic Algorithm</option>
+                      <option value="linear_programming">Linear Programming</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Optimization Goals</label>
+                    <div>
+                      <label><input type="checkbox" name="goals[]" value="cost_reduction" checked> Cost Reduction</label><br>
+                      <label><input type="checkbox" name="goals[]" value="efficiency_improvement" checked> Efficiency Improvement</label><br>
+                      <label><input type="checkbox" name="goals[]" value="service_level"> Service Level Optimization</label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Time Horizon</label>
+                    <select name="time_horizon" class="form-control">
+                      <option value="3 months">3 Months</option>
+                      <option value="6 months" selected>6 Months</option>
+                      <option value="1 year">1 Year</option>
+                    </select>
+                  </div>
+                  <button type="button" id="generate-optimization" class="btn btn-warning btn-block">
+                    <i class="fa fa-cogs"></i> Generate AI Optimization
+                  </button>
+                </form>
+                <div id="optimization-results" class="mt-3" style="display: none;">
+                  <h5>Optimization Results</h5>
+                  <div id="optimization-data"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Anomaly Detection Panel -->
+          <div class="col-md-6">
+            <div class="panel panel-danger">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-search"></i> Anomaly Detection</h4>
+              </div>
+              <div class="panel-body">
+                <form id="anomaly-form">
+                  <div class="form-group">
+                    <label>Detection Algorithms</label>
+                    <div>
+                      <label><input type="checkbox" name="algorithms[]" value="isolation_forest" checked> Isolation Forest</label><br>
+                      <label><input type="checkbox" name="algorithms[]" value="autoencoder" checked> Autoencoder</label><br>
+                      <label><input type="checkbox" name="algorithms[]" value="one_class_svm"> One-Class SVM</label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Data Sources</label>
+                    <div>
+                      <label><input type="checkbox" name="data_sources[]" value="sales" checked> Sales Data</label><br>
+                      <label><input type="checkbox" name="data_sources[]" value="inventory" checked> Inventory Data</label><br>
+                      <label><input type="checkbox" name="data_sources[]" value="customer_behavior" checked> Customer Behavior</label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Sensitivity</label>
+                    <select name="sensitivity" class="form-control">
+                      <option value="low">Low</option>
+                      <option value="medium" selected>Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  </div>
+                  <button type="button" id="detect-anomalies" class="btn btn-danger btn-block">
+                    <i class="fa fa-shield-alt"></i> Detect Anomalies
+                  </button>
+                </form>
+                <div id="anomaly-results" class="mt-3" style="display: none;">
+                  <h5>Anomaly Detection Results</h5>
+                  <div id="anomaly-data"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Analytics Report Generation Panel -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-chart-bar"></i> Analytics Report Generation</h4>
+              </div>
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <form id="report-form">
+                      <div class="form-group">
+                        <label>Report Type</label>
+                        <select name="type" class="form-control">
+                          <option value="executive_dashboard" selected>Executive Dashboard</option>
+                          <option value="sales_performance">Sales Performance</option>
+                          <option value="customer_analytics">Customer Analytics</option>
+                          <option value="inventory_insights">Inventory Insights</option>
+                          <option value="financial_analysis">Financial Analysis</option>
+                          <option value="market_intelligence">Market Intelligence</option>
+                          <option value="operational_efficiency">Operational Efficiency</option>
+                          <option value="risk_assessment">Risk Assessment</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label>Time Period</label>
+                        <select name="period" class="form-control">
+                          <option value="7 days">Last 7 Days</option>
+                          <option value="30 days" selected>Last 30 Days</option>
+                          <option value="90 days">Last 90 Days</option>
+                          <option value="1 year">Last Year</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label>Report Format</label>
+                        <select name="format" class="form-control">
+                          <option value="interactive" selected>Interactive Dashboard</option>
+                          <option value="pdf">PDF Report</option>
+                          <option value="excel">Excel Spreadsheet</option>
+                          <option value="json">JSON Data</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label>
+                          <input type="checkbox" name="include_ai_insights" checked> Include AI Insights
+                        </label>
+                      </div>
+                      <button type="button" id="generate-report" class="btn btn-primary btn-block">
+                        <i class="fa fa-file-alt"></i> Generate AI Report
+                      </button>
+                    </form>
+                  </div>
+                  <div class="col-md-6">
+                    <div id="report-preview" style="display: none;">
+                      <h5>Report Preview</h5>
+                      <div id="report-content"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- AI Model Performance Metrics -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-tachometer-alt"></i> AI Model Performance Metrics</h4>
+              </div>
+              <div class="panel-body">
+                <div class="row">
+                  {% for model_name, performance in ai_model_performance %}
+                  <div class="col-md-3">
+                    <div class="panel panel-default">
+                      <div class="panel-heading">
+                        <h5>{{ model_name|title|replace({'_': ' '}) }}</h5>
+                      </div>
+                      <div class="panel-body">
+                        <p><strong>Accuracy:</strong> {{ performance.accuracy }}%</p>
+                        <p><strong>Training Data:</strong> {{ performance.training_data_points|number_format }}</p>
+                        {% if performance.predictions_24h is defined %}
+                        <p><strong>Predictions (24h):</strong> {{ performance.predictions_24h|number_format }}</p>
+                        {% endif %}
+                        {% if performance.customers_processed is defined %}
+                        <p><strong>Customers Processed:</strong> {{ performance.customers_processed|number_format }}</p>
+                        {% endif %}
+                        {% if performance.cost_savings_24h is defined %}
+                        <p><strong>Cost Savings (24h):</strong> ${{ performance.cost_savings_24h|number_format(2) }}</p>
+                        {% endif %}
+                        {% if performance.anomalies_detected is defined %}
+                        <p><strong>Anomalies Detected:</strong> {{ performance.anomalies_detected }}</p>
+                        {% endif %}
+                        <p><small><strong>Last Training:</strong> {{ performance.last_training }}</small></p>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Recent AI Insights -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="panel panel-success">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-lightbulb"></i> Recent AI Insights</h4>
+              </div>
+              <div class="panel-body">
+                <div class="list-group">
+                  {% for insight in recent_insights %}
+                  <div class="list-group-item">
+                    <h5 class="list-group-item-heading">{{ insight.title }}</h5>
+                    <p class="list-group-item-text">{{ insight.description }}</p>
+                    <small>
+                      <span class="label label-{{ insight.priority == 'high' ? 'danger' : (insight.priority == 'medium' ? 'warning' : 'info') }}">{{ insight.priority|upper }}</span>
+                      <span class="pull-right">Confidence: {{ insight.confidence }}%</span>
+                    </small>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Anomaly Alerts -->
+          <div class="col-md-6">
+            <div class="panel panel-warning">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-exclamation-triangle"></i> Anomaly Alerts</h4>
+              </div>
+              <div class="panel-body">
+                <div class="list-group">
+                  {% for alert in anomaly_alerts %}
+                  <div class="list-group-item">
+                    <h5 class="list-group-item-heading">{{ alert.title }}</h5>
+                    <p class="list-group-item-text">{{ alert.description }}</p>
+                    <small>
+                      <span class="label label-{{ alert.severity == 'high' ? 'danger' : (alert.severity == 'medium' ? 'warning' : 'info') }}">{{ alert.severity|upper }}</span>
+                      <span class="label label-{{ alert.status == 'resolved' ? 'success' : 'default' }}">{{ alert.status|upper }}</span>
+                      <span class="pull-right">{{ alert.timestamp }}</span>
+                    </small>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quantum Performance Metrics -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-atom"></i> Quantum Performance Metrics</h4>
+              </div>
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="text-center">
+                      <h3 class="text-primary">{{ quantum_metrics.quantum_acceleration }}</h3>
+                      <p>Quantum Acceleration</p>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="text-center">
+                      <h3 class="text-success">{{ quantum_metrics.quantum_fidelity }}%</h3>
+                      <p>Quantum Fidelity</p>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="text-center">
+                      <h3 class="text-info">{{ quantum_metrics.quantum_computing_units|number_format }}</h3>
+                      <p>Quantum Computing Units</p>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="text-center">
+                      <h3 class="text-warning">{{ quantum_metrics.quantum_gates_utilized|number_format }}</h3>
+                      <p>Quantum Gates Utilized</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.huge {
+    font-size: 40px;
+}
+
+.panel-green {
+    border-color: #5cb85c;
+}
+
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-green > a {
+    color: #5cb85c;
+}
+
+.panel-green > a:hover {
+    color: #3d8b3d;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.panel-yellow > a {
+    color: #f0ad4e;
+}
+
+.panel-yellow > a:hover {
+    color: #df8a13;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+
+.panel-red > .panel-heading {
+    border-color: #d9534f;
+    color: white;
+    background-color: #d9534f;
+}
+
+.panel-red > a {
+    color: #d9534f;
+}
+
+.panel-red > a:hover {
+    color: #b52b27;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.result-success {
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6;
+    color: #3c763d;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.result-error {
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    color: #a94442;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+</style>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Auto-refresh dashboard data every 30 seconds
+    setInterval(function() {
+        refreshDashboardData();
+    }, 30000);
+    
+    // Sales Forecast Generation
+    $('#generate-forecast').click(function() {
+        var formData = $('#sales-forecast-form').serialize();
+        
+        $(this).addClass('loading').prop('disabled', true);
+        $('#forecast-results').hide();
+        
+        $.ajax({
+            url: '{{ api_endpoints.sales_forecast }}',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    displayForecastResults(response);
+                    $('#forecast-results').show();
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('An error occurred while generating the forecast.');
+            },
+            complete: function() {
+                $('#generate-forecast').removeClass('loading').prop('disabled', false);
+            }
+        });
+    });
+    
+    // Customer Segmentation
+    $('#perform-segmentation').click(function() {
+        var formData = $('#segmentation-form').serialize();
+        
+        $(this).addClass('loading').prop('disabled', true);
+        $('#segmentation-results').hide();
+        
+        $.ajax({
+            url: '{{ api_endpoints.customer_segmentation }}',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    displaySegmentationResults(response);
+                    $('#segmentation-results').show();
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('An error occurred while performing segmentation.');
+            },
+            complete: function() {
+                $('#perform-segmentation').removeClass('loading').prop('disabled', false);
+            }
+        });
+    });
+    
+    // Inventory Optimization
+    $('#generate-optimization').click(function() {
+        var formData = $('#optimization-form').serialize();
+        
+        $(this).addClass('loading').prop('disabled', true);
+        $('#optimization-results').hide();
+        
+        $.ajax({
+            url: '{{ api_endpoints.inventory_optimization }}',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    displayOptimizationResults(response);
+                    $('#optimization-results').show();
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('An error occurred while generating optimization.');
+            },
+            complete: function() {
+                $('#generate-optimization').removeClass('loading').prop('disabled', false);
+            }
+        });
+    });
+    
+    // Anomaly Detection
+    $('#detect-anomalies').click(function() {
+        var formData = $('#anomaly-form').serialize();
+        
+        $(this).addClass('loading').prop('disabled', true);
+        $('#anomaly-results').hide();
+        
+        $.ajax({
+            url: '{{ api_endpoints.anomaly_detection }}',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    displayAnomalyResults(response);
+                    $('#anomaly-results').show();
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('An error occurred while detecting anomalies.');
+            },
+            complete: function() {
+                $('#detect-anomalies').removeClass('loading').prop('disabled', false);
+            }
+        });
+    });
+    
+    // Report Generation
+    $('#generate-report').click(function() {
+        var formData = $('#report-form').serialize();
+        
+        $(this).addClass('loading').prop('disabled', true);
+        $('#report-preview').hide();
+        
+        $.ajax({
+            url: '{{ api_endpoints.analytics_report }}',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    displayReportResults(response);
+                    $('#report-preview').show();
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('An error occurred while generating the report.');
+            },
+            complete: function() {
+                $('#generate-report').removeClass('loading').prop('disabled', false);
+            }
+        });
+    });
+    
+    function refreshDashboardData() {
+        $.ajax({
+            url: '{{ api_endpoints.dashboard }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#active-models').text(response.ai_models_active);
+                    $('#predictions-24h').text(response.predictions_made_24h.toLocaleString());
+                    $('#reports-24h').text(response.reports_generated_24h.toLocaleString());
+                    $('#anomalies-24h').text(response.anomalies_detected_24h);
+                }
+            }
+        });
+    }
+    
+    function displayForecastResults(response) {
+        var html = '<div class="result-success">';
+        html += '<h6>Forecast Generated Successfully</h6>';
+        html += '<p><strong>Forecast ID:</strong> ' + response.forecast_id + '</p>';
+        html += '<p><strong>Horizon:</strong> ' + response.forecast_horizon + '</p>';
+        html += '<p><strong>Confidence:</strong> ' + response.confidence_level + '%</p>';
+        html += '<p><strong>Processing Time:</strong> ' + response.processing_time + 's</p>';
+        html += '<p><strong>Quantum Acceleration:</strong> ' + response.quantum_acceleration + 'x</p>';
+        html += '<p><strong>Predictions:</strong> ' + response.predictions.length + ' data points</p>';
+        html += '</div>';
+        $('#forecast-data').html(html);
+    }
+    
+    function displaySegmentationResults(response) {
+        var html = '<div class="result-success">';
+        html += '<h6>Segmentation Completed Successfully</h6>';
+        html += '<p><strong>Segmentation ID:</strong> ' + response.segmentation_id + '</p>';
+        html += '<p><strong>Algorithm:</strong> ' + response.algorithm + '</p>';
+        html += '<p><strong>Segments:</strong> ' + response.number_of_segments + '</p>';
+        html += '<p><strong>Processing Time:</strong> ' + response.processing_time + 's</p>';
+        html += '<p><strong>Quantum Acceleration:</strong> ' + response.quantum_acceleration + 'x</p>';
+        html += '</div>';
+        $('#segmentation-data').html(html);
+    }
+    
+    function displayOptimizationResults(response) {
+        var html = '<div class="result-success">';
+        html += '<h6>Optimization Completed Successfully</h6>';
+        html += '<p><strong>Optimization ID:</strong> ' + response.optimization_id + '</p>';
+        html += '<p><strong>Algorithm:</strong> ' + response.algorithm + '</p>';
+        html += '<p><strong>Cost Savings:</strong> $' + response.cost_savings.toLocaleString(undefined, {minimumFractionDigits: 2}) + '</p>';
+        html += '<p><strong>Efficiency Improvement:</strong> ' + response.efficiency_improvement + '%</p>';
+        html += '<p><strong>Processing Time:</strong> ' + response.processing_time + 's</p>';
+        html += '<p><strong>Quantum Acceleration:</strong> ' + response.quantum_acceleration + 'x</p>';
+        html += '</div>';
+        $('#optimization-data').html(html);
+    }
+    
+    function displayAnomalyResults(response) {
+        var html = '<div class="result-success">';
+        html += '<h6>Anomaly Detection Completed</h6>';
+        html += '<p><strong>Detection ID:</strong> ' + response.detection_id + '</p>';
+        html += '<p><strong>Algorithm:</strong> ' + response.algorithm + '</p>';
+        html += '<p><strong>Anomalies Detected:</strong> ' + response.anomalies_detected.length + '</p>';
+        html += '<p><strong>False Positive Rate:</strong> ' + response.false_positive_rate + '%</p>';
+        html += '<p><strong>Processing Time:</strong> ' + response.processing_time + 's</p>';
+        html += '<p><strong>Quantum Acceleration:</strong> ' + response.quantum_acceleration + 'x</p>';
+        html += '</div>';
+        $('#anomaly-data').html(html);
+    }
+    
+    function displayReportResults(response) {
+        var html = '<div class="result-success">';
+        html += '<h6>Report Generated Successfully</h6>';
+        html += '<p><strong>Report ID:</strong> ' + response.report_id + '</p>';
+        html += '<p><strong>Type:</strong> ' + response.report_type + '</p>';
+        html += '<p><strong>Period:</strong> ' + response.report_period + '</p>';
+        html += '<p><strong>Sections:</strong> ' + Object.keys(response.sections).length + '</p>';
+        html += '<p><strong>Visualizations:</strong> ' + response.visualizations.charts_created + '</p>';
+        html += '<p><strong>Processing Time:</strong> ' + response.processing_time + 's</p>';
+        html += '<p><strong>Quantum Acceleration:</strong> ' + response.quantum_acceleration + 'x</p>';
+        html += '</div>';
+        $('#report-content').html(html);
+    }
+});
+</script>
+
+{{ footer }} 
