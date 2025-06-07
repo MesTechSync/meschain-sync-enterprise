@@ -1,0 +1,438 @@
+/**
+ * 🎨 SELINAY WEEK 1 - THEME SYSTEM STYLES
+ * Advanced Dark/Light Theme Component Styling
+ * Task SELINAY-001C: Dark/Light Theme Infrastructure
+ * 
+ * @author Selinay - Frontend UI/UX Specialist
+ * @date June 7, 2025 (Preparation for June 10, 2025 start)
+ * @version 1.0.0 - Week 1 Foundation
+ * @priority P0_CRITICAL
+ */
+
+/* ===== COMPONENT SPECIFIC STYLES ===== */
+
+/* Button Variants */
+.selinay-btn-primary {
+  background: linear-gradient(135deg, var(--selinay-primary-500), var(--selinay-primary-600));
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+.selinay-btn-primary:hover {
+  background: linear-gradient(135deg, var(--selinay-primary-600), var(--selinay-primary-700));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.selinay-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+}
+
+.selinay-btn-secondary {
+  background: linear-gradient(135deg, var(--selinay-secondary-500), var(--selinay-secondary-600));
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+.selinay-btn-secondary:hover {
+  background: linear-gradient(135deg, var(--selinay-secondary-600), var(--selinay-secondary-700));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+}
+
+.selinay-btn-success {
+  background: linear-gradient(135deg, var(--selinay-success-500), #059669);
+  color: white;
+}
+
+.selinay-btn-warning {
+  background: linear-gradient(135deg, var(--selinay-warning-500), #D97706);
+  color: white;
+}
+
+.selinay-btn-error {
+  background: linear-gradient(135deg, var(--selinay-error-500), #DC2626);
+  color: white;
+}
+
+/* Button Sizes */
+.selinay-btn-sm {
+  padding: var(--selinay-space-xs) var(--selinay-space-sm);
+  font-size: var(--selinay-text-xs);
+  border-radius: var(--selinay-radius-sm);
+}
+
+.selinay-btn-md {
+  padding: var(--selinay-space-sm) var(--selinay-space-md);
+  font-size: var(--selinay-text-sm);
+  border-radius: var(--selinay-radius-md);
+}
+
+.selinay-btn-lg {
+  padding: var(--selinay-space-md) var(--selinay-space-lg);
+  font-size: var(--selinay-text-base);
+  border-radius: var(--selinay-radius-lg);
+}
+
+/* Button States */
+.selinay-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.selinay-btn[aria-busy="true"] {
+  cursor: wait;
+}
+
+/* Loading Spinner */
+.selinay-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: selinaySpinAnimation 0.8s linear infinite;
+  margin-right: var(--selinay-space-xs);
+}
+
+@keyframes selinaySpinAnimation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== CARD COMPONENT STYLES ===== */
+.selinay-card {
+  background: var(--selinay-card-bg);
+  border: 1px solid var(--selinay-card-border);
+  border-radius: var(--selinay-radius-lg);
+  box-shadow: var(--selinay-shadow-sm);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.selinay-card:hover {
+  box-shadow: var(--selinay-shadow-md);
+  transform: translateY(-2px);
+}
+
+.selinay-card-elevated {
+  box-shadow: var(--selinay-shadow-lg);
+}
+
+.selinay-card-outlined {
+  border: 2px solid var(--selinay-border-primary);
+  box-shadow: none;
+}
+
+.selinay-card-header {
+  padding: var(--selinay-space-lg);
+  border-bottom: 1px solid var(--selinay-border-primary);
+  background: var(--selinay-bg-secondary);
+}
+
+.selinay-card-title {
+  margin: 0;
+  font-size: var(--selinay-text-lg);
+  font-weight: 600;
+  color: var(--selinay-text-primary);
+}
+
+.selinay-card-content {
+  padding: var(--selinay-space-lg);
+  color: var(--selinay-text-secondary);
+  line-height: 1.6;
+}
+
+.selinay-card-actions {
+  padding: var(--selinay-space-md) var(--selinay-space-lg);
+  border-top: 1px solid var(--selinay-border-primary);
+  background: var(--selinay-bg-secondary);
+  display: flex;
+  gap: var(--selinay-space-sm);
+  justify-content: flex-end;
+}
+
+/* ===== INPUT COMPONENT STYLES ===== */
+.selinay-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--selinay-space-xs);
+}
+
+.selinay-input-label {
+  font-size: var(--selinay-text-sm);
+  font-weight: 500;
+  color: var(--selinay-text-primary);
+  margin-bottom: var(--selinay-space-xs);
+}
+
+.selinay-input {
+  width: 100%;
+  padding: var(--selinay-space-sm) var(--selinay-space-md);
+  border: 1px solid var(--selinay-border-primary);
+  border-radius: var(--selinay-radius-md);
+  background: var(--selinay-bg-primary);
+  color: var(--selinay-text-primary);
+  font-size: var(--selinay-text-sm);
+  transition: all 0.3s ease;
+}
+
+.selinay-input:focus {
+  outline: none;
+  border-color: var(--selinay-primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.selinay-input::placeholder {
+  color: var(--selinay-text-tertiary);
+}
+
+.selinay-input:disabled {
+  background: var(--selinay-bg-tertiary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.selinay-input-error {
+  border-color: var(--selinay-error-500);
+}
+
+.selinay-input-error:focus {
+  border-color: var(--selinay-error-500);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.selinay-input-error-text {
+  font-size: var(--selinay-text-xs);
+  color: var(--selinay-error-500);
+  margin-top: var(--selinay-space-xs);
+}
+
+/* ===== MODAL COMPONENT STYLES ===== */
+.selinay-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: selinayFadeIn 0.3s ease-out;
+}
+
+.selinay-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.selinay-modal-container {
+  position: relative;
+  background: var(--selinay-card-bg);
+  border-radius: var(--selinay-radius-xl);
+  box-shadow: var(--selinay-shadow-xl);
+  max-height: 90vh;
+  overflow: hidden;
+  animation: selinaySlideUp 0.3s ease-out;
+}
+
+@keyframes selinaySlideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.selinay-modal-sm .selinay-modal-container { width: 400px; }
+.selinay-modal-md .selinay-modal-container { width: 500px; }
+.selinay-modal-lg .selinay-modal-container { width: 700px; }
+.selinay-modal-xl .selinay-modal-container { width: 900px; }
+
+.selinay-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--selinay-space-lg);
+  border-bottom: 1px solid var(--selinay-border-primary);
+  background: var(--selinay-bg-secondary);
+}
+
+.selinay-modal-title {
+  margin: 0;
+  font-size: var(--selinay-text-xl);
+  font-weight: 600;
+  color: var(--selinay-text-primary);
+}
+
+.selinay-modal-close {
+  background: none;
+  border: none;
+  font-size: var(--selinay-text-2xl);
+  color: var(--selinay-text-tertiary);
+  cursor: pointer;
+  padding: var(--selinay-space-xs);
+  border-radius: var(--selinay-radius-sm);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.selinay-modal-close:hover {
+  background: var(--selinay-bg-tertiary);
+  color: var(--selinay-text-primary);
+}
+
+.selinay-modal-content {
+  padding: var(--selinay-space-lg);
+  color: var(--selinay-text-secondary);
+  line-height: 1.6;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* ===== THEME TOGGLE SPECIFIC STYLES ===== */
+.selinay-theme-toggle {
+  position: fixed;
+  top: var(--selinay-space-lg);
+  right: var(--selinay-space-lg);
+  z-index: 100;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: var(--selinay-space-xs);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .selinay-theme-toggle {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.selinay-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px) scale(1.05);
+}
+
+[data-theme="dark"] .selinay-theme-toggle:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ===== FOCUS MANAGEMENT ===== */
+.selinay-focus-visible.selinay-focused {
+  outline: 2px solid var(--selinay-primary-500);
+  outline-offset: 2px;
+}
+
+/* ===== HIGH CONTRAST MODE ===== */
+[data-high-contrast="true"] .selinay-btn {
+  border: 2px solid currentColor;
+}
+
+[data-high-contrast="true"] .selinay-card {
+  border: 2px solid var(--selinay-text-primary);
+}
+
+[data-high-contrast="true"] .selinay-input {
+  border: 2px solid var(--selinay-text-primary);
+}
+
+/* ===== RESPONSIVE ADAPTATIONS ===== */
+@media (max-width: 640px) {
+  .selinay-modal-container {
+    width: 95vw;
+    margin: var(--selinay-space-md);
+  }
+  
+  .selinay-theme-toggle {
+    top: var(--selinay-space-md);
+    right: var(--selinay-space-md);
+    font-size: var(--selinay-text-xs);
+    padding: var(--selinay-space-xs) var(--selinay-space-sm);
+  }
+  
+  .selinay-card-actions {
+    flex-direction: column;
+  }
+  
+  .selinay-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ===== SMOOTH TRANSITIONS ===== */
+* {
+  transition-property: background-color, border-color, color, box-shadow, transform;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+
+/* ===== DARK THEME SPECIFIC ENHANCEMENTS ===== */
+[data-theme="dark"] .selinay-card {
+  background: linear-gradient(145deg, var(--selinay-card-bg), rgba(255, 255, 255, 0.02));
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .selinay-card:hover {
+  background: linear-gradient(145deg, var(--selinay-card-bg), rgba(255, 255, 255, 0.05));
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .selinay-modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .selinay-input {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .selinay-input:focus {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ===== LIGHT THEME SPECIFIC ENHANCEMENTS ===== */
+[data-theme="light"] .selinay-card {
+  background: linear-gradient(145deg, var(--selinay-card-bg), rgba(0, 0, 0, 0.01));
+}
+
+[data-theme="light"] .selinay-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .selinay-modal-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/**
+ * 🌟 SELINAY THEME SYSTEM - FEATURE HIGHLIGHTS
+ * 
+ * ✅ Comprehensive component styling with theme support
+ * ✅ Smooth transitions and micro-interactions
+ * ✅ Advanced button variants with gradient backgrounds
+ * ✅ Accessible focus management and high contrast support
+ * ✅ Responsive modal system with backdrop blur
+ * ✅ Mobile-optimized layouts and interactions
+ * ✅ CSS-only loading spinners and animations
+ * ✅ Theme-specific enhancements for dark/light modes
+ * ✅ Performance-optimized CSS with minimal repaints
+ * ✅ Consistent design language across all components
+ * 
+ * Ready for Week 1 Implementation - June 10, 2025
+ * Created by Selinay Frontend UI/UX Team - Task SELINAY-001C
+ */

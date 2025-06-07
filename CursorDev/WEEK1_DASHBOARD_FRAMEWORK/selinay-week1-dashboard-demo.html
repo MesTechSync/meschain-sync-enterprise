@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Selinay Week 1 - Dashboard Framework Demo</title>
+    
+    <!-- Week 1 Foundation Styles -->
+    <link rel="stylesheet" href="selinay-core-dashboard-framework.css">
+    <link rel="stylesheet" href="selinay-theme-system-styles.css">
+    
+    <!-- Demo-specific styles -->
+    <style>
+        .demo-section {
+            margin: var(--selinay-space-2xl) 0;
+            padding: var(--selinay-space-xl);
+            border: 1px solid var(--selinay-border-primary);
+            border-radius: var(--selinay-radius-lg);
+            background: var(--selinay-bg-secondary);
+        }
+        
+        .demo-title {
+            font-size: var(--selinay-text-2xl);
+            font-weight: 600;
+            margin-bottom: var(--selinay-space-lg);
+            color: var(--selinay-primary-600);
+        }
+        
+        .demo-grid-item {
+            background: var(--selinay-bg-primary);
+            padding: var(--selinay-space-lg);
+            border-radius: var(--selinay-radius-md);
+            border: 1px solid var(--selinay-border-primary);
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .marketplace-card {
+            background: var(--selinay-bg-primary);
+            border: 1px solid var(--selinay-border-primary);
+            border-radius: var(--selinay-radius-lg);
+            padding: var(--selinay-space-lg);
+            margin-bottom: var(--selinay-space-lg);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .marketplace-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .marketplace-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--selinay-space-md);
+        }
+        
+        .marketplace-title {
+            font-size: var(--selinay-text-lg);
+            font-weight: 600;
+            color: var(--selinay-text-primary);
+        }
+        
+        .marketplace-status {
+            padding: var(--selinay-space-xs) var(--selinay-space-sm);
+            border-radius: var(--selinay-radius-sm);
+            font-size: var(--selinay-text-xs);
+            font-weight: 500;
+        }
+        
+        .status-connected {
+            background: var(--selinay-success-50);
+            color: var(--selinay-success-700);
+        }
+        
+        .marketplace-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--selinay-space-md);
+            margin-bottom: var(--selinay-space-md);
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: var(--selinay-space-sm);
+            background: var(--selinay-bg-secondary);
+            border-radius: var(--selinay-radius-md);
+        }
+        
+        .stat-value {
+            font-size: var(--selinay-text-xl);
+            font-weight: 700;
+            color: var(--selinay-primary-600);
+        }
+        
+        .stat-label {
+            font-size: var(--selinay-text-xs);
+            color: var(--selinay-text-secondary);
+            margin-top: var(--selinay-space-xs);
+        }
+        
+        .marketplace-actions {
+            display: flex;
+            gap: var(--selinay-space-sm);
+        }
+        
+        .btn {
+            padding: var(--selinay-space-sm) var(--selinay-space-md);
+            border-radius: var(--selinay-radius-md);
+            border: none;
+            font-size: var(--selinay-text-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: var(--selinay-primary-500);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--selinay-primary-600);
+        }
+        
+        .btn-secondary {
+            background: var(--selinay-bg-primary);
+            color: var(--selinay-text-primary);
+            border: 1px solid var(--selinay-border-primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--selinay-bg-secondary);
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .test-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--selinay-bg-primary);
+            border: 1px solid var(--selinay-border-primary);
+            border-radius: var(--selinay-radius-lg);
+            padding: var(--selinay-space-lg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+        }
+        
+        .test-results {
+            margin-top: var(--selinay-space-md);
+            font-size: var(--selinay-text-sm);
+        }
+        
+        .success { color: var(--selinay-success-600); }
+        .error { color: var(--selinay-error-600); }
+        .warning { color: var(--selinay-warning-600); }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button id="themeToggle" class="btn btn-secondary">
+            🌙 Dark Mode
+        </button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="selinay-container">
+        <!-- Header -->
+        <header class="demo-section">
+            <h1 class="demo-title">🎨 Selinay Week 1 - Dashboard Framework Demo</h1>
+            <p>Core Dashboard Framework & Marketplace Interfaces Implementation</p>
+            <p><strong>Status:</strong> Ready for June 10-15, 2025 Implementation</p>
+        </header>
+
+        <!-- SELINAY-001: Core Dashboard Framework Demo -->
+        <section class="demo-section">
+            <h2 class="demo-title">🔴 SELINAY-001: Core Dashboard Framework</h2>
+            
+            <!-- Responsive Grid System Demo -->
+            <h3>📐 Responsive Grid System</h3>
+            <div class="selinay-grid selinay-gap-md">
+                <div class="selinay-col-12 selinay-md:col-6 selinay-lg:col-3">
+                    <div class="demo-grid-item">Col 1</div>
+                </div>
+                <div class="selinay-col-12 selinay-md:col-6 selinay-lg:col-3">
+                    <div class="demo-grid-item">Col 2</div>
+                </div>
+                <div class="selinay-col-12 selinay-md:col-6 selinay-lg:col-3">
+                    <div class="demo-grid-item">Col 3</div>
+                </div>
+                <div class="selinay-col-12 selinay-md:col-6 selinay-lg:col-3">
+                    <div class="demo-grid-item">Col 4</div>
+                </div>
+            </div>
+            
+            <!-- Component Library Demo -->
+            <h3>🧩 Component Library Foundation</h3>
+            <div class="selinay-grid selinay-gap-md">
+                <div class="selinay-col-12 selinay-md:col-6">
+                    <button class="btn btn-primary">Primary Button</button>
+                    <button class="btn btn-secondary">Secondary Button</button>
+                </div>
+                <div class="selinay-col-12 selinay-md:col-6">
+                    <div id="componentStatus" class="stat-item">
+                        <div class="stat-value">Ready</div>
+                        <div class="stat-label">Component Library</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SELINAY-002: Marketplace Dashboard Interfaces Demo -->
+        <section class="demo-section">
+            <h2 class="demo-title">🔴 SELINAY-002: Marketplace Dashboard Interfaces</h2>
+            
+            <!-- Marketplace Cards -->
+            <div class="selinay-grid selinay-gap-lg">
+                <!-- Amazon SP-API -->
+                <div class="selinay-col-12 selinay-lg:col-6">
+                    <div class="marketplace-card" data-marketplace="amazon-sp-api">
+                        <div class="marketplace-header">
+                            <h3 class="marketplace-title">🛒 Amazon SP-API</h3>
+                            <span class="marketplace-status status-connected">Connected</span>
+                        </div>
+                        <div class="marketplace-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">1,247</div>
+                                <div class="stat-label">Products</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">89</div>
+                                <div class="stat-label">Orders</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">$12,450</div>
+                                <div class="stat-label">Revenue</div>
+                            </div>
+                        </div>
+                        <div class="marketplace-actions">
+                            <button class="btn btn-primary">Manage Products</button>
+                            <button class="btn btn-secondary">View Analytics</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trendyol -->
+                <div class="selinay-col-12 selinay-lg:col-6">
+                    <div class="marketplace-card" data-marketplace="trendyol">
+                        <div class="marketplace-header">
+                            <h3 class="marketplace-title">🇹🇷 Trendyol</h3>
+                            <span class="marketplace-status status-connected">Connected</span>
+                        </div>
+                        <div class="marketplace-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">856</div>
+                                <div class="stat-label">Ürünler</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">67</div>
+                                <div class="stat-label">Siparişler</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">₺45,600</div>
+                                <div class="stat-label">Ciro</div>
+                            </div>
+                        </div>
+                        <div class="marketplace-actions">
+                            <button class="btn btn-primary">Ürün Yönetimi</button>
+                            <button class="btn btn-secondary">Raporlar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- eBay -->
+                <div class="selinay-col-12 selinay-lg:col-6">
+                    <div class="marketplace-card" data-marketplace="ebay">
+                        <div class="marketplace-header">
+                            <h3 class="marketplace-title">🌍 eBay Global</h3>
+                            <span class="marketplace-status status-connected">Connected</span>
+                        </div>
+                        <div class="marketplace-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">423</div>
+                                <div class="stat-label">Listings</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">34</div>
+                                <div class="stat-label">Watchers</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">$8,920</div>
+                                <div class="stat-label">Sales</div>
+                            </div>
+                        </div>
+                        <div class="marketplace-actions">
+                            <button class="btn btn-primary">Manage Listings</button>
+                            <button class="btn btn-secondary">Global Settings</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- N11 & Hepsiburada -->
+                <div class="selinay-col-12 selinay-lg:col-6">
+                    <div class="marketplace-card" data-marketplace="n11">
+                        <div class="marketplace-header">
+                            <h3 class="marketplace-title">🇹🇷 N11 & Hepsiburada</h3>
+                            <span class="marketplace-status status-connected">Connected</span>
+                        </div>
+                        <div class="marketplace-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">692</div>
+                                <div class="stat-label">Ürünler</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">45</div>
+                                <div class="stat-label">Siparişler</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">₺23,780</div>
+                                <div class="stat-label">Toplam Satış</div>
+                            </div>
+                        </div>
+                        <div class="marketplace-actions">
+                            <button class="btn btn-primary">Mağaza Yönetimi</button>
+                            <button class="btn btn-secondary">Performans</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unified Marketplace Switcher -->
+            <div style="margin-top: var(--selinay-space-2xl);">
+                <h3>🔄 Unified Marketplace Switcher</h3>
+                <div class="selinay-grid selinay-gap-sm">
+                    <div class="selinay-col-auto">
+                        <button class="btn btn-primary" onclick="switchMarketplace('amazon')">Amazon</button>
+                    </div>
+                    <div class="selinay-col-auto">
+                        <button class="btn btn-secondary" onclick="switchMarketplace('trendyol')">Trendyol</button>
+                    </div>
+                    <div class="selinay-col-auto">
+                        <button class="btn btn-secondary" onclick="switchMarketplace('ebay')">eBay</button>
+                    </div>
+                    <div class="selinay-col-auto">
+                        <button class="btn btn-secondary" onclick="switchMarketplace('n11')">N11</button>
+                    </div>
+                    <div class="selinay-col-auto">
+                        <button class="btn btn-secondary" onclick="switchMarketplace('hepsiburada')">Hepsiburada</button>
+                    </div>
+                </div>
+                <div id="currentMarketplace" style="margin-top: var(--selinay-space-md);">
+                    Current: <strong>Amazon SP-API</strong>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Testing Panel -->
+    <div class="test-panel">
+        <h3>🧪 Testing Suite</h3>
+        <button id="runTests" class="btn btn-primary" style="width: 100%;">
+            Run Week 1 Tests
+        </button>
+        <div id="testResults" class="test-results"></div>
+    </div>
+
+    <!-- Week 1 JavaScript Foundation -->
+    <script src="selinay-component-library-foundation.js"></script>
+    <script src="selinay-marketplace-dashboard-interfaces.js"></script>
+    <script src="selinay-week1-testing-suite.js"></script>
+
+    <!-- Demo functionality -->
+    <script>
+        // Theme toggle functionality
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                this.textContent = '🌙 Dark Mode';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                this.textContent = '☀️ Light Mode';
+            }
+        });
+
+        // Marketplace switcher functionality
+        function switchMarketplace(marketplace) {
+            // Update UI
+            document.querySelectorAll('.selinay-col-auto .btn').forEach(btn => {
+                btn.className = 'btn btn-secondary';
+            });
+            event.target.className = 'btn btn-primary';
+            
+            // Update current marketplace display
+            const marketplaceNames = {
+                amazon: 'Amazon SP-API',
+                trendyol: 'Trendyol',
+                ebay: 'eBay Global',
+                n11: 'N11',
+                hepsiburada: 'Hepsiburada'
+            };
+            
+            document.getElementById('currentMarketplace').innerHTML = 
+                `Current: <strong>${marketplaceNames[marketplace]}</strong>`;
+            
+            console.log(`🔄 Switched to ${marketplaceNames[marketplace]}`);
+        }
+
+        // Run tests functionality
+        document.getElementById('runTests').addEventListener('click', async function() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<div class="warning">🧪 Running tests...</div>';
+            
+            try {
+                if (window.selinayWeek1Testing) {
+                    const results = await window.selinayWeek1Testing.runCompleteTestSuite();
+                    
+                    if (results.success) {
+                        resultsDiv.innerHTML = `
+                            <div class="success">✅ Tests completed!</div>
+                            <div>Framework: ${results.framework.passed ? '✅' : '❌'}</div>
+                            <div>Marketplace: ${results.marketplace.passed ? '✅' : '❌'}</div>
+                            <div>Performance: ⚡ ${(results.performance.loadTime || 0).toFixed(0)}ms</div>
+                        `;
+                    } else {
+                        resultsDiv.innerHTML = `<div class="error">❌ ${results.error}</div>`;
+                    }
+                } else {
+                    resultsDiv.innerHTML = '<div class="warning">⚠️ Testing suite not available</div>';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ ${error.message}</div>`;
+            }
+        });
+
+        // Initialize demo
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎨 Selinay Week 1 Dashboard Framework Demo loaded');
+            console.log('📅 Ready for implementation: June 10-15, 2025');
+            console.log('🚀 Foundation files prepared and tested');
+            
+            // Auto-run basic tests
+            setTimeout(() => {
+                document.getElementById('runTests').click();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
