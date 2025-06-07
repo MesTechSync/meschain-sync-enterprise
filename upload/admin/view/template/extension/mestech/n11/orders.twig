@@ -1,0 +1,846 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" data-toggle="tooltip" title="{{ button_sync_orders }}" class="btn btn-success" onclick="syncAllOrders()">
+          <i class="fa fa-refresh"></i>
+        </button>
+        <button type="button" data-toggle="tooltip" title="{{ button_export }}" class="btn btn-primary" onclick="exportOrders()">
+          <i class="fa fa-download"></i>
+        </button>
+        <button type="button" data-toggle="tooltip" title="{{ button_filter }}" class="btn btn-default" id="button-filter">
+          <i class="fa fa-filter"></i>
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <!-- Filter Panel -->
+    <div class="panel panel-default" id="filter-panel" style="display: none;">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-filter"></i> {{ text_filter }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-order-number">{{ entry_order_number }}</label>
+              <input type="text" name="filter_order_number" value="{{ filter_order_number }}" placeholder="{{ entry_order_number }}" id="input-filter-order-number" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-customer">{{ entry_customer }}</label>
+              <input type="text" name="filter_customer" value="{{ filter_customer }}" placeholder="{{ entry_customer }}" id="input-filter-customer" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-status">{{ entry_status }}</label>
+              <select name="filter_status" id="input-filter-status" class="form-control">
+                <option value="">{{ text_all_statuses }}</option>
+                <option value="new" {% if filter_status == 'new' %}selected="selected"{% endif %}>{{ text_new }}</option>
+                <option value="confirmed" {% if filter_status == 'confirmed' %}selected="selected"{% endif %}>{{ text_confirmed }}</option>
+                <option value="preparing" {% if filter_status == 'preparing' %}selected="selected"{% endif %}>{{ text_preparing }}</option>
+                <option value="shipped" {% if filter_status == 'shipped' %}selected="selected"{% endif %}>{{ text_shipped }}</option>
+                <option value="delivered" {% if filter_status == 'delivered' %}selected="selected"{% endif %}>{{ text_delivered }}</option>
+                <option value="cancelled" {% if filter_status == 'cancelled' %}selected="selected"{% endif %}>{{ text_cancelled }}</option>
+                <option value="returned" {% if filter_status == 'returned' %}selected="selected"{% endif %}>{{ text_returned }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-payment-type">{{ entry_payment_type }}</label>
+              <select name="filter_payment_type" id="input-filter-payment-type" class="form-control">
+                <option value="">{{ text_all_payment_types }}</option>
+                <option value="credit_card" {% if filter_payment_type == 'credit_card' %}selected="selected"{% endif %}>{{ text_credit_card }}</option>
+                <option value="debit_card" {% if filter_payment_type == 'debit_card' %}selected="selected"{% endif %}>{{ text_debit_card }}</option>
+                <option value="bank_transfer" {% if filter_payment_type == 'bank_transfer' %}selected="selected"{% endif %}>{{ text_bank_transfer }}</option>
+                <option value="n11_wallet" {% if filter_payment_type == 'n11_wallet' %}selected="selected"{% endif %}>{{ text_n11_wallet }}</option>
+                <option value="installment" {% if filter_payment_type == 'installment' %}selected="selected"{% endif %}>{{ text_installment }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-date-start">{{ entry_date_start }}</label>
+              <div class="input-group date">
+                <input type="text" name="filter_date_start" value="{{ filter_date_start }}" placeholder="{{ entry_date_start }}" id="input-filter-date-start" class="form-control" />
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button"><i class="fa fa-calendar"></i></button>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-date-end">{{ entry_date_end }}</label>
+              <div class="input-group date">
+                <input type="text" name="filter_date_end" value="{{ filter_date_end }}" placeholder="{{ entry_date_end }}" id="input-filter-date-end" class="form-control" />
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button"><i class="fa fa-calendar"></i></button>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-total-min">{{ entry_total_min }}</label>
+              <input type="text" name="filter_total_min" value="{{ filter_total_min }}" placeholder="{{ entry_total_min }}" id="input-filter-total-min" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-total-max">{{ entry_total_max }}</label>
+              <input type="text" name="filter_total_max" value="{{ filter_total_max }}" placeholder="{{ entry_total_max }}" id="input-filter-total-max" class="form-control" />
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12 text-right">
+            <button type="button" id="button-filter-apply" class="btn btn-primary">
+              <i class="fa fa-search"></i> {{ button_filter }}
+            </button>
+            <button type="button" id="button-filter-clear" class="btn btn-default">
+              <i class="fa fa-times"></i> {{ button_clear }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Orders Panel -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <td style="width: 1px;" class="text-center">
+                  <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" />
+                </td>
+                <td>
+                  {% if sort == 'n11_order_number' %}
+                  <a href="{{ sort_order_number }}" class="{{ order|lower }}">{{ column_order_number }}</a>
+                  {% else %}
+                  <a href="{{ sort_order_number }}">{{ column_order_number }}</a>
+                  {% endif %}
+                </td>
+                <td>{{ column_customer }}</td>
+                <td>{{ column_product }}</td>
+                <td>
+                  {% if sort == 'total_amount' %}
+                  <a href="{{ sort_total }}" class="{{ order|lower }}">{{ column_total }}</a>
+                  {% else %}
+                  <a href="{{ sort_total }}">{{ column_total }}</a>
+                  {% endif %}
+                </td>
+                <td>{{ column_payment_type }}</td>
+                <td>{{ column_status }}</td>
+                <td>{{ column_shipping }}</td>
+                <td>
+                  {% if sort == 'order_date' %}
+                  <a href="{{ sort_date }}" class="{{ order|lower }}">{{ column_date }}</a>
+                  {% else %}
+                  <a href="{{ sort_date }}">{{ column_date }}</a>
+                  {% endif %}
+                </td>
+                <td class="text-right">{{ column_action }}</td>
+              </tr>
+            </thead>
+            <tbody>
+              {% if orders %}
+              {% for order in orders %}
+              <tr>
+                <td class="text-center">
+                  {% if order.selected %}
+                  <input type="checkbox" name="selected[]" value="{{ order.id }}" checked="checked" />
+                  {% else %}
+                  <input type="checkbox" name="selected[]" value="{{ order.id }}" />
+                  {% endif %}
+                </td>
+                <td>
+                  <strong>{{ order.n11_order_number }}</strong>
+                  {% if order.order_id %}
+                  <br/><small class="text-muted">OpenCart: #{{ order.order_id }}</small>
+                  {% endif %}
+                </td>
+                <td>
+                  <strong>{{ order.customer_first_name }} {{ order.customer_last_name }}</strong>
+                  {% if order.customer_email %}
+                  <br/><small class="text-muted">{{ order.customer_email }}</small>
+                  {% endif %}
+                  {% if order.customer_phone %}
+                  <br/><small class="text-muted">{{ order.customer_phone }}</small>
+                  {% endif %}
+                </td>
+                <td>
+                  <strong>{{ order.product_name }}</strong>
+                  {% if order.sku %}
+                  <br/><small class="text-muted">SKU: {{ order.sku }}</small>
+                  {% endif %}
+                  <br/><span class="label label-info">{{ order.quantity }} {{ text_pieces }}</span>
+                </td>
+                <td>
+                  <strong>{{ order.total_amount }} {{ order.currency }}</strong>
+                  {% if order.commission_amount %}
+                  <br/><small class="text-muted">{{ text_commission }}: {{ order.commission_amount }} {{ order.currency }}</small>
+                  {% endif %}
+                  {% if order.installment_count > 1 %}
+                  <br/><small class="text-warning">{{ order.installment_count }} {{ text_installments }}</small>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if order.payment_type == 'credit_card' %}
+                  <span class="label label-primary">{{ text_credit_card }}</span>
+                  {% elseif order.payment_type == 'debit_card' %}
+                  <span class="label label-info">{{ text_debit_card }}</span>
+                  {% elseif order.payment_type == 'bank_transfer' %}
+                  <span class="label label-warning">{{ text_bank_transfer }}</span>
+                  {% elseif order.payment_type == 'n11_wallet' %}
+                  <span class="label label-success">{{ text_n11_wallet }}</span>
+                  {% elseif order.payment_type == 'installment' %}
+                  <span class="label label-default">{{ text_installment }}</span>
+                  {% else %}
+                  <span class="label label-default">{{ order.payment_type }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if order.order_status == 'new' %}
+                  <span class="label label-info">{{ text_new }}</span>
+                  {% elseif order.order_status == 'confirmed' %}
+                  <span class="label label-primary">{{ text_confirmed }}</span>
+                  {% elseif order.order_status == 'preparing' %}
+                  <span class="label label-warning">{{ text_preparing }}</span>
+                  {% elseif order.order_status == 'shipped' %}
+                  <span class="label label-success">{{ text_shipped }}</span>
+                  {% elseif order.order_status == 'delivered' %}
+                  <span class="label label-success">{{ text_delivered }}</span>
+                  {% elseif order.order_status == 'cancelled' %}
+                  <span class="label label-danger">{{ text_cancelled }}</span>
+                  {% elseif order.order_status == 'returned' %}
+                  <span class="label label-danger">{{ text_returned }}</span>
+                  {% else %}
+                  <span class="label label-default">{{ order.order_status }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if order.cargo_company %}
+                  <strong>{{ order.cargo_company }}</strong>
+                  {% if order.cargo_tracking_number %}
+                  <br/><small class="text-muted">{{ order.cargo_tracking_number }}</small>
+                  {% endif %}
+                  {% if order.estimated_delivery_date %}
+                  <br/><small class="text-info">{{ text_estimated }}: {{ order.estimated_delivery_date }}</small>
+                  {% endif %}
+                  {% else %}
+                  <span class="text-muted">{{ text_not_shipped }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <small>{{ order.order_date }}</small>
+                  {% if order.shipment_date %}
+                  <br/><small class="text-muted">{{ text_shipped }}: {{ order.shipment_date }}</small>
+                  {% endif %}
+                </td>
+                <td class="text-right">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
+                      {{ text_action }} <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <li><a onclick="viewOrder('{{ order.id }}')"><i class="fa fa-eye"></i> {{ text_view }}</a></li>
+                      <li><a onclick="updateOrderStatus('{{ order.id }}')"><i class="fa fa-edit"></i> {{ text_update_status }}</a></li>
+                      {% if order.order_status in ['confirmed', 'preparing'] %}
+                      <li><a onclick="shipOrder('{{ order.id }}')"><i class="fa fa-truck"></i> {{ text_ship_order }}</a></li>
+                      {% endif %}
+                      {% if order.cargo_tracking_number %}
+                      <li><a href="{{ order.cargo_tracking_url }}" target="_blank"><i class="fa fa-external-link"></i> {{ text_track_shipment }}</a></li>
+                      {% endif %}
+                      <li class="divider"></li>
+                      {% if order.order_id %}
+                      <li><a href="{{ order.opencart_order_url }}" target="_blank"><i class="fa fa-shopping-cart"></i> {{ text_view_opencart_order }}</a></li>
+                      {% else %}
+                      <li><a onclick="createOpenCartOrder('{{ order.id }}')"><i class="fa fa-plus"></i> {{ text_create_opencart_order }}</a></li>
+                      {% endif %}
+                      <li class="divider"></li>
+                      <li><a onclick="printInvoice('{{ order.id }}')"><i class="fa fa-print"></i> {{ text_print_invoice }}</a></li>
+                      <li><a onclick="sendEmail('{{ order.id }}')"><i class="fa fa-envelope"></i> {{ text_send_email }}</a></li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              {% else %}
+              <tr>
+                <td class="text-center" colspan="10">{{ text_no_results }}</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="row">
+          <div class="col-sm-6 text-left">{{ pagination }}</div>
+          <div class="col-sm-6 text-right">{{ results }}</div>
+        </div>
+        
+        <!-- Bulk Actions -->
+        {% if orders %}
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="btn-group">
+              <button type="button" class="btn btn-success" onclick="bulkUpdateStatus()">
+                <i class="fa fa-edit"></i> {{ button_bulk_update_status }}
+              </button>
+              <button type="button" class="btn btn-warning" onclick="bulkShip()">
+                <i class="fa fa-truck"></i> {{ button_bulk_ship }}
+              </button>
+              <button type="button" class="btn btn-info" onclick="bulkExport()">
+                <i class="fa fa-download"></i> {{ button_bulk_export }}
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Statistics Panel -->
+    <div class="row">
+      <div class="col-md-2">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_total_orders }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.total_orders }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_new_orders }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.new_orders }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_preparing_orders }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.preparing_orders }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_shipped_orders }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.shipped_orders }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_delivered_orders }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.delivered_orders }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-danger">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_cancelled_orders }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.cancelled_orders }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="modal-order" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_order_details }}</h4>
+      </div>
+      <div class="modal-body" id="modal-order-body">
+        <!-- Order details will be loaded here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="modal-update-status" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_update_status }}</h4>
+      </div>
+      <div class="modal-body">
+        <form id="form-update-status">
+          <input type="hidden" name="order_id" id="update-order-id" />
+          <div class="form-group">
+            <label>{{ entry_new_status }}</label>
+            <select name="new_status" class="form-control" required>
+              <option value="">{{ text_select_status }}</option>
+              <option value="confirmed">{{ text_confirmed }}</option>
+              <option value="preparing">{{ text_preparing }}</option>
+              <option value="shipped">{{ text_shipped }}</option>
+              <option value="delivered">{{ text_delivered }}</option>
+              <option value="cancelled">{{ text_cancelled }}</option>
+              <option value="returned">{{ text_returned }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>{{ entry_status_note }}</label>
+            <textarea name="status_note" class="form-control" rows="3" placeholder="{{ entry_status_note }}"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_cancel }}</button>
+        <button type="button" class="btn btn-primary" onclick="processStatusUpdate()">{{ button_update }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ship Order Modal -->
+<div class="modal fade" id="modal-ship-order" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_ship_order }}</h4>
+      </div>
+      <div class="modal-body">
+        <form id="form-ship-order">
+          <input type="hidden" name="order_id" id="ship-order-id" />
+          <div class="form-group">
+            <label>{{ entry_cargo_company }}</label>
+            <select name="cargo_company" class="form-control" required>
+              <option value="">{{ text_select_cargo_company }}</option>
+              {% for cargo in cargo_companies %}
+              <option value="{{ cargo.code }}">{{ cargo.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>{{ entry_tracking_number }}</label>
+            <input type="text" name="tracking_number" class="form-control" placeholder="{{ entry_tracking_number }}" required />
+          </div>
+          <div class="form-group">
+            <label>{{ entry_estimated_delivery }}</label>
+            <div class="input-group date">
+              <input type="text" name="estimated_delivery" class="form-control" placeholder="{{ entry_estimated_delivery }}" />
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><i class="fa fa-calendar"></i></button>
+              </span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>{{ entry_shipping_note }}</label>
+            <textarea name="shipping_note" class="form-control" rows="3" placeholder="{{ entry_shipping_note }}"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_cancel }}</button>
+        <button type="button" class="btn btn-primary" onclick="processShipOrder()">{{ button_ship }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Modal -->
+<div class="modal fade" id="modal-progress" tabindex="-1" role="dialog" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ text_processing }}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: 0%">
+            <span class="sr-only">0% {{ text_complete }}</span>
+          </div>
+        </div>
+        <div id="progress-message">{{ text_please_wait }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Initialize date pickers
+    $('.date').datetimepicker({
+        language: '{{ language }}',
+        pickTime: false
+    });
+    
+    // Filter toggle
+    $('#button-filter').on('click', function() {
+        $('#filter-panel').slideToggle();
+    });
+    
+    // Filter apply
+    $('#button-filter-apply').on('click', function() {
+        var url = '{{ filter_url }}';
+        var filter = '';
+        
+        $('input[name^="filter_"], select[name^="filter_"]').each(function() {
+            if ($(this).val()) {
+                if (filter) filter += '&';
+                filter += $(this).attr('name') + '=' + encodeURIComponent($(this).val());
+            }
+        });
+        
+        if (filter) {
+            location = url + '&' + filter;
+        } else {
+            location = url;
+        }
+    });
+    
+    // Filter clear
+    $('#button-filter-clear').on('click', function() {
+        $('input[name^="filter_"], select[name^="filter_"]').val('');
+        location = '{{ filter_url }}';
+    });
+});
+
+// Order Actions
+function viewOrder(orderId) {
+    $.ajax({
+        url: '{{ view_order_url }}',
+        type: 'POST',
+        data: { order_id: orderId },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                $('#modal-order-body').html(response.html);
+                $('#modal-order').modal('show');
+            } else {
+                showAlert('danger', response.message);
+            }
+        },
+        error: function() {
+            showAlert('danger', '{{ text_view_error }}');
+        }
+    });
+}
+
+function updateOrderStatus(orderId) {
+    $('#update-order-id').val(orderId);
+    $('#modal-update-status').modal('show');
+}
+
+function processStatusUpdate() {
+    var formData = $('#form-update-status').serialize();
+    
+    showProgress('{{ text_updating_status }}');
+    
+    $.ajax({
+        url: '{{ update_status_url }}',
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function(response) {
+            hideProgress();
+            $('#modal-update-status').modal('hide');
+            
+            if (response.success) {
+                showAlert('success', response.message);
+                location.reload();
+            } else {
+                showAlert('danger', response.message);
+            }
+        },
+        error: function() {
+            hideProgress();
+            showAlert('danger', '{{ text_update_error }}');
+        }
+    });
+}
+
+function shipOrder(orderId) {
+    $('#ship-order-id').val(orderId);
+    $('#modal-ship-order').modal('show');
+}
+
+function processShipOrder() {
+    var formData = $('#form-ship-order').serialize();
+    
+    showProgress('{{ text_shipping_order }}');
+    
+    $.ajax({
+        url: '{{ ship_order_url }}',
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function(response) {
+            hideProgress();
+            $('#modal-ship-order').modal('hide');
+            
+            if (response.success) {
+                showAlert('success', response.message);
+                location.reload();
+            } else {
+                showAlert('danger', response.message);
+            }
+        },
+        error: function() {
+            hideProgress();
+            showAlert('danger', '{{ text_ship_error }}');
+        }
+    });
+}
+
+function createOpenCartOrder(orderId) {
+    if (confirm('{{ text_confirm_create_opencart_order }}')) {
+        showProgress('{{ text_creating_opencart_order }}');
+        
+        $.ajax({
+            url: '{{ create_opencart_order_url }}',
+            type: 'POST',
+            data: { order_id: orderId },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_create_error }}');
+            }
+        });
+    }
+}
+
+function printInvoice(orderId) {
+    window.open('{{ print_invoice_url }}&order_id=' + orderId, '_blank');
+}
+
+function sendEmail(orderId) {
+    if (confirm('{{ text_confirm_send_email }}')) {
+        showProgress('{{ text_sending_email }}');
+        
+        $.ajax({
+            url: '{{ send_email_url }}',
+            type: 'POST',
+            data: { order_id: orderId },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_email_error }}');
+            }
+        });
+    }
+}
+
+// Bulk Actions
+function bulkUpdateStatus() {
+    var selected = getSelectedOrders();
+    if (selected.length === 0) {
+        showAlert('warning', '{{ text_no_orders_selected }}');
+        return;
+    }
+    
+    var newStatus = prompt('{{ text_enter_new_status }}');
+    if (newStatus) {
+        showProgress('{{ text_bulk_updating_status }}');
+        
+        $.ajax({
+            url: '{{ bulk_update_status_url }}',
+            type: 'POST',
+            data: { selected: selected, new_status: newStatus },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_bulk_update_error }}');
+            }
+        });
+    }
+}
+
+function bulkShip() {
+    var selected = getSelectedOrders();
+    if (selected.length === 0) {
+        showAlert('warning', '{{ text_no_orders_selected }}');
+        return;
+    }
+    
+    if (confirm('{{ text_confirm_bulk_ship }}')) {
+        showProgress('{{ text_bulk_shipping }}');
+        
+        $.ajax({
+            url: '{{ bulk_ship_url }}',
+            type: 'POST',
+            data: { selected: selected },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_bulk_ship_error }}');
+            }
+        });
+    }
+}
+
+function bulkExport() {
+    var selected = getSelectedOrders();
+    if (selected.length === 0) {
+        showAlert('warning', '{{ text_no_orders_selected }}');
+        return;
+    }
+    
+    window.open('{{ bulk_export_url }}&selected=' + selected.join(','), '_blank');
+}
+
+function syncAllOrders() {
+    if (confirm('{{ text_confirm_sync_all }}')) {
+        showProgress('{{ text_syncing_all_orders }}');
+        
+        $.ajax({
+            url: '{{ sync_all_orders_url }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_sync_all_error }}');
+            }
+        });
+    }
+}
+
+function exportOrders() {
+    window.open('{{ export_orders_url }}', '_blank');
+}
+
+// Helper Functions
+function getSelectedOrders() {
+    var selected = [];
+    $('input[name="selected[]"]:checked').each(function() {
+        selected.push($(this).val());
+    });
+    return selected;
+}
+
+function showProgress(message) {
+    $('#progress-message').text(message);
+    $('#modal-progress').modal('show');
+}
+
+function hideProgress() {
+    $('#modal-progress').modal('hide');
+}
+
+function showAlert(type, message) {
+    var alertHtml = '<div class="alert alert-' + type + ' alert-dismissible">' +
+        '<i class="fa fa-' + (type === 'success' ? 'check' : type === 'warning' ? 'warning' : 'times') + '-circle"></i> ' +
+        message +
+        '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+        '</div>';
+    
+    $('.container-fluid').prepend(alertHtml);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(function() {
+        $('.alert').fadeOut();
+    }, 5000);
+}
+</script>
+
+{{ footer }}
+</rewritten_file>
