@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPUS Design System - Ultimate OpenCart Theme</title>
+    
+    <!-- OPUS Design System CSS -->
+    <link rel="stylesheet" href="../../core/opus-variables.css">
+    <link rel="stylesheet" href="../../core/opus-base.css">
+    <link rel="stylesheet" href="../../core/opus-animations.css">
+    <link rel="stylesheet" href="../../components/opus-components.css">
+    
+    <!-- Custom Demo Styles -->
+    <style>
+        .demo-section {
+            margin-bottom: var(--opus-space-16);
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--opus-space-6);
+            margin-top: var(--opus-space-6);
+        }
+        
+        .demo-hero {
+            background: linear-gradient(135deg, var(--opus-primary-500), var(--opus-accent-500));
+            color: white;
+            padding: var(--opus-space-20) 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .demo-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: opus-float 20s ease-in-out infinite;
+        }
+        
+        .demo-hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .demo-notification-container {
+            position: fixed;
+            top: var(--opus-space-4);
+            right: var(--opus-space-4);
+            z-index: var(--opus-z-notification);
+        }
+        
+        .demo-color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--opus-space-4);
+        }
+        
+        .demo-color-swatch {
+            height: 100px;
+            border-radius: var(--opus-radius-lg);
+            display: flex;
+            align-items: flex-end;
+            padding: var(--opus-space-3);
+            font-size: var(--opus-text-sm);
+            font-weight: var(--opus-font-medium);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="opus-bg-primary">
+    <!-- Theme Switcher -->
+    <div id="theme-switcher-container" style="position: fixed; top: 20px; right: 20px; z-index: 1000;"></div>
+    
+    <!-- Hero Section -->
+    <section class="demo-hero opus-animate-fade-in">
+        <div class="opus-container demo-hero-content">
+            <h1 class="opus-text-6xl opus-font-black opus-animate-scale-in">OPUS Design System</h1>
+            <p class="opus-text-2xl opus-animate-fade-in-up" style="animation-delay: 200ms;">
+                OpenCart için Geliştirilmiş Ultimate Tasarım Sistemi
+            </p>
+            <p class="opus-text-lg opus-animate-fade-in-up" style="animation-delay: 400ms; opacity: 0.9;">
+                Gemini ve Selinay design system'lerinin ötesinde, MezBjen takımı tarafından yaratıldı
+            </p>
+            <div class="opus-animate-fade-in-up" style="animation-delay: 600ms; margin-top: var(--opus-space-8);">
+                <button class="opus-btn opus-btn-primary opus-btn-lg opus-hover-lift">
+                    🚀 Hemen Başla
+                </button>
+                <button class="opus-btn opus-btn-secondary opus-btn-lg opus-hover-grow" style="margin-left: var(--opus-space-4);">
+                    📚 Dokümantasyon
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Main Content -->
+    <main class="opus-container" style="padding-top: var(--opus-space-16); padding-bottom: var(--opus-space-16);">
+        
+        <!-- Typography Section -->
+        <section class="demo-section opus-scroll-fade-in">
+            <h2 class="opus-text-4xl opus-font-bold">Tipografi</h2>
+            <p class="opus-text-lg opus-text-secondary">Fluid tipografi sistemi ile her ekran boyutunda mükemmel görünüm</p>
+            
+            <div class="opus-card" style="margin-top: var(--opus-space-6);">
+                <h1 class="opus-text-5xl">Heading 1 - Başlık</h1>
+                <h2 class="opus-text-4xl">Heading 2 - Alt Başlık</h2>
+                <h3 class="opus-text-3xl">Heading 3 - Bölüm Başlığı</h3>
+                <h4 class="opus-text-2xl">Heading 4 - Konu Başlığı</h4>
+                <h5 class="opus-text-xl">Heading 5 - Alt Konu</h5>
+                <h6 class="opus-text-lg">Heading 6 - Küçük Başlık</h6>
+                <p class="opus-text-base">Normal paragraf metni. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                <p class="opus-text-sm opus-text-tertiary">Küçük metin ve açıklama yazıları için kullanılır.</p>
+            </div>
+        </section>
+        
+        <!-- Colors Section -->
+        <section class="demo-section opus-scroll-fade-in">
+            <h2 class="opus-text-4xl opus-font-bold">Renk Paleti</h2>
+            <p class="opus-text-lg opus-text-secondary">12 renk skalası ile zengin ve tutarlı tasarımlar</p>
+            
+            <div class="demo-color-grid" style="margin-top: var(--opus-space-6);">
+                <div class="demo-color-swatch" style="background: var(--opus-primary-500);">Primary</div>
+                <div class="demo-color-swatch" style="background: var(--opus-accent-500);">Accent</div>
+                <div class="demo-color-swatch" style="background: var(--opus-success-500);">Success</div>
+                <div class="demo-color-swatch" style="background: var(--opus-warning-500);">Warning</div>
+                <div class="demo-color-swatch" style="background: var(--opus-error-500);">Error</div>
+                <div class="demo-color-swatch" style="background: var(--opus-gray-500); color: var(--opus-gray-50);">Neutral</div>
+            </div>
+        </section>
+        
+        <!-- Buttons Section -->
+        <section class="demo-section opus-scroll-fade-in">
+            <h2 class="opus-text-4xl opus-font-bold">Butonlar</h2>
+            <p class="opus-text-lg opus-text-secondary">Ripple efektli, interaktif buton sistemleri</p>
+            
+            <div class="opus-card" style="margin-top: var(--opus-space-6);">
+                <h3 class="opus-text-xl opus-font-semibold opus-m-4">Buton Tipleri</h3>
+                <div class="opus-flex opus-flex-wrap" style="gap: var(--opus-space-4);">
+                    <button class="opus-btn opus-btn-primary">Primary Button</button>
+                    <button class="opus-btn opus-btn-secondary">Secondary Button</button>
+                    <button class="opus-btn opus-btn-accent">Accent Button</button>
+                    <button class="opus-btn opus-btn-ghost">Ghost Button</button>
+                </div>
+                
+                <h3 class="opus-text-xl opus-font-semibold opus-m-4" style="margin-top: var(--opus-space-8);">Buton Boyutları</h3>
+                <div class="opus-flex opus-items-center" style="gap: var(--opus-space-4);">
+                    <button class="opus-btn opus-btn-primary opus-btn-sm">Small</button>
+                    <button class="opus-btn opus-btn-primary">Default</button>
+                    <button class="opus-btn opus-btn-primary opus-btn-lg">Large</button>
+                    <button class="opus-btn opus-btn-primary opus-btn-xl">Extra Large</button>
+                </div>
+                
+                <h3 class="opus-text-xl opus-font-semibold opus-m-4" style="margin-top: var(--opus-space-8);">Buton Durumları</h3>
+                <div class="opus-flex opus-flex-wrap" style="gap: var(--opus-space-4);">
+                    <button class="opus-btn opus-btn-primary opus-hover-lift">Hover Effect</button>
+                    <button class="opus-btn opus-btn-primary opus-btn-loading">Loading</button>
+                    <button class="opus-btn opus-btn-primary" disabled>Disabled</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Cards Section -->
+        <section class="demo-section opus-scroll-fade-in">
+            <h2 class="opus-text-4xl opus-font-bold">Kartlar</h2>
+            <p class="opus-text-lg opus-text-secondary">Gradient animasyonlu, modern kart tasarımları</p>
+            
+            <div class="demo-grid">
+                <div class="opus-card opus-hover-lift">
+                    <div class="opus-card-header">
+                        <h3 class="opus-card-title">Standart Kart</h3>
+                        <p class="opus-card-subtitle">Alt başlık metni</p>
+                    </div>
+                    <div class="opus-card-body">
+                        <p>Bu bir standart kart örneğidir. Hover efekti ile yukarı kalkar ve üst kenarında gradient animasyon görünür.</p>
+                    </div>
+                    <div class="opus-card-footer">
+                        <button class="opus-btn opus-btn-primary opus-btn-sm">Detaylar</button>
+                    </div>
+                </div>
+                
+                <div class="opus-card opus-card-elevated">
+                    <div class="opus-card-header">
+                        <h3 class="opus-card-title">Yükseltilmiş Kart</h3>
+                        <p class="opus-card-subtitle">Gölge efektli</p>
+                    </div>
+                    <div class="opus-card-body">
+                        <p>Bu kart varsayılan olarak gölge efektine sahiptir ve daha belirgin görünür.</p>
+                    </div>
+                </div>
+                
+                <div class="opus-card opus-card-interactive">
+                    <div class="opus-card-header">
+                        <h3 class="opus-card-title">İnteraktif Kart</h3>
+                        <p class="opus-card-subtitle">Tıklanabilir</p>
+                    </div>
+                    <div class="opus-card-body">
+                        <p>Bu kart tıklanabilir ve active durumda scale efekti uygulanır.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Forms Section -->
+        <section class="demo-section opus-scroll-fade-in">
+            <h2 class="opus-text-4xl opus-font-bold">Form Elemanları</h2>
+            <p class="opus-text-lg opus-text-secondary">Modern ve kullanıcı dostu form bileşenleri</p>
+            
+            <div class="opus-card" style="margin-top: var(--opus-space-6);">
+                <form>
+                    <div class="opus-form-group">
+                        <label class="opus-label" for="demo-input">Text Input</label>
+                        <input type="text" id="demo-input" class="opus-input" placeholder="Bir şeyler yazın...">
+                        <p class="opus-form-helper">Yardımcı metin burada görünür</p>
+                    </div>
+                    
+                    <div class="opus-form-group">
+                        <label class="opus-label" for="demo-select">Select Box</label>
+                        <select id="demo-select" class="opus-select">
+                            <option>Seçenek 1</option>
+                            <option>Seçenek 2</option>
+                            <option>Seçenek 3</option>
+                        </select>
+                    </div>
+                    
+                    <div class="opus-form-group">
+                        <label class="opus-label" for="demo-textarea">Textarea</label>
+                        <textarea id="demo-textarea" class="opus-textarea" rows="4" placeholder="Detaylı açıklama..."></textarea>
+                    </div>
+                    
+                    <div class="opus-form-group">
+                        <label class="opus-checkbox">
+                            <input type="checkbox">
+                            <span>Şartları kabul ediyorum</span>
+                        </label>
+                    </div>
+                    
+                    <div class="opus-form-group">
+                        <label class="opus-toggle">
+                            <input type="checkbox">
+                            <span class="opus-toggle-slider"></span>
+                        </label>
+                        <span style="margin-left: var(--opus-space-3);">Bildirimleri aç/kapat</span>
+                    </div>
+                    
+                    <button type="submit" class="opus-btn opus-btn-primary">Formu Gönder</button>
+                </form>
+            </div>
+        </section>
+        
+        <!-- Components Section -->
+        <section class="demo-section opus-scroll-fade-in">
+            <h2 class="opus-text-4xl opus-font-bold">Diğer Bileşenler</h2>
+            <p class="opus-text-lg opus-text-secondary">Badge, progress bar, spinner ve daha fazlası</p>
+            
+            <div class="opus-card" style="margin-top: var(--opus-space-6);">
+                <h3 class="opus-text-xl opus-font-semibold opus-m-4">Badges</h3>
+                <div class="opus-flex opus-flex-wrap" style="gap: var(--opus-space-3);">
+                    <span class="opus-badge">Default</span>
+                    <span class="opus-badge opus-badge-primary">Primary</span>
+                    <span class="opus-badge opus-badge-success">Success</span>
+                    <span class="opus-badge opus-badge-warning">Warning</span>
+                    <span class="opus-badge opus-badge-error">Error</span>
+                </div>
+                
+                <h3 class="opus-text-xl opus-font-semibold opus-m-4" style="margin-top: var(--opus-space-8);">Progress Bars</h3>
+                <div class="opus-progress">
+                    <div class="opus-progress-bar" style="width: 25%;"></div>
+                </div>
+                <div class="opus-progress" style="margin-top: var(--opus-space-3);">
+                    <div class="opus-progress-bar" style="width: 50%;"></div>
+                </div>
+                <div class="opus-progress" style="margin-top: var(--opus-space-3);">
+                    <div class="opus-progress-bar" style="width: 75%;"></div>
+                </div>
+                
+                <h3 class="opus-text-xl opus-font-semibold opus-m-4" style="margin-top: var(--opus-space-8);">Spinners</h3>
+                <div class="opus-flex opus-items-center" style="gap: var(--opus-space-6);">
+                    <div class="opus-spinner opus-spinner-sm"></div>
+                    <div class="opus-spinner"></div>
+                    <div class="opus-spinner opus-spinner-lg"></div>
+                </div>
+                
+                <h3 class="opus-text-xl opus-font-semibold opus-m-4" style="margin-top: var(--opus-space-8);">Avatars</h3>
+                <div class="opus-flex opus-items-center" style="gap: var(--opus-space-4);">
+                    <div class="opus-avatar opus-avatar-sm">SM</div>
+                    <div class="opus-avatar">MD</div>
+                    <div class="opus-avatar opus-avatar-lg">LG</div>
+                    <div class="opus-avatar opus-avatar-xl">XL</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Animations Section -->
+        <section class="demo-section opus-scroll-fade-in">
+            <h2 class="opus-text-4xl opus-font-bold">Animasyonlar</h2>
+            <p class="opus-text-lg opus-text-secondary">GPU hızlandırmalı, smooth animasyonlar</p>
+            
+            <div class="demo-grid">
+                <div class="opus-card opus-animate-pulse">
+                    <h3 class="opus-card-title">Pulse Animation</h3>
+                    <p>Sürekli nabız efekti</p>
+                </div>
+                
+                <div class="opus-card opus-animate-float">
+                    <h3 class="opus-card-title">Float Animation</h3>
+                    <p>Yukarı aşağı hareket</p>
+                </div>
+                
+                <div class="opus-card opus-animate-glow">
+                    <h3 class="opus-card-title">Glow Animation</h3>
+                    <p>Parlama efekti</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Interactive Demo -->
+        <section class="demo-section opus-scroll-fade-in">
+            <h2 class="opus-text-4xl opus-font-bold">İnteraktif Demo</h2>
+            <p class="opus-text-lg opus-text-secondary">Canlı bildirim ve modal örnekleri</p>
+            
+            <div class="opus-card" style="margin-top: var(--opus-space-6);">
+                <div class="opus-flex opus-flex-wrap" style="gap: var(--opus-space-4);">
+                    <button class="opus-btn opus-btn-primary" onclick="showNotification('success')">
+                        ✅ Başarı Bildirimi
+                    </button>
+                    <button class="opus-btn opus-btn-accent" onclick="showNotification('info')">
+                        ℹ️ Bilgi Bildirimi
+                    </button>
+                    <button class="opus-btn opus-btn-secondary" onclick="showNotification('warning')">
+                        ⚠️ Uyarı Bildirimi
+                    </button>
+                    <button class="opus-btn opus-btn-secondary" onclick="showNotification('error')">
+                        ❌ Hata Bildirimi
+                    </button>
+                </div>
+                
+                <div style="margin-top: var(--opus-space-6);">
+                    <button class="opus-btn opus-btn-primary opus-btn-lg" onclick="showModal()">
+                        🎭 Modal Aç
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+    
+    <!-- Notification Container -->
+    <div class="demo-notification-container" id="notification-container"></div>
+    
+    <!-- Modal -->
+    <div id="demo-modal" style="display: none;">
+        <div class="opus-modal-backdrop" onclick="closeModal()"></div>
+        <div class="opus-modal">
+            <div class="opus-modal-header">
+                <h2 class="opus-modal-title">OPUS Modal Örneği</h2>
+            </div>
+            <div class="opus-modal-body">
+                <p>Bu, OPUS Design System'in modal bileşenidir. Backdrop blur efekti ve smooth animasyonlarla birlikte gelir.</p>
+                <p>Modal içeriği scroll edilebilir ve responsive tasarıma sahiptir.</p>
+            </div>
+            <div class="opus-modal-footer">
+                <button class="opus-btn opus-btn-secondary" onclick="closeModal()">İptal</button>
+                <button class="opus-btn opus-btn-primary">Kaydet</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="../../themes/opus-theme-manager.js"></script>
+    <script>
+        // Initialize theme switcher
+        document.getElementById('theme-switcher-container').appendChild(
+            opusTheme.createThemeSwitcher()
+        );
+        
+        // Notification system
+        function showNotification(type) {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `opus-notification opus-notification-${type}`;
+            
+            const messages = {
+                success: { title: 'Başarılı!', text: 'İşlem başarıyla tamamlandı.' },
+                info: { title: 'Bilgi', text: 'Bu bir bilgilendirme mesajıdır.' },
+                warning: { title: 'Uyarı!', text: 'Lütfen dikkatli olun.' },
+                error: { title: 'Hata!', text: 'Bir şeyler yanlış gitti.' }
+            };
+            
+            const msg = messages[type];
+            notification.innerHTML = `
+                <div class="opus-notification-title">${msg.title}</div>
+                <div>${msg.text}</div>
+                <div class="opus-notification-close" onclick="this.parentElement.remove()">✕</div>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'opus-fade-out 300ms ease-out forwards';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+        
+        // Modal system
+        function showModal() {
+            document.getElementById('demo-modal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal() {
+            document.getElementById('demo-modal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opus-in-view');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.opus-scroll-fade-in, .opus-scroll-scale-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html> 
