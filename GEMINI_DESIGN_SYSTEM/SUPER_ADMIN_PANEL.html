@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMINI SUPER ADMIN - Meschain Sync Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://unpkg.com/phosphor-icons"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* bg-slate-900 */
+        }
+        .glass-sidebar {
+            background-color: rgba(15, 23, 42, 0.6); /* bg-slate-900 with opacity */
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .main-content {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(30, 41, 59, 0.3) 100%);
+        }
+        .card-glass {
+            background-color: rgba(30, 41, 59, 0.5); /* bg-slate-800 with opacity */
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .card-glass:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(167, 139, 250, 0.1); /* Violet shadow */
+        }
+        .neon-accent-text {
+            color: #a78bfa; /* text-violet-400 */
+            text-shadow: 0 0 5px rgba(167, 139, 250, 0.5);
+        }
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+        }
+        .status-pill-green {
+            background-color: rgba(74, 222, 128, 0.1);
+            color: #4ade80; /* text-green-400 */
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+        .status-pill-amber {
+            background-color: rgba(251, 191, 36, 0.1);
+            color: #fbbf24; /* text-amber-400 */
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+        .status-pill-red {
+            background-color: rgba(248, 113, 113, 0.1);
+            color: #f87171; /* text-red-400 */
+            border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+        .animate-pulse-fast {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            50% {
+                opacity: .5;
+            }
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #8b5cf6, #6366f1);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+    </style>
+</head>
+<body class="text-slate-300">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 flex-shrink-0 glass-sidebar flex flex-col">
+            <div class="h-20 flex items-center px-6 border-b border-slate-700/50">
+                <i class="ph-duotone ph-buildings text-violet-400 text-4xl"></i>
+                <h1 class="text-xl font-bold ml-3 text-slate-100">Meschain <span class="font-light text-slate-400">Sync</span></h1>
+            </div>
+            <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+                <a href="#" class="flex items-center px-4 py-2.5 text-slate-100 bg-slate-700/50 rounded-lg font-semibold"><i class="ph-duotone ph-gauge text-xl mr-3"></i>Kontrol Paneli</a>
+                
+                <p class="px-4 pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Pazaryerleri</p>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-storefront text-xl mr-3"></i>Trendyol</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-storefront text-xl mr-3"></i>Hepsiburada</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-storefront text-xl mr-3"></i>N11</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-storefront text-xl mr-3"></i>Amazon</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-storefront text-xl mr-3"></i>Ozon</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-storefront text-xl mr-3"></i>eBay</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-storefront text-xl mr-3"></i>Pazarama</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-flower-lotus text-xl mr-3"></i>Çiçeksepeti</a>
+
+                <p class="px-4 pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Yönetim</p>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-package text-xl mr-3"></i>Ürün Yönetimi</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-truck text-xl mr-3"></i>Dropshipping</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-users text-xl mr-3"></i>Kullanıcı Yönetimi</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-lock-key text-xl mr-3"></i>Yetki Yönetimi (RBAC)</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-chart-bar text-xl mr-3"></i>Raporlar & Analiz</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-bell-ringing text-xl mr-3"></i>Duyurular</a>
+                
+                <p class="px-4 pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Gelişmiş</p>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-robot text-xl mr-3"></i>Otomasyon</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-arrows-clockwise text-xl mr-3"></i>Webhook Yönetimi</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-brain text-xl mr-3"></i>AI Analizleri</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-currency-circle-dollar text-xl mr-3"></i>Çoklu Para Birimi</a>
+                
+                <p class="px-4 pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Sistem</p>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-monitor text-xl mr-3"></i>Sistem Monitörü</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-terminal-window text-xl mr-3"></i>Log Görüntüleyici</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-plugs-connected text-xl mr-3"></i>API Yönetimi</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-shield-check text-xl mr-3"></i>Güvenlik Monitörü</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-cloud-arrow-up text-xl mr-3"></i>Altyapı & Ölçekleme</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-atom text-xl mr-3"></i>Quantum Modülleri</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-gear-six text-xl mr-3"></i>Genel Ayarlar</a>
+                <a href="#" class="flex items-center px-4 py-2.5 rounded-lg hover:bg-slate-700/50 transition-colors"><i class="ph-duotone ph-question text-xl mr-3"></i>Yardım & Destek</a>
+            </nav>
+             <div class="p-4 border-t border-slate-700/50">
+                <div class="card-glass p-4 rounded-lg text-center">
+                    <h3 class="font-bold text-white">Opus 7 Geliştirme</h3>
+                    <p class="text-xs text-slate-400 mt-1 mb-3">Yeni versiyona geçişe son 12 gün.</p>
+                    <div class="w-full bg-slate-700 rounded-full h-2.5">
+                      <div class="bg-violet-500 h-2.5 rounded-full" style="width: 45%"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-y-auto main-content">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-white">Süper Admin Kontrol Paneli</h2>
+                    <p class="text-slate-400 mt-1">Sistem genel durumu ve kritik metrikler.</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-700/50"><i class="ph ph-bell text-2xl"></i></button>
+                    <div class="flex items-center">
+                        <img src="https://i.pravatar.cc/40?u=superadmin" alt="Admin" class="w-10 h-10 rounded-full border-2 border-violet-400">
+                        <div class="ml-3">
+                            <p class="font-semibold text-white">Mezbjen</p>
+                            <p class="text-xs text-slate-400">Süper Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="card-glass p-6 rounded-2xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-slate-400">Toplam Ciro</p>
+                            <p class="text-3xl font-bold text-white mt-1">₺1,2M</p>
+                        </div>
+                        <div class="p-2 bg-green-500/10 rounded-lg"><i class="ph ph-trend-up text-green-400 text-2xl"></i></div>
+                    </div>
+                    <p class="text-xs text-green-400 mt-4 flex items-center"><i class="ph ph-arrow-up mr-1"></i> %12.5 (son 30 gün)</p>
+                </div>
+                <div class="card-glass p-6 rounded-2xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-slate-400">Yeni Siparişler</p>
+                            <p class="text-3xl font-bold text-white mt-1">3,452</p>
+                        </div>
+                        <div class="p-2 bg-blue-500/10 rounded-lg"><i class="ph ph-shopping-bag-open text-blue-400 text-2xl"></i></div>
+                    </div>
+                     <p class="text-xs text-slate-400 mt-4">Bugün 152 yeni sipariş</p>
+                </div>
+                <div class="card-glass p-6 rounded-2xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-slate-400">API Hata Oranı</p>
+                            <p class="text-3xl font-bold text-red-500 mt-1">0.12%</p>
+                        </div>
+                        <div class="p-2 bg-red-500/10 rounded-lg"><i class="ph ph-siren text-red-400 text-2xl"></i></div>
+                    </div>
+                     <p class="text-xs text-red-400 mt-4 flex items-center"><i class="ph ph-arrow-down mr-1"></i> %5 (düne göre)</p>
+                </div>
+                <div class="card-glass p-6 rounded-2xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-slate-400">Aktif Entegrasyonlar</p>
+                            <p class="text-3xl font-bold text-white mt-1">5 <span class="text-lg text-slate-400">/ 6</span></p>
+                        </div>
+                        <div class="p-2 bg-violet-500/10 rounded-lg"><i class="ph ph-plugs-connected text-violet-400 text-2xl"></i></div>
+                    </div>
+                     <p class="text-xs text-slate-400 mt-4">eBay bekleniyor</p>
+                </div>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="grid grid-cols-3 gap-6">
+                <!-- Sales Chart -->
+                <div class="col-span-3 lg:col-span-2 card-glass p-6 rounded-2xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-white">Satış Performansı</h3>
+                        <div class="flex space-x-2">
+                             <button class="px-3 py-1 text-xs font-semibold text-white bg-slate-700 rounded-md">Günlük</button>
+                             <button class="px-3 py-1 text-xs font-semibold text-slate-400 hover:bg-slate-700/50 rounded-md">Haftalık</button>
+                             <button class="px-3 py-1 text-xs font-semibold text-slate-400 hover:bg-slate-700/50 rounded-md">Aylık</button>
+                        </div>
+                    </div>
+                    <div id="sales-chart"></div>
+                </div>
+
+                <!-- Platform Status -->
+                <div class="col-span-3 lg:col-span-1 card-glass p-6 rounded-2xl">
+                    <h3 class="text-lg font-bold text-white mb-4">Platform Durumu</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <img src="https://icon.horse/icon/trendyol.com" class="w-8 h-8 rounded-full" />
+                                <span class="ml-3 font-semibold text-white">Trendyol API</span>
+                            </div>
+                            <div class="status-pill status-pill-green"><div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse-fast"></div>Aktif</div>
+                        </div>
+                         <div class="flex justify-between items-center">
+                             <div class="flex items-center">
+                                <img src="https://icon.horse/icon/hepsiburada.com" class="w-8 h-8 rounded-full" />
+                                <span class="ml-3 font-semibold text-white">Hepsiburada</span>
+                            </div>
+                            <div class="status-pill status-pill-green"><div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>Aktif</div>
+                        </div>
+                         <div class="flex justify-between items-center">
+                             <div class="flex items-center">
+                                <img src="https://icon.horse/icon/n11.com" class="w-8 h-8 rounded-full" />
+                                <span class="ml-3 font-semibold text-white">N11 API</span>
+                            </div>
+                            <div class="status-pill status-pill-amber"><div class="w-2 h-2 bg-amber-400 rounded-full mr-2 animate-pulse"></div>Gecikme Var</div>
+                        </div>
+                         <div class="flex justify-between items-center">
+                             <div class="flex items-center">
+                                <img src="https://icon.horse/icon/amazon.com" class="w-8 h-8 rounded-full" />
+                                <span class="ml-3 font-semibold text-white">Amazon EU</span>
+                            </div>
+                            <div class="status-pill status-pill-green"><div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>Aktif</div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                             <div class="flex items-center">
+                                <img src="https://icon.horse/icon/ozon.ru" class="w-8 h-8 rounded-full" />
+                                <span class="ml-3 font-semibold text-white">Ozon Global</span>
+                            </div>
+                            <div class="status-pill status-pill-red"><div class="w-2 h-2 bg-red-400 rounded-full mr-2 animate-ping"></div>Çevrımdışı</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="col-span-3 card-glass p-6 rounded-2xl">
+                    <h3 class="text-lg font-bold text-white mb-4">Son Aktiviteler</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="border-b border-slate-700 text-sm text-slate-400">
+                                <tr>
+                                    <th class="py-3 pr-4">Kullanıcı</th>
+                                    <th class="py-3 px-4">Eylem</th>
+                                    <th class="py-3 px-4">Detay</th>
+                                    <th class="py-3 pl-4">Zaman</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800">
+                                <tr class="hover:bg-slate-800/50">
+                                    <td class="py-3 pr-4 font-semibold text-white">SELINAY</td>
+                                    <td class="py-3 px-4"><span class="status-pill status-pill-green">Ürün Eklendi</span></td>
+                                    <td class="py-3 px-4 text-slate-400">5 yeni "Elektronik" kategori ürünü eklendi.</td>
+                                    <td class="py-3 pl-4 text-slate-400">2 dakika önce</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/50">
+                                    <td class="py-3 pr-4 font-semibold text-white">MUSTI</td>
+                                    <td class="py-3 px-4"><span class="status-pill status-pill-amber">Ayar Değişti</span></td>
+                                    <td class="py-3 px-4 text-slate-400">Trendyol komisyon oranı %15 olarak güncellendi.</td>
+                                    <td class="py-3 pl-4 text-slate-400">1 saat önce</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/50">
+                                    <td class="py-3 pr-4 font-semibold text-white">CURSOR</td>
+                                    <td class="py-3 px-4"><span class="status-pill status-pill-red">Sistem Uyarısı</span></td>
+                                    <td class="py-3 px-4 text-slate-400">N11 API bağlantısında timeout aşıldı.</td>
+                                    <td class="py-3 pl-4 text-slate-400">3 saat önce</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        var options = {
+            series: [{
+                name: 'Trendyol',
+                data: [31, 40, 28, 51, 42, 109, 100]
+            }, {
+                name: 'Hepsiburada',
+                data: [11, 32, 45, 32, 34, 52, 41]
+            }],
+            chart: {
+                height: 350,
+                type: 'area',
+                toolbar: { show: false }
+            },
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 2 },
+            xaxis: {
+                type: 'datetime',
+                categories: ["2025-06-01T00:00:00.000Z", "2025-06-02T00:00:00.000Z", "2025-06-03T00:00:00.000Z", "2025-06-04T00:00:00.000Z", "2025-06-05T00:00:00.000Z", "2025-06-06T00:00:00.000Z", "2025-06-07T00:00:00.000Z"],
+                labels: { style: { colors: '#94a3b8' } },
+                axisBorder: { show: false },
+                axisTicks: { show: false }
+            },
+            yaxis: {
+                labels: { style: { colors: '#94a3b8' } }
+            },
+            tooltip: {
+                x: { format: 'dd/MM/yy' },
+                theme: 'dark'
+            },
+            grid: {
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                strokeDashArray: 5
+            },
+            legend: {
+                labels: { colors: '#94a3b8' },
+                position: 'top',
+                horizontalAlign: 'right',
+                markers: { radius: 12 }
+            },
+            colors: ['#8b5cf6', '#3b82f6'],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shade: 'dark',
+                    type: 'vertical',
+                    shadeIntensity: 0.5,
+                    inverseColors: false,
+                    opacityFrom: 0.4,
+                    opacityTo: 0.0,
+                    stops: [0, 90, 100]
+                }
+            }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#sales-chart"), options);
+        chart.render();
+    </script>
+</body>
+</html> 
