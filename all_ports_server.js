@@ -1,21 +1,18 @@
 const http = require('http');
 
-// Port tanımları ve renkleri
+// Port tanımları ve renkleri - Alternative range to avoid conflicts
 const ports = {
-    3000: { name: 'Dashboard', color: '#667eea', description: '📊 Ana Dashboard Sistemi' },
-    3001: { name: 'Frontend Components', color: '#f093fb', description: '🎨 Frontend Bileşenleri' },
-    3002: { name: 'Super Admin', color: '#4facfe', description: '👑 Süper Admin Paneli' },
-    3003: { name: 'Marketplace Hub', color: '#43e97b', description: '🏪 Marketplace Merkezi' },
-    3006: { name: 'Order Management', color: '#fa709a', description: '📋 Sipariş Yönetimi' },
-    3007: { name: 'Inventory Management', color: '#ffecd2', description: '📦 Stok Yönetimi' },
-    3009: { name: 'Cross Marketplace Admin', color: '#a8edea', description: '🔄 Çapraz Market Yönetimi' },
-    3010: { name: 'Hepsiburada Specialist', color: '#fed6e3', description: '🛍️ Hepsiburada Uzmanı' },
-    3011: { name: 'Amazon Seller', color: '#ff9a9e', description: '📦 Amazon Satıcı Sistemi' },
-    3012: { name: 'Trendyol Seller', color: '#fecfef', description: '🛒 Trendyol Satıcı Sistemi' },
-    3013: { name: 'GittiGidiyor Manager', color: '#ffecd2', description: '🎯 GittiGidiyor Yöneticisi' },
-    3014: { name: 'N11 Management', color: '#c471f5', description: '🏢 N11 Yönetim Sistemi' },
-    3015: { name: 'eBay Integration', color: '#12c2e9', description: '🌐 eBay Entegrasyonu' },
-    3016: { name: 'Trendyol Advanced Testing', color: '#f64f59', description: '🧪 Trendyol İleri Testler' }
+    4000: { name: 'Dashboard', color: '#667eea', description: '📊 Ana Dashboard Sistemi' },
+    4001: { name: 'Frontend Components', color: '#f093fb', description: '🎨 Frontend Bileşenleri' },
+    4003: { name: 'Marketplace Hub', color: '#43e97b', description: '🏪 Marketplace Merkezi' },
+    4006: { name: 'Order Management', color: '#fa709a', description: '📋 Sipariş Yönetimi' },
+    4007: { name: 'Inventory Management', color: '#ffecd2', description: '📦 Stok Yönetimi' },
+    4010: { name: 'Hepsiburada Specialist', color: '#fed6e3', description: '🛍️ Hepsiburada Uzmanı' },
+    4011: { name: 'Amazon Seller', color: '#ff9a9e', description: '📦 Amazon Satıcı Sistemi' },
+    4013: { name: 'GittiGidiyor Manager', color: '#ffecd2', description: '🎯 GittiGidiyor Yöneticisi' },
+    4014: { name: 'N11 Management', color: '#c471f5', description: '🏢 N11 Yönetim Sistemi' },
+    4015: { name: 'eBay Integration', color: '#12c2e9', description: '🌐 eBay Entegrasyonu' },
+    4016: { name: 'Trendyol Advanced Testing', color: '#f64f59', description: '🧪 Trendyol İleri Testler' }
 };
 
 // Her port için server oluştur

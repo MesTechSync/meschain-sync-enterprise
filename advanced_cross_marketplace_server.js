@@ -49,12 +49,12 @@ app.get('/api/marketplace-stats', (req, res) => {
             },
             n11: {
                 name: 'N11 Mağaza',
-                status: 'inactive',
+                status: 'active',
                 totalProducts: 892,
                 monthlyOrders: 156,
                 monthlySales: '₺45,321',
                 averageRating: 4.3,
-                growth: '-2%'
+                growth: '+5%'
             },
             ebay: {
                 name: 'eBay Mağaza',
@@ -265,6 +265,31 @@ app.get('/api/notifications', (req, res) => {
     });
 });
 
+// Marketplace reconnection endpoint
+app.post('/api/reconnect-marketplace/:marketplace', (req, res) => {
+    const marketplace = req.params.marketplace;
+    const validMarketplaces = ['trendyol', 'amazon', 'hepsiburada', 'n11', 'ebay', 'ozon'];
+    
+    if (!validMarketplaces.includes(marketplace)) {
+        return res.status(400).json({
+            success: false,
+            error: 'Invalid marketplace'
+        });
+    }
+    
+    // Simulate reconnection process
+    setTimeout(() => {
+        console.log(`✅ ${marketplace.toUpperCase()} marketplace reconnected successfully`);
+    }, 1000);
+    
+    res.json({
+        success: true,
+        message: `${marketplace.toUpperCase()} marketplace reconnection initiated`,
+        status: 'connecting',
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Error:', err);
@@ -302,6 +327,7 @@ app.listen(PORT, () => {
     console.log(`   POST /api/bulk-order-import`);
     console.log(`   GET  /api/system-health`);
     console.log(`   GET  /api/notifications`);
+    console.log(`   POST /api/reconnect-marketplace/:marketplace`);
     console.log(`\n🎯 İstediğiniz tüm özellikler aktif!`);
 });
 
