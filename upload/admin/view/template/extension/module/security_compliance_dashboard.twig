@@ -1,0 +1,1001 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-right">
+        <div class="btn-group">
+          <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-shield-alt"></i> {{ text_security_actions }}
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" onclick="performVulnerabilityScan()"><i class="fas fa-search"></i> {{ text_vulnerability_scan }}</a>
+            <a class="dropdown-item" onclick="generateSecurityReport()"><i class="fas fa-file-shield"></i> {{ text_security_report }}</a>
+            <a class="dropdown-item" onclick="exportCompliance('pdf')"><i class="fas fa-file-pdf"></i> {{ text_compliance_export }}</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item text-danger" onclick="emergencyLockdown()"><i class="fas fa-lock"></i> {{ text_emergency_lockdown }}</a>
+          </div>
+        </div>
+        <button type="button" class="btn btn-success" onclick="refreshSecurityDashboard()">
+          <i class="fas fa-sync"></i> {{ text_refresh }}
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{ home }}">{{ text_home }}</a></li>
+          <li class="breadcrumb-item"><a href="{{ extension }}">{{ text_extension }}</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ heading_title }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Alert Zone -->
+    <div id="alert-zone"></div>
+
+    <!-- Security Status Cards -->
+    <div class="row mb-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-danger text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h5 class="card-title">{{ text_threat_level }}</h5>
+                <h2 id="threat-level">LOW</h2>
+                <small>{{ text_current_threat_level }}</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-exclamation-triangle fa-3x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-primary text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h5 class="card-title">{{ text_security_score }}</h5>
+                <h2 id="security-score">0%</h2>
+                <small>{{ text_overall_security_health }}</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-shield-alt fa-3x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-success text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h5 class="card-title">{{ text_compliance_score }}</h5>
+                <h2 id="compliance-score">0%</h2>
+                <small>{{ text_gdpr_compliance_status }}</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-clipboard-check fa-3x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-warning text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h5 class="card-title">{{ text_active_incidents }}</h5>
+                <h2 id="active-incidents-count">0</h2>
+                <small>{{ text_security_incidents }}</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-bell fa-3x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Security Dashboard -->
+    <div class="row">
+      <!-- Threat Detection & Analysis -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-crosshairs"></i> {{ text_threat_detection }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <canvas id="threatLevelChart" width="200" height="200"></canvas>
+              </div>
+              <div class="col-md-6">
+                <h6>{{ text_recent_threats }}</h6>
+                <div id="recent-threats-list" class="threat-list">
+                  <!-- Dynamic content -->
+                </div>
+                
+                <h6 class="mt-3">{{ text_threat_sources }}</h6>
+                <div class="progress mb-2">
+                  <div class="progress-bar bg-danger" id="web-threats-bar" role="progressbar" style="width: 0%">
+                    <span id="web-threats-text">Web: 0%</span>
+                  </div>
+                </div>
+                <div class="progress mb-2">
+                  <div class="progress-bar bg-warning" id="api-threats-bar" role="progressbar" style="width: 0%">
+                    <span id="api-threats-text">API: 0%</span>
+                  </div>
+                </div>
+                <div class="progress mb-2">
+                  <div class="progress-bar bg-info" id="database-threats-bar" role="progressbar" style="width: 0%">
+                    <span id="database-threats-text">DB: 0%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vulnerability Assessment -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+              <i class="fas fa-bug"></i> {{ text_vulnerability_assessment }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <ul class="nav nav-tabs" id="vulnTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="summary-tab" data-toggle="tab" href="#summary" role="tab">
+                  {{ text_summary }}
+                </a>
+              </li>
+              <li class="nav-item" role="presentation">
+                <a class="nav-link" id="details-tab" data-toggle="tab" href="#details" role="tab">
+                  {{ text_details }}
+                </a>
+              </li>
+              <li class="nav-item" role="presentation">
+                <a class="nav-link" id="trends-tab" data-toggle="tab" href="#trends" role="tab">
+                  {{ text_trends }}
+                </a>
+              </li>
+            </ul>
+            <div class="tab-content" id="vulnTabContent">
+              <div class="tab-pane fade show active" id="summary" role="tabpanel">
+                <canvas id="vulnerabilityChart" width="400" height="200"></canvas>
+                <div class="mt-3">
+                  <div class="row text-center">
+                    <div class="col-3">
+                      <h6 id="critical-vulns" class="text-danger">0</h6>
+                      <small>{{ text_critical }}</small>
+                    </div>
+                    <div class="col-3">
+                      <h6 id="high-vulns" class="text-warning">0</h6>
+                      <small>{{ text_high }}</small>
+                    </div>
+                    <div class="col-3">
+                      <h6 id="medium-vulns" class="text-info">0</h6>
+                      <small>{{ text_medium }}</small>
+                    </div>
+                    <div class="col-3">
+                      <h6 id="low-vulns" class="text-success">0</h6>
+                      <small>{{ text_low }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="details" role="tabpanel">
+                <div id="vulnerability-details" class="vuln-details">
+                  <!-- Dynamic vulnerability details -->
+                </div>
+              </div>
+              <div class="tab-pane fade" id="trends" role="tabpanel">
+                <canvas id="vulnerabilityTrendsChart" width="400" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compliance & Audit Trail -->
+    <div class="row">
+      <div class="col-lg-8 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-clipboard-check"></i> {{ text_compliance_monitoring }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h6>{{ text_gdpr_compliance }}</h6>
+                <div class="progress mb-3">
+                  <div class="progress-bar bg-success" id="gdpr-compliance-bar" role="progressbar" style="width: 0%">
+                    <span id="gdpr-compliance-text">0%</span>
+                  </div>
+                </div>
+                
+                <h6>{{ text_data_protection }}</h6>
+                <div class="progress mb-3">
+                  <div class="progress-bar bg-info" id="data-protection-bar" role="progressbar" style="width: 0%">
+                    <span id="data-protection-text">0%</span>
+                  </div>
+                </div>
+                
+                <h6>{{ text_audit_readiness }}</h6>
+                <div class="progress mb-3">
+                  <div class="progress-bar bg-warning" id="audit-readiness-bar" role="progressbar" style="width: 0%">
+                    <span id="audit-readiness-text">0%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <h6>{{ text_compliance_metrics }}</h6>
+                <canvas id="complianceMetricsChart" width="300" height="200"></canvas>
+                
+                <div class="mt-3">
+                  <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle"></i> {{ text_last_audit }}</h6>
+                    <p id="last-audit-date">{{ text_no_audit_data }}</p>
+                    <small>{{ text_next_audit }}: <span id="next-audit-date">TBD</span></small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-bell"></i> {{ text_security_alerts }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div id="security-alerts-list" class="alerts-list">
+              <!-- Dynamic security alerts -->
+            </div>
+            
+            <div class="mt-3">
+              <button class="btn btn-sm btn-outline-info btn-block" onclick="viewAllAlerts()">
+                {{ text_view_all_alerts }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marketplace Security Status -->
+    <div class="row">
+      <div class="col-12 mb-4">
+        <div class="card">
+          <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-store"></i> {{ text_marketplace_security }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-lg-8">
+                <div class="row" id="marketplace-security-grid">
+                  <!-- Marketplace security cards will be generated here -->
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <h6>{{ text_marketplace_threats_overview }}</h6>
+                <canvas id="marketplaceThreatChart" width="300" height="200"></canvas>
+                
+                <div class="mt-3">
+                  <h6>{{ text_api_security_metrics }}</h6>
+                  <ul class="list-unstyled">
+                    <li><strong>{{ text_api_calls_24h }}:</strong> <span id="api-calls-24h">0</span></li>
+                    <li><strong>{{ text_blocked_requests }}:</strong> <span id="blocked-requests">0</span></li>
+                    <li><strong>{{ text_rate_limit_hits }}:</strong> <span id="rate-limit-hits">0</span></li>
+                    <li><strong>{{ text_auth_failures }}:</strong> <span id="auth-failures">0</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Actions & Incident Response -->
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        <div class="card">
+          <div class="card-header bg-purple text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-cogs"></i> {{ text_security_actions }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h6>{{ text_automated_responses }}</h6>
+                <div class="list-group list-group-flush">
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ text_ip_blocking }}
+                    <span class="badge badge-success" id="ip-blocking-status">{{ text_active }}</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ text_rate_limiting }}
+                    <span class="badge badge-success" id="rate-limiting-status">{{ text_active }}</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ text_anomaly_detection }}
+                    <span class="badge badge-success" id="anomaly-detection-status">{{ text_active }}</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ text_auto_quarantine }}
+                    <span class="badge badge-warning" id="auto-quarantine-status">{{ text_configured }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <h6>{{ text_manual_actions }}</h6>
+                <div class="btn-group-vertical btn-block">
+                  <button class="btn btn-outline-danger btn-sm" onclick="blockIP()">
+                    <i class="fas fa-ban"></i> {{ text_block_ip }}
+                  </button>
+                  <button class="btn btn-outline-warning btn-sm" onclick="quarantineUser()">
+                    <i class="fas fa-user-lock"></i> {{ text_quarantine_user }}
+                  </button>
+                  <button class="btn btn-outline-info btn-sm" onclick="resetRateLimit()">
+                    <i class="fas fa-tachometer-alt"></i> {{ text_reset_rate_limit }}
+                  </button>
+                  <button class="btn btn-outline-success btn-sm" onclick="forceSyncSecurity()">
+                    <i class="fas fa-sync-alt"></i> {{ text_force_sync }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4">
+        <div class="card">
+          <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-chart-line"></i> {{ text_security_metrics }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <canvas id="securityMetricsChart" width="400" height="200"></canvas>
+            
+            <div class="mt-3">
+              <div class="row text-center">
+                <div class="col-3">
+                  <h6 id="blocked-attacks" class="text-danger">0</h6>
+                  <small>{{ text_blocked_attacks }}</small>
+                </div>
+                <div class="col-3">
+                  <h6 id="false-positives" class="text-warning">0</h6>
+                  <small>{{ text_false_positives }}</small>
+                </div>
+                <div class="col-3">
+                  <h6 id="response-time" class="text-info">0s</h6>
+                  <small>{{ text_avg_response_time }}</small>
+                </div>
+                <div class="col-3">
+                  <h6 id="uptime-security" class="text-success">0%</h6>
+                  <small>{{ text_security_uptime }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Recommendations -->
+    <div class="row">
+      <div class="col-12 mb-4">
+        <div class="card">
+          <div class="card-header bg-gradient-info text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-lightbulb"></i> {{ text_security_recommendations }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div id="security-recommendations-list">
+              <!-- Dynamic security recommendations -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Global variables
+let securityRefreshInterval;
+let securityCharts = {};
+
+// Initialize security dashboard
+$(document).ready(function() {
+    initializeSecurityDashboard();
+    loadSecurityData();
+    
+    // Auto-refresh every 15 seconds for security
+    securityRefreshInterval = setInterval(loadSecurityData, 15000);
+});
+
+// Initialize all security charts and components
+function initializeSecurityDashboard() {
+    initializeSecurityCharts();
+    setupSecurityEventHandlers();
+}
+
+// Setup event handlers
+function setupSecurityEventHandlers() {
+    // Tab switching
+    $('#vulnTabs a').on('click', function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+    
+    // Real-time threat level color updates
+    setInterval(updateThreatLevelDisplay, 5000);
+}
+
+// Initialize all security charts
+function initializeSecurityCharts() {
+    // Threat Level Chart (Doughnut)
+    const threatCtx = document.getElementById('threatLevelChart').getContext('2d');
+    securityCharts.threatLevel = new Chart(threatCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['{{ text_low }}', '{{ text_medium }}', '{{ text_high }}', '{{ text_critical }}'],
+            datasets: [{
+                data: [70, 20, 8, 2],
+                backgroundColor: ['#28a745', '#ffc107', '#fd7e14', '#dc3545'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                position: 'bottom'
+            }
+        }
+    });
+
+    // Vulnerability Chart (Bar)
+    const vulnCtx = document.getElementById('vulnerabilityChart').getContext('2d');
+    securityCharts.vulnerability = new Chart(vulnCtx, {
+        type: 'bar',
+        data: {
+            labels: ['{{ text_web }}', '{{ text_api }}', '{{ text_database }}', '{{ text_infrastructure }}'],
+            datasets: [{
+                label: '{{ text_critical }}',
+                data: [2, 1, 0, 1],
+                backgroundColor: '#dc3545'
+            }, {
+                label: '{{ text_high }}',
+                data: [3, 2, 1, 2],
+                backgroundColor: '#fd7e14'
+            }, {
+                label: '{{ text_medium }}',
+                data: [5, 3, 2, 4],
+                backgroundColor: '#ffc107'
+            }, {
+                label: '{{ text_low }}',
+                data: [8, 5, 3, 6],
+                backgroundColor: '#28a745'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    stacked: true
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Compliance Metrics Chart (Radar)
+    const complianceCtx = document.getElementById('complianceMetricsChart').getContext('2d');
+    securityCharts.complianceMetrics = new Chart(complianceCtx, {
+        type: 'radar',
+        data: {
+            labels: ['GDPR', '{{ text_data_protection }}', '{{ text_access_control }}', '{{ text_encryption }}', '{{ text_audit_trail }}', '{{ text_privacy }}'],
+            datasets: [{
+                label: '{{ text_compliance_score }}',
+                data: [98, 95, 92, 96, 94, 97],
+                backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                borderColor: '#28a745',
+                pointBackgroundColor: '#28a745'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // Security Metrics Chart (Line)
+    const metricsCtx = document.getElementById('securityMetricsChart').getContext('2d');
+    securityCharts.securityMetrics = new Chart(metricsCtx, {
+        type: 'line',
+        data: {
+            labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+            datasets: [{
+                label: '{{ text_blocked_attacks }}',
+                data: [5, 3, 8, 12, 7, 4],
+                borderColor: '#dc3545',
+                backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                fill: true
+            }, {
+                label: '{{ text_threat_score }}',
+                data: [20, 15, 35, 45, 25, 18],
+                borderColor: '#fd7e14',
+                backgroundColor: 'rgba(253, 126, 20, 0.1)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Initialize additional charts
+    initializeAdditionalSecurityCharts();
+}
+
+function initializeAdditionalSecurityCharts() {
+    // Marketplace Threat Chart
+    const marketplaceCtx = document.getElementById('marketplaceThreatChart').getContext('2d');
+    securityCharts.marketplaceThreat = new Chart(marketplaceCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Trendyol', 'N11', 'Amazon', 'Hepsiburada', 'eBay', 'Ozon'],
+            datasets: [{
+                data: [15, 12, 8, 10, 5, 7],
+                backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#20c997']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Vulnerability Trends Chart
+    const trendsCtx = document.getElementById('vulnerabilityTrendsChart').getContext('2d');
+    securityCharts.vulnerabilityTrends = new Chart(trendsCtx, {
+        type: 'line',
+        data: {
+            labels: ['{{ text_week }} 1', '{{ text_week }} 2', '{{ text_week }} 3', '{{ text_week }} 4'],
+            datasets: [{
+                label: '{{ text_new_vulnerabilities }}',
+                data: [15, 12, 8, 5],
+                borderColor: '#dc3545',
+                backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                fill: true
+            }, {
+                label: '{{ text_fixed_vulnerabilities }}',
+                data: [18, 14, 10, 7],
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Load security data from API
+function loadSecurityData() {
+    $.ajax({
+        url: 'index.php?route=extension/module/security_compliance_dashboard/getSecurityMetrics&user_token={{ user_token }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            updateSecurityDashboard(data);
+        },
+        error: function(xhr, status, error) {
+            showSecurityAlert('error', 'Failed to load security data: ' + error);
+        }
+    });
+}
+
+// Update security dashboard with new data
+function updateSecurityDashboard(data) {
+    if (data.error) {
+        showSecurityAlert('error', data.message);
+        return;
+    }
+
+    // Update security score cards
+    updateSecurityCards(data);
+    
+    // Update charts
+    updateSecurityCharts(data);
+    
+    // Update threat lists
+    updateThreatsList(data.recent_threats || []);
+    
+    // Update security alerts
+    updateSecurityAlerts(data.alerts || []);
+    
+    // Update compliance status
+    updateComplianceStatus(data.compliance_status || {});
+    
+    // Update marketplace security
+    updateMarketplaceSecurity(data.marketplace_security || {});
+    
+    // Update recommendations
+    updateSecurityRecommendations(data.recommendations || []);
+}
+
+// Update security summary cards
+function updateSecurityCards(data) {
+    $('#threat-level').text(data.threat_level?.toUpperCase() || 'LOW');
+    $('#security-score').text((data.overall_security_score || 0) + '%');
+    $('#compliance-score').text((data.compliance_status?.gdpr_compliance || 0) + '%');
+    $('#active-incidents-count').text(data.active_incidents?.length || 0);
+    
+    // Update threat level card color
+    const threatCard = $('#threat-level').closest('.card');
+    threatCard.removeClass('bg-success bg-warning bg-danger');
+    switch(data.threat_level) {
+        case 'low':
+            threatCard.addClass('bg-success');
+            break;
+        case 'medium':
+            threatCard.addClass('bg-warning');
+            break;
+        case 'high':
+        case 'critical':
+            threatCard.addClass('bg-danger');
+            break;
+    }
+}
+
+// Update all security charts
+function updateSecurityCharts(data) {
+    // Update vulnerability summary
+    if (data.vulnerability_summary) {
+        const summary = data.vulnerability_summary;
+        $('#critical-vulns').text(summary.critical || 0);
+        $('#high-vulns').text(summary.high || 0);
+        $('#medium-vulns').text(summary.medium || 0);
+        $('#low-vulns').text(summary.low || 0);
+    }
+    
+    // Update compliance bars
+    if (data.compliance_status) {
+        updateProgressBar('gdpr-compliance', data.compliance_status.gdpr_compliance || 0);
+        updateProgressBar('data-protection', data.compliance_status.data_protection_score || 0);
+        updateProgressBar('audit-readiness', data.compliance_status.audit_readiness || 0);
+    }
+}
+
+// Update progress bar
+function updateProgressBar(id, value) {
+    $('#' + id + '-bar').css('width', value + '%');
+    $('#' + id + '-text').text(value + '%');
+}
+
+// Update recent threats list
+function updateThreatsList(threats) {
+    const container = $('#recent-threats-list');
+    container.empty();
+    
+    if (threats.length === 0) {
+        container.html('<div class="alert alert-success">{{ text_no_recent_threats }}</div>');
+        return;
+    }
+    
+    threats.slice(0, 5).forEach(function(threat) {
+        const severityClass = getSeverityClass(threat.severity);
+        const html = `
+            <div class="alert alert-${severityClass} alert-sm">
+                <small><strong>${threat.type || 'Unknown'}</strong></small><br>
+                <small>${threat.description || 'No description'}</small><br>
+                <small class="text-muted">${formatDateTime(threat.timestamp)}</small>
+            </div>
+        `;
+        container.append(html);
+    });
+}
+
+// Update security alerts
+function updateSecurityAlerts(alerts) {
+    const container = $('#security-alerts-list');
+    container.empty();
+    
+    if (alerts.length === 0) {
+        container.html('<div class="alert alert-success">{{ text_no_active_alerts }}</div>');
+        return;
+    }
+    
+    alerts.slice(0, 5).forEach(function(alert) {
+        const severityClass = getSeverityClass(alert.severity);
+        const html = `
+            <div class="alert alert-${severityClass} alert-sm">
+                <button type="button" class="close" onclick="acknowledgeAlert(${alert.alert_id})">&times;</button>
+                <small><strong>${alert.title}</strong></small><br>
+                <small>${alert.message}</small><br>
+                <small class="text-muted">${formatDateTime(alert.triggered_at)}</small>
+            </div>
+        `;
+        container.append(html);
+    });
+}
+
+// Update marketplace security grid
+function updateMarketplaceSecurity(marketplaceSecurity) {
+    const container = $('#marketplace-security-grid');
+    container.empty();
+    
+    const marketplaces = ['trendyol', 'n11', 'amazon', 'hepsiburada', 'ebay', 'ozon'];
+    
+    marketplaces.forEach(function(marketplace) {
+        const status = marketplaceSecurity[marketplace] || {status: 'unknown', last_scan: null};
+        const statusClass = getMarketplaceStatusClass(status.status);
+        const html = `
+            <div class="col-md-4 mb-3">
+                <div class="card border-${statusClass}">
+                    <div class="card-body text-center">
+                        <h6>${marketplace.charAt(0).toUpperCase() + marketplace.slice(1)}</h6>
+                        <span class="badge badge-${statusClass}">${status.status}</span>
+                        <br><small class="text-muted">{{ text_last_scan }}: ${formatDateTime(status.last_scan)}</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.append(html);
+    });
+}
+
+// Update security recommendations
+function updateSecurityRecommendations(recommendations) {
+    const container = $('#security-recommendations-list');
+    container.empty();
+    
+    if (recommendations.length === 0) {
+        container.html('<div class="alert alert-success">{{ text_no_security_recommendations }}</div>');
+        return;
+    }
+    
+    recommendations.forEach(function(rec, index) {
+        const priorityClass = getSeverityClass(rec.priority);
+        const html = `
+            <div class="alert alert-${priorityClass} alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <h6><i class="fas fa-lightbulb"></i> ${rec.title || rec.description}</h6>
+                <p>${rec.description}</p>
+                <small><strong>{{ text_priority }}:</strong> ${rec.priority}</small><br>
+                <small><strong>{{ text_estimated_effort }}:</strong> ${rec.estimated_effort || 'TBD'}</small>
+            </div>
+        `;
+        container.append(html);
+    });
+}
+
+// Security action functions
+function performVulnerabilityScan() {
+    showSecurityAlert('info', '{{ text_starting_vulnerability_scan }}');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/security_compliance_dashboard/performVulnerabilityScan&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            if (data.error) {
+                showSecurityAlert('error', data.message);
+            } else {
+                showSecurityAlert('success', '{{ text_vulnerability_scan_completed }}');
+                loadSecurityData(); // Refresh data
+            }
+        },
+        error: function() {
+            showSecurityAlert('error', '{{ text_vulnerability_scan_failed }}');
+        }
+    });
+}
+
+function generateSecurityReport() {
+    const url = `index.php?route=extension/module/security_compliance_dashboard/generateSecurityReport&user_token={{ user_token }}`;
+    window.open(url, '_blank');
+}
+
+function emergencyLockdown() {
+    if (confirm('{{ text_emergency_lockdown_confirm }}')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/security_compliance_dashboard/emergencyLockdown&user_token={{ user_token }}',
+            type: 'POST',
+            success: function(data) {
+                showSecurityAlert('warning', '{{ text_emergency_lockdown_activated }}');
+                loadSecurityData();
+            }
+        });
+    }
+}
+
+function acknowledgeAlert(alertId) {
+    $.ajax({
+        url: 'index.php?route=extension/module/security_compliance_dashboard/acknowledgeAlert&alert_id=' + alertId + '&user_token={{ user_token }}',
+        type: 'POST',
+        success: function(data) {
+            loadSecurityData();
+        }
+    });
+}
+
+// Utility functions
+function getSeverityClass(severity) {
+    switch(severity) {
+        case 'critical': return 'danger';
+        case 'high': return 'warning';
+        case 'medium': return 'info';
+        case 'low': return 'success';
+        default: return 'secondary';
+    }
+}
+
+function getMarketplaceStatusClass(status) {
+    switch(status) {
+        case 'secure': return 'success';
+        case 'warning': return 'warning';
+        case 'error': return 'danger';
+        case 'maintenance': return 'info';
+        default: return 'secondary';
+    }
+}
+
+function formatDateTime(dateTime) {
+    if (!dateTime) return '{{ text_never }}';
+    return new Date(dateTime).toLocaleString();
+}
+
+function refreshSecurityDashboard() {
+    showSecurityAlert('info', '{{ text_refreshing_security_data }}');
+    loadSecurityData();
+}
+
+function showSecurityAlert(type, message) {
+    const alertClass = type === 'error' ? 'danger' : type;
+    const html = `
+        <div class="alert alert-${alertClass} alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            ${message}
+        </div>
+    `;
+    $('#alert-zone').html(html);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(function() {
+        $('#alert-zone').empty();
+    }, 5000);
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (securityRefreshInterval) {
+        clearInterval(securityRefreshInterval);
+    }
+});
+</script>
+
+<!-- Custom Security Styles -->
+<style>
+.bg-purple {
+    background-color: #6f42c1 !important;
+}
+
+.threat-list .alert {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+}
+
+.alerts-list .alert {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+}
+
+.vuln-details {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.alert-sm {
+    padding: 0.375rem 0.75rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.card-body .progress {
+    height: 1.25rem;
+}
+
+.progress-bar span {
+    color: white;
+    font-weight: bold;
+    line-height: 1.25rem;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+
+.btn-group-vertical .btn {
+    margin-bottom: 0.25rem;
+}
+
+#marketplace-security-grid .card {
+    transition: transform 0.2s;
+}
+
+#marketplace-security-grid .card:hover {
+    transform: translateY(-2px);
+}
+
+.gradient-danger {
+    background: linear-gradient(45deg, #dc3545, #fd7e14);
+}
+
+.gradient-success {
+    background: linear-gradient(45deg, #28a745, #20c997);
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+</style>
+
+{{ footer }} 

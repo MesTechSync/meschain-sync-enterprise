@@ -435,26 +435,119 @@ class AdvancedCacheManager {
   private calculateSize(data: any): number {
     return JSON.stringify(data).length * 2; // Rough estimate (UTF-16)
   }
-
   private async setIndexedDB(key: string, entry: CacheEntry): Promise<void> {
-    // IndexedDB implementation would go here
-    // For now, this is a placeholder
+    try {
+      const db = await this.openIndexedDB();
+      const transaction = db.transaction(['cache'], 'readwrite');
+      const store = transaction.objectStore('cache');
+      
+      const dbEntry = {
+        id: key,
+        key: entry.key,
+        data: entry.data,
+        timestamp: entry.timestamp.toISOString(),
+        expiresAt: entry.expiresAt.toISOString(),
+        size: entry.size,
+        accessCount: entry.accessCount,
+        lastAccessed: entry.lastAccessed.toISOString()
+      };
+      
+      await new Promise<void>((resolve, reject) => {
+        const request = store.put(dbEntry);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+      
+      db.close();
+    } catch (error) {
+      console.warn('IndexedDB cache set failed:', error);
+    }
   }
 
   private async getIndexedDB(key: string): Promise<CacheEntry | null> {
-    // IndexedDB implementation would go here
-    // For now, this is a placeholder
-    return null;
+    try {
+      const db = await this.openIndexedDB();
+      const transaction = db.transaction(['cache'], 'readonly');
+      const store = transaction.objectStore('cache');
+      
+      const result = await new Promise<any>((resolve, reject) => {
+        const request = store.get(key);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      
+      db.close();
+      
+      if (!result) return null;
+      
+      return {
+        key: result.key,
+        data: result.data,
+        timestamp: new Date(result.timestamp),
+        expiresAt: new Date(result.expiresAt),
+        size: result.size,
+        accessCount: result.accessCount,
+        lastAccessed: new Date(result.lastAccessed)
+      };
+    } catch (error) {
+      console.warn('IndexedDB cache get failed:', error);
+      return null;
+    }
   }
 
   private async deleteIndexedDB(key: string): Promise<void> {
-    // IndexedDB implementation would go here
-    // For now, this is a placeholder
+    try {
+      const db = await this.openIndexedDB();
+      const transaction = db.transaction(['cache'], 'readwrite');
+      const store = transaction.objectStore('cache');
+      
+      await new Promise<void>((resolve, reject) => {
+        const request = store.delete(key);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+      
+      db.close();
+    } catch (error) {
+      console.warn('IndexedDB cache delete failed:', error);
+    }
   }
 
   private async clearIndexedDB(): Promise<void> {
-    // IndexedDB implementation would go here
-    // For now, this is a placeholder
+    try {
+      const db = await this.openIndexedDB();
+      const transaction = db.transaction(['cache'], 'readwrite');
+      const store = transaction.objectStore('cache');
+      
+      await new Promise<void>((resolve, reject) => {
+        const request = store.clear();
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+      
+      db.close();
+    } catch (error) {
+      console.warn('IndexedDB cache clear failed:', error);
+    }
+  }
+
+  private async openIndexedDB(): Promise<IDBDatabase> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('MesChainCache', 1);
+      
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result);
+      
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains('cache')) {
+          const store = db.createObjectStore('cache', { keyPath: 'id' });
+          store.createIndex('timestamp', 'timestamp', { unique: false });
+          store.createIndex('expiresAt', 'expiresAt', { unique: false });
+          store.createIndex('accessCount', 'accessCount', { unique: false });
+        }
+      };
+    });
   }
 
   public getCacheStats(): {

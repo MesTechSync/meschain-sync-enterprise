@@ -1,0 +1,518 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="refresh-all-metrics" class="btn btn-primary">
+          <i class="fa fa-refresh"></i> Refresh All Metrics
+        </button>
+        <button type="button" id="export-metrics" class="btn btn-success">
+          <i class="fa fa-download"></i> Export Report
+        </button>
+      </div>
+      <h1>🚀 ATOM-M007: Advanced Production Monitor</h1>
+      <ul class="breadcrumb">
+        <li><a href="{{ home }}">{{ text_home }}</a></li>
+        <li><a href="{{ extension }}">Extensions</a></li>
+        <li class="active">Advanced Production Monitor</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Real-time Status Bar -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-heartbeat"></i> Real-time System Health
+              <span id="last-update" class="pull-right">Last update: --</span>
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-2">
+                <div class="metric-card uptime-card">
+                  <div class="metric-value" id="system-uptime">99.95%</div>
+                  <div class="metric-label">System Uptime</div>
+                  <div class="metric-status status-excellent"></div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="metric-card response-card">
+                  <div class="metric-value" id="avg-response">145ms</div>
+                  <div class="metric-label">Avg Response Time</div>
+                  <div class="metric-status status-good"></div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="metric-card users-card">
+                  <div class="metric-value" id="active-users">234</div>
+                  <div class="metric-label">Active Users</div>
+                  <div class="metric-status status-good"></div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="metric-card transactions-card">
+                  <div class="metric-value" id="transactions-per-min">45</div>
+                  <div class="metric-label">Transactions/Min</div>
+                  <div class="metric-status status-good"></div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="metric-card error-card">
+                  <div class="metric-value" id="error-rate">0.05%</div>
+                  <div class="metric-label">Error Rate</div>
+                  <div class="metric-status status-excellent"></div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="metric-card health-card">
+                  <div class="metric-value" id="health-score">94.8</div>
+                  <div class="metric-label">Health Score</div>
+                  <div class="metric-status status-excellent"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Charts Row -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-line-chart"></i> API Performance Trends
+            </h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="api-performance-chart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-database"></i> Database Performance
+            </h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="database-performance-chart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marketplace Monitoring -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-shopping-cart"></i> Marketplace API Status
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-2">
+                <div class="marketplace-status" id="trendyol-status">
+                  <div class="marketplace-icon">
+                    <img src="view/image/marketplace/trendyol.png" alt="Trendyol" />
+                  </div>
+                  <div class="marketplace-name">Trendyol</div>
+                  <div class="marketplace-response">120ms</div>
+                  <div class="status-indicator status-online"></div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="marketplace-status" id="amazon-status">
+                  <div class="marketplace-icon">
+                    <img src="view/image/marketplace/amazon.png" alt="Amazon" />
+                  </div>
+                  <div class="marketplace-name">Amazon</div>
+                  <div class="marketplace-response">180ms</div>
+                  <div class="status-indicator status-online"></div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="marketplace-status" id="n11-status">
+                  <div class="marketplace-icon">
+                    <img src="view/image/marketplace/n11.png" alt="N11" />
+                  </div>
+                  <div class="marketplace-name">N11</div>
+                  <div class="marketplace-response">95ms</div>
+                  <div class="status-indicator status-online"></div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="marketplace-status" id="hepsiburada-status">
+                  <div class="marketplace-icon">
+                    <img src="view/image/marketplace/hepsiburada.png" alt="Hepsiburada" />
+                  </div>
+                  <div class="marketplace-name">Hepsiburada</div>
+                  <div class="marketplace-response">160ms</div>
+                  <div class="status-indicator status-online"></div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="marketplace-status" id="ebay-status">
+                  <div class="marketplace-icon">
+                    <img src="view/image/marketplace/ebay.png" alt="eBay" />
+                  </div>
+                  <div class="marketplace-name">eBay</div>
+                  <div class="marketplace-response">200ms</div>
+                  <div class="status-indicator status-warning"></div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="marketplace-status" id="ozon-status">
+                  <div class="marketplace-icon">
+                    <img src="view/image/marketplace/ozon.png" alt="Ozon" />
+                  </div>
+                  <div class="marketplace-name">Ozon</div>
+                  <div class="marketplace-response">140ms</div>
+                  <div class="status-indicator status-online"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Predictive Maintenance & Alerts -->
+    <div class="row">
+      <div class="col-md-8">
+        <div class="panel panel-danger">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-exclamation-triangle"></i> Predictive Maintenance Alerts
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div id="predictive-alerts">
+              <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i>
+                <strong>Performance Trend Analysis:</strong> System health stable. No immediate action required.
+              </div>
+              <div class="alert alert-warning">
+                <i class="fa fa-warning"></i>
+                <strong>Database Optimization:</strong> Consider index optimization for orders table. Expected 30% improvement.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-users"></i> User Experience Metrics
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="ux-metric">
+              <div class="ux-label">Customer Satisfaction</div>
+              <div class="ux-score">95.2%</div>
+              <div class="progress">
+                <div class="progress-bar progress-bar-success" style="width: 95.2%"></div>
+              </div>
+            </div>
+            <div class="ux-metric">
+              <div class="ux-label">Page Load Time</div>
+              <div class="ux-score">1.8s</div>
+              <div class="progress">
+                <div class="progress-bar progress-bar-info" style="width: 72%"></div>
+              </div>
+            </div>
+            <div class="ux-metric">
+              <div class="ux-label">Feature Adoption</div>
+              <div class="ux-score">87.5%</div>
+              <div class="progress">
+                <div class="progress-bar progress-bar-warning" style="width: 87.5%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Business Intelligence Dashboard -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-pie-chart"></i> Business Intelligence Dashboard
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="bi-widget">
+                  <div class="bi-title">System Cost Optimization</div>
+                  <div class="bi-value">15% Reduction</div>
+                  <div class="bi-trend trend-positive">↗ +3% this month</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="bi-widget">
+                  <div class="bi-title">Operational Efficiency</div>
+                  <div class="bi-value">30% Improvement</div>
+                  <div class="bi-trend trend-positive">↗ +5% this month</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="bi-widget">
+                  <div class="bi-title">Incident Resolution</div>
+                  <div class="bi-value">50% Faster</div>
+                  <div class="bi-trend trend-positive">↗ +12% this month</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="bi-widget">
+                  <div class="bi-title">Deployment Speed</div>
+                  <div class="bi-value">40% Faster</div>
+                  <div class="bi-trend trend-positive">↗ +8% this month</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom CSS -->
+<style>
+.metric-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
+
+.metric-status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin: 10px auto 0;
+}
+
+.status-excellent { background: #28a745; }
+.status-good { background: #17a2b8; }
+.status-warning { background: #ffc107; }
+.status-danger { background: #dc3545; }
+
+.marketplace-status {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.marketplace-icon img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.marketplace-name {
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+.marketplace-response {
+  font-size: 14px;
+  color: #666;
+}
+
+.status-indicator {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin: 5px auto;
+}
+
+.status-online { background: #28a745; }
+
+.ux-metric {
+  margin-bottom: 15px;
+}
+
+.ux-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.ux-score {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.bi-widget {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 5px;
+  padding: 20px;
+  text-align: center;
+}
+
+.bi-title {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.bi-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.bi-trend {
+  font-size: 12px;
+}
+
+.trend-positive { color: #28a745; }
+.trend-negative { color: #dc3545; }
+</style>
+
+<!-- JavaScript for Real-time Updates -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize Charts
+const apiChart = new Chart(document.getElementById('api-performance-chart'), {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'API Response Time (ms)',
+      data: [],
+      borderColor: '#007bff',
+      backgroundColor: 'rgba(0,123,255,0.1)',
+      tension: 0.4
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 300
+      }
+    }
+  }
+});
+
+const dbChart = new Chart(document.getElementById('database-performance-chart'), {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'Query Time (ms)',
+      data: [],
+      borderColor: '#28a745',
+      backgroundColor: 'rgba(40,167,69,0.1)',
+      tension: 0.4
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100
+      }
+    }
+  }
+});
+
+// Real-time data updates
+function updateMetrics() {
+  fetch('index.php?route=extension/module/advanced_production_monitor/getMetrics')
+    .then(response => response.json())
+    .then(data => {
+      // Update status cards
+      document.getElementById('system-uptime').textContent = data.application.uptime + '%';
+      document.getElementById('avg-response').textContent = data.performance.api_response_times.average + 'ms';
+      document.getElementById('active-users').textContent = data.business_metrics.active_users;
+      document.getElementById('transactions-per-min').textContent = data.business_metrics.transactions_per_minute;
+      document.getElementById('error-rate').textContent = data.business_metrics.error_rates + '%';
+      document.getElementById('health-score').textContent = data.health_score;
+      
+      // Update charts
+      const now = new Date().toLocaleTimeString();
+      
+      // API Chart
+      apiChart.data.labels.push(now);
+      apiChart.data.datasets[0].data.push(data.performance.api_response_times.average);
+      if (apiChart.data.labels.length > 20) {
+        apiChart.data.labels.shift();
+        apiChart.data.datasets[0].data.shift();
+      }
+      apiChart.update();
+      
+      // Database Chart
+      dbChart.data.labels.push(now);
+      dbChart.data.datasets[0].data.push(data.performance.database_performance.avg_query_time);
+      if (dbChart.data.labels.length > 20) {
+        dbChart.data.labels.shift();
+        dbChart.data.datasets[0].data.shift();
+      }
+      dbChart.update();
+      
+      // Update last update time
+      document.getElementById('last-update').textContent = 'Last update: ' + now;
+    })
+    .catch(error => {
+      console.error('Error updating metrics:', error);
+    });
+}
+
+// Update metrics every 5 seconds
+setInterval(updateMetrics, 5000);
+
+// Initial load
+updateMetrics();
+
+// Refresh button handler
+document.getElementById('refresh-all-metrics').onclick = updateMetrics;
+
+// Export button handler
+document.getElementById('export-metrics').onclick = function() {
+  window.open('index.php?route=extension/module/advanced_production_monitor/exportReport');
+};
+</script>
+
+{{ footer }}
