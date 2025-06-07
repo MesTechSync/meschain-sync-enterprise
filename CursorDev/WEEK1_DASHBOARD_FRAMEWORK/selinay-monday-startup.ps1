@@ -26,7 +26,8 @@ $requiredFiles = @(
 $allFilesPresent = $true
 foreach ($file in $requiredFiles) {
     if (Test-Path $file) {
-        $size = (Get-Item $file).Length        Write-Host "  [OK] $file ($([math]::Round($size/1024,2)) KB)" -ForegroundColor Green
+        $size = (Get-Item $file).Length
+        Write-Host "  [OK] $file ($([math]::Round($size/1024,2)) KB)" -ForegroundColor Green
     } else {
         Write-Host "  [MISSING] $file - NOT FOUND!" -ForegroundColor Red
         $allFilesPresent = $false
