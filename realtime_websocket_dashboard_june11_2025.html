@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📡 MesChain-Sync | Real-Time WebSocket Dashboard</title>
+    
+    <!-- Real-Time Dependencies -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.min.js"></script>
+    <script src="https://unpkg.com/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+    
+    <style>
+        :root {
+            --quantum-primary: #00FFFF;
+            --quantum-secondary: #FF00FF;
+            --quantum-tertiary: #FFFF00;
+            --quantum-success: #00FF00;
+            --quantum-warning: #FF8C00;
+            --quantum-error: #FF0000;
+            --quantum-void: #000000;
+            --quantum-space: #0A0A0A;
+            --holographic: linear-gradient(45deg, #00FFFF 0%, #FF00FF 25%, #FFFF00 50%, #00FF00 75%, #00FFFF 100%);
+            --neural: conic-gradient(from 0deg, #00FFFF, #FF00FF, #FFFF00, #00FF00, #00FFFF);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1A1A2E 50%, #16213E 100%);
+            color: var(--quantum-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            animation: cosmicEvolution 25s ease-in-out infinite;
+        }
+
+        @keyframes cosmicEvolution {
+            0%, 100% { filter: hue-rotate(0deg); }
+            33% { filter: hue-rotate(120deg); }
+            66% { filter: hue-rotate(240deg); }
+        }
+
+        /* Particle System */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            opacity: 0.6;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px);
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 2px solid var(--quantum-primary);
+            transition: all 0.3s ease;
+        }
+
+        .connection-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--quantum-success);
+            animation: connectionPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes connectionPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .connection-indicator.disconnected {
+            background: var(--quantum-error);
+            animation: disconnectedPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes disconnectedPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .connection-indicator.reconnecting {
+            background: var(--quantum-warning);
+            animation: reconnectingSpin 1s linear infinite;
+        }
+
+        @keyframes reconnectingSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Main Container */
+        .realtime-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            backdrop-filter: blur(3px);
+        }
+
+        /* Header */
+        .realtime-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(25px);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .realtime-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            background: var(--holographic);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleShift 3s ease-in-out infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes titleShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .live-indicator {
+            display: inline-block;
+            background: var(--quantum-error);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            animation: liveBreathing 2s ease-in-out infinite;
+            margin-top: 10px;
+        }
+
+        @keyframes liveBreathing {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* Real-Time Metrics Grid */
+        .metrics-realtime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .realtime-card {
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(25px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .realtime-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--neural);
+            border-radius: 20px;
+            z-index: -1;
+            animation: cardBorder 6s linear infinite;
+        }
+
+        @keyframes cardBorder {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .realtime-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 50px rgba(0,255,255,0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--quantum-primary);
+        }
+
+        .update-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--quantum-success);
+            animation: updateBlink 1s ease-in-out infinite;
+        }
+
+        @keyframes updateBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .metric-display {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: var(--holographic);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: valueShimmer 2s ease-in-out infinite;
+            transition: all 0.5s ease;
+        }
+
+        @keyframes valueShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .metric-label {
+            color: var(--quantum-primary);
+            font-weight: 600;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .metric-trend {
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .trend-up { color: var(--quantum-success); }
+        .trend-down { color: var(--quantum-error); }
+        .trend-stable { color: var(--quantum-tertiary); }
+
+        /* Live Charts */
+        .chart-realtime-container {
+            grid-column: span 2;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(25px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid var(--quantum-secondary);
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--quantum-secondary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Notification System */
+        .notification-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 2000;
+            width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .notification {
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+            transform: translateX(400px);
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success { border-color: var(--quantum-success); }
+        .notification.warning { border-color: var(--quantum-warning); }
+        .notification.error { border-color: var(--quantum-error); }
+        .notification.info { border-color: var(--quantum-primary); }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .notification-title {
+            font-weight: 700;
+            color: var(--quantum-primary);
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            color: var(--quantum-primary);
+        }
+
+        .notification-message {
+            color: var(--quantum-primary);
+            opacity: 0.9;
+        }
+
+        .notification-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--quantum-primary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(25px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid var(--quantum-tertiary);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--quantum-tertiary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,255,255,0.2);
+            animation: activitySlide 0.5s ease-out;
+        }
+
+        @keyframes activitySlide {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .activity-icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--quantum-success);
+            animation: activityPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes activityPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .activity-text {
+            flex: 1;
+            color: var(--quantum-primary);
+            font-size: 0.9rem;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--quantum-primary);
+            opacity: 0.7;
+        }
+
+        /* Control Panel */
+        .realtime-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .control-button {
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--quantum-primary);
+            color: var(--quantum-primary);
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--holographic);
+            transition: left 0.5s ease;
+            z-index: -1;
+        }
+
+        .control-button:hover {
+            transform: translateY(-3px);
+            color: var(--quantum-void);
+            box-shadow: 0 10px 30px rgba(0,255,255,0.4);
+        }
+
+        .control-button:hover::before {
+            left: 0;
+        }
+
+        /* Performance Monitor */
+        .performance-monitor {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 15px;
+            border: 2px solid var(--quantum-secondary);
+            min-width: 200px;
+        }
+
+        .performance-title {
+            color: var(--quantum-secondary);
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .performance-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .performance-label {
+            color: var(--quantum-primary);
+            opacity: 0.8;
+        }
+
+        .performance-value {
+            color: var(--quantum-success);
+            font-weight: 600;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .metrics-realtime-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .chart-realtime-container {
+                grid-column: span 1;
+            }
+            
+            .notification-container {
+                width: calc(100vw - 40px);
+                right: 20px;
+            }
+            
+            .realtime-controls {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+            
+            .performance-monitor {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                margin: 20px;
+                width: calc(100% - 40px);
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,255,0.4), transparent);
+            animation: loading 2s infinite;
+        }
+
+        @keyframes loading {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        *:focus {
+            outline: 2px solid var(--quantum-tertiary);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle System -->
+    <div id="particles-js"></div>
+
+    <!-- Connection Status -->
+    <div class="connection-status" id="connectionStatus">
+        <div class="connection-indicator" id="connectionIndicator"></div>
+        <span id="connectionText">Connected</span>
+        <span id="connectionLatency">0ms</span>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Main Container -->
+    <div class="realtime-container">
+        <!-- Header -->
+        <header class="realtime-header">
+            <h1 class="realtime-title">📡 Real-Time WebSocket Dashboard</h1>
+            <div class="live-indicator">🔴 LIVE</div>
+            <p style="color: var(--quantum-secondary); font-size: 1.1rem; margin-top: 10px;">
+                Lightning-Fast Real-Time Updates • WebSocket Excellence • <span id="currentTime"></span>
+            </p>
+        </header>
+
+        <!-- Real-Time Metrics Grid -->
+        <main class="metrics-realtime-grid">
+            <!-- Live Orders -->
+            <section class="realtime-card">
+                <div class="card-header">
+                    <h3 class="card-title">📦 Live Orders</h3>
+                    <div class="update-indicator" id="ordersIndicator"></div>
+                </div>
+                <div class="metric-display">
+                    <div class="metric-value" id="liveOrders">1,247</div>
+                    <div class="metric-label">Total Orders</div>
+                </div>
+                <div class="metric-trend trend-up">
+                    ⬆ <span id="ordersTrend">+12</span> in last minute
+                </div>
+            </section>
+
+            <!-- Active Users -->
+            <section class="realtime-card">
+                <div class="card-header">
+                    <h3 class="card-title">👥 Active Users</h3>
+                    <div class="update-indicator" id="usersIndicator"></div>
+                </div>
+                <div class="metric-display">
+                    <div class="metric-value" id="activeUsers">2,843</div>
+                    <div class="metric-label">Online Now</div>
+                </div>
+                <div class="metric-trend trend-up">
+                    ⬆ <span id="usersTrend">+45</span> new sessions
+                </div>
+            </section>
+
+            <!-- Revenue Stream -->
+            <section class="realtime-card">
+                <div class="card-header">
+                    <h3 class="card-title">💰 Revenue Stream</h3>
+                    <div class="update-indicator" id="revenueIndicator"></div>
+                </div>
+                <div class="metric-display">
+                    <div class="metric-value" id="liveRevenue">₺89,432</div>
+                    <div class="metric-label">Today's Revenue</div>
+                </div>
+                <div class="metric-trend trend-up">
+                    ⬆ <span id="revenueTrend">+₺1,250</span> per hour
+                </div>
+            </section>
+
+            <!-- System Health -->
+            <section class="realtime-card">
+                <div class="card-header">
+                    <h3 class="card-title">🛡️ System Health</h3>
+                    <div class="update-indicator" id="healthIndicator"></div>
+                </div>
+                <div class="metric-display">
+                    <div class="metric-value" id="systemHealth">99.8%</div>
+                    <div class="metric-label">Uptime</div>
+                </div>
+                <div class="metric-trend trend-stable">
+                    ⬆ <span id="healthTrend">Excellent</span> performance
+                </div>
+            </section>
+
+            <!-- Live Performance Chart -->
+            <section class="chart-realtime-container">
+                <h3 class="chart-title">📈 Real-Time Performance Metrics</h3>
+                <div class="chart-wrapper">
+                    <canvas id="livePerformanceChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Activity Feed -->
+            <section class="activity-feed">
+                <h3 class="activity-title">⚡ Live Activity Feed</h3>
+                <div id="activityFeed">
+                    <!-- Activity items will be added here dynamically -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Real-Time Controls -->
+        <section class="realtime-controls">
+            <button class="control-button" onclick="toggleConnection()">
+                🔗 Toggle Connection
+            </button>
+            <button class="control-button" onclick="clearNotifications()">
+                🔔 Clear Notifications
+            </button>
+            <button class="control-button" onclick="exportData()">
+                📊 Export Live Data
+            </button>
+            <button class="control-button" onclick="simulateTraffic()">
+                🚀 Simulate Traffic
+            </button>
+            <button class="control-button" onclick="resetMetrics()">
+                🔄 Reset Metrics
+            </button>
+            <button class="control-button" onclick="testNotifications()">
+                📢 Test Notifications
+            </button>
+        </section>
+    </div>
+
+    <!-- Performance Monitor -->
+    <div class="performance-monitor">
+        <div class="performance-title">📊 WebSocket Performance</div>
+        <div class="performance-item">
+            <span class="performance-label">Latency:</span>
+            <span class="performance-value" id="wsLatency">0ms</span>
+        </div>
+        <div class="performance-item">
+            <span class="performance-label">Messages/sec:</span>
+            <span class="performance-value" id="wsMessages">0</span>
+        </div>
+        <div class="performance-item">
+            <span class="performance-label">Connections:</span>
+            <span class="performance-value" id="wsConnections">1</span>
+        </div>
+        <div class="performance-item">
+            <span class="performance-label">Uptime:</span>
+            <span class="performance-value" id="wsUptime">0s</span>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // WebSocket Connection Manager
+        class WebSocketManager {
+            constructor() {
+                this.socket = null;
+                this.isConnected = false;
+                this.reconnectAttempts = 0;
+                this.maxReconnectAttempts = 5;
+                this.reconnectDelay = 1000;
+                this.startTime = Date.now();
+                this.messageCount = 0;
+                this.latency = 0;
+                
+                this.init();
+            }
+
+            init() {
+                this.connect();
+                this.setupEventListeners();
+                this.startPerformanceMonitoring();
+            }
+
+            connect() {
+                try {
+                    // In a real application, this would connect to your WebSocket server
+                    // For demo purposes, we'll simulate the connection
+                    this.simulateConnection();
+                } catch (error) {
+                    console.error('WebSocket connection failed:', error);
+                    this.handleConnectionError();
+                }
+            }
+
+            simulateConnection() {
+                // Simulate WebSocket connection for demo
+                setTimeout(() => {
+                    this.isConnected = true;
+                    this.reconnectAttempts = 0;
+                    this.updateConnectionStatus('connected');
+                    this.startDataSimulation();
+                    this.showNotification('success', 'Connected', 'WebSocket connection established successfully');
+                }, 1000);
+            }
+
+            setupEventListeners() {
+                // Real WebSocket event listeners would go here
+                // For demo, we'll simulate events
+            }
+
+            updateConnectionStatus(status) {
+                const indicator = document.getElementById('connectionIndicator');
+                const text = document.getElementById('connectionText');
+                const latency = document.getElementById('connectionLatency');
+
+                switch(status) {
+                    case 'connected':
+                        indicator.className = 'connection-indicator';
+                        text.textContent = 'Connected';
+                        latency.textContent = `${this.latency}ms`;
+                        break;
+                    case 'disconnected':
+                        indicator.className = 'connection-indicator disconnected';
+                        text.textContent = 'Disconnected';
+                        latency.textContent = 'N/A';
+                        break;
+                    case 'reconnecting':
+                        indicator.className = 'connection-indicator reconnecting';
+                        text.textContent = 'Reconnecting...';
+                        latency.textContent = 'N/A';
+                        break;
+                }
+            }
+
+            handleConnectionError() {
+                this.isConnected = false;
+                this.updateConnectionStatus('disconnected');
+                this.showNotification('error', 'Connection Lost', 'WebSocket connection failed. Attempting to reconnect...');
+                this.attemptReconnect();
+            }
+
+            attemptReconnect() {
+                if (this.reconnectAttempts < this.maxReconnectAttempts) {
+                    this.reconnectAttempts++;
+                    this.updateConnectionStatus('reconnecting');
+                    
+                    setTimeout(() => {
+                        this.connect();
+                    }, this.reconnectDelay * this.reconnectAttempts);
+                } else {
+                    this.showNotification('error', 'Connection Failed', 'Maximum reconnection attempts reached');
+                }
+            }
+
+            startDataSimulation() {
+                // Simulate real-time data updates
+                setInterval(() => {
+                    if (this.isConnected) {
+                        this.updateMetrics();
+                        this.updateCharts();
+                        this.addActivityItem();
+                        this.messageCount++;
+                    }
+                }, 2000);
+
+                // Simulate random notifications
+                setInterval(() => {
+                    if (this.isConnected && Math.random() < 0.3) {
+                        this.generateRandomNotification();
+                    }
+                }, 5000);
+            }
+
+            updateMetrics() {
+                // Update live orders
+                const orders = document.getElementById('liveOrders');
+                const currentOrders = parseInt(orders.textContent.replace(',', ''));
+                const newOrders = currentOrders + Math.floor(Math.random() * 20) - 5;
+                orders.textContent = newOrders.toLocaleString();
+                this.animateUpdate('ordersIndicator');
+
+                // Update active users
+                const users = document.getElementById('activeUsers');
+                const currentUsers = parseInt(users.textContent.replace(',', ''));
+                const newUsers = Math.max(1000, currentUsers + Math.floor(Math.random() * 100) - 30);
+                users.textContent = newUsers.toLocaleString();
+                this.animateUpdate('usersIndicator');
+
+                // Update revenue
+                const revenue = document.getElementById('liveRevenue');
+                const currentRevenue = parseInt(revenue.textContent.replace('₺', '').replace(',', ''));
+                const newRevenue = currentRevenue + Math.floor(Math.random() * 500) + 100;
+                revenue.textContent = `₺${newRevenue.toLocaleString()}`;
+                this.animateUpdate('revenueIndicator');
+
+                // Update system health
+                const health = document.getElementById('systemHealth');
+                const newHealth = (99.5 + Math.random() * 0.5).toFixed(1);
+                health.textContent = `${newHealth}%`;
+                this.animateUpdate('healthIndicator');
+
+                // Simulate latency
+                this.latency = Math.floor(Math.random() * 50) + 20;
+                document.getElementById('connectionLatency').textContent = `${this.latency}ms`;
+            }
+
+            animateUpdate(indicatorId) {
+                const indicator = document.getElementById(indicatorId);
+                indicator.style.background = var(--quantum-tertiary);
+                setTimeout(() => {
+                    indicator.style.background = var(--quantum-success);
+                }, 300);
+            }
+
+            updateCharts() {
+                if (window.liveChart) {
+                    const now = new Date();
+                    const timeLabel = now.toLocaleTimeString();
+                    const newData = Math.floor(Math.random() * 30) + 70;
+
+                    // Add new data point
+                    window.liveChart.data.labels.push(timeLabel);
+                    window.liveChart.data.datasets[0].data.push(newData);
+
+                    // Keep only last 10 data points
+                    if (window.liveChart.data.labels.length > 10) {
+                        window.liveChart.data.labels.shift();
+                        window.liveChart.data.datasets[0].data.shift();
+                    }
+
+                    window.liveChart.update('none');
+                }
+            }
+
+            addActivityItem() {
+                const activityFeed = document.getElementById('activityFeed');
+                const activities = [
+                    'New order #12458 received from Istanbul',
+                    'User logged in from Ankara',
+                    'Payment processed successfully',
+                    'Inventory updated for Product #789',
+                    'New customer registered',
+                    'Order #12459 shipped to Izmir',
+                    'Price updated for Category Electronics',
+                    'System backup completed'
+                ];
+
+                const activity = activities[Math.floor(Math.random() * activities.length)];
+                const time = new Date().toLocaleTimeString();
+
+                const activityItem = document.createElement('div');
+                activityItem.className = 'activity-item';
+                activityItem.innerHTML = `
+                    <div class="activity-icon"></div>
+                    <div class="activity-text">${activity}</div>
+                    <div class="activity-time">${time}</div>
+                `;
+
+                activityFeed.insertBefore(activityItem, activityFeed.firstChild);
+
+                // Keep only last 20 items
+                while (activityFeed.children.length > 20) {
+                    activityFeed.removeChild(activityFeed.lastChild);
+                }
+            }
+
+            generateRandomNotification() {
+                const notifications = [
+                    { type: 'success', title: 'Order Completed', message: 'Order #12460 has been successfully processed' },
+                    { type: 'warning', title: 'Low Stock Alert', message: 'Product #789 is running low on inventory' },
+                    { type: 'info', title: 'System Update', message: 'New features are now available in the dashboard' },
+                    { type: 'error', title: 'Payment Failed', message: 'Payment for order #12461 requires attention' }
+                ];
+
+                const notification = notifications[Math.floor(Math.random() * notifications.length)];
+                this.showNotification(notification.type, notification.title, notification.message);
+            }
+
+            showNotification(type, title, message) {
+                const container = document.getElementById('notificationContainer');
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                const time = new Date().toLocaleTimeString();
+                notification.innerHTML = `
+                    <button class="notification-close" onclick="this.parentElement.remove()">&times;</button>
+                    <div class="notification-header">
+                        <div class="notification-title">${title}</div>
+                        <div class="notification-time">${time}</div>
+                    </div>
+                    <div class="notification-message">${message}</div>
+                `;
+
+                container.appendChild(notification);
+
+                // Show notification with animation
+                setTimeout(() => notification.classList.add('show'), 100);
+
+                // Auto-remove after 10 seconds
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.style.transform = 'translateX(400px)';
+                        setTimeout(() => notification.remove(), 500);
+                    }
+                }, 10000);
+
+                // Keep only last 5 notifications
+                while (container.children.length > 5) {
+                    container.removeChild(container.firstChild);
+                }
+            }
+
+            startPerformanceMonitoring() {
+                setInterval(() => {
+                    const uptime = Math.floor((Date.now() - this.startTime) / 1000);
+                    document.getElementById('wsLatency').textContent = `${this.latency}ms`;
+                    document.getElementById('wsMessages').textContent = Math.floor(this.messageCount / (uptime || 1));
+                    document.getElementById('wsConnections').textContent = this.isConnected ? '1' : '0';
+                    document.getElementById('wsUptime').textContent = `${uptime}s`;
+                }, 1000);
+            }
+
+            disconnect() {
+                this.isConnected = false;
+                this.updateConnectionStatus('disconnected');
+                this.showNotification('warning', 'Disconnected', 'WebSocket connection manually closed');
+            }
+
+            reconnect() {
+                if (!this.isConnected) {
+                    this.reconnectAttempts = 0;
+                    this.connect();
+                }
+            }
+        }
+
+        // Application Initialization
+        let wsManager;
+        let liveChart;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeParticles();
+            initializeCharts();
+            wsManager = new WebSocketManager();
+            updateTime();
+            setInterval(updateTime, 1000);
+        });
+
+        // Initialize Particles
+        function initializeParticles() {
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: ['#00FFFF', '#FF00FF', '#FFFF00'] },
+                    shape: { type: 'circle' },
+                    opacity: { value: 0.5, random: true, anim: { enable: true, speed: 1 } },
+                    size: { value: 3, random: true, anim: { enable: true, speed: 2 } },
+                    line_linked: { enable: true, distance: 150, color: '#00FFFF', opacity: 0.3, width: 1 },
+                    move: { enable: true, speed: 2, direction: 'none', random: true }
+                },
+                interactivity: {
+                    detect_on: 'canvas',
+                    events: { onhover: { enable: true, mode: 'grab' } },
+                    modes: { grab: { distance: 140 } }
+                }
+            });
+        }
+
+        // Initialize Charts
+        function initializeCharts() {
+            const ctx = document.getElementById('livePerformanceChart').getContext('2d');
+            liveChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Performance Score',
+                        data: [],
+                        borderColor: '#00FFFF',
+                        backgroundColor: 'rgba(0, 255, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#00FFFF',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#00FFFF' } } },
+                    scales: {
+                        y: { 
+                            min: 0,
+                            max: 100,
+                            ticks: { color: '#00FFFF' }, 
+                            grid: { color: 'rgba(0, 255, 255, 0.2)' } 
+                        },
+                        x: { 
+                            ticks: { color: '#00FFFF' }, 
+                            grid: { color: 'rgba(0, 255, 255, 0.2)' } 
+                        }
+                    },
+                    animation: { duration: 300 }
+                }
+            });
+
+            window.liveChart = liveChart;
+        }
+
+        // Control Functions
+        function toggleConnection() {
+            if (wsManager.isConnected) {
+                wsManager.disconnect();
+            } else {
+                wsManager.reconnect();
+            }
+        }
+
+        function clearNotifications() {
+            const container = document.getElementById('notificationContainer');
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
+            wsManager.showNotification('info', 'Cleared', 'All notifications have been cleared');
+        }
+
+        function exportData() {
+            wsManager.showNotification('success', 'Export Started', 'Real-time data export initiated');
+        }
+
+        function simulateTraffic() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    wsManager.updateMetrics();
+                    wsManager.addActivityItem();
+                }, i * 200);
+            }
+            wsManager.showNotification('info', 'Traffic Simulated', 'High traffic simulation completed');
+        }
+
+        function resetMetrics() {
+            document.getElementById('liveOrders').textContent = '1,247';
+            document.getElementById('activeUsers').textContent = '2,843';
+            document.getElementById('liveRevenue').textContent = '₺89,432';
+            document.getElementById('systemHealth').textContent = '99.8%';
+            wsManager.showNotification('info', 'Reset Complete', 'All metrics have been reset to baseline');
+        }
+
+        function testNotifications() {
+            wsManager.showNotification('success', 'Test Success', 'This is a test success notification');
+            setTimeout(() => wsManager.showNotification('warning', 'Test Warning', 'This is a test warning notification'), 1000);
+            setTimeout(() => wsManager.showNotification('error', 'Test Error', 'This is a test error notification'), 2000);
+            setTimeout(() => wsManager.showNotification('info', 'Test Info', 'This is a test info notification'), 3000);
+        }
+
+        function updateTime() {
+            document.getElementById('currentTime').textContent = new Date().toLocaleTimeString();
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                switch(e.key) {
+                    case 'r': e.preventDefault(); toggleConnection(); break;
+                    case 'c': e.preventDefault(); clearNotifications(); break;
+                    case 't': e.preventDefault(); testNotifications(); break;
+                }
+            }
+        });
+    </script>
+</body>
+</html> 
