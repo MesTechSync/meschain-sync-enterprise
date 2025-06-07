@@ -345,13 +345,12 @@ class SelinayWeekendValidator {
         
         console.log('\n📊 OVERALL READINESS SCORE');
         console.log(`🎯 ${this.readinessScore.toFixed(1)}/100 ${this.getReadinessEmoji()}`);
-        
-        console.log('\n✅ VALIDATION RESULTS');
+          console.log('\n✅ VALIDATION RESULTS');
         console.log(`📁 File System: ${this.validationResults.files.present}/${this.validationResults.files.total} files`);
-        console.log(`🧪 Code Quality: ${Object.values(this.validationResults.codeQuality).reduce((a,b) => a+b, 0)/4:.1f}%`);
-        console.log(`🔗 Integration: ${Object.values(this.validationResults.integration).reduce((a,b) => a+b, 0)/5:.1f}%`);
+        console.log(`🧪 Code Quality: ${(Object.values(this.validationResults.codeQuality).reduce((a,b) => a+b, 0)/4).toFixed(1)}%`);
+        console.log(`🔗 Integration: ${(Object.values(this.validationResults.integration).reduce((a,b) => a+b, 0)/5).toFixed(1)}%`);
         console.log(`⚡ Performance: All metrics within targets`);
-        console.log(`📚 Documentation: ${Object.values(this.validationResults.documentation).reduce((a,b) => a+b, 0)/6:.1f}%`);
+        console.log(`📚 Documentation: ${(Object.values(this.validationResults.documentation).reduce((a,b) => a+b, 0)/6).toFixed(1)}%`);
         console.log(`🌅 Monday Startup: 100% ready`);
         
         if (this.warnings.length > 0) {
