@@ -1,11 +1,11 @@
 <?php
 /**
  * AI/ML Integration Engine Controller - ATOM-VSCODE-102
- * MesChain-Sync Enterprise AI Innovation
+ * MesChain-Sync Enterprise AI/ML Innovation
  * 
  * @package MesChain-Sync
  * @version 3.0.4.0 - ATOM-VSCODE-102
- * @author VSCode AI Specialist Team
+ * @author VSCode AI/ML Innovation Team
  * @date 2025-06-08
  */
 
@@ -38,7 +38,7 @@ class ControllerExtensionModuleAiMlIntegrationEngine extends Controller {
         $data['ml_pipeline_status'] = $this->model_extension_module_ai_ml_integration_engine->getMlPipelineStatus();
         $data['prediction_engine_metrics'] = $this->model_extension_module_ai_ml_integration_engine->getPredictionEngineMetrics();
         $data['ai_features_status'] = $this->model_extension_module_ai_ml_integration_engine->getAiFeaturesStatus();
-        $data['model_performance'] = $this->model_extension_module_ai_ml_integration_engine->getModelPerformanceMetrics();
+        $data['model_performance'] = $this->model_extension_module_ai_ml_integration_engine->getModelPerformance();
         
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
@@ -98,29 +98,29 @@ class ControllerExtensionModuleAiMlIntegrationEngine extends Controller {
         $this->load->model('extension/module/ai_ml_integration_engine');
         
         $models_config = [
-            'product_categorization' => [
-                'model_type' => 'text_classification',
-                'framework' => 'tensorflow',
-                'accuracy_threshold' => 0.95,
-                'auto_retrain' => true
+            'demand_forecasting' => [
+                'model_type' => 'lstm',
+                'features' => ['historical_sales', 'seasonality', 'trends', 'external_factors'],
+                'prediction_horizon' => '30_days',
+                'update_frequency' => 'daily'
             ],
             'price_optimization' => [
-                'model_type' => 'regression',
-                'framework' => 'scikit_learn',
-                'update_frequency' => 'daily',
-                'features' => ['competitor_prices', 'demand', 'seasonality']
+                'model_type' => 'xgboost',
+                'features' => ['competitor_prices', 'demand', 'inventory', 'market_conditions'],
+                'optimization_goal' => 'profit_maximization',
+                'update_frequency' => 'hourly'
             ],
-            'demand_forecasting' => [
-                'model_type' => 'time_series',
-                'framework' => 'prophet',
-                'forecast_horizon' => 30,
-                'confidence_interval' => 0.95
+            'customer_segmentation' => [
+                'model_type' => 'kmeans_clustering',
+                'features' => ['purchase_history', 'behavior_patterns', 'demographics'],
+                'segments' => 5,
+                'update_frequency' => 'weekly'
             ],
-            'user_behavior_prediction' => [
-                'model_type' => 'neural_network',
-                'framework' => 'pytorch',
-                'real_time_inference' => true,
-                'features' => ['browsing_history', 'purchase_patterns', 'demographics']
+            'recommendation_engine' => [
+                'model_type' => 'collaborative_filtering',
+                'features' => ['user_behavior', 'product_features', 'contextual_data'],
+                'algorithm' => 'matrix_factorization',
+                'update_frequency' => 'real_time'
             ]
         ];
         
@@ -149,33 +149,28 @@ class ControllerExtensionModuleAiMlIntegrationEngine extends Controller {
     }
     
     /**
-     * Setup intelligent analytics engine
+     * Setup intelligent analytics
      */
     public function setupIntelligentAnalytics() {
         $this->load->model('extension/module/ai_ml_integration_engine');
         
         $analytics_config = [
-            'real_time_analytics' => [
-                'stream_processing' => true,
-                'anomaly_detection' => true,
-                'trend_analysis' => true,
-                'alert_thresholds' => [
-                    'sales_drop' => 0.15,
-                    'traffic_spike' => 2.0,
-                    'error_rate_increase' => 0.05
-                ]
-            ],
             'predictive_analytics' => [
+                'sales_forecasting' => true,
+                'inventory_optimization' => true,
                 'customer_lifetime_value' => true,
-                'churn_prediction' => true,
-                'market_trend_analysis' => true,
-                'inventory_optimization' => true
+                'churn_prediction' => true
             ],
-            'business_intelligence' => [
-                'automated_reporting' => true,
-                'dashboard_generation' => true,
-                'insight_extraction' => true,
-                'recommendation_engine' => true
+            'anomaly_detection' => [
+                'transaction_anomalies' => true,
+                'inventory_anomalies' => true,
+                'pricing_anomalies' => true,
+                'user_behavior_anomalies' => true
+            ],
+            'real_time_insights' => [
+                'dashboard_updates' => true,
+                'alert_system' => true,
+                'automated_reports' => true
             ]
         ];
         
@@ -185,8 +180,8 @@ class ControllerExtensionModuleAiMlIntegrationEngine extends Controller {
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode([
                 'success' => true,
-                'message' => 'Intelligent analytics engine setup completed',
-                'analytics_engine' => $result
+                'message' => 'Intelligent analytics setup completed',
+                'analytics' => $result
             ]));
             
         } catch (Exception $e) {
@@ -205,39 +200,35 @@ class ControllerExtensionModuleAiMlIntegrationEngine extends Controller {
         $this->load->model('extension/module/ai_ml_integration_engine');
         
         $ai_features = [
-            'smart_product_categorization' => [
+            'smart_categorization' => [
                 'enabled' => true,
-                'confidence_threshold' => 0.9,
-                'auto_categorize' => true,
-                'human_review_required' => false
+                'model' => 'bert_classification',
+                'confidence_threshold' => 0.85,
+                'auto_approval' => true
             ],
             'dynamic_pricing' => [
                 'enabled' => true,
-                'price_adjustment_limit' => 0.2,
-                'competitor_monitoring' => true,
-                'demand_based_pricing' => true
+                'strategy' => 'profit_optimization',
+                'price_bounds' => ['min_margin' => 0.1, 'max_increase' => 0.3],
+                'update_frequency' => 'hourly'
             ],
             'inventory_optimization' => [
                 'enabled' => true,
-                'reorder_point_calculation' => true,
-                'seasonal_adjustment' => true,
-                'supplier_performance_analysis' => true
+                'reorder_automation' => true,
+                'safety_stock_optimization' => true,
+                'demand_forecasting' => true
             ],
             'personalized_recommendations' => [
                 'enabled' => true,
-                'recommendation_types' => ['collaborative', 'content_based', 'hybrid'],
+                'recommendation_types' => ['product', 'category', 'bundle'],
                 'real_time_updates' => true,
                 'a_b_testing' => true
             ],
             'fraud_detection' => [
                 'enabled' => true,
                 'real_time_scoring' => true,
-                'risk_thresholds' => [
-                    'low' => 0.3,
-                    'medium' => 0.6,
-                    'high' => 0.8
-                ],
-                'automated_blocking' => false
+                'auto_blocking' => false,
+                'alert_threshold' => 0.7
             ]
         ];
         
@@ -271,34 +262,14 @@ class ControllerExtensionModuleAiMlIntegrationEngine extends Controller {
     public function trainModels() {
         $this->load->model('extension/module/ai_ml_integration_engine');
         
-        $training_config = [
-            'data_sources' => [
-                'marketplace_data' => true,
-                'user_behavior' => true,
-                'external_apis' => true,
-                'historical_data' => true
-            ],
-            'training_parameters' => [
-                'batch_size' => 1000,
-                'learning_rate' => 0.001,
-                'epochs' => 100,
-                'validation_split' => 0.2
-            ],
-            'model_validation' => [
-                'cross_validation' => true,
-                'performance_threshold' => 0.85,
-                'a_b_testing' => true
-            ]
-        ];
-        
         try {
-            $training_results = $this->model_extension_module_ai_ml_integration_engine->trainModels($training_config);
+            $training_results = $this->model_extension_module_ai_ml_integration_engine->trainModels();
             
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode([
                 'success' => true,
                 'message' => 'Model training completed',
-                'training_results' => $training_results
+                'results' => $training_results
             ]));
             
         } catch (Exception $e) {
@@ -316,14 +287,10 @@ class ControllerExtensionModuleAiMlIntegrationEngine extends Controller {
     public function getRealTimePredictions() {
         $this->load->model('extension/module/ai_ml_integration_engine');
         
+        $prediction_types = $this->request->get['types'] ?? 'all';
+        
         try {
-            $predictions = [
-                'sales_forecast' => $this->model_extension_module_ai_ml_integration_engine->getSalesForecast(),
-                'demand_prediction' => $this->model_extension_module_ai_ml_integration_engine->getDemandPrediction(),
-                'price_recommendations' => $this->model_extension_module_ai_ml_integration_engine->getPriceRecommendations(),
-                'inventory_alerts' => $this->model_extension_module_ai_ml_integration_engine->getInventoryAlerts(),
-                'user_behavior_insights' => $this->model_extension_module_ai_ml_integration_engine->getUserBehaviorInsights()
-            ];
+            $predictions = $this->model_extension_module_ai_ml_integration_engine->getRealTimePredictions($prediction_types);
             
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode([
@@ -353,7 +320,7 @@ class ControllerExtensionModuleAiMlIntegrationEngine extends Controller {
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode([
                 'success' => true,
-                'performance_metrics' => $performance_metrics
+                'metrics' => $performance_metrics
             ]));
             
         } catch (Exception $e) {
@@ -366,27 +333,54 @@ class ControllerExtensionModuleAiMlIntegrationEngine extends Controller {
     }
     
     /**
-     * Run A/B testing for models
+     * A/B test models
      */
-    public function runAbTesting() {
+    public function abTestModels() {
         $this->load->model('extension/module/ai_ml_integration_engine');
         
-        $ab_test_config = [
-            'test_name' => 'price_optimization_v2',
-            'traffic_split' => 0.5,
-            'duration_days' => 7,
-            'success_metrics' => ['conversion_rate', 'revenue', 'user_satisfaction'],
-            'statistical_significance' => 0.95
+        $test_config = [
+            'model_a' => $this->request->post['model_a'] ?? '',
+            'model_b' => $this->request->post['model_b'] ?? '',
+            'traffic_split' => $this->request->post['traffic_split'] ?? 50,
+            'test_duration' => $this->request->post['test_duration'] ?? 7,
+            'success_metric' => $this->request->post['success_metric'] ?? 'accuracy'
         ];
         
         try {
-            $ab_test_result = $this->model_extension_module_ai_ml_integration_engine->runAbTesting($ab_test_config);
+            $test_result = $this->model_extension_module_ai_ml_integration_engine->startAbTest($test_config);
             
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode([
                 'success' => true,
-                'message' => 'A/B testing initiated',
-                'test_details' => $ab_test_result
+                'message' => 'A/B test started successfully',
+                'test_id' => $test_result['test_id'],
+                'configuration' => $test_config
+            ]));
+            
+        } catch (Exception $e) {
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]));
+        }
+    }
+    
+    /**
+     * Get feature importance analysis
+     */
+    public function getFeatureImportance() {
+        $this->load->model('extension/module/ai_ml_integration_engine');
+        
+        $model_name = $this->request->get['model'] ?? 'all';
+        
+        try {
+            $feature_importance = $this->model_extension_module_ai_ml_integration_engine->getFeatureImportance($model_name);
+            
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode([
+                'success' => true,
+                'feature_importance' => $feature_importance
             ]));
             
         } catch (Exception $e) {
@@ -404,19 +398,16 @@ class ControllerExtensionModuleAiMlIntegrationEngine extends Controller {
     public function generateAiInsightsReport() {
         $this->load->model('extension/module/ai_ml_integration_engine');
         
+        $report_type = $this->request->get['type'] ?? 'comprehensive';
+        $time_period = $this->request->get['period'] ?? '7_days';
+        
         try {
-            $insights_report = [
-                'executive_summary' => $this->model_extension_module_ai_ml_integration_engine->generateExecutiveSummary(),
-                'performance_analysis' => $this->model_extension_module_ai_ml_integration_engine->analyzeModelPerformance(),
-                'business_impact' => $this->model_extension_module_ai_ml_integration_engine->calculateBusinessImpact(),
-                'recommendations' => $this->model_extension_module_ai_ml_integration_engine->generateRecommendations(),
-                'future_predictions' => $this->model_extension_module_ai_ml_integration_engine->getFuturePredictions()
-            ];
+            $insights_report = $this->model_extension_module_ai_ml_integration_engine->generateInsightsReport($report_type, $time_period);
             
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode([
                 'success' => true,
-                'insights_report' => $insights_report,
+                'report' => $insights_report,
                 'generated_at' => date('Y-m-d H:i:s')
             ]));
             
@@ -430,39 +421,27 @@ class ControllerExtensionModuleAiMlIntegrationEngine extends Controller {
     }
     
     /**
-     * Configure AutoML pipeline
+     * Optimize model hyperparameters
      */
-    public function configureAutoMl() {
+    public function optimizeHyperparameters() {
         $this->load->model('extension/module/ai_ml_integration_engine');
         
-        $automl_config = [
-            'enabled' => true,
-            'auto_feature_engineering' => true,
-            'model_selection' => [
-                'algorithms' => ['random_forest', 'xgboost', 'neural_network', 'svm'],
-                'hyperparameter_tuning' => true,
-                'ensemble_methods' => true
-            ],
-            'auto_deployment' => [
-                'performance_threshold' => 0.9,
-                'canary_deployment' => true,
-                'rollback_on_failure' => true
-            ],
-            'monitoring' => [
-                'data_drift_detection' => true,
-                'model_degradation_alerts' => true,
-                'performance_tracking' => true
-            ]
+        $optimization_config = [
+            'model_name' => $this->request->post['model_name'] ?? '',
+            'optimization_method' => $this->request->post['method'] ?? 'bayesian',
+            'max_trials' => $this->request->post['max_trials'] ?? 100,
+            'objective' => $this->request->post['objective'] ?? 'accuracy'
         ];
         
         try {
-            $result = $this->model_extension_module_ai_ml_integration_engine->configureAutoMl($automl_config);
+            $optimization_result = $this->model_extension_module_ai_ml_integration_engine->optimizeHyperparameters($optimization_config);
             
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode([
                 'success' => true,
-                'message' => 'AutoML pipeline configured successfully',
-                'automl_config' => $result
+                'message' => 'Hyperparameter optimization completed',
+                'best_parameters' => $optimization_result['best_params'],
+                'best_score' => $optimization_result['best_score']
             ]));
             
         } catch (Exception $e) {
