@@ -95,10 +95,17 @@ class MesChainSyncSuperAdminDashboard {
             }
         };
 
-        // Backend API Integration
-        this.apiBaseUrl = 'http://localhost:8080/api';
+        // Backend API Integration - Testing with Local Proxy
+        this.apiBaseUrl = 'https://func-meschain-prod.azurewebsites.net/api';
+        this.signalRUrl = 'https://signalr-meschain-prod.service.signalr.net';
         this.refreshInterval = 30000; // 30 seconds
+        
+        // Connection retry settings
+        this.maxRetries = 5;
+        this.retryCount = 0;
+        this.reconnectInterval = 5000; // 5 seconds
         this.backendConnected = false;
+        this.signalRConnection = null;
         
         // Enhanced User Data with Team Metrics
         this.userData = {
@@ -148,8 +155,253 @@ class MesChainSyncSuperAdminDashboard {
         this.initializeCharts();
         this.startRealTimeUpdates();
         this.attemptBackendConnection();
+        this.initializeSignalR();
         
         console.log('✅ MesChain-Sync Dashboard initialized successfully');
+    }
+
+    /**
+     * Initialize Azure SignalR Connection
+     */
+    async initializeSignalR() {
+        try {
+            console.log('🔌 Initializing Azure SignalR connection...');
+            
+            // Load SignalR library dynamically
+            if (typeof signalR === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/@microsoft/signalr@latest/dist/browser/signalr.min.js';
+                document.head.appendChild(script);
+                
+                await new Promise((resolve) => {
+                    script.onload = resolve;
+                });
+            }
+
+            // Get connection info from Azure Function
+            const response = await fetch(`${this.apiBaseUrl}/negotiate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-user-id': 'super-admin',
+                    'x-user-role': 'super_admin'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to negotiate SignalR connection');
+            }
+
+            const connectionInfo = await response.json();
+            
+            // Create SignalR connection
+            this.signalRConnection = new signalR.HubConnectionBuilder()
+                .withUrl(connectionInfo.url, {
+                    accessTokenFactory: () => connectionInfo.accessToken
+                })
+                .withAutomaticReconnect()
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+
+            // Setup event handlers
+            this.setupSignalREventHandlers();
+            
+            // Start connection
+            await this.signalRConnection.start();
+            console.log('✅ Azure SignalR connected successfully');
+            
+            // Join admin groups
+            await this.signalRConnection.invoke('JoinGroup', 'SuperAdmins');
+            
+        } catch (error) {
+            console.error('❌ SignalR initialization failed:', error);
+            this.fallbackToWebSocket();
+        }
+    }
+
+    /**
+     * Setup SignalR Event Handlers
+     */
+    setupSignalREventHandlers() {
+        if (!this.signalRConnection) return;
+
+        // System updates
+        this.signalRConnection.on('SystemUpdate', (data) => {
+            console.log('📊 System update received:', data);
+            this.handleSystemUpdate(data);
+        });
+
+        // Real-time metrics
+        this.signalRConnection.on('MetricsUpdate', (metrics) => {
+            console.log('📈 Metrics update received:', metrics);
+            this.handleMetricsUpdate(metrics);
+        });
+
+        // Admin notifications
+        this.signalRConnection.on('AdminNotification', (notification) => {
+            console.log('🔔 Admin notification:', notification);
+            this.handleAdminNotification(notification);
+        });
+
+        // Connection events
+        this.signalRConnection.onreconnecting(() => {
+            console.log('🔄 SignalR reconnecting...');
+            this.updateConnectionStatus('reconnecting');
+        });
+
+        this.signalRConnection.onreconnected(() => {
+            console.log('✅ SignalR reconnected');
+            this.updateConnectionStatus('connected');
+        });
+
+        this.signalRConnection.onclose(() => {
+            console.log('❌ SignalR disconnected');
+            this.updateConnectionStatus('disconnected');
+        });
+    }
+
+    /**
+     * Handle System Updates from SignalR
+     */
+    handleSystemUpdate(data) {
+        if (data.type === 'performance') {
+            this.userData.performanceScore = data.value;
+            this.updateMetricCards();
+        } else if (data.type === 'users') {
+            this.userData.activeUsers = data.value;
+            this.updateMetricCards();
+        }
+    }
+
+    /**
+     * Handle Metrics Updates from SignalR
+     */
+    handleMetricsUpdate(metrics) {
+        Object.assign(this.userData, metrics);
+        this.updateMetricCards();
+        this.updateChartsData();
+    }
+
+    /**
+     * Handle Admin Notifications from SignalR
+     */
+    handleAdminNotification(notification) {
+        this.addSystemLog(notification.message, notification.type || 'info');
+        
+        // Show notification in UI
+        this.showNotification(notification.title, notification.message, notification.type);
+    }
+
+    /**
+     * Update Connection Status Indicator
+     */
+    updateConnectionStatus(status) {
+        const indicator = document.getElementById('signalr-status');
+        if (indicator) {
+            indicator.className = `connection-status ${status}`;
+            indicator.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        }
+    }
+
+    /**
+     * Fallback to WebSocket if SignalR fails
+     */
+    fallbackToWebSocket() {
+        console.log('🔄 Falling back to WebSocket connection...');
+        
+        try {
+            const wsUrl = 'wss://api.meschain-sync.com/ws';
+            this.websocket = new WebSocket(wsUrl);
+            
+            this.websocket.onopen = () => {
+                console.log('✅ WebSocket fallback connected');
+                this.updateConnectionStatus('connected');
+            };
+            
+            this.websocket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                this.handleWebSocketMessage(data);
+            };
+            
+            this.websocket.onclose = () => {
+                console.log('❌ WebSocket disconnected');
+                this.updateConnectionStatus('disconnected');
+            };
+            
+        } catch (error) {
+            console.error('❌ WebSocket fallback failed:', error);
+        }
+    }
+
+    /**
+     * Handle WebSocket Messages
+     */
+    handleWebSocketMessage(data) {
+        switch (data.type) {
+            case 'system_update':
+                this.handleSystemUpdate(data);
+                break;
+            case 'metrics_update':
+                this.handleMetricsUpdate(data.payload);
+                break;
+            case 'notification':
+                this.handleAdminNotification(data.payload);
+                break;
+        }
+    }
+
+    /**
+     * Show Notification Toast
+     */
+    showNotification(title, message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type} fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300`;
+        
+        const iconMap = {
+            'success': '✅',
+            'error': '❌',
+            'warning': '⚠️',
+            'info': 'ℹ️'
+        };
+        
+        notification.innerHTML = `
+            <div class="flex items-start space-x-3">
+                <span class="text-2xl">${iconMap[type] || 'ℹ️'}</span>
+                <div>
+                    <h4 class="font-bold text-white">${title}</h4>
+                    <p class="text-sm text-gray-100">${message}</p>
+                </div>
+                <button class="text-white hover:text-gray-300 text-xl">&times;</button>
+            </div>
+        `;
+        
+        const colorMap = {
+            'success': 'bg-green-600',
+            'error': 'bg-red-600',
+            'warning': 'bg-amber-600',
+            'info': 'bg-blue-600'
+        };
+        
+        notification.classList.add(colorMap[type] || 'bg-blue-600');
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 100);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+        
+        // Manual close
+        notification.querySelector('button').onclick = () => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => notification.remove(), 300);
+        };
     }
 
     /**

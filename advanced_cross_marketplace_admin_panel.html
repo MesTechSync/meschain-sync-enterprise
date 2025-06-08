@@ -489,6 +489,13 @@
         <div class="top-header">
             <h2 style="margin: 0; color: #1f2937; font-weight: 600;">Cross-Marketplace Yönetim Paneli</h2>
             <div class="header-right">
+                <div class="health-indicator me-3">
+                    <i class="fas fa-circle text-warning"></i>
+                    <span class="ms-2">Bağlantı kuruluyor...</span>
+                </div>
+                <div class="last-update text-muted me-3" style="font-size: 12px;">
+                    Son güncelleme: Yükleniyor...
+                </div>
                 <div class="language-selector">
                     <button class="lang-btn active" onclick="changeLanguage('tr')">TR</button>
                     <button class="lang-btn" onclick="changeLanguage('en')">EN</button>
@@ -692,9 +699,17 @@
 
             <!-- Quick Actions -->
             <div class="quick-actions">
-                <button class="action-btn">
+                <button class="action-btn" onclick="testAzureFunctions()">
+                    <i class="fas fa-heartbeat"></i>
+                    Azure Functions Test
+                </button>
+                <button class="action-btn" onclick="fetchDashboardData()">
                     <i class="fas fa-sync"></i>
-                    Tüm Marketplace'leri Senkronize Et
+                    Verileri Yenile
+                </button>
+                <button class="action-btn" onclick="testSignalR()">
+                    <i class="fas fa-broadcast-tower"></i>
+                    SignalR Test
                 </button>
                 <button class="action-btn">
                     <i class="fas fa-download"></i>
@@ -766,6 +781,292 @@
             }
         });
 
+        async function testAzureFunctions() {
+            console.log('Testing Azure Functions...');
+            
+            const testResults = {
+                health: { status: 'testing', endpoint: '/health' },
+                dashboard: { status: 'testing', endpoint: '/adminDashboardUpdater' },
+                negotiate: { status: 'testing', endpoint: '/negotiate' },
+                signalr: { status: 'testing', endpoint: '/signalRMessages' }
+            };
+            
+            // Update UI to show testing status
+            updateTestResults(testResults);
+            
+            // Test health endpoint
+            try {
+                const healthResponse = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/health`);
+                testResults.health.status = healthResponse.ok ? 'success' : 'failed';
+                testResults.health.response = healthResponse.ok ? await healthResponse.json() : { error: 'Failed to fetch' };
+            } catch (error) {
+                testResults.health.status = 'error';
+                testResults.health.error = error.message;
+            }
+            
+            // Test dashboard endpoint
+            try {
+                const dashboardResponse = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/adminDashboardUpdater`);
+                testResults.dashboard.status = dashboardResponse.ok ? 'success' : 'failed';
+                testResults.dashboard.response = dashboardResponse.ok ? await dashboardResponse.json() : { error: 'Failed to fetch' };
+            } catch (error) {
+                testResults.dashboard.status = 'error';
+                testResults.dashboard.error = error.message;
+            }
+            
+            // Test negotiate endpoint
+            try {
+                const negotiateResponse = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/negotiate?userId=test&userRole=admin`);
+                testResults.negotiate.status = negotiateResponse.ok ? 'success' : 'failed';
+                testResults.negotiate.response = negotiateResponse.ok ? await negotiateResponse.json() : { error: 'Failed to fetch' };
+            } catch (error) {
+                testResults.negotiate.status = 'error';
+                testResults.negotiate.error = error.message;
+            }
+            
+            // Test SignalR messages endpoint
+            try {
+                const signalrResponse = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/signalRMessages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'test', data: { message: 'Test message' } })
+                });
+                testResults.signalr.status = signalrResponse.ok ? 'success' : 'failed';
+                testResults.signalr.response = signalrResponse.ok ? await signalrResponse.json() : { error: 'Failed to fetch' };
+            } catch (error) {
+                testResults.signalr.status = 'error';
+                testResults.signalr.error = error.message;
+            }
+            
+            updateTestResults(testResults);
+            console.log('Azure Functions test results:', testResults);
+        }
+        
+        async function testSignalR() {
+            console.log('Testing SignalR functionality...');
+            
+            const testMessage = {
+                type: 'marketplaceSync',
+                data: {
+                    marketplace: 'trendyol',
+                    status: 'completed',
+                    itemCount: 50,
+                    timestamp: new Date().toISOString()
+                }
+            };
+            
+            const result = await sendSignalRMessage(testMessage.type, testMessage.data);
+            
+            if (result) {
+                alert(`SignalR test successful!\nMessage ID: ${result.messageId}\nTimestamp: ${result.timestamp}`);
+            } else {
+                alert('SignalR test failed. Check console for details.');
+            }
+        }
+        
+        function updateTestResults(results) {
+            // Create or update test results display
+            let testResultsContainer = document.querySelector('.test-results-container');
+            
+            if (!testResultsContainer) {
+                testResultsContainer = document.createElement('div');
+                testResultsContainer.className = 'test-results-container mt-4 p-3 border rounded bg-light';
+                testResultsContainer.innerHTML = '<h5>Azure Functions Test Results</h5>';
+                
+                const quickActions = document.querySelector('.quick-actions');
+                quickActions.parentNode.insertBefore(testResultsContainer, quickActions.nextSibling);
+            }
+            
+            const resultsHTML = Object.keys(results).map(endpoint => {
+                const result = results[endpoint];
+                const statusColor = result.status === 'success' ? 'success' : 
+                                   result.status === 'testing' ? 'warning' : 'danger';
+                const statusIcon = result.status === 'success' ? 'check-circle' : 
+                                  result.status === 'testing' ? 'clock' : 'times-circle';
+                
+                return `
+                    <div class="test-result-item d-flex align-items-center justify-content-between mb-2">
+                        <span><strong>${endpoint}</strong> ${result.endpoint}</span>
+                        <span class="text-${statusColor}">
+                            <i class="fas fa-${statusIcon}"></i> ${result.status}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+            
+            testResultsContainer.innerHTML = `
+                <h5>Azure Functions Test Results</h5>
+                ${resultsHTML}
+                <small class="text-muted">Base URL: ${AZURE_FUNCTIONS_BASE_URL}</small>
+            `;
+        }
+
+        // Azure Functions configuration - Using local mock server
+        const AZURE_FUNCTIONS_BASE_URL = 'http://localhost:7071/api';
+        
+        // API integration functions
+        async function fetchDashboardData() {
+            try {
+                const response = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/adminDashboardUpdater`);
+                if (response.ok) {
+                    const data = await response.json();
+                    updateDashboardUI(data);
+                    console.log('Dashboard data updated:', data);
+                } else {
+                    console.warn('Failed to fetch dashboard data, using mock data');
+                    updateDashboardUI(getMockData());
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                updateDashboardUI(getMockData());
+            }
+        }
+        
+        async function checkSystemHealth() {
+            try {
+                const response = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/health`);
+                if (response.ok) {
+                    const health = await response.json();
+                    updateHealthStatus(health);
+                    console.log('System health:', health);
+                } else {
+                    updateHealthStatus({ status: 'degraded', message: 'Some services unavailable' });
+                }
+            } catch (error) {
+                console.error('Health check failed:', error);
+                updateHealthStatus({ status: 'error', message: 'Health check failed' });
+            }
+        }
+        
+        async function sendSignalRMessage(messageType, data) {
+            try {
+                const response = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/signalRMessages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        type: messageType,
+                        data: data,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('SignalR message sent:', result);
+                    return result;
+                } else {
+                    console.error('Failed to send SignalR message');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error sending SignalR message:', error);
+                return null;
+            }
+        }
+        
+        function getMockData() {
+            return {
+                success: true,
+                data: {
+                    totalUsers: 1247 + Math.floor(Math.random() * 50),
+                    activeConnections: 89 + Math.floor(Math.random() * 20),
+                    systemHealth: 'healthy',
+                    lastUpdate: new Date().toISOString(),
+                    marketplaces: {
+                        trendyol: { status: 'active', orders: 45 + Math.floor(Math.random() * 10), sync: 'ok' },
+                        amazon: { status: 'active', orders: 23 + Math.floor(Math.random() * 10), sync: 'ok' },
+                        hepsiburada: { status: 'active', orders: 67 + Math.floor(Math.random() * 10), sync: 'ok' },
+                        n11: { status: 'active', orders: 12 + Math.floor(Math.random() * 5), sync: 'ok' }
+                    },
+                    metrics: {
+                        totalOrders: 147 + Math.floor(Math.random() * 20),
+                        successRate: 98.5 + (Math.random() * 1.5),
+                        avgResponseTime: 245 + Math.floor(Math.random() * 100),
+                        errorCount: Math.floor(Math.random() * 5)
+                    }
+                },
+                timestamp: new Date().toISOString()
+            };
+        }
+        
+        function updateDashboardUI(response) {
+            if (!response.success && !response.data) return;
+            
+            const data = response.data || response;
+            
+            // Update total users
+            const totalUsersEl = document.querySelector('.stat-value');
+            if (totalUsersEl && data.totalUsers) {
+                totalUsersEl.textContent = data.totalUsers.toLocaleString();
+            }
+            
+            // Update active connections
+            const activeConnectionsEl = document.querySelectorAll('.stat-value')[1];
+            if (activeConnectionsEl && data.activeConnections) {
+                activeConnectionsEl.textContent = data.activeConnections.toLocaleString();
+            }
+            
+            // Update marketplace cards
+            if (data.marketplaces) {
+                Object.keys(data.marketplaces).forEach(marketplace => {
+                    const marketplaceData = data.marketplaces[marketplace];
+                    const card = document.querySelector(`[data-marketplace="${marketplace}"]`);
+                    if (card) {
+                        const statusEl = card.querySelector('.marketplace-status');
+                        const ordersEl = card.querySelector('.marketplace-orders');
+                        
+                        if (statusEl) {
+                            statusEl.textContent = marketplaceData.status === 'active' ? 'Aktif' : 'Pasif';
+                            statusEl.className = `marketplace-status ${marketplaceData.status === 'active' ? 'text-success' : 'text-danger'}`;
+                        }
+                        
+                        if (ordersEl) {
+                            ordersEl.textContent = `${marketplaceData.orders} sipariş`;
+                        }
+                    }
+                });
+            }
+            
+            // Update system metrics
+            if (data.metrics) {
+                const metricsContainer = document.querySelector('.metrics-container');
+                if (metricsContainer) {
+                    const totalOrdersEl = metricsContainer.querySelector('.total-orders');
+                    const successRateEl = metricsContainer.querySelector('.success-rate');
+                    const avgResponseEl = metricsContainer.querySelector('.avg-response');
+                    const errorCountEl = metricsContainer.querySelector('.error-count');
+                    
+                    if (totalOrdersEl) totalOrdersEl.textContent = data.metrics.totalOrders;
+                    if (successRateEl) successRateEl.textContent = `${data.metrics.successRate.toFixed(1)}%`;
+                    if (avgResponseEl) avgResponseEl.textContent = `${data.metrics.avgResponseTime}ms`;
+                    if (errorCountEl) errorCountEl.textContent = data.metrics.errorCount;
+                }
+            }
+            
+            // Update last update time
+            const lastUpdateEl = document.querySelector('.last-update');
+            if (lastUpdateEl) {
+                lastUpdateEl.textContent = `Son güncelleme: ${new Date(data.lastUpdate || Date.now()).toLocaleString('tr-TR')}`;
+            }
+        }
+        
+        function updateHealthStatus(health) {
+            const healthIndicator = document.querySelector('.health-indicator');
+            if (healthIndicator) {
+                const statusText = health.status === 'healthy' ? 'Sağlıklı' : 
+                                 health.status === 'degraded' ? 'Kısmi Sorun' : 'Hata';
+                const statusColor = health.status === 'healthy' ? 'success' : 
+                                   health.status === 'degraded' ? 'warning' : 'danger';
+                
+                healthIndicator.innerHTML = `
+                    <i class="fas fa-circle text-${statusColor}"></i>
+                    <span class="ms-2">${statusText}</span>
+                `;
+            }
+        }
+
         // Menu functionality
         function showSection(section) {
             // Remove active class from all menu links
@@ -778,32 +1079,64 @@
             
             // Here you can add logic to show different sections
             console.log('Showing section:', section);
+            
+            // Send analytics event
+            sendSignalRMessage('sectionView', { section: section, timestamp: new Date().toISOString() });
         }
 
-        // Add click animations
-        document.querySelectorAll('.marketplace-card').forEach(card => {
-            card.addEventListener('click', function() {
-                this.style.transform = 'scale(0.98)';
-                setTimeout(() => {
-                    this.style.transform = 'translateY(-5px)';
-                }, 150);
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('MesChain-Sync Admin Panel initialized');
+            
+            // Initial data load
+            fetchDashboardData();
+            checkSystemHealth();
+            
+            // Add marketplace data attributes for easier targeting
+            const marketplaceCards = document.querySelectorAll('.marketplace-card');
+            const marketplaces = ['trendyol', 'amazon', 'hepsiburada', 'n11'];
+            marketplaceCards.forEach((card, index) => {
+                if (marketplaces[index]) {
+                    card.setAttribute('data-marketplace', marketplaces[index]);
+                }
+            });
+            
+            // Add click animations
+            marketplaceCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-5px)';
+                    }, 150);
+                    
+                    // Send marketplace click event
+                    const marketplace = this.getAttribute('data-marketplace');
+                    if (marketplace) {
+                        sendSignalRMessage('marketplaceClick', { 
+                            marketplace: marketplace, 
+                            timestamp: new Date().toISOString() 
+                        });
+                    }
+                });
             });
         });
 
-        // Real-time updates simulation
+        // Real-time updates
         setInterval(() => {
-            // Simulate real-time data updates
+            fetchDashboardData();
+            checkSystemHealth();
+            
+            // Animate stat values
             const statValues = document.querySelectorAll('.stat-value');
             statValues.forEach(stat => {
                 if (stat.textContent.includes('₺') || stat.textContent.includes('$') || stat.textContent.includes('₽')) {
-                    // Animate money values with slight changes
                     stat.style.color = '#10b981';
                     setTimeout(() => {
                         stat.style.color = '#2563eb';
                     }, 1000);
                 }
             });
-        }, 5000);
+        }, 10000); // Update every 10 seconds
     </script>
 </body>
 </html>
