@@ -1,0 +1,896 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <button type="button" id="execute-quantum" class="btn btn-success">
+                    <i class="fa fa-atom"></i> {{ text_execute_quantum }}
+                </button>
+                <button type="button" id="run-crypto" class="btn btn-warning">
+                    <i class="fa fa-shield"></i> {{ text_run_crypto }}
+                </button>
+                <button type="button" id="quantum-ml" class="btn btn-info">
+                    <i class="fa fa-brain"></i> {{ text_quantum_ml }}
+                </button>
+                <button type="button" id="export-quantum" class="btn btn-primary">
+                    <i class="fa fa-download"></i> {{ text_export_quantum }}
+                </button>
+            </div>
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Quantum Overview Cards -->
+        <div class="row">
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-atom fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge" id="quantum-volume">0</div>
+                                <div>{{ text_quantum_volume }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span class="pull-left" id="quantum-status">{{ text_initializing }}</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-green">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-shield fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge" id="crypto-strength">0</div>
+                                <div>{{ text_crypto_strength }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span class="pull-left" id="crypto-status">{{ text_quantum_safe }}</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-yellow">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-flash fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge" id="quantum-speedup">0x</div>
+                                <div>{{ text_quantum_speedup }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span class="pull-left" id="speedup-status">{{ text_calculating }}</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-red">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-cogs fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge" id="gate-fidelity">0%</div>
+                                <div>{{ text_gate_fidelity }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span class="pull-left" id="fidelity-status">{{ text_monitoring }}</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quantum Algorithms & Cryptography -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-line-chart fa-fw"></i> {{ text_quantum_performance }}
+                    </div>
+                    <div class="panel-body">
+                        <canvas id="quantumPerformanceChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-pie-chart fa-fw"></i> {{ text_algorithm_distribution }}
+                    </div>
+                    <div class="panel-body">
+                        <canvas id="algorithmDistributionChart" width="200" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quantum Algorithms Control -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-atom fa-fw"></i> {{ text_quantum_algorithms }}
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-xs btn-success" id="run-algorithm">
+                                <i class="fa fa-play"></i> {{ text_run_algorithm }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>{{ text_algorithm_type }}</label>
+                            <select class="form-control" id="algorithm-type">
+                                <option value="shor">{{ text_shor_algorithm }}</option>
+                                <option value="grover">{{ text_grover_algorithm }}</option>
+                                <option value="qaoa">{{ text_qaoa_algorithm }}</option>
+                                <option value="vqe">{{ text_vqe_algorithm }}</option>
+                                <option value="quantum_ml">{{ text_quantum_ml_algorithm }}</option>
+                                <option value="quantum_annealing">{{ text_quantum_annealing }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>{{ text_qubits_count }}</label>
+                            <input type="number" class="form-control" id="qubits-count" value="8" min="2" max="64">
+                        </div>
+                        <div class="form-group">
+                            <label>{{ text_circuit_depth }}</label>
+                            <input type="number" class="form-control" id="circuit-depth" value="10" min="1" max="100">
+                        </div>
+                        
+                        <div id="algorithm-results" class="mt-3">
+                            <h5>{{ text_execution_results }}</h5>
+                            <div id="results-content">
+                                <p class="text-muted">{{ text_no_results }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-shield fa-fw"></i> {{ text_post_quantum_crypto }}
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>{{ text_crypto_type }}</label>
+                            <select class="form-control" id="crypto-type">
+                                <option value="lattice_based">{{ text_lattice_based }}</option>
+                                <option value="hash_based">{{ text_hash_based }}</option>
+                                <option value="code_based">{{ text_code_based }}</option>
+                                <option value="multivariate">{{ text_multivariate }}</option>
+                                <option value="isogeny_based">{{ text_isogeny_based }}</option>
+                                <option value="qkd">{{ text_quantum_key_distribution }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>{{ text_security_level }}</label>
+                            <select class="form-control" id="security-level">
+                                <option value="128">128-bit</option>
+                                <option value="192">192-bit</option>
+                                <option value="256">256-bit</option>
+                                <option value="384">384-bit</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>{{ text_operation_type }}</label>
+                            <select class="form-control" id="operation-type">
+                                <option value="key_generation">{{ text_key_generation }}</option>
+                                <option value="encryption">{{ text_encryption }}</option>
+                                <option value="decryption">{{ text_decryption }}</option>
+                                <option value="signature">{{ text_digital_signature }}</option>
+                                <option value="verification">{{ text_signature_verification }}</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-warning btn-block" id="execute-crypto">
+                            <i class="fa fa-lock"></i> {{ text_execute_crypto }}
+                        </button>
+                        
+                        <div id="crypto-results" class="mt-3">
+                            <h5>{{ text_crypto_results }}</h5>
+                            <div id="crypto-content">
+                                <p class="text-muted">{{ text_no_crypto_results }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quantum Machine Learning & Optimization -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-brain fa-fw"></i> {{ text_quantum_machine_learning }}
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>{{ text_qml_model_type }}</label>
+                                    <select class="form-control" id="qml-model-type">
+                                        <option value="qnn">{{ text_quantum_neural_network }}</option>
+                                        <option value="qsvm">{{ text_quantum_svm }}</option>
+                                        <option value="vqc">{{ text_variational_quantum_classifier }}</option>
+                                        <option value="quantum_clustering">{{ text_quantum_clustering }}</option>
+                                        <option value="quantum_pca">{{ text_quantum_pca }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>{{ text_feature_dimension }}</label>
+                                    <input type="number" class="form-control" id="feature-dimension" value="16" min="2" max="64">
+                                </div>
+                                <button type="button" class="btn btn-info btn-block" id="train-qml">
+                                    <i class="fa fa-play"></i> {{ text_train_qml_model }}
+                                </button>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="qml-metrics">
+                                    <div class="metric-item">
+                                        <span class="metric-label">{{ text_qml_accuracy }}</span>
+                                        <span class="metric-value" id="qml-accuracy">0%</span>
+                                    </div>
+                                    <div class="metric-item">
+                                        <span class="metric-label">{{ text_quantum_advantage }}</span>
+                                        <span class="metric-value" id="quantum-advantage">0x</span>
+                                    </div>
+                                    <div class="metric-item">
+                                        <span class="metric-label">{{ text_training_time }}</span>
+                                        <span class="metric-value" id="training-time">0ms</span>
+                                    </div>
+                                    <div class="metric-item">
+                                        <span class="metric-label">{{ text_circuit_depth }}</span>
+                                        <span class="metric-value" id="qml-depth">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-cogs fa-fw"></i> {{ text_quantum_optimization }}
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>{{ text_optimization_problem }}</label>
+                            <select class="form-control" id="optimization-problem">
+                                <option value="maxcut">{{ text_max_cut }}</option>
+                                <option value="tsp">{{ text_traveling_salesman }}</option>
+                                <option value="portfolio">{{ text_portfolio_optimization }}</option>
+                                <option value="scheduling">{{ text_job_scheduling }}</option>
+                                <option value="knapsack">{{ text_knapsack_problem }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>{{ text_optimization_layers }}</label>
+                            <input type="number" class="form-control" id="optimization-layers" value="3" min="1" max="10">
+                        </div>
+                        <button type="button" class="btn btn-success btn-block" id="run-optimization">
+                            <i class="fa fa-search"></i> {{ text_run_optimization }}
+                        </button>
+                        
+                        <div class="optimization-results mt-3">
+                            <div class="result-item">
+                                <span class="result-label">{{ text_optimal_value }}</span>
+                                <span class="result-value" id="optimal-value">-</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">{{ text_convergence }}</span>
+                                <span class="result-value" id="convergence-status">-</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">{{ text_iterations }}</span>
+                                <span class="result-value" id="optimization-iterations">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quantum Simulation & Blockchain -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-desktop fa-fw"></i> {{ text_quantum_simulation }}
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>{{ text_simulator_type }}</label>
+                            <select class="form-control" id="simulator-type">
+                                <option value="state_vector">{{ text_state_vector }}</option>
+                                <option value="density_matrix">{{ text_density_matrix }}</option>
+                                <option value="stabilizer">{{ text_stabilizer }}</option>
+                                <option value="tensor_network">{{ text_tensor_network }}</option>
+                                <option value="monte_carlo">{{ text_monte_carlo }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>{{ text_noise_model }}</label>
+                            <select class="form-control" id="noise-model">
+                                <option value="none">{{ text_no_noise }}</option>
+                                <option value="depolarizing">{{ text_depolarizing_noise }}</option>
+                                <option value="amplitude_damping">{{ text_amplitude_damping }}</option>
+                                <option value="phase_damping">{{ text_phase_damping }}</option>
+                                <option value="realistic">{{ text_realistic_noise }}</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-block" id="run-simulation">
+                            <i class="fa fa-play-circle"></i> {{ text_run_simulation }}
+                        </button>
+                        
+                        <div class="simulation-metrics mt-3">
+                            <div class="progress-group">
+                                <span class="progress-text">{{ text_simulation_fidelity }}</span>
+                                <span class="float-right"><b id="simulation-fidelity">0</b>%</span>
+                                <div class="progress progress-sm">
+                                    <div class="progress-bar bg-success" id="fidelity-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="progress-group">
+                                <span class="progress-text">{{ text_memory_usage }}</span>
+                                <span class="float-right"><b id="memory-usage">0</b>MB</span>
+                                <div class="progress progress-sm">
+                                    <div class="progress-bar bg-info" id="memory-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-chain fa-fw"></i> {{ text_quantum_blockchain }}
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>{{ text_blockchain_feature }}</label>
+                            <select class="form-control" id="blockchain-feature">
+                                <option value="consensus">{{ text_quantum_consensus }}</option>
+                                <option value="signatures">{{ text_pq_signatures }}</option>
+                                <option value="hash_functions">{{ text_quantum_hash }}</option>
+                                <option value="smart_contracts">{{ text_quantum_contracts }}</option>
+                                <option value="qkd_blockchain">{{ text_qkd_blockchain }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>{{ text_security_parameters }}</label>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <input type="number" class="form-control" id="block-size" placeholder="{{ text_block_size }}" value="1024">
+                                </div>
+                                <div class="col-lg-6">
+                                    <input type="number" class="form-control" id="difficulty" placeholder="{{ text_difficulty }}" value="4">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-warning btn-block" id="deploy-blockchain">
+                            <i class="fa fa-rocket"></i> {{ text_deploy_blockchain }}
+                        </button>
+                        
+                        <div class="blockchain-status mt-3">
+                            <div class="status-item">
+                                <span class="status-label">{{ text_quantum_resistance }}</span>
+                                <span class="status-value" id="quantum-resistance">{{ text_high }}</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">{{ text_throughput_tps }}</span>
+                                <span class="status-value" id="throughput-tps">0</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">{{ text_security_level }}</span>
+                                <span class="status-value" id="blockchain-security">256-bit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quantum System Status -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-dashboard fa-fw"></i> {{ text_quantum_system_status }}
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="description-block">
+                                    <span class="description-percentage text-green" id="system-uptime">99.9%</span>
+                                    <h5 class="description-header">{{ text_system_uptime }}</h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="description-block">
+                                    <span class="description-percentage text-blue" id="coherence-time">100ms</span>
+                                    <h5 class="description-header">{{ text_coherence_time }}</h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="description-block">
+                                    <span class="description-percentage text-yellow" id="error-rate">0.1%</span>
+                                    <h5 class="description-header">{{ text_error_rate }}</h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="description-block">
+                                    <span class="description-percentage text-red" id="active-qubits">32</span>
+                                    <h5 class="description-header">{{ text_active_qubits }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quantum Algorithm Execution Modal -->
+<div class="modal fade" id="quantumExecutionModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">{{ text_quantum_execution_details }}</h4>
+            </div>
+            <div class="modal-body">
+                <div id="execution-details">
+                    <div class="text-center">{{ text_loading_execution }}</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ text_close }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.panel-green {
+    border-color: #5cb85c;
+}
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+.panel-red > .panel-heading {
+    border-color: #d9534f;
+    color: white;
+    background-color: #d9534f;
+}
+
+.huge {
+    font-size: 40px;
+}
+
+.qml-metrics, .optimization-results, .simulation-metrics, .blockchain-status {
+    margin-top: 15px;
+}
+
+.metric-item, .result-item, .status-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.metric-label, .result-label, .status-label {
+    font-weight: bold;
+    color: #666;
+}
+
+.metric-value, .result-value, .status-value {
+    color: #337ab7;
+    font-weight: bold;
+}
+
+.progress-group {
+    margin-bottom: 15px;
+}
+
+.description-block {
+    text-align: center;
+    padding: 15px;
+}
+
+.description-percentage {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.description-header {
+    margin: 10px 0 5px 0;
+    font-size: 16px;
+}
+
+.text-green { color: #5cb85c !important; }
+.text-blue { color: #337ab7 !important; }
+.text-yellow { color: #f0ad4e !important; }
+.text-red { color: #d9534f !important; }
+
+.bg-success { background-color: #5cb85c !important; }
+.bg-info { background-color: #5bc0de !important; }
+.bg-warning { background-color: #f0ad4e !important; }
+.bg-primary { background-color: #337ab7 !important; }
+
+.quantum-circuit {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 10px 0;
+    font-family: monospace;
+}
+
+.qubit-state {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 2px;
+    background: #337ab7;
+    color: white;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.quantum-gate {
+    display: inline-block;
+    padding: 3px 8px;
+    margin: 1px;
+    background: #5cb85c;
+    color: white;
+    border-radius: 2px;
+    font-size: 10px;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+$(document).ready(function() {
+    let performanceChart, distributionChart;
+    
+    // Initialize Charts
+    function initializeCharts() {
+        // Quantum Performance Chart
+        const performanceCtx = document.getElementById('quantumPerformanceChart').getContext('2d');
+        performanceChart = new Chart(performanceCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '{{ text_quantum_fidelity }}',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }, {
+                    label: '{{ text_classical_performance }}',
+                    data: [],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1
+                    }
+                }
+            }
+        });
+
+        // Algorithm Distribution Chart
+        const distributionCtx = document.getElementById('algorithmDistributionChart').getContext('2d');
+        distributionChart = new Chart(distributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['{{ text_shor_algorithm }}', '{{ text_grover_algorithm }}', '{{ text_qaoa_algorithm }}', '{{ text_vqe_algorithm }}'],
+                datasets: [{
+                    data: [25, 30, 25, 20],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 205, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    // Load Quantum Data
+    function loadQuantumData() {
+        $.ajax({
+            url: 'index.php?route=extension/module/quantum_computing_dashboard/getQuantumMetrics&user_token={{ user_token }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                updateDashboard(data);
+            },
+            error: function() {
+                console.error('Failed to load quantum data');
+            }
+        });
+    }
+
+    // Update Dashboard
+    function updateDashboard(data) {
+        // Update overview cards
+        $('#quantum-volume').text(data.overview.quantum_volume || 32);
+        $('#crypto-strength').text((data.overview.crypto_strength || 256) + '-bit');
+        $('#quantum-speedup').text((data.overview.quantum_speedup || 1) + 'x');
+        $('#gate-fidelity').text((data.overview.gate_fidelity || 99.9) + '%');
+
+        // Update QML metrics
+        $('#qml-accuracy').text((data.qml.accuracy || 0) + '%');
+        $('#quantum-advantage').text((data.qml.quantum_advantage || 1) + 'x');
+        $('#training-time').text((data.qml.training_time || 0) + 'ms');
+        $('#qml-depth').text(data.qml.circuit_depth || 0);
+
+        // Update optimization results
+        $('#optimal-value').text(data.optimization.optimal_value || '-');
+        $('#convergence-status').text(data.optimization.converged ? '{{ text_converged }}' : '{{ text_not_converged }}');
+        $('#optimization-iterations').text(data.optimization.iterations || '-');
+
+        // Update simulation metrics
+        $('#simulation-fidelity').text(data.simulation.fidelity || 0);
+        $('#fidelity-bar').css('width', (data.simulation.fidelity || 0) + '%');
+        $('#memory-usage').text(data.simulation.memory_usage || 0);
+        $('#memory-bar').css('width', Math.min((data.simulation.memory_usage || 0) / 20, 100) + '%');
+
+        // Update blockchain status
+        $('#quantum-resistance').text(data.blockchain.resistance_level || '{{ text_high }}');
+        $('#throughput-tps').text(data.blockchain.throughput_tps || 0);
+        $('#blockchain-security').text((data.blockchain.security_level || 256) + '-bit');
+
+        // Update system status
+        $('#system-uptime').text((data.system.uptime || 99.9) + '%');
+        $('#coherence-time').text((data.system.coherence_time || 100) + 'ms');
+        $('#error-rate').text((data.system.error_rate || 0.1) + '%');
+        $('#active-qubits').text(data.system.active_qubits || 32);
+
+        // Update charts
+        updateCharts(data.charts || {});
+    }
+
+    // Update Charts
+    function updateCharts(chartData) {
+        if (chartData.performance) {
+            performanceChart.data.labels = chartData.performance.labels || [];
+            performanceChart.data.datasets[0].data = chartData.performance.quantum || [];
+            performanceChart.data.datasets[1].data = chartData.performance.classical || [];
+            performanceChart.update();
+        }
+
+        if (chartData.distribution) {
+            distributionChart.data.datasets[0].data = chartData.distribution.data || [];
+            distributionChart.update();
+        }
+    }
+
+    // Event Handlers
+    $('#execute-quantum').click(function() {
+        executeQuantumAlgorithm();
+    });
+
+    $('#run-crypto').click(function() {
+        executePostQuantumCrypto();
+    });
+
+    $('#quantum-ml').click(function() {
+        executeQuantumML();
+    });
+
+    $('#run-algorithm').click(function() {
+        runSelectedAlgorithm();
+    });
+
+    $('#execute-crypto').click(function() {
+        executeCryptoOperation();
+    });
+
+    $('#train-qml').click(function() {
+        trainQMLModel();
+    });
+
+    $('#run-optimization').click(function() {
+        runOptimization();
+    });
+
+    $('#run-simulation').click(function() {
+        runQuantumSimulation();
+    });
+
+    $('#deploy-blockchain').click(function() {
+        deployQuantumBlockchain();
+    });
+
+    // Functions
+    function executeQuantumAlgorithm() {
+        const algorithmType = $('#algorithm-type').val();
+        const qubitsCount = $('#qubits-count').val();
+        const circuitDepth = $('#circuit-depth').val();
+
+        $.ajax({
+            url: 'index.php?route=extension/module/quantum_computing_dashboard/executeAlgorithm&user_token={{ user_token }}',
+            type: 'POST',
+            data: {
+                algorithm_type: algorithmType,
+                qubits_count: qubitsCount,
+                circuit_depth: circuitDepth
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'completed') {
+                    displayAlgorithmResults(response);
+                } else {
+                    alert('{{ text_algorithm_failed }}: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('{{ text_algorithm_error }}');
+            }
+        });
+    }
+
+    function executePostQuantumCrypto() {
+        const cryptoType = $('#crypto-type').val();
+        const securityLevel = $('#security-level').val();
+        const operationType = $('#operation-type').val();
+
+        $.ajax({
+            url: 'index.php?route=extension/module/quantum_computing_dashboard/executeCrypto&user_token={{ user_token }}',
+            type: 'POST',
+            data: {
+                crypto_type: cryptoType,
+                security_level: securityLevel,
+                operation: operationType
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'completed') {
+                    displayCryptoResults(response);
+                } else {
+                    alert('{{ text_crypto_failed }}: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('{{ text_crypto_error }}');
+            }
+        });
+    }
+
+    function executeQuantumML() {
+        const modelType = $('#qml-model-type').val();
+        const featureDimension = $('#feature-dimension').val();
+
+        $.ajax({
+            url: 'index.php?route=extension/module/quantum_computing_dashboard/executeQuantumML&user_token={{ user_token }}',
+            type: 'POST',
+            data: {
+                model_type: modelType,
+                feature_dimension: featureDimension
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'completed') {
+                    updateQMLMetrics(response);
+                } else {
+                    alert('{{ text_qml_failed }}: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('{{ text_qml_error }}');
+            }
+        });
+    }
+
+    function displayAlgorithmResults(response) {
+        let html = `
+            <div class="quantum-circuit">
+                <strong>{{ text_algorithm }}:</strong> ${response.algorithm_type}<br>
+                <strong>{{ text_execution_time }}:</strong> ${response.execution_time_ms}ms<br>
+                <strong>{{ text_qubits_used }}:</strong> ${response.qubits_used}<br>
+                <strong>{{ text_gate_count }}:</strong> ${response.gate_count}<br>
+                <strong>{{ text_fidelity }}:</strong> ${(response.fidelity * 100).toFixed(2)}%<br>
+                <strong>{{ text_quantum_advantage }}:</strong> ${response.quantum_advantage.speedup_factor}x
+            </div>
+        `;
+        $('#results-content').html(html);
+    }
+
+    function displayCryptoResults(response) {
+        let html = `
+            <div class="crypto-result">
+                <strong>{{ text_crypto_type }}:</strong> ${response.crypto_type}<br>
+                <strong>{{ text_security_level }}:</strong> ${response.security_analysis.security_level}<br>
+                <strong>{{ text_quantum_resistance }}:</strong> ${response.security_analysis.quantum_resistance ? '{{ text_yes }}' : '{{ text_no }}'}<br>
+                <strong>{{ text_performance }}:</strong> ${response.performance_analysis.encryption_time_ms}ms
+            </div>
+        `;
+        $('#crypto-content').html(html);
+    }
+
+    function updateQMLMetrics(response) {
+        $('#qml-accuracy').text((response.results.accuracy || 0) + '%');
+        $('#quantum-advantage').text((response.quantum_advantage.speedup_factor || 1) + 'x');
+        $('#training-time').text((response.results.training_time || 0) + 'ms');
+        $('#qml-depth').text(response.results.circuit_depth || 0);
+    }
+
+    // Initialize
+    initializeCharts();
+    loadQuantumData();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(loadQuantumData, 30000);
+});
+</script>
+
+{{ footer }} 
