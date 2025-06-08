@@ -1,0 +1,708 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="btn-optimize" class="btn btn-primary" data-toggle="tooltip" title="Optimize Services">
+          <i class="fa fa-cogs"></i> Optimize Architecture
+        </button>
+        <button type="button" id="btn-benchmark" class="btn btn-warning" data-toggle="tooltip" title="Run Benchmark">
+          <i class="fa fa-tachometer"></i> Performance Benchmark
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Architecture Status Overview -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-sitemap fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ architecture_status.services_count }}</div>
+                <div>Active Services</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Service Registry</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-exchange fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ "%.1f"|format(architecture_status.api_gateway_health.score) }}%</div>
+                <div>API Gateway Health</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Response: {{ "%.0f"|format(architecture_status.api_gateway_health.avg_response_time) }}ms</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-stream fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ "%.1f"|format(architecture_status.event_streaming_health.score) }}%</div>
+                <div>Event Streaming</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Processing Rate: {{ "%.1f"|format(architecture_status.event_streaming_health.processing_rate * 100) }}%</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-network-wired fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ "%.1f"|format(architecture_status.service_mesh_status.score) }}%</div>
+                <div>Service Mesh</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Coverage: {{ "%.1f"|format(architecture_status.service_mesh_status.coverage * 100) }}%</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Overall Health Score -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-heartbeat"></i> Overall Architecture Health Score
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="progress progress-striped active">
+              <div class="progress-bar 
+                {% if architecture_status.overall_health_score >= 90 %}progress-bar-success
+                {% elseif architecture_status.overall_health_score >= 70 %}progress-bar-warning
+                {% else %}progress-bar-danger{% endif %}" 
+                role="progressbar" 
+                style="width: {{ architecture_status.overall_health_score }}%">
+                {{ "%.1f"|format(architecture_status.overall_health_score) }}%
+              </div>
+            </div>
+            <p class="text-muted">
+              {% if architecture_status.overall_health_score >= 90 %}
+                <i class="fa fa-check-circle text-success"></i> Excellent - Architecture is performing optimally
+              {% elseif architecture_status.overall_health_score >= 70 %}
+                <i class="fa fa-exclamation-triangle text-warning"></i> Good - Minor optimizations recommended
+              {% else %}
+                <i class="fa fa-times-circle text-danger"></i> Critical - Immediate attention required
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Architecture Components -->
+    <div class="row">
+      <!-- API Gateway Configuration -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-exchange"></i> API Gateway Configuration
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Rate Limiting</label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="rate-limit" value="1000" placeholder="Requests per minute">
+                <span class="input-group-addon">req/min</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Load Balancing Algorithm</label>
+              <select class="form-control" id="lb-algorithm">
+                <option value="round_robin">Round Robin</option>
+                <option value="least_connections">Least Connections</option>
+                <option value="weighted_round_robin">Weighted Round Robin</option>
+                <option value="ip_hash">IP Hash</option>
+              </select>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="jwt-validation" checked> JWT Validation
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="cors-enabled" checked> CORS Enabled
+              </label>
+            </div>
+            <button type="button" class="btn btn-primary" id="configure-gateway">
+              <i class="fa fa-save"></i> Configure Gateway
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Event-Driven Architecture -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-stream"></i> Event-Driven Architecture
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Message Broker</label>
+              <select class="form-control" id="message-broker">
+                <option value="kafka">Apache Kafka</option>
+                <option value="rabbitmq">RabbitMQ</option>
+                <option value="redis">Redis Streams</option>
+                <option value="nats">NATS</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Event Topics</label>
+              <textarea class="form-control" id="event-topics" rows="4" placeholder="marketplace.orders&#10;marketplace.products&#10;marketplace.inventory&#10;user.actions&#10;system.alerts"></textarea>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="event-store" checked> Enable Event Store
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="cqrs-enabled" checked> Enable CQRS
+              </label>
+            </div>
+            <button type="button" class="btn btn-success" id="setup-events">
+              <i class="fa fa-play"></i> Setup Event Architecture
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Service Mesh & Data Architecture -->
+    <div class="row">
+      <!-- Service Mesh -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-network-wired"></i> Service Mesh Implementation
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Service Mesh Type</label>
+              <select class="form-control" id="mesh-type">
+                <option value="istio">Istio</option>
+                <option value="linkerd">Linkerd</option>
+                <option value="consul">Consul Connect</option>
+                <option value="envoy">Envoy Proxy</option>
+              </select>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="traffic-management" checked> Traffic Management
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="security-policies" checked> Security Policies
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="observability" checked> Observability
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="circuit-breaker" checked> Circuit Breaker
+              </label>
+            </div>
+            <button type="button" class="btn btn-info" id="implement-mesh">
+              <i class="fa fa-network-wired"></i> Implement Service Mesh
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Advanced Data Architecture -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-database"></i> Advanced Data Architecture
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Primary Database</label>
+              <select class="form-control" id="primary-db">
+                <option value="mysql">MySQL</option>
+                <option value="postgresql">PostgreSQL</option>
+                <option value="mongodb">MongoDB</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Cache Database</label>
+              <select class="form-control" id="cache-db">
+                <option value="redis">Redis</option>
+                <option value="memcached">Memcached</option>
+                <option value="hazelcast">Hazelcast</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Search Engine</label>
+              <select class="form-control" id="search-db">
+                <option value="elasticsearch">Elasticsearch</option>
+                <option value="solr">Apache Solr</option>
+                <option value="opensearch">OpenSearch</option>
+              </select>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="data-lake" checked> Enable Data Lake
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="stream-processing" checked> Real-time Stream Processing
+              </label>
+            </div>
+            <button type="button" class="btn btn-warning" id="setup-data-arch">
+              <i class="fa fa-database"></i> Setup Data Architecture
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Real-time Metrics -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-chart-line"></i> Real-time Architecture Metrics
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div id="metrics-container">
+              <div class="text-center">
+                <i class="fa fa-spinner fa-spin fa-3x"></i>
+                <p>Loading real-time metrics...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Performance Benchmark Results -->
+    <div class="row" id="benchmark-results" style="display: none;">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-tachometer"></i> Performance Benchmark Results
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div id="benchmark-container">
+              <!-- Benchmark results will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Load real-time metrics
+    loadMetrics();
+    
+    // Auto-refresh metrics every 30 seconds
+    setInterval(loadMetrics, 30000);
+    
+    // Configure API Gateway
+    $('#configure-gateway').click(function() {
+        var config = {
+            rate_limiting: {
+                requests_per_minute: parseInt($('#rate-limit').val()),
+                burst_limit: 100
+            },
+            load_balancing: {
+                algorithm: $('#lb-algorithm').val(),
+                health_check_interval: 30
+            },
+            security: {
+                jwt_validation: $('#jwt-validation').is(':checked'),
+                api_key_required: true,
+                cors_enabled: $('#cors-enabled').is(':checked')
+            }
+        };
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_microservices_architecture/configureApiGateway&user_token={{ user_token }}',
+            type: 'POST',
+            data: {config: config},
+            dataType: 'json',
+            beforeSend: function() {
+                $('#configure-gateway').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Configuring...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    alert('API Gateway configured successfully!');
+                    loadMetrics();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#configure-gateway').prop('disabled', false).html('<i class="fa fa-save"></i> Configure Gateway');
+            }
+        });
+    });
+    
+    // Setup Event-Driven Architecture
+    $('#setup-events').click(function() {
+        var topics = $('#event-topics').val().split('\n').filter(function(topic) {
+            return topic.trim() !== '';
+        });
+        
+        var config = {
+            message_broker: $('#message-broker').val(),
+            topics: topics,
+            event_store: {
+                enabled: $('#event-store').is(':checked'),
+                retention_days: 30
+            },
+            cqrs_enabled: $('#cqrs-enabled').is(':checked')
+        };
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_microservices_architecture/setupEventDrivenArchitecture&user_token={{ user_token }}',
+            type: 'POST',
+            data: {config: config},
+            dataType: 'json',
+            beforeSend: function() {
+                $('#setup-events').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Setting up...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    alert('Event-driven architecture setup completed!');
+                    loadMetrics();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#setup-events').prop('disabled', false).html('<i class="fa fa-play"></i> Setup Event Architecture');
+            }
+        });
+    });
+    
+    // Implement Service Mesh
+    $('#implement-mesh').click(function() {
+        var config = {
+            service_mesh_type: $('#mesh-type').val(),
+            features: {
+                traffic_management: $('#traffic-management').is(':checked'),
+                security_policies: $('#security-policies').is(':checked'),
+                observability: $('#observability').is(':checked'),
+                circuit_breaker: $('#circuit-breaker').is(':checked')
+            },
+            monitoring: {
+                metrics_collection: true,
+                distributed_tracing: true,
+                logging_aggregation: true
+            }
+        };
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_microservices_architecture/implementServiceMesh&user_token={{ user_token }}',
+            type: 'POST',
+            data: {config: config},
+            dataType: 'json',
+            beforeSend: function() {
+                $('#implement-mesh').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Implementing...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    alert('Service mesh implementation completed!');
+                    loadMetrics();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#implement-mesh').prop('disabled', false).html('<i class="fa fa-network-wired"></i> Implement Service Mesh');
+            }
+        });
+    });
+    
+    // Setup Advanced Data Architecture
+    $('#setup-data-arch').click(function() {
+        var config = {
+            multi_database_strategy: {
+                primary_db: $('#primary-db').val(),
+                cache_db: $('#cache-db').val(),
+                search_db: $('#search-db').val(),
+                time_series_db: 'influxdb'
+            },
+            data_lake: {
+                enabled: $('#data-lake').is(':checked'),
+                storage_type: 'object_storage',
+                data_formats: ['json', 'parquet', 'avro']
+            },
+            stream_processing: {
+                engine: 'apache_kafka_streams',
+                real_time_analytics: $('#stream-processing').is(':checked')
+            }
+        };
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_microservices_architecture/setupAdvancedDataArchitecture&user_token={{ user_token }}',
+            type: 'POST',
+            data: {config: config},
+            dataType: 'json',
+            beforeSend: function() {
+                $('#setup-data-arch').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Setting up...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    alert('Advanced data architecture setup completed!');
+                    loadMetrics();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#setup-data-arch').prop('disabled', false).html('<i class="fa fa-database"></i> Setup Data Architecture');
+            }
+        });
+    });
+    
+    // Optimize Architecture
+    $('#btn-optimize').click(function() {
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_microservices_architecture/optimizeServiceDecomposition&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#btn-optimize').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Optimizing...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    showOptimizationResults(json.data);
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#btn-optimize').prop('disabled', false).html('<i class="fa fa-cogs"></i> Optimize Architecture');
+            }
+        });
+    });
+    
+    // Performance Benchmark
+    $('#btn-benchmark').click(function() {
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_microservices_architecture/performanceBenchmark&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#btn-benchmark').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Running Benchmark...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    showBenchmarkResults(json.benchmark_results, json.recommendations);
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#btn-benchmark').prop('disabled', false).html('<i class="fa fa-tachometer"></i> Performance Benchmark');
+            }
+        });
+    });
+    
+    function loadMetrics() {
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_microservices_architecture/getArchitectureMetrics&user_token={{ user_token }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    displayMetrics(json.metrics);
+                }
+            }
+        });
+    }
+    
+    function displayMetrics(metrics) {
+        var html = '<div class="row">';
+        
+        // Service Health Metrics
+        html += '<div class="col-lg-6">';
+        html += '<h4><i class="fa fa-heartbeat"></i> Service Health</h4>';
+        html += '<div class="table-responsive">';
+        html += '<table class="table table-striped">';
+        html += '<thead><tr><th>Service</th><th>Status</th><th>Instances</th><th>Weight</th></tr></thead>';
+        html += '<tbody>';
+        
+        if (metrics.service_health && metrics.service_health.length > 0) {
+            metrics.service_health.forEach(function(service) {
+                var statusClass = service.status === 'active' ? 'success' : 'danger';
+                html += '<tr>';
+                html += '<td>' + service.service_name + '</td>';
+                html += '<td><span class="label label-' + statusClass + '">' + service.status + '</span></td>';
+                html += '<td>' + service.instance_count + '</td>';
+                html += '<td>' + Math.round(service.avg_weight) + '</td>';
+                html += '</tr>';
+            });
+        } else {
+            html += '<tr><td colspan="4" class="text-center">No services registered</td></tr>';
+        }
+        
+        html += '</tbody></table></div></div>';
+        
+        // API Gateway Stats
+        html += '<div class="col-lg-6">';
+        html += '<h4><i class="fa fa-exchange"></i> API Gateway Stats</h4>';
+        html += '<div class="table-responsive">';
+        html += '<table class="table table-striped">';
+        html += '<thead><tr><th>Endpoint</th><th>Requests</th><th>Avg Response</th><th>Errors</th></tr></thead>';
+        html += '<tbody>';
+        
+        if (metrics.api_gateway_stats && metrics.api_gateway_stats.length > 0) {
+            metrics.api_gateway_stats.forEach(function(stat) {
+                html += '<tr>';
+                html += '<td>' + stat.endpoint + '</td>';
+                html += '<td>' + stat.request_count + '</td>';
+                html += '<td>' + Math.round(stat.avg_response_time) + 'ms</td>';
+                html += '<td>' + stat.error_count + '</td>';
+                html += '</tr>';
+            });
+        } else {
+            html += '<tr><td colspan="4" class="text-center">No API metrics available</td></tr>';
+        }
+        
+        html += '</tbody></table></div></div>';
+        html += '</div>';
+        
+        $('#metrics-container').html(html);
+    }
+    
+    function showBenchmarkResults(results, recommendations) {
+        var html = '<div class="row">';
+        
+        // Performance Metrics
+        html += '<div class="col-lg-8">';
+        html += '<h4>Performance Metrics</h4>';
+        html += '<div class="row">';
+        
+        var metrics = [
+            {label: 'API Response Time', value: Math.round(results.api_response_time) + 'ms', class: results.api_response_time > 100 ? 'danger' : 'success'},
+            {label: 'Database Query Time', value: Math.round(results.database_query_time) + 'ms', class: results.database_query_time > 50 ? 'warning' : 'success'},
+            {label: 'Memory Usage', value: Math.round(results.memory_usage) + 'MB', class: results.memory_usage > 512 ? 'warning' : 'success'},
+            {label: 'CPU Usage', value: Math.round(results.cpu_usage) + '%', class: results.cpu_usage > 70 ? 'danger' : 'success'},
+            {label: 'Throughput', value: results.throughput + ' req/min', class: 'info'},
+            {label: 'Error Rate', value: (results.error_rate * 100).toFixed(2) + '%', class: results.error_rate > 0.01 ? 'danger' : 'success'}
+        ];
+        
+        metrics.forEach(function(metric) {
+            html += '<div class="col-lg-4 col-md-6">';
+            html += '<div class="panel panel-' + metric.class + '">';
+            html += '<div class="panel-body">';
+            html += '<div class="text-center">';
+            html += '<h3>' + metric.value + '</h3>';
+            html += '<p>' + metric.label + '</p>';
+            html += '</div></div></div></div>';
+        });
+        
+        html += '</div></div>';
+        
+        // Recommendations
+        html += '<div class="col-lg-4">';
+        html += '<h4>Recommendations</h4>';
+        html += '<div class="list-group">';
+        
+        if (recommendations && recommendations.length > 0) {
+            recommendations.forEach(function(rec) {
+                html += '<div class="list-group-item">';
+                html += '<i class="fa fa-lightbulb-o"></i> ' + rec;
+                html += '</div>';
+            });
+        } else {
+            html += '<div class="list-group-item">';
+            html += '<i class="fa fa-check"></i> All systems performing optimally';
+            html += '</div>';
+        }
+        
+        html += '</div></div>';
+        html += '</div>';
+        
+        $('#benchmark-container').html(html);
+        $('#benchmark-results').show();
+    }
+});
+</script>
+
+{{ footer }} 
