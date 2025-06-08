@@ -1,588 +1,378 @@
 <?php
 /**
- * Infrastructure Scaling Dashboard Model - ATOM-M008
- * MesChain-Sync Infrastructure Scaling Preparation
+ * MesChain-Sync Infrastructure Scaling Dashboard Model
  * 
- * @package MesChain-Sync
- * @version 3.0.4.0 - ATOM-M008
- * @author Musti DevOps Team
- * @date 2025-06-08
+ * @package    MesChain-Sync
+ * @author     MesChain Development Team
+ * @copyright  2024 MesChain
+ * @license    Commercial License
+ * @version    1.0.0
+ * @since      File available since Release 1.0.0
  */
 
 class ModelExtensionModuleInfrastructureScalingDashboard extends Model {
     
     /**
-     * Install infrastructure scaling tables
+     * Scaling dashboard tablolarını oluşturur
      */
     public function install() {
-        $this->createTables();
+        // Infrastructure Scaling Metrics tablosu
+        $this->db->query("
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "meschain_infrastructure_metrics` (
+                `metric_id` int(11) NOT NULL AUTO_INCREMENT,
+                `metric_type` varchar(50) NOT NULL,
+                `metric_name` varchar(100) NOT NULL,
+                `metric_value` decimal(10,2) NOT NULL,
+                `metric_unit` varchar(20) DEFAULT NULL,
+                `node_id` varchar(50) DEFAULT NULL,
+                `cluster_name` varchar(100) DEFAULT NULL,
+                `namespace` varchar(100) DEFAULT NULL,
+                `timestamp` datetime NOT NULL,
+                `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`metric_id`),
+                KEY `idx_metric_type` (`metric_type`),
+                KEY `idx_timestamp` (`timestamp`),
+                KEY `idx_node_cluster` (`node_id`, `cluster_name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+        
+        // Scaling Events tablosu
+        $this->db->query("
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "meschain_scaling_events` (
+                `event_id` int(11) NOT NULL AUTO_INCREMENT,
+                `event_type` enum('scale_up','scale_down','deployment','rollback','health_check') NOT NULL,
+                `resource_type` varchar(50) NOT NULL,
+                `resource_name` varchar(100) NOT NULL,
+                `old_value` varchar(255) DEFAULT NULL,
+                `new_value` varchar(255) DEFAULT NULL,
+                `trigger_reason` text,
+                `status` enum('pending','in_progress','completed','failed') NOT NULL DEFAULT 'pending',
+                `started_at` datetime NOT NULL,
+                `completed_at` datetime DEFAULT NULL,
+                `error_message` text,
+                `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`event_id`),
+                KEY `idx_event_type` (`event_type`),
+                KEY `idx_resource` (`resource_type`, `resource_name`),
+                KEY `idx_status` (`status`),
+                KEY `idx_started_at` (`started_at`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+        
+        // Infrastructure Configuration tablosu
+        $this->db->query("
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "meschain_infrastructure_config` (
+                `config_id` int(11) NOT NULL AUTO_INCREMENT,
+                `config_category` varchar(50) NOT NULL,
+                `config_key` varchar(100) NOT NULL,
+                `config_value` text NOT NULL,
+                `config_description` text,
+                `is_encrypted` tinyint(1) NOT NULL DEFAULT 0,
+                `environment` varchar(20) NOT NULL DEFAULT 'production',
+                `updated_by` int(11) DEFAULT NULL,
+                `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`config_id`),
+                UNIQUE KEY `unique_config` (`config_category`, `config_key`, `environment`),
+                KEY `idx_category` (`config_category`),
+                KEY `idx_environment` (`environment`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+        
+        // Varsayılan konfigürasyonları ekle
+        $this->insertDefaultConfigurations();
     }
     
     /**
-     * Uninstall infrastructure scaling tables
+     * Scaling dashboard tablolarını kaldırır
      */
     public function uninstall() {
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "meschain_scaling_metrics`");
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "meschain_scaling_alerts`");
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "meschain_scaling_snapshots`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "meschain_infrastructure_metrics`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "meschain_scaling_events`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "meschain_infrastructure_config`");
     }
     
     /**
-     * Create required database tables
+     * Infrastructure metriği kaydeder
      */
-    private function createTables() {
-        // Scaling metrics table
-        $this->db->query("
-            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "meschain_scaling_metrics` (
-                `metric_id` INT(11) NOT NULL AUTO_INCREMENT,
-                `type` VARCHAR(100) NOT NULL,
-                `data` LONGTEXT NOT NULL,
-                `timestamp` DATETIME NOT NULL,
-                `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (`metric_id`),
-                INDEX `idx_type_timestamp` (`type`, `timestamp`),
-                INDEX `idx_timestamp` (`timestamp`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
+    public function saveMetric($data) {
+        $sql = "INSERT INTO `" . DB_PREFIX . "meschain_infrastructure_metrics` SET 
+                `metric_type` = '" . $this->db->escape($data['metric_type']) . "',
+                `metric_name` = '" . $this->db->escape($data['metric_name']) . "',
+                `metric_value` = '" . (float)$data['metric_value'] . "',
+                `metric_unit` = '" . $this->db->escape($data['metric_unit'] ?? '') . "',
+                `node_id` = '" . $this->db->escape($data['node_id'] ?? '') . "',
+                `cluster_name` = '" . $this->db->escape($data['cluster_name'] ?? '') . "',
+                `namespace` = '" . $this->db->escape($data['namespace'] ?? '') . "',
+                `timestamp` = '" . $this->db->escape($data['timestamp'] ?? date('Y-m-d H:i:s')) . "'";
         
-        // Scaling alerts table
-        $this->db->query("
-            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "meschain_scaling_alerts` (
-                `alert_id` INT(11) NOT NULL AUTO_INCREMENT,
-                `alert_type` VARCHAR(50) NOT NULL,
-                `severity` ENUM('low', 'medium', 'high', 'critical') NOT NULL DEFAULT 'medium',
-                `title` VARCHAR(255) NOT NULL,
-                `message` TEXT NOT NULL,
-                `data` JSON,
-                `status` ENUM('active', 'acknowledged', 'resolved') NOT NULL DEFAULT 'active',
-                `triggered_at` DATETIME NOT NULL,
-                `acknowledged_at` DATETIME NULL,
-                `resolved_at` DATETIME NULL,
-                `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `date_modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`alert_id`),
-                INDEX `idx_status_severity` (`status`, `severity`),
-                INDEX `idx_alert_type` (`alert_type`),
-                INDEX `idx_triggered_at` (`triggered_at`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-        
-        // Performance snapshots table
-        $this->db->query("
-            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "meschain_scaling_snapshots` (
-                `snapshot_id` INT(11) NOT NULL AUTO_INCREMENT,
-                `snapshot_type` VARCHAR(50) NOT NULL,
-                `cpu_usage` DECIMAL(5,2) NOT NULL DEFAULT 0.00,
-                `memory_usage` DECIMAL(5,2) NOT NULL DEFAULT 0.00,
-                `disk_usage` DECIMAL(5,2) NOT NULL DEFAULT 0.00,
-                `active_connections` INT(11) NOT NULL DEFAULT 0,
-                `response_time_avg` INT(11) NOT NULL DEFAULT 0,
-                `response_time_p95` INT(11) NOT NULL DEFAULT 0,
-                `response_time_p99` INT(11) NOT NULL DEFAULT 0,
-                `throughput` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-                `error_rate` DECIMAL(5,4) NOT NULL DEFAULT 0.00,
-                `marketplace_statuses` JSON,
-                `scaling_events` JSON,
-                `timestamp` DATETIME NOT NULL,
-                `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (`snapshot_id`),
-                INDEX `idx_timestamp` (`timestamp`),
-                INDEX `idx_snapshot_type` (`snapshot_type`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-        
-        // Infrastructure configuration table
-        $this->db->query("
-            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "meschain_infrastructure_config` (
-                `config_id` INT(11) NOT NULL AUTO_INCREMENT,
-                `config_key` VARCHAR(100) NOT NULL UNIQUE,
-                `config_value` LONGTEXT NOT NULL,
-                `config_type` ENUM('string', 'integer', 'float', 'boolean', 'json', 'array') NOT NULL DEFAULT 'string',
-                `description` TEXT,
-                `is_active` TINYINT(1) NOT NULL DEFAULT 1,
-                `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `date_modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`config_id`),
-                UNIQUE KEY `uk_config_key` (`config_key`),
-                INDEX `idx_is_active` (`is_active`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-        
-        // Insert default infrastructure configuration
-        $this->insertDefaultConfiguration();
-    }
-    
-    /**
-     * Insert default infrastructure configuration
-     */
-    private function insertDefaultConfiguration() {
-        $default_configs = [
-            [
-                'config_key' => 'infrastructure_scaling_cpu_threshold',
-                'config_value' => '75',
-                'config_type' => 'integer',
-                'description' => 'CPU usage threshold for scaling trigger (percentage)'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_memory_threshold',
-                'config_value' => '80',
-                'config_type' => 'integer',
-                'description' => 'Memory usage threshold for scaling trigger (percentage)'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_response_threshold',
-                'config_value' => '300',
-                'config_type' => 'integer',
-                'description' => 'Response time threshold for scaling trigger (milliseconds)'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_min_instances',
-                'config_value' => '2',
-                'config_type' => 'integer',
-                'description' => 'Minimum number of instances'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_max_instances',
-                'config_value' => '10',
-                'config_type' => 'integer',
-                'description' => 'Maximum number of instances'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_target_cpu',
-                'config_value' => '60',
-                'config_type' => 'integer',
-                'description' => 'Target CPU utilization for auto-scaling'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_scale_up_cooldown',
-                'config_value' => '300',
-                'config_type' => 'integer',
-                'description' => 'Scale up cooldown period (seconds)'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_scale_down_cooldown',
-                'config_value' => '900',
-                'config_type' => 'integer',
-                'description' => 'Scale down cooldown period (seconds)'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_enable_microservices',
-                'config_value' => 'true',
-                'config_type' => 'boolean',
-                'description' => 'Enable microservices architecture'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_enable_auto_scaling',
-                'config_value' => 'true',
-                'config_type' => 'boolean',
-                'description' => 'Enable automatic scaling'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_enable_predictive',
-                'config_value' => 'true',
-                'config_type' => 'boolean',
-                'description' => 'Enable predictive scaling'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_kubernetes_config',
-                'config_value' => '{"cluster_version": "1.28", "networking": "Calico", "container_runtime": "containerd"}',
-                'config_type' => 'json',
-                'description' => 'Kubernetes cluster configuration'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_database_config',
-                'config_value' => '{"topology": "master_slave_with_read_replicas", "read_replicas": 3, "backup_retention": 30}',
-                'config_type' => 'json',
-                'description' => 'Database clustering configuration'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_cdn_config',
-                'config_value' => '{"provider": "CloudFlare", "edge_locations": 200, "cache_hit_ratio": 95.2}',
-                'config_type' => 'json',
-                'description' => 'CDN configuration'
-            ],
-            [
-                'config_key' => 'infrastructure_scaling_cicd_config',
-                'config_value' => '{"blue_green_enabled": true, "canary_enabled": true, "quality_gates": true}',
-                'config_type' => 'json',
-                'description' => 'CI/CD pipeline configuration'
-            ]
-        ];
-        
-        foreach ($default_configs as $config) {
-            $this->db->query("
-                INSERT IGNORE INTO `" . DB_PREFIX . "meschain_infrastructure_config` 
-                (`config_key`, `config_value`, `config_type`, `description`) 
-                VALUES (
-                    '" . $this->db->escape($config['config_key']) . "',
-                    '" . $this->db->escape($config['config_value']) . "',
-                    '" . $this->db->escape($config['config_type']) . "',
-                    '" . $this->db->escape($config['description']) . "'
-                )
-            ");
-        }
-    }
-    
-    /**
-     * Store performance snapshot
-     *
-     * @param array $snapshot_data Performance snapshot data
-     * @return int Snapshot ID
-     */
-    public function storePerformanceSnapshot($snapshot_data) {
-        $this->db->query("
-            INSERT INTO `" . DB_PREFIX . "meschain_scaling_snapshots` (
-                `snapshot_type`,
-                `cpu_usage`,
-                `memory_usage`,
-                `disk_usage`,
-                `active_connections`,
-                `response_time_avg`,
-                `response_time_p95`,
-                `response_time_p99`,
-                `throughput`,
-                `error_rate`,
-                `marketplace_statuses`,
-                `scaling_events`,
-                `timestamp`
-            ) VALUES (
-                '" . $this->db->escape($snapshot_data['type'] ?? 'general') . "',
-                '" . floatval($snapshot_data['cpu_usage'] ?? 0) . "',
-                '" . floatval($snapshot_data['memory_usage'] ?? 0) . "',
-                '" . floatval($snapshot_data['disk_usage'] ?? 0) . "',
-                '" . intval($snapshot_data['active_connections'] ?? 0) . "',
-                '" . intval($snapshot_data['response_time_avg'] ?? 0) . "',
-                '" . intval($snapshot_data['response_time_p95'] ?? 0) . "',
-                '" . intval($snapshot_data['response_time_p99'] ?? 0) . "',
-                '" . floatval($snapshot_data['throughput'] ?? 0) . "',
-                '" . floatval($snapshot_data['error_rate'] ?? 0) . "',
-                '" . $this->db->escape(json_encode($snapshot_data['marketplace_statuses'] ?? [])) . "',
-                '" . $this->db->escape(json_encode($snapshot_data['scaling_events'] ?? [])) . "',
-                NOW()
-            )
-        ");
-        
+        $this->db->query($sql);
         return $this->db->getLastId();
     }
     
     /**
-     * Create scaling alert
-     *
-     * @param string $alert_type Alert type
-     * @param string $severity Alert severity
-     * @param string $title Alert title
-     * @param string $message Alert message
-     * @param array $data Additional alert data
-     * @return int Alert ID
+     * Belirli zaman aralığındaki metrikleri getirir
      */
-    public function createAlert($alert_type, $severity, $title, $message, $data = []) {
-        $this->db->query("
-            INSERT INTO `" . DB_PREFIX . "meschain_scaling_alerts` (
-                `alert_type`,
-                `severity`,
-                `title`,
-                `message`,
-                `data`,
-                `triggered_at`
-            ) VALUES (
-                '" . $this->db->escape($alert_type) . "',
-                '" . $this->db->escape($severity) . "',
-                '" . $this->db->escape($title) . "',
-                '" . $this->db->escape($message) . "',
-                '" . $this->db->escape(json_encode($data)) . "',
-                NOW()
-            )
-        ");
+    public function getMetrics($filters = array()) {
+        $sql = "SELECT * FROM `" . DB_PREFIX . "meschain_infrastructure_metrics` WHERE 1=1";
         
+        if (!empty($filters['metric_type'])) {
+            $sql .= " AND `metric_type` = '" . $this->db->escape($filters['metric_type']) . "'";
+        }
+        
+        if (!empty($filters['metric_name'])) {
+            $sql .= " AND `metric_name` = '" . $this->db->escape($filters['metric_name']) . "'";
+        }
+        
+        if (!empty($filters['node_id'])) {
+            $sql .= " AND `node_id` = '" . $this->db->escape($filters['node_id']) . "'";
+        }
+        
+        if (!empty($filters['cluster_name'])) {
+            $sql .= " AND `cluster_name` = '" . $this->db->escape($filters['cluster_name']) . "'";
+        }
+        
+        if (!empty($filters['start_date'])) {
+            $sql .= " AND `timestamp` >= '" . $this->db->escape($filters['start_date']) . "'";
+        }
+        
+        if (!empty($filters['end_date'])) {
+            $sql .= " AND `timestamp` <= '" . $this->db->escape($filters['end_date']) . "'";
+        }
+        
+        $sql .= " ORDER BY `timestamp` DESC";
+        
+        if (!empty($filters['limit'])) {
+            $sql .= " LIMIT " . (int)$filters['limit'];
+        }
+        
+        $query = $this->db->query($sql);
+        return $query->rows;
+    }
+    
+    /**
+     * Scaling event'i kaydeder
+     */
+    public function saveScalingEvent($data) {
+        $sql = "INSERT INTO `" . DB_PREFIX . "meschain_scaling_events` SET 
+                `event_type` = '" . $this->db->escape($data['event_type']) . "',
+                `resource_type` = '" . $this->db->escape($data['resource_type']) . "',
+                `resource_name` = '" . $this->db->escape($data['resource_name']) . "',
+                `old_value` = '" . $this->db->escape($data['old_value'] ?? '') . "',
+                `new_value` = '" . $this->db->escape($data['new_value'] ?? '') . "',
+                `trigger_reason` = '" . $this->db->escape($data['trigger_reason'] ?? '') . "',
+                `status` = '" . $this->db->escape($data['status'] ?? 'pending') . "',
+                `started_at` = '" . $this->db->escape($data['started_at'] ?? date('Y-m-d H:i:s')) . "'";
+        
+        if (!empty($data['completed_at'])) {
+            $sql .= ", `completed_at` = '" . $this->db->escape($data['completed_at']) . "'";
+        }
+        
+        if (!empty($data['error_message'])) {
+            $sql .= ", `error_message` = '" . $this->db->escape($data['error_message']) . "'";
+        }
+        
+        $this->db->query($sql);
         return $this->db->getLastId();
     }
     
     /**
-     * Get active alerts
-     *
-     * @param int $limit Number of alerts to return
-     * @return array Active alerts
+     * Scaling event'ini günceller
      */
-    public function getActiveAlerts($limit = 50) {
-        $query = $this->db->query("
-            SELECT * FROM `" . DB_PREFIX . "meschain_scaling_alerts`
-            WHERE `status` = 'active'
-            ORDER BY `severity` DESC, `triggered_at` DESC
-            LIMIT " . intval($limit) . "
-        ");
+    public function updateScalingEvent($event_id, $data) {
+        $sql = "UPDATE `" . DB_PREFIX . "meschain_scaling_events` SET ";
+        $updates = array();
         
-        $alerts = [];
+        if (isset($data['status'])) {
+            $updates[] = "`status` = '" . $this->db->escape($data['status']) . "'";
+        }
+        
+        if (isset($data['completed_at'])) {
+            $updates[] = "`completed_at` = '" . $this->db->escape($data['completed_at']) . "'";
+        }
+        
+        if (isset($data['error_message'])) {
+            $updates[] = "`error_message` = '" . $this->db->escape($data['error_message']) . "'";
+        }
+        
+        if (isset($data['new_value'])) {
+            $updates[] = "`new_value` = '" . $this->db->escape($data['new_value']) . "'";
+        }
+        
+        if (!empty($updates)) {
+            $sql .= implode(', ', $updates);
+            $sql .= " WHERE `event_id` = '" . (int)$event_id . "'";
+            $this->db->query($sql);
+        }
+    }
+    
+    /**
+     * Scaling event'lerini getirir
+     */
+    public function getScalingEvents($filters = array()) {
+        $sql = "SELECT * FROM `" . DB_PREFIX . "meschain_scaling_events` WHERE 1=1";
+        
+        if (!empty($filters['event_type'])) {
+            $sql .= " AND `event_type` = '" . $this->db->escape($filters['event_type']) . "'";
+        }
+        
+        if (!empty($filters['resource_type'])) {
+            $sql .= " AND `resource_type` = '" . $this->db->escape($filters['resource_type']) . "'";
+        }
+        
+        if (!empty($filters['status'])) {
+            $sql .= " AND `status` = '" . $this->db->escape($filters['status']) . "'";
+        }
+        
+        if (!empty($filters['start_date'])) {
+            $sql .= " AND `started_at` >= '" . $this->db->escape($filters['start_date']) . "'";
+        }
+        
+        if (!empty($filters['end_date'])) {
+            $sql .= " AND `started_at` <= '" . $this->db->escape($filters['end_date']) . "'";
+        }
+        
+        $sql .= " ORDER BY `started_at` DESC";
+        
+        if (!empty($filters['limit'])) {
+            $sql .= " LIMIT " . (int)$filters['limit'];
+        }
+        
+        $query = $this->db->query($sql);
+        return $query->rows;
+    }
+    
+    /**
+     * Konfigürasyon değerini kaydeder
+     */
+    public function saveConfiguration($category, $key, $value, $description = '', $environment = 'production') {
+        $sql = "INSERT INTO `" . DB_PREFIX . "meschain_infrastructure_config` SET 
+                `config_category` = '" . $this->db->escape($category) . "',
+                `config_key` = '" . $this->db->escape($key) . "',
+                `config_value` = '" . $this->db->escape($value) . "',
+                `config_description` = '" . $this->db->escape($description) . "',
+                `environment` = '" . $this->db->escape($environment) . "'
+                ON DUPLICATE KEY UPDATE 
+                `config_value` = '" . $this->db->escape($value) . "',
+                `config_description` = '" . $this->db->escape($description) . "'";
+        
+        $this->db->query($sql);
+    }
+    
+    /**
+     * Konfigürasyon değerini getirir
+     */
+    public function getConfiguration($category, $key, $environment = 'production') {
+        $sql = "SELECT `config_value` FROM `" . DB_PREFIX . "meschain_infrastructure_config` 
+                WHERE `config_category` = '" . $this->db->escape($category) . "' 
+                AND `config_key` = '" . $this->db->escape($key) . "' 
+                AND `environment` = '" . $this->db->escape($environment) . "'";
+        
+        $query = $this->db->query($sql);
+        return $query->num_rows ? $query->row['config_value'] : null;
+    }
+    
+    /**
+     * Kategori bazında konfigürasyonları getirir
+     */
+    public function getConfigurationsByCategory($category, $environment = 'production') {
+        $sql = "SELECT * FROM `" . DB_PREFIX . "meschain_infrastructure_config` 
+                WHERE `config_category` = '" . $this->db->escape($category) . "' 
+                AND `environment` = '" . $this->db->escape($environment) . "'
+                ORDER BY `config_key`";
+        
+        $query = $this->db->query($sql);
+        
+        $configs = array();
         foreach ($query->rows as $row) {
-            $row['data'] = json_decode($row['data'], true);
-            $alerts[] = $row;
+            $configs[$row['config_key']] = $row['config_value'];
         }
         
-        return $alerts;
+        return $configs;
     }
     
     /**
-     * Acknowledge alert
-     *
-     * @param int $alert_id Alert ID
-     * @return bool Success status
+     * Performans istatistiklerini getirir
      */
-    public function acknowledgeAlert($alert_id) {
-        $this->db->query("
-            UPDATE `" . DB_PREFIX . "meschain_scaling_alerts`
-            SET `status` = 'acknowledged', `acknowledged_at` = NOW()
-            WHERE `alert_id` = '" . intval($alert_id) . "'
-        ");
+    public function getPerformanceStats($hours = 24) {
+        $start_time = date('Y-m-d H:i:s', strtotime("-{$hours} hours"));
         
-        return $this->db->countAffected() > 0;
-    }
-    
-    /**
-     * Resolve alert
-     *
-     * @param int $alert_id Alert ID
-     * @return bool Success status
-     */
-    public function resolveAlert($alert_id) {
-        $this->db->query("
-            UPDATE `" . DB_PREFIX . "meschain_scaling_alerts`
-            SET `status` = 'resolved', `resolved_at` = NOW()
-            WHERE `alert_id` = '" . intval($alert_id) . "'
-        ");
+        $stats = array();
         
-        return $this->db->countAffected() > 0;
-    }
-    
-    /**
-     * Get performance snapshots
-     *
-     * @param string $type Snapshot type
-     * @param int $hours Number of hours to look back
-     * @param int $limit Maximum number of records
-     * @return array Performance snapshots
-     */
-    public function getPerformanceSnapshots($type = null, $hours = 24, $limit = 100) {
-        $where_clause = "WHERE `timestamp` >= DATE_SUB(NOW(), INTERVAL " . intval($hours) . " HOUR)";
+        // CPU kullanım ortalaması
+        $sql = "SELECT AVG(metric_value) as avg_cpu FROM `" . DB_PREFIX . "meschain_infrastructure_metrics` 
+                WHERE `metric_type` = 'kubernetes' AND `metric_name` = 'cpu_usage' 
+                AND `timestamp` >= '" . $start_time . "'";
+        $query = $this->db->query($sql);
+        $stats['avg_cpu_usage'] = $query->num_rows ? round($query->row['avg_cpu'], 2) : 0;
         
-        if ($type) {
-            $where_clause .= " AND `snapshot_type` = '" . $this->db->escape($type) . "'";
-        }
+        // Memory kullanım ortalaması
+        $sql = "SELECT AVG(metric_value) as avg_memory FROM `" . DB_PREFIX . "meschain_infrastructure_metrics` 
+                WHERE `metric_type` = 'kubernetes' AND `metric_name` = 'memory_usage' 
+                AND `timestamp` >= '" . $start_time . "'";
+        $query = $this->db->query($sql);
+        $stats['avg_memory_usage'] = $query->num_rows ? round($query->row['avg_memory'], 2) : 0;
         
-        $query = $this->db->query("
-            SELECT * FROM `" . DB_PREFIX . "meschain_scaling_snapshots`
-            {$where_clause}
-            ORDER BY `timestamp` DESC
-            LIMIT " . intval($limit) . "
-        ");
+        // Toplam scaling event sayısı
+        $sql = "SELECT COUNT(*) as total_events FROM `" . DB_PREFIX . "meschain_scaling_events` 
+                WHERE `started_at` >= '" . $start_time . "'";
+        $query = $this->db->query($sql);
+        $stats['total_scaling_events'] = $query->num_rows ? $query->row['total_events'] : 0;
         
-        $snapshots = [];
-        foreach ($query->rows as $row) {
-            $row['marketplace_statuses'] = json_decode($row['marketplace_statuses'], true);
-            $row['scaling_events'] = json_decode($row['scaling_events'], true);
-            $snapshots[] = $row;
-        }
-        
-        return $snapshots;
-    }
-    
-    /**
-     * Get infrastructure configuration
-     *
-     * @param string $config_key Configuration key
-     * @return mixed Configuration value
-     */
-    public function getInfrastructureConfig($config_key) {
-        $query = $this->db->query("
-            SELECT `config_value`, `config_type` FROM `" . DB_PREFIX . "meschain_infrastructure_config`
-            WHERE `config_key` = '" . $this->db->escape($config_key) . "' AND `is_active` = 1
-        ");
-        
-        if ($query->num_rows) {
-            $value = $query->row['config_value'];
-            $type = $query->row['config_type'];
-            
-            switch ($type) {
-                case 'integer':
-                    return intval($value);
-                case 'float':
-                    return floatval($value);
-                case 'boolean':
-                    return filter_var($value, FILTER_VALIDATE_BOOLEAN);
-                case 'json':
-                    return json_decode($value, true);
-                case 'array':
-                    return unserialize($value);
-                default:
-                    return $value;
-            }
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Set infrastructure configuration
-     *
-     * @param string $config_key Configuration key
-     * @param mixed $config_value Configuration value
-     * @param string $config_type Configuration type
-     * @return bool Success status
-     */
-    public function setInfrastructureConfig($config_key, $config_value, $config_type = 'string') {
-        // Encode value based on type
-        switch ($config_type) {
-            case 'json':
-                $encoded_value = json_encode($config_value);
-                break;
-            case 'array':
-                $encoded_value = serialize($config_value);
-                break;
-            case 'boolean':
-                $encoded_value = $config_value ? 'true' : 'false';
-                break;
-            default:
-                $encoded_value = (string)$config_value;
-        }
-        
-        $this->db->query("
-            INSERT INTO `" . DB_PREFIX . "meschain_infrastructure_config` 
-            (`config_key`, `config_value`, `config_type`) 
-            VALUES (
-                '" . $this->db->escape($config_key) . "',
-                '" . $this->db->escape($encoded_value) . "',
-                '" . $this->db->escape($config_type) . "'
-            )
-            ON DUPLICATE KEY UPDATE 
-                `config_value` = '" . $this->db->escape($encoded_value) . "',
-                `config_type` = '" . $this->db->escape($config_type) . "',
-                `date_modified` = NOW()
-        ");
-        
-        return $this->db->countAffected() > 0;
-    }
-    
-    /**
-     * Get scaling metrics
-     *
-     * @param string $type Metric type
-     * @param int $hours Number of hours to look back
-     * @param int $limit Maximum number of records
-     * @return array Scaling metrics
-     */
-    public function getScalingMetrics($type = null, $hours = 24, $limit = 100) {
-        $where_clause = "WHERE `timestamp` >= DATE_SUB(NOW(), INTERVAL " . intval($hours) . " HOUR)";
-        
-        if ($type) {
-            $where_clause .= " AND `type` = '" . $this->db->escape($type) . "'";
-        }
-        
-        $query = $this->db->query("
-            SELECT * FROM `" . DB_PREFIX . "meschain_scaling_metrics`
-            {$where_clause}
-            ORDER BY `timestamp` DESC
-            LIMIT " . intval($limit) . "
-        ");
-        
-        $metrics = [];
-        foreach ($query->rows as $row) {
-            $row['data'] = json_decode($row['data'], true);
-            $metrics[] = $row;
-        }
-        
-        return $metrics;
-    }
-    
-    /**
-     * Store scaling metric
-     *
-     * @param string $type Metric type
-     * @param array $data Metric data
-     * @return int Metric ID
-     */
-    public function storeScalingMetric($type, $data) {
-        $this->db->query("
-            INSERT INTO `" . DB_PREFIX . "meschain_scaling_metrics` (
-                `type`,
-                `data`,
-                `timestamp`
-            ) VALUES (
-                '" . $this->db->escape($type) . "',
-                '" . $this->db->escape(json_encode($data)) . "',
-                NOW()
-            )
-        ");
-        
-        return $this->db->getLastId();
-    }
-    
-    /**
-     * Clean old records
-     *
-     * @param int $days Number of days to keep
-     * @return array Cleanup statistics
-     */
-    public function cleanOldRecords($days = 30) {
-        $stats = [];
-        
-        // Clean old metrics
-        $this->db->query("
-            DELETE FROM `" . DB_PREFIX . "meschain_scaling_metrics`
-            WHERE `timestamp` < DATE_SUB(NOW(), INTERVAL " . intval($days) . " DAY)
-        ");
-        $stats['metrics_deleted'] = $this->db->countAffected();
-        
-        // Clean old snapshots
-        $this->db->query("
-            DELETE FROM `" . DB_PREFIX . "meschain_scaling_snapshots`
-            WHERE `timestamp` < DATE_SUB(NOW(), INTERVAL " . intval($days) . " DAY)
-        ");
-        $stats['snapshots_deleted'] = $this->db->countAffected();
-        
-        // Clean resolved alerts older than specified days
-        $this->db->query("
-            DELETE FROM `" . DB_PREFIX . "meschain_scaling_alerts`
-            WHERE `status` = 'resolved' AND `resolved_at` < DATE_SUB(NOW(), INTERVAL " . intval($days) . " DAY)
-        ");
-        $stats['alerts_deleted'] = $this->db->countAffected();
+        // Başarılı scaling event sayısı
+        $sql = "SELECT COUNT(*) as successful_events FROM `" . DB_PREFIX . "meschain_scaling_events` 
+                WHERE `started_at` >= '" . $start_time . "' AND `status` = 'completed'";
+        $query = $this->db->query($sql);
+        $stats['successful_scaling_events'] = $query->num_rows ? $query->row['successful_events'] : 0;
         
         return $stats;
     }
     
     /**
-     * Get scaling statistics
-     *
-     * @return array Scaling statistics
+     * Eski metrikleri temizler
      */
-    public function getScalingStatistics() {
-        $stats = [];
+    public function cleanupOldMetrics($days = 30) {
+        $cutoff_date = date('Y-m-d H:i:s', strtotime("-{$days} days"));
         
-        // Total metrics count
-        $query = $this->db->query("SELECT COUNT(*) as total FROM `" . DB_PREFIX . "meschain_scaling_metrics`");
-        $stats['total_metrics'] = $query->row['total'];
+        // Eski metrikleri sil
+        $this->db->query("DELETE FROM `" . DB_PREFIX . "meschain_infrastructure_metrics` 
+                         WHERE `timestamp` < '" . $cutoff_date . "'");
         
-        // Total snapshots count
-        $query = $this->db->query("SELECT COUNT(*) as total FROM `" . DB_PREFIX . "meschain_scaling_snapshots`");
-        $stats['total_snapshots'] = $query->row['total'];
+        // Eski event'leri sil
+        $this->db->query("DELETE FROM `" . DB_PREFIX . "meschain_scaling_events` 
+                         WHERE `started_at` < '" . $cutoff_date . "'");
         
-        // Active alerts count
-        $query = $this->db->query("SELECT COUNT(*) as total FROM `" . DB_PREFIX . "meschain_scaling_alerts` WHERE `status` = 'active'");
-        $stats['active_alerts'] = $query->row['total'];
+        return array(
+            'deleted_metrics' => $this->db->countAffected(),
+            'cutoff_date' => $cutoff_date
+        );
+    }
+    
+    /**
+     * Varsayılan konfigürasyonları ekler
+     */
+    private function insertDefaultConfigurations() {
+        $configs = array(
+            array('kubernetes', 'cluster_name', 'meschain-production', 'Ana Kubernetes cluster adı'),
+            array('kubernetes', 'namespace', 'meschain-sync', 'Varsayılan namespace'),
+            array('kubernetes', 'cpu_threshold', '70', 'CPU kullanım eşiği (%)'),
+            array('kubernetes', 'memory_threshold', '80', 'Memory kullanım eşiği (%)'),
+            array('scaling', 'min_replicas', '2', 'Minimum replica sayısı'),
+            array('scaling', 'max_replicas', '10', 'Maximum replica sayısı'),
+            array('scaling', 'scale_up_cooldown', '300', 'Scale up cooldown süresi (saniye)'),
+            array('scaling', 'scale_down_cooldown', '600', 'Scale down cooldown süresi (saniye)'),
+            array('database', 'cluster_nodes', '3', 'Database cluster node sayısı'),
+            array('database', 'replication_type', 'master-slave', 'Replikasyon tipi'),
+            array('loadbalancer', 'algorithm', 'round_robin', 'Load balancing algoritması'),
+            array('loadbalancer', 'health_check_interval', '30', 'Health check aralığı (saniye)'),
+            array('cicd', 'pipeline_timeout', '1800', 'Pipeline timeout süresi (saniye)'),
+            array('cicd', 'auto_deploy', '1', 'Otomatik deployment aktif mi'),
+            array('monitoring', 'metric_retention_days', '30', 'Metrik saklama süresi (gün)'),
+            array('monitoring', 'alert_cooldown', '300', 'Alert cooldown süresi (saniye)')
+        );
         
-        // Critical alerts count
-        $query = $this->db->query("SELECT COUNT(*) as total FROM `" . DB_PREFIX . "meschain_scaling_alerts` WHERE `status` = 'active' AND `severity` = 'critical'");
-        $stats['critical_alerts'] = $query->row['total'];
-        
-        // Average response time (last 24 hours)
-        $query = $this->db->query("
-            SELECT AVG(`response_time_avg`) as avg_response_time 
-            FROM `" . DB_PREFIX . "meschain_scaling_snapshots` 
-            WHERE `timestamp` >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-        ");
-        $stats['avg_response_time_24h'] = round($query->row['avg_response_time'] ?? 0, 2);
-        
-        // Current scaling readiness score (simulated)
-        $stats['scaling_readiness_score'] = 87.5;
-        
-        return $stats;
+        foreach ($configs as $config) {
+            $this->saveConfiguration($config[0], $config[1], $config[2], $config[3]);
+        }
     }
 }
