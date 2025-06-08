@@ -1,0 +1,895 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="btn-train-models" class="btn btn-success" data-toggle="tooltip" title="Train Models">
+          <i class="fa fa-brain"></i> Train Models
+        </button>
+        <button type="button" id="btn-deploy-models" class="btn btn-primary" data-toggle="tooltip" title="Deploy Models">
+          <i class="fa fa-rocket"></i> Deploy Models
+        </button>
+        <button type="button" id="btn-generate-report" class="btn btn-info" data-toggle="tooltip" title="Generate AI Report">
+          <i class="fa fa-chart-bar"></i> AI Insights Report
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- AI/ML Pipeline Status Overview -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-robot fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ ml_pipeline_status.deployed_models }}</div>
+                <div>Deployed Models</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">ML Pipeline</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-magic fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ ml_pipeline_status.active_features }}</div>
+                <div>AI Features Active</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Intelligent Features</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-chart-line fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ ml_pipeline_status.recent_predictions }}</div>
+                <div>Recent Predictions</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Last Hour</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-heartbeat fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ "%.1f"|format(ml_pipeline_status.pipeline_health) }}%</div>
+                <div>Pipeline Health</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">System Status</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ML Infrastructure Setup -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-server"></i> ML Infrastructure Setup
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Model Serving Framework</label>
+              <select class="form-control" id="serving-framework">
+                <option value="tensorflow_serving">TensorFlow Serving</option>
+                <option value="mlflow">MLflow</option>
+                <option value="seldon">Seldon Core</option>
+                <option value="kubeflow">Kubeflow</option>
+              </select>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="auto-scaling" checked> Auto Scaling
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="gpu-acceleration" checked> GPU Acceleration
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="batch-processing" checked> Batch Processing
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="feature-store" checked> Feature Store
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="model-registry" checked> Model Registry
+              </label>
+            </div>
+            <button type="button" class="btn btn-primary" id="setup-infrastructure">
+              <i class="fa fa-cogs"></i> Setup ML Infrastructure
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- AI Features Configuration -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-magic"></i> AI-Powered Features
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="smart-categorization" checked> Smart Product Categorization
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="dynamic-pricing" checked> Dynamic Pricing Optimization
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="inventory-optimization" checked> Inventory Optimization
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="personalized-recommendations" checked> Personalized Recommendations
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="fraud-detection" checked> Fraud Detection
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="demand-forecasting" checked> Demand Forecasting
+              </label>
+            </div>
+            <button type="button" class="btn btn-success" id="implement-ai-features">
+              <i class="fa fa-magic"></i> Implement AI Features
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Model Performance Dashboard -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-chart-bar"></i> Model Performance Dashboard
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Model Name</th>
+                    <th>Type</th>
+                    <th>Accuracy</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1 Score</th>
+                    <th>Last Updated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="model-performance-table">
+                  {% for model in model_performance %}
+                  <tr>
+                    <td>{{ model.model_name }}</td>
+                    <td><span class="label label-info">{{ model.model_type }}</span></td>
+                    <td>
+                      <div class="progress">
+                        <div class="progress-bar progress-bar-success" style="width: {{ (model.accuracy * 100)|round }}%">
+                          {{ "%.2f"|format(model.accuracy * 100) }}%
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ "%.3f"|format(model.precision) }}</td>
+                    <td>{{ "%.3f"|format(model.recall) }}</td>
+                    <td>{{ "%.3f"|format(model.f1_score) }}</td>
+                    <td>{{ model.updated_at }}</td>
+                    <td>
+                      <button class="btn btn-xs btn-primary" onclick="optimizeModel('{{ model.model_name }}')">
+                        <i class="fa fa-cogs"></i> Optimize
+                      </button>
+                      <button class="btn btn-xs btn-info" onclick="viewModelDetails('{{ model.model_name }}')">
+                        <i class="fa fa-eye"></i> Details
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Real-time Predictions -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-crystal-ball"></i> Real-time Predictions
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div id="predictions-container">
+              <div class="text-center">
+                <i class="fa fa-spinner fa-spin fa-3x"></i>
+                <p>Loading predictions...</p>
+              </div>
+            </div>
+            <button type="button" class="btn btn-info btn-block" id="refresh-predictions">
+              <i class="fa fa-refresh"></i> Refresh Predictions
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Intelligent Analytics -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-brain"></i> Intelligent Analytics Setup
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Analytics Components</label>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" id="sales-forecasting" checked> Sales Forecasting
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" id="customer-ltv" checked> Customer Lifetime Value
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" id="churn-prediction" checked> Churn Prediction
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" id="anomaly-detection" checked> Anomaly Detection
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" id="real-time-insights" checked> Real-time Insights
+                </label>
+              </div>
+            </div>
+            <button type="button" class="btn btn-warning" id="setup-analytics">
+              <i class="fa fa-brain"></i> Setup Intelligent Analytics
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- A/B Testing & Optimization -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-flask"></i> A/B Testing
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Model A</label>
+              <select class="form-control" id="model-a">
+                <option value="">Select Model A</option>
+                {% for model in model_performance %}
+                <option value="{{ model.model_name }}">{{ model.model_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Model B</label>
+              <select class="form-control" id="model-b">
+                <option value="">Select Model B</option>
+                {% for model in model_performance %}
+                <option value="{{ model.model_name }}">{{ model.model_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Traffic Split (%)</label>
+              <input type="range" class="form-control" id="traffic-split" min="10" max="90" value="50">
+              <span id="traffic-split-value">50%</span>
+            </div>
+            <div class="form-group">
+              <label>Test Duration (days)</label>
+              <input type="number" class="form-control" id="test-duration" value="7" min="1" max="30">
+            </div>
+            <div class="form-group">
+              <label>Success Metric</label>
+              <select class="form-control" id="success-metric">
+                <option value="accuracy">Accuracy</option>
+                <option value="precision">Precision</option>
+                <option value="recall">Recall</option>
+                <option value="f1_score">F1 Score</option>
+                <option value="business_impact">Business Impact</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-info" id="start-ab-test">
+              <i class="fa fa-flask"></i> Start A/B Test
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Hyperparameter Optimization -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-sliders-h"></i> Hyperparameter Optimization
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Model to Optimize</label>
+              <select class="form-control" id="optimize-model">
+                <option value="">Select Model</option>
+                {% for model in model_performance %}
+                <option value="{{ model.model_name }}">{{ model.model_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Optimization Method</label>
+              <select class="form-control" id="optimization-method">
+                <option value="bayesian">Bayesian Optimization</option>
+                <option value="grid_search">Grid Search</option>
+                <option value="random_search">Random Search</option>
+                <option value="genetic_algorithm">Genetic Algorithm</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Max Trials</label>
+              <input type="number" class="form-control" id="max-trials" value="100" min="10" max="1000">
+            </div>
+            <div class="form-group">
+              <label>Objective</label>
+              <select class="form-control" id="objective">
+                <option value="accuracy">Maximize Accuracy</option>
+                <option value="precision">Maximize Precision</option>
+                <option value="recall">Maximize Recall</option>
+                <option value="f1_score">Maximize F1 Score</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-warning" id="optimize-hyperparams">
+              <i class="fa fa-sliders-h"></i> Optimize Hyperparameters
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Feature Importance Analysis -->
+    <div class="row" id="feature-importance-section" style="display: none;">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-chart-pie"></i> Feature Importance Analysis
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div id="feature-importance-container">
+              <!-- Feature importance charts will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- AI Insights Report -->
+    <div class="row" id="ai-insights-section" style="display: none;">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-chart-bar"></i> AI Insights Report
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div id="ai-insights-container">
+              <!-- AI insights report will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Load real-time predictions
+    loadPredictions();
+    
+    // Auto-refresh predictions every 60 seconds
+    setInterval(loadPredictions, 60000);
+    
+    // Traffic split slider
+    $('#traffic-split').on('input', function() {
+        $('#traffic-split-value').text($(this).val() + '%');
+    });
+    
+    // Setup ML Infrastructure
+    $('#setup-infrastructure').click(function() {
+        var config = {
+            model_serving: {
+                framework: $('#serving-framework').val(),
+                auto_scaling: $('#auto-scaling').is(':checked'),
+                gpu_acceleration: $('#gpu-acceleration').is(':checked'),
+                batch_processing: $('#batch-processing').is(':checked')
+            },
+            feature_store: {
+                enabled: $('#feature-store').is(':checked'),
+                storage_backend: 'redis',
+                feature_versioning: true
+            },
+            model_registry: {
+                enabled: $('#model-registry').is(':checked'),
+                versioning: true,
+                a_b_testing: true
+            }
+        };
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_ml_integration_engine/setupMlInfrastructure&user_token={{ user_token }}',
+            type: 'POST',
+            data: {config: config},
+            dataType: 'json',
+            beforeSend: function() {
+                $('#setup-infrastructure').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Setting up...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    alert('ML Infrastructure setup completed successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#setup-infrastructure').prop('disabled', false).html('<i class="fa fa-cogs"></i> Setup ML Infrastructure');
+            }
+        });
+    });
+    
+    // Deploy Models
+    $('#btn-deploy-models').click(function() {
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_ml_integration_engine/deployPredictionModels&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#btn-deploy-models').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Deploying...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    alert('Prediction models deployed successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#btn-deploy-models').prop('disabled', false).html('<i class="fa fa-rocket"></i> Deploy Models');
+            }
+        });
+    });
+    
+    // Implement AI Features
+    $('#implement-ai-features').click(function() {
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_ml_integration_engine/implementAiFeatures&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#implement-ai-features').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Implementing...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    alert('AI-powered features implemented successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#implement-ai-features').prop('disabled', false).html('<i class="fa fa-magic"></i> Implement AI Features');
+            }
+        });
+    });
+    
+    // Setup Intelligent Analytics
+    $('#setup-analytics').click(function() {
+        var config = {
+            predictive_analytics: {
+                sales_forecasting: $('#sales-forecasting').is(':checked'),
+                inventory_optimization: true,
+                customer_lifetime_value: $('#customer-ltv').is(':checked'),
+                churn_prediction: $('#churn-prediction').is(':checked')
+            },
+            anomaly_detection: {
+                transaction_anomalies: $('#anomaly-detection').is(':checked'),
+                inventory_anomalies: true,
+                pricing_anomalies: true,
+                user_behavior_anomalies: true
+            },
+            real_time_insights: {
+                dashboard_updates: $('#real-time-insights').is(':checked'),
+                alert_system: true,
+                automated_reports: true
+            }
+        };
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_ml_integration_engine/setupIntelligentAnalytics&user_token={{ user_token }}',
+            type: 'POST',
+            data: {config: config},
+            dataType: 'json',
+            beforeSend: function() {
+                $('#setup-analytics').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Setting up...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    alert('Intelligent analytics setup completed!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#setup-analytics').prop('disabled', false).html('<i class="fa fa-brain"></i> Setup Intelligent Analytics');
+            }
+        });
+    });
+    
+    // Train Models
+    $('#btn-train-models').click(function() {
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_ml_integration_engine/trainModels&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#btn-train-models').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Training...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    alert('Model training completed successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#btn-train-models').prop('disabled', false).html('<i class="fa fa-brain"></i> Train Models');
+            }
+        });
+    });
+    
+    // Refresh Predictions
+    $('#refresh-predictions').click(function() {
+        loadPredictions();
+    });
+    
+    // Start A/B Test
+    $('#start-ab-test').click(function() {
+        var testData = {
+            model_a: $('#model-a').val(),
+            model_b: $('#model-b').val(),
+            traffic_split: $('#traffic-split').val(),
+            test_duration: $('#test-duration').val(),
+            success_metric: $('#success-metric').val()
+        };
+        
+        if (!testData.model_a || !testData.model_b) {
+            alert('Please select both Model A and Model B');
+            return;
+        }
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_ml_integration_engine/abTestModels&user_token={{ user_token }}',
+            type: 'POST',
+            data: testData,
+            dataType: 'json',
+            beforeSend: function() {
+                $('#start-ab-test').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Starting...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    alert('A/B test started successfully! Test ID: ' + json.test_id);
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#start-ab-test').prop('disabled', false).html('<i class="fa fa-flask"></i> Start A/B Test');
+            }
+        });
+    });
+    
+    // Optimize Hyperparameters
+    $('#optimize-hyperparams').click(function() {
+        var optimizationData = {
+            model_name: $('#optimize-model').val(),
+            method: $('#optimization-method').val(),
+            max_trials: $('#max-trials').val(),
+            objective: $('#objective').val()
+        };
+        
+        if (!optimizationData.model_name) {
+            alert('Please select a model to optimize');
+            return;
+        }
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_ml_integration_engine/optimizeHyperparameters&user_token={{ user_token }}',
+            type: 'POST',
+            data: optimizationData,
+            dataType: 'json',
+            beforeSend: function() {
+                $('#optimize-hyperparams').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Optimizing...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    alert('Hyperparameter optimization completed!\nBest Score: ' + json.best_score.toFixed(4));
+                    location.reload();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#optimize-hyperparams').prop('disabled', false).html('<i class="fa fa-sliders-h"></i> Optimize Hyperparameters');
+            }
+        });
+    });
+    
+    // Generate AI Insights Report
+    $('#btn-generate-report').click(function() {
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_ml_integration_engine/generateAiInsightsReport&user_token={{ user_token }}',
+            type: 'GET',
+            data: {type: 'comprehensive', period: '7_days'},
+            dataType: 'json',
+            beforeSend: function() {
+                $('#btn-generate-report').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Generating...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    displayAiInsightsReport(json.report);
+                    $('#ai-insights-section').show();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            complete: function() {
+                $('#btn-generate-report').prop('disabled', false).html('<i class="fa fa-chart-bar"></i> AI Insights Report');
+            }
+        });
+    });
+    
+    function loadPredictions() {
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_ml_integration_engine/getRealTimePredictions&user_token={{ user_token }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    displayPredictions(json.predictions);
+                }
+            }
+        });
+    }
+    
+    function displayPredictions(predictions) {
+        var html = '';
+        
+        if (predictions.demand_forecasting) {
+            html += '<div class="alert alert-info">';
+            html += '<h4><i class="fa fa-chart-line"></i> Demand Forecasting</h4>';
+            html += '<p><strong>High Demand Products:</strong> ' + predictions.demand_forecasting.next_7_days.high_demand_products.join(', ') + '</p>';
+            html += '<p><strong>Forecast Accuracy:</strong> ' + (predictions.demand_forecasting.next_7_days.forecast_accuracy * 100).toFixed(1) + '%</p>';
+            html += '</div>';
+        }
+        
+        if (predictions.price_optimization) {
+            html += '<div class="alert alert-success">';
+            html += '<h4><i class="fa fa-dollar-sign"></i> Price Optimization</h4>';
+            html += '<p><strong>Recommendations:</strong> ' + predictions.price_optimization.recommended_adjustments.length + ' price adjustments suggested</p>';
+            html += '<p><strong>Market Average:</strong> $' + predictions.price_optimization.market_analysis.competitor_average + '</p>';
+            html += '</div>';
+        }
+        
+        if (predictions.recommendations) {
+            html += '<div class="alert alert-warning">';
+            html += '<h4><i class="fa fa-thumbs-up"></i> Recommendations</h4>';
+            html += '<p><strong>Trending Categories:</strong> ' + predictions.recommendations.trending_categories.join(', ') + '</p>';
+            html += '</div>';
+        }
+        
+        if (predictions.fraud_detection) {
+            html += '<div class="alert alert-danger">';
+            html += '<h4><i class="fa fa-shield-alt"></i> Fraud Detection</h4>';
+            html += '<p><strong>High Risk Transactions:</strong> ' + predictions.fraud_detection.high_risk_transactions.length + ' detected</p>';
+            html += '</div>';
+        }
+        
+        $('#predictions-container').html(html);
+    }
+    
+    function displayAiInsightsReport(report) {
+        var html = '<div class="row">';
+        
+        // Model Performance Insights
+        html += '<div class="col-lg-6">';
+        html += '<h4>Model Performance Insights</h4>';
+        html += '<div class="well">';
+        html += '<p><strong>Report Period:</strong> ' + report.time_period + '</p>';
+        html += '<p><strong>Generated:</strong> ' + report.generated_at + '</p>';
+        html += '</div>';
+        html += '</div>';
+        
+        // Recommendations
+        html += '<div class="col-lg-6">';
+        html += '<h4>AI Recommendations</h4>';
+        html += '<div class="list-group">';
+        if (report.recommendations && report.recommendations.length > 0) {
+            report.recommendations.forEach(function(rec) {
+                html += '<div class="list-group-item">';
+                html += '<i class="fa fa-lightbulb-o"></i> ' + rec;
+                html += '</div>';
+            });
+        } else {
+            html += '<div class="list-group-item">';
+            html += '<i class="fa fa-check"></i> All AI systems performing optimally';
+            html += '</div>';
+        }
+        html += '</div>';
+        html += '</div>';
+        
+        html += '</div>';
+        
+        $('#ai-insights-container').html(html);
+    }
+});
+
+function optimizeModel(modelName) {
+    $('#optimize-model').val(modelName);
+    $('html, body').animate({
+        scrollTop: $("#optimize-hyperparams").offset().top
+    }, 1000);
+}
+
+function viewModelDetails(modelName) {
+    // Load feature importance for the model
+    $.ajax({
+        url: 'index.php?route=extension/module/ai_ml_integration_engine/getFeatureImportance&user_token={{ user_token }}&model=' + modelName,
+        type: 'GET',
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                displayFeatureImportance(json.feature_importance, modelName);
+                $('#feature-importance-section').show();
+                $('html, body').animate({
+                    scrollTop: $("#feature-importance-section").offset().top
+                }, 1000);
+            }
+        }
+    });
+}
+
+function displayFeatureImportance(featureImportance, modelName) {
+    var html = '<h4>Feature Importance for ' + modelName + '</h4>';
+    html += '<div class="table-responsive">';
+    html += '<table class="table table-striped">';
+    html += '<thead><tr><th>Feature</th><th>Importance Score</th><th>Visual</th></tr></thead>';
+    html += '<tbody>';
+    
+    if (featureImportance[modelName]) {
+        Object.keys(featureImportance[modelName]).forEach(function(feature) {
+            var importance = featureImportance[modelName][feature];
+            var percentage = (importance * 100).toFixed(1);
+            
+            html += '<tr>';
+            html += '<td>' + feature + '</td>';
+            html += '<td>' + percentage + '%</td>';
+            html += '<td>';
+            html += '<div class="progress">';
+            html += '<div class="progress-bar progress-bar-info" style="width: ' + percentage + '%"></div>';
+            html += '</div>';
+            html += '</td>';
+            html += '</tr>';
+        });
+    }
+    
+    html += '</tbody></table></div>';
+    
+    $('#feature-importance-container').html(html);
+}
+</script>
+
+{{ footer }} 
