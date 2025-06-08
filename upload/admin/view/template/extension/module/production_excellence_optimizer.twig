@@ -1,0 +1,767 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-emergency-optimization" data-toggle="tooltip" title="Emergency Optimization" class="btn btn-danger">
+          <i class="fa fa-bolt"></i> Emergency Optimization
+        </button>
+        <button type="button" id="button-health-assessment" data-toggle="tooltip" title="Production Health Assessment" class="btn btn-warning">
+          <i class="fa fa-heartbeat"></i> Health Assessment
+        </button>
+        <button type="button" id="button-optimization-report" data-toggle="tooltip" title="Generate Optimization Report" class="btn btn-info">
+          <i class="fa fa-file-text"></i> Generate Report
+        </button>
+      </div>
+      <h1>🚀 Production Excellence Optimizer - ATOM-M011</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Production Health Overview -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-tachometer fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="health-score">{{ production_health.overall_health_score|round(1) }}%</div>
+                <div>Health Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Production Health</span>
+            <span class="pull-right">
+              {% if production_health.overall_health_score >= 95 %}
+                <i class="fa fa-check-circle text-success"></i>
+              {% elseif production_health.overall_health_score >= 85 %}
+                <i class="fa fa-exclamation-triangle text-warning"></i>
+              {% else %}
+                <i class="fa fa-times-circle text-danger"></i>
+              {% endif %}
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-clock-o fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="api-response-time">{{ real_time_stats.api_response_time|round(1) }}ms</div>
+                <div>API Response</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Target: <50ms</span>
+            <span class="pull-right">
+              {% if real_time_stats.api_response_time <= 50 %}
+                <i class="fa fa-check text-success"></i>
+              {% else %}
+                <i class="fa fa-arrow-up text-warning"></i>
+              {% endif %}
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-database fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="cache-hit-ratio">{{ real_time_stats.cache_hit_ratio|round(1) }}%</div>
+                <div>Cache Hit Ratio</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Target: >99%</span>
+            <span class="pull-right">
+              {% if real_time_stats.cache_hit_ratio >= 99 %}
+                <i class="fa fa-check text-success"></i>
+              {% else %}
+                <i class="fa fa-arrow-up text-warning"></i>
+              {% endif %}
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cogs fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="cpu-usage">{{ real_time_stats.cpu_usage_percent|round(1) }}%</div>
+                <div>CPU Usage</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">System Resources</span>
+            <span class="pull-right">
+              {% if real_time_stats.cpu_usage_percent < 75 %}
+                <i class="fa fa-check text-success"></i>
+              {% else %}
+                <i class="fa fa-exclamation-triangle text-warning"></i>
+              {% endif %}
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Optimization Controls -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">⚡ Ultra API Performance Optimization</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <button type="button" id="optimize-api-performance" class="btn btn-primary btn-block">
+                  <i class="fa fa-rocket"></i> Optimize API Performance
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="optimization-targets">
+                  <small>
+                    <i class="fa fa-target"></i> Response Time: 59.5ms → <50ms<br>
+                    <i class="fa fa-target"></i> Query Time: 6.3ms → <5ms<br>
+                    <i class="fa fa-target"></i> Cache Ratio: 97.8% → >99%
+                  </small>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <small class="text-muted">
+                <i class="fa fa-info-circle"></i> 
+                Comprehensive API optimization including query enhancement, caching, and compression.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">📊 Advanced Monitoring Enhancement</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <button type="button" id="enhance-monitoring" class="btn btn-info btn-block">
+                  <i class="fa fa-line-chart"></i> Enhance Monitoring
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="monitoring-features">
+                  <small>
+                    <i class="fa fa-check text-success"></i> Real-time Metrics<br>
+                    <i class="fa fa-check text-success"></i> Predictive Analytics<br>
+                    <i class="fa fa-check text-success"></i> Business Intelligence
+                  </small>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <small class="text-muted">
+                <i class="fa fa-info-circle"></i> 
+                Advanced monitoring with predictive analytics and intelligent alerting.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🛡️ Production Security Hardening</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <button type="button" id="harden-security" class="btn btn-warning btn-block">
+                  <i class="fa fa-shield"></i> Harden Security
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="security-features">
+                  <small>
+                    <i class="fa fa-check text-success"></i> DDoS Protection<br>
+                    <i class="fa fa-check text-success"></i> Intrusion Detection<br>
+                    <i class="fa fa-check text-success"></i> Data Encryption
+                  </small>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <small class="text-muted">
+                <i class="fa fa-info-circle"></i> 
+                Comprehensive security hardening with advanced threat protection.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🔧 Intelligent Resource Optimization</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <button type="button" id="optimize-resources" class="btn btn-success btn-block">
+                  <i class="fa fa-cogs"></i> Optimize Resources
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="resource-optimization">
+                  <small>
+                    <i class="fa fa-memory"></i> Memory: 512MB → <400MB<br>
+                    <i class="fa fa-microchip"></i> CPU: 45% → <35%<br>
+                    <i class="fa fa-hdd-o"></i> Storage: I/O Optimization
+                  </small>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <small class="text-muted">
+                <i class="fa fa-info-circle"></i> 
+                Intelligent resource optimization for memory, CPU, storage, and network.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🤖 Automated Performance Tuning</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-2">
+                <button type="button" id="auto-tune-performance" class="btn btn-primary btn-block">
+                  <i class="fa fa-magic"></i> Auto-Tune Performance
+                </button>
+              </div>
+              <div class="col-md-10">
+                <div class="auto-tuning-features">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <strong>Auto-Scaling</strong><br>
+                      <small>Horizontal & Vertical scaling with predictive algorithms</small>
+                    </div>
+                    <div class="col-md-3">
+                      <strong>Load Balancing</strong><br>
+                      <small>Intelligent routing with health check optimization</small>
+                    </div>
+                    <div class="col-md-3">
+                      <strong>Caching Strategy</strong><br>
+                      <small>Multi-layer caching with intelligent invalidation</small>
+                    </div>
+                    <div class="col-md-3">
+                      <strong>Database Tuning</strong><br>
+                      <small>Query optimization with connection pooling</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Real-time Performance Dashboard -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">📈 Real-time Performance Analytics</h3>
+          </div>
+          <div class="panel-body">
+            <div id="performance-chart" style="height: 300px;"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🎯 Optimization Opportunities</h3>
+          </div>
+          <div class="panel-body" style="max-height: 300px; overflow-y: auto;">
+            {% if optimization_opportunities %}
+              {% for opportunity in optimization_opportunities %}
+                <div class="optimization-item mb-2">
+                  <div class="row">
+                    <div class="col-xs-8">
+                      <strong>{{ opportunity.title }}</strong><br>
+                      <small class="text-muted">{{ opportunity.description|slice(0, 50) }}...</small>
+                    </div>
+                    <div class="col-xs-4 text-right">
+                      {% if opportunity.priority == 'critical' %}
+                        <span class="label label-danger">{{ opportunity.priority|upper }}</span>
+                      {% elseif opportunity.priority == 'high' %}
+                        <span class="label label-warning">{{ opportunity.priority|upper }}</span>
+                      {% else %}
+                        <span class="label label-info">{{ opportunity.priority|upper }}</span>
+                      {% endif %}
+                      <br><small>ROI: {{ opportunity.roi_score }}</small>
+                    </div>
+                  </div>
+                  <div class="progress progress-sm">
+                    <div class="progress-bar progress-bar-success" style="width: {{ opportunity.impact_score }}%"></div>
+                  </div>
+                  <hr>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="text-center text-muted">
+                <i class="fa fa-check-circle fa-3x"></i>
+                <p>All systems optimized!</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Performance Metrics Grid -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">📊 Detailed Performance Metrics</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="metric-card">
+                  <h4>API Performance</h4>
+                  <div class="metric-value">{{ performance_metrics.api_response_time.current|round(1) }}ms</div>
+                  <div class="metric-target">Target: {{ performance_metrics.api_response_time.target }}ms</div>
+                  <div class="progress">
+                    <div class="progress-bar {% if performance_metrics.api_response_time.status == 'optimal' %}progress-bar-success{% else %}progress-bar-warning{% endif %}" 
+                         style="width: {{ (performance_metrics.api_response_time.target / performance_metrics.api_response_time.current * 100)|round }}%">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-3">
+                <div class="metric-card">
+                  <h4>Database Performance</h4>
+                  <div class="metric-value">{{ performance_metrics.database_query_time.current|round(1) }}ms</div>
+                  <div class="metric-target">Target: {{ performance_metrics.database_query_time.target }}ms</div>
+                  <div class="progress">
+                    <div class="progress-bar {% if performance_metrics.database_query_time.status == 'optimal' %}progress-bar-success{% else %}progress-bar-warning{% endif %}" 
+                         style="width: {{ (performance_metrics.database_query_time.target / performance_metrics.database_query_time.current * 100)|round }}%">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-3">
+                <div class="metric-card">
+                  <h4>Cache Efficiency</h4>
+                  <div class="metric-value">{{ performance_metrics.cache_hit_ratio.current|round(1) }}%</div>
+                  <div class="metric-target">Target: {{ performance_metrics.cache_hit_ratio.target }}%</div>
+                  <div class="progress">
+                    <div class="progress-bar {% if performance_metrics.cache_hit_ratio.status == 'optimal' %}progress-bar-success{% else %}progress-bar-warning{% endif %}" 
+                         style="width: {{ performance_metrics.cache_hit_ratio.current }}%">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-3">
+                <div class="metric-card">
+                  <h4>System Health</h4>
+                  <div class="metric-value">{{ performance_metrics.overall_health|round(1) }}%</div>
+                  <div class="metric-target">Target: >95%</div>
+                  <div class="progress">
+                    <div class="progress-bar {% if performance_metrics.overall_health >= 95 %}progress-bar-success{% elseif performance_metrics.overall_health >= 85 %}progress-bar-warning{% else %}progress-bar-danger{% endif %}" 
+                         style="width: {{ performance_metrics.overall_health }}%">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Health Assessment Modal -->
+<div class="modal fade" id="health-assessment-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">🏥 Production Health Assessment</h4>
+      </div>
+      <div class="modal-body">
+        <div id="health-assessment-results">
+          <div class="text-center">
+            <i class="fa fa-spinner fa-spin fa-3x"></i>
+            <p>Running comprehensive health assessment...</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Real-time metrics update
+    function updatePerformanceMetrics() {
+        $.ajax({
+            url: 'index.php?route=extension/module/production_excellence_optimizer/getPerformanceAnalytics&user_token={{ user_token }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    updateDashboardMetrics(response.analytics);
+                }
+            }
+        });
+    }
+    
+    // Optimize API Performance
+    $('#optimize-api-performance').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Optimizing...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/production_excellence_optimizer/optimizeApiPerformance&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'API performance optimization completed successfully!');
+                    displayOptimizationResults(response.optimization_results);
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#optimize-api-performance').prop('disabled', false).html('<i class="fa fa-rocket"></i> Optimize API Performance');
+            }
+        });
+    });
+    
+    // Enhance Monitoring Dashboard
+    $('#enhance-monitoring').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Enhancing...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/production_excellence_optimizer/enhanceMonitoringDashboard&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Monitoring dashboard enhanced successfully!');
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#enhance-monitoring').prop('disabled', false).html('<i class="fa fa-line-chart"></i> Enhance Monitoring');
+            }
+        });
+    });
+    
+    // Harden Production Security
+    $('#harden-security').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Hardening...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/production_excellence_optimizer/hardenProductionSecurity&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Production security hardening completed successfully!');
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#harden-security').prop('disabled', false).html('<i class="fa fa-shield"></i> Harden Security');
+            }
+        });
+    });
+    
+    // Optimize Resources
+    $('#optimize-resources').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Optimizing...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/production_excellence_optimizer/optimizeResources&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Resource optimization completed successfully!');
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#optimize-resources').prop('disabled', false).html('<i class="fa fa-cogs"></i> Optimize Resources');
+            }
+        });
+    });
+    
+    // Auto-Tune Performance
+    $('#auto-tune-performance').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Auto-Tuning...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/production_excellence_optimizer/autoTunePerformance&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Automated performance tuning completed successfully!');
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#auto-tune-performance').prop('disabled', false).html('<i class="fa fa-magic"></i> Auto-Tune Performance');
+            }
+        });
+    });
+    
+    // Emergency Optimization
+    $('#button-emergency-optimization').click(function() {
+        if (confirm('Are you sure you want to execute emergency optimization? This will apply aggressive performance improvements.')) {
+            $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Emergency Mode...');
+            
+            $.ajax({
+                url: 'index.php?route=extension/module/production_excellence_optimizer/executeEmergencyOptimization&user_token={{ user_token }}',
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        showAlert('success', 'Emergency optimization completed successfully!');
+                    } else {
+                        showAlert('danger', 'Error: ' + response.error);
+                    }
+                },
+                complete: function() {
+                    $('#button-emergency-optimization').prop('disabled', false).html('<i class="fa fa-bolt"></i> Emergency Optimization');
+                }
+            });
+        }
+    });
+    
+    // Health Assessment
+    $('#button-health-assessment').click(function() {
+        $('#health-assessment-modal').modal('show');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/production_excellence_optimizer/assessProductionHealth&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    displayHealthAssessment(response.health_assessment);
+                } else {
+                    $('#health-assessment-results').html('<div class="alert alert-danger">Error: ' + response.error + '</div>');
+                }
+            }
+        });
+    });
+    
+    // Generate Optimization Report
+    $('#button-optimization-report').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Generating...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/production_excellence_optimizer/generateOptimizationReport&user_token={{ user_token }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Optimization report generated successfully!');
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#button-optimization-report').prop('disabled', false).html('<i class="fa fa-file-text"></i> Generate Report');
+            }
+        });
+    });
+    
+    // Helper functions
+    function showAlert(type, message) {
+        var alertHtml = '<div class="alert alert-' + type + ' alert-dismissible">' +
+                       '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                       message + '</div>';
+        $('.container-fluid').prepend(alertHtml);
+        
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+    
+    function displayOptimizationResults(results) {
+        // Display optimization results in a modal or update dashboard
+        console.log('Optimization Results:', results);
+    }
+    
+    function displayHealthAssessment(assessment) {
+        var html = '<div class="row">' +
+                  '<div class="col-md-6">' +
+                  '<h4>Overall Health Score</h4>' +
+                  '<div class="progress progress-lg">' +
+                  '<div class="progress-bar progress-bar-' + (assessment.overall_score >= 90 ? 'success' : 'warning') + '" style="width: ' + assessment.overall_score + '%">' +
+                  assessment.overall_score + '%' +
+                  '</div></div>' +
+                  '</div>' +
+                  '<div class="col-md-6">' +
+                  '<h4>Recommendations</h4>' +
+                  '<ul>';
+        
+        if (assessment.recommendations) {
+            assessment.recommendations.forEach(function(rec) {
+                html += '<li>' + rec + '</li>';
+            });
+        }
+        
+        html += '</ul></div></div>';
+        
+        $('#health-assessment-results').html(html);
+    }
+    
+    function updateDashboardMetrics(analytics) {
+        // Update real-time dashboard metrics
+        if (analytics.current_performance) {
+            $('#api-response-time').text(analytics.current_performance.api_response_time + 'ms');
+            $('#cache-hit-ratio').text(analytics.current_performance.cache_hit_ratio + '%');
+            $('#cpu-usage').text(analytics.current_performance.cpu_usage + '%');
+        }
+    }
+    
+    // Update metrics every 30 seconds
+    setInterval(updatePerformanceMetrics, 30000);
+    
+    // Initial load
+    updatePerformanceMetrics();
+});
+</script>
+
+<style>
+.huge {
+    font-size: 40px;
+}
+
+.panel-primary .huge, .panel-success .huge, .panel-info .huge, .panel-warning .huge {
+    color: #fff;
+}
+
+.optimization-targets, .monitoring-features, .security-features, .resource-optimization {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.auto-tuning-features {
+    font-size: 13px;
+}
+
+.metric-card {
+    text-align: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #337ab7;
+}
+
+.metric-target {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.optimization-item {
+    border-left: 3px solid #ddd;
+    padding-left: 10px;
+}
+
+.progress-sm {
+    height: 10px;
+}
+
+.progress-lg {
+    height: 30px;
+}
+
+.progress-lg .progress-bar {
+    line-height: 30px;
+    font-size: 16px;
+}
+
+.mt-3 {
+    margin-top: 15px;
+}
+
+.mb-2 {
+    margin-bottom: 10px;
+}
+</style>
+
+{{ footer }}
+</rewritten_file>
