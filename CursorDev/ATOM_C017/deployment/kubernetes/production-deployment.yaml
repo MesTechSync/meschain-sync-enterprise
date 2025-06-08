@@ -1,0 +1,400 @@
+# 🚀 ATOM-C017 Production Kubernetes Deployment
+# Advanced Marketplace Intelligence Platform
+# Phase 3: Production Deployment Architecture
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: atom-c017-production
+  labels:
+    name: atom-c017-production
+    tier: production
+    project: marketplace-intelligence
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atom-c017-api
+  namespace: atom-c017-production
+  labels:
+    app: atom-c017-api
+    version: v3.0.0
+    tier: production
+    component: api-server
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: atom-c017-api
+  template:
+    metadata:
+      labels:
+        app: atom-c017-api
+        version: v3.0.0
+        tier: production
+    spec:
+      serviceAccountName: atom-c017-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: api-server
+        image: atom-c017/marketplace-intelligence:v3.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        - containerPort: 8080
+          name: websocket
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: atom-c017-secrets
+              key: redis-url
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: atom-c017-secrets
+              key: database-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: atom-c017-secrets
+              key: jwt-secret
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 3000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: logs-volume
+          mountPath: /app/logs
+        - name: cache-volume
+          mountPath: /app/cache
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+      volumes:
+      - name: logs-volume
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: cache-volume
+        emptyDir:
+          sizeLimit: 500Mi
+      - name: config-volume
+        configMap:
+          name: atom-c017-config
+      nodeSelector:
+        node-type: api-server
+      tolerations:
+      - key: "node-type"
+        operator: "Equal"
+        value: "api-server"
+        effect: "NoSchedule"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: atom-c017-api-service
+  namespace: atom-c017-production
+  labels:
+    app: atom-c017-api
+    tier: production
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: websocket
+  selector:
+    app: atom-c017-api
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: atom-c017-ingress
+  namespace: atom-c017-production
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-rpm: "6000"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - api.atom-c017.com
+    - dashboard.atom-c017.com
+    secretName: atom-c017-tls
+  rules:
+  - host: api.atom-c017.com
+    http:
+      paths:
+      - path: /(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: atom-c017-api-service
+            port:
+              number: 80
+  - host: dashboard.atom-c017.com
+    http:
+      paths:
+      - path: /(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: atom-c017-dashboard-service
+            port:
+              number: 80
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: atom-c017-api-hpa
+  namespace: atom-c017-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: atom-c017-api
+  minReplicas: 3
+  maxReplicas: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: atom-c017-service-account
+  namespace: atom-c017-production
+  labels:
+    app: atom-c017
+    tier: production
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: atom-c017-production
+  name: atom-c017-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: atom-c017-role-binding
+  namespace: atom-c017-production
+subjects:
+- kind: ServiceAccount
+  name: atom-c017-service-account
+  namespace: atom-c017-production
+roleRef:
+  kind: Role
+  name: atom-c017-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: atom-c017-config
+  namespace: atom-c017-production
+data:
+  production.config.js: |
+    module.exports = {
+      app: {
+        name: 'ATOM-C017',
+        version: '3.0.0',
+        env: 'production'
+      },
+      server: {
+        port: 3000,
+        host: '0.0.0.0'
+      },
+      websocket: {
+        port: 8080,
+        maxConnections: 1000
+      },
+      ai: {
+        tensorflow: {
+          backend: 'cpu',
+          threads: 4
+        },
+        models: {
+          demand_forecasting: {
+            accuracy_target: 0.942,
+            retrain_interval: 86400
+          },
+          price_optimization: {
+            accuracy_target: 0.918,
+            update_interval: 300
+          }
+        }
+      },
+      marketplace: {
+        connectors: {
+          amazon: { enabled: true, refresh_interval: 300000 },
+          ebay: { enabled: true, refresh_interval: 600000 },
+          trendyol: { enabled: true, refresh_interval: 180000 },
+          n11: { enabled: true, refresh_interval: 900000 },
+          hepsiburada: { enabled: true, refresh_interval: 450000 }
+        }
+      },
+      monitoring: {
+        prometheus: {
+          enabled: true,
+          port: 9090
+        },
+        logging: {
+          level: 'info',
+          format: 'json'
+        }
+      },
+      security: {
+        cors: {
+          origin: ['https://dashboard.atom-c017.com'],
+          credentials: true
+        },
+        rateLimit: {
+          windowMs: 60000,
+          max: 1000
+        }
+      }
+    };
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: atom-c017-secrets
+  namespace: atom-c017-production
+type: Opaque
+data:
+  # Base64 encoded secrets (example values)
+  redis-url: cmVkaXM6Ly91c2VyOnBhc3N3b3JkQHJlZGlzLWNsdXN0ZXI6NjM3OS8w
+  database-url: cG9zdGdyZXNxbDovL3VzZXI6cGFzc3dvcmRAcG9zdGdyZXMtY2x1c3Rlcjo1NDMyL2F0b21fYzAxNw==
+  jwt-secret: c3VwZXJfc2VjcmV0X2p3dF9rZXlfZm9yX3Byb2R1Y3Rpb24=
+  amazon-client-id: YW1hem9uX2NsaWVudF9pZF9wcm9kdWN0aW9u
+  amazon-client-secret: YW1hem9uX2NsaWVudF9zZWNyZXRfcHJvZHVjdGlvbg==
+  ebay-app-id: ZWJheV9hcHBfaWRfcHJvZHVjdGlvbg==
+  trendyol-api-key: dHJlbmR5b2xfYXBpX2tleV9wcm9kdWN0aW9u
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: atom-c017-pdb
+  namespace: atom-c017-production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: atom-c017-api
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: atom-c017-network-policy
+  namespace: atom-c017-production
+spec:
+  podSelector:
+    matchLabels:
+      app: atom-c017-api
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 3000
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 5432
+    - protocol: TCP
+      port: 6379 

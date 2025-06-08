@@ -14,6 +14,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/CursorDev', express.static(path.join(__dirname, 'CursorDev')));
 
+// Load Advanced Rate Limiting System
+const AdvancedRateLimitingSystem = require('./api_rate_limiting_system');
+const rateLimiting = new AdvancedRateLimitingSystem();
+
+// Apply rate limiting middleware (before authentication)
+rateLimiting.setupMiddleware(app);
+
 // Load Priority 3 Authentication Middleware
 const Priority3AuthMiddleware = require('./priority3_auth_middleware');
 
