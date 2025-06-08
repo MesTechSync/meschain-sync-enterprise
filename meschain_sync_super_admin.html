@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔗 MesChain-Sync Super Admin Dashboard - MesChain Sync Enterprise v4.0</title>
+    <title data-tr="🔗 MesChain-Sync Süper Admin Dashboard - MesChain Sync Enterprise v4.0" data-en="🔗 MesChain-Sync Super Admin Dashboard - MesChain Sync Enterprise v4.0">🔗 MesChain-Sync Süper Admin Dashboard - MesChain Sync Enterprise v4.0</title>
     
     <!-- MesChain-Sync Design System Integration -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -58,13 +58,13 @@
         }
 
         /* Dark Mode - MesChain-Sync Theme */
-        [class~="dark"] {
+        .dark {
             --bg-primary: #0f172a;
             --bg-secondary: #1e293b;
-            --bg-gradient-start: #1e293b;
-            --bg-gradient-end: #0f172a;
-            --sidebar-bg: rgba(30, 41, 59, 0.6);
-            --card-bg: rgba(30, 41, 59, 0.5);
+            --bg-gradient-start: #0f172a;
+            --bg-gradient-end: #1e293b;
+            --sidebar-bg: rgba(15, 23, 42, 0.8);
+            --card-bg: rgba(30, 41, 59, 0.6);
             
             --text-primary: #f8fafc;
             --text-secondary: #cbd5e1;
@@ -73,15 +73,39 @@
             --border-primary: rgba(255, 255, 255, 0.1);
             --border-secondary: #334155;
 
-            --status-green-bg: #065f46;
+            --accent-primary: #8b5cf6;
+            --accent-secondary: #a78bfa;
+            --accent-glow: rgba(139, 92, 246, 0.2);
+
+            --sidebar-link-active-bg: linear-gradient(90deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.0) 100%);
+            --sidebar-link-active-border: #a78bfa;
+            --sidebar-link-active-text: #c4b5fd;
+            --sidebar-link-hover-bg: rgba(139, 92, 246, 0.1);
+            --sidebar-link-hover-text: #a78bfa;
+
+            --status-green-bg: #064e3b;
             --status-green-text: #86efac;
             --status-green-border: #059669;
-            --status-amber-bg: #b45309;
+            --status-amber-bg: #92400e;
             --status-amber-text: #fcd34d;
             --status-amber-border: #d97706;
-            --status-red-bg: #9f1239;
+            --status-red-bg: #7f1d1d;
             --status-red-text: #fca5a5;
             --status-red-border: #dc2626;
+
+            /* MesChain-Sync Specific Dark */
+            --meschain-primary: #60a5fa;
+            --meschain-secondary: #93c5fd;
+            --meschain-accent: #3b82f6;
+            --meschain-glow: rgba(96, 165, 250, 0.25);
+
+            /* Dark mode shadows */
+            --shadow-color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Light mode shadows */
+        :root {
+            --shadow-color: rgba(0, 0, 0, 0.1);
         }
 
         body {
@@ -810,31 +834,96 @@
                     </div>
                 </div>
                 
-                <!-- Theme Selector -->
+                <!-- Language Selector -->
                 <div class="relative">
-                    <button onclick="toggleThemeSelector()" class="flex items-center space-x-2 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-xl px-4 py-2 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
-                        <i class="ph ph-palette text-lg"></i>
-                        <span class="font-medium">Themes</span>
+                    <button onclick="toggleLanguageSelector()" class="flex items-center space-x-2 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-xl px-4 py-2 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
+                        <i class="ph ph-translate text-lg"></i>
+                        <span class="font-medium" id="currentLanguageLabel">Türkçe</span>
                         <i class="ph ph-caret-down text-sm"></i>
                     </button>
-                    <div id="themeSelector" class="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 hidden z-50">
-                        <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Select Theme</h3>
+                    <div id="languageSelector" class="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 hidden z-50">
+                        <h3 class="font-semibold text-gray-800 dark:text-white mb-3" data-tr="Dil Seçin" data-en="Select Language">Dil Seçin</h3>
+                        <div class="space-y-2">
+                            <button onclick="setLanguage('tr')" class="language-option w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-left transition-colors">
+                                <span class="text-lg">🇹🇷</span>
+                                <span class="text-sm font-medium">Türkçe</span>
+                            </button>
+                            <button onclick="setLanguage('en')" class="language-option w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-left transition-colors">
+                                <span class="text-lg">🇺🇸</span>
+                                <span class="text-sm font-medium">English</span>
+                            </button>
+                            <button onclick="setLanguage('de')" class="language-option w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-left transition-colors">
+                                <span class="text-lg">🇩🇪</span>
+                                <span class="text-sm font-medium">Deutsch</span>
+                            </button>
+                            <button onclick="setLanguage('fr')" class="language-option w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-left transition-colors">
+                                <span class="text-lg">🇫🇷</span>
+                                <span class="text-sm font-medium">Français</span>
+                            </button>
+                            <button onclick="setLanguage('es')" class="language-option w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-left transition-colors">
+                                <span class="text-lg">🇪🇸</span>
+                                <span class="text-sm font-medium">Español</span>
+                            </button>
+                            <button onclick="setLanguage('it')" class="language-option w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-left transition-colors">
+                                <span class="text-lg">🇮🇹</span>
+                                <span class="text-sm font-medium">Italiano</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Theme Selector -->
+                <div class="relative">
+                    <button onclick="toggleThemeSelector()" class="flex items-center space-x-2 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-xl px-4 py-2 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
+                        <i id="themeIcon" class="ph ph-sun text-lg"></i>
+                        <span class="font-medium" data-tr="Tema" data-en="Theme">Tema</span>
+                        <i class="ph ph-caret-down text-sm"></i>
+                    </button>
+                    <div id="themeSelector" class="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 hidden z-50">
+                        <h3 class="font-semibold text-gray-800 dark:text-white mb-4" data-tr="Tema Seçin" data-en="Select Theme">Tema Seçin</h3>
                         <div class="grid grid-cols-2 gap-3">
-                            <button onclick="setTheme('light')" class="theme-option flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg"></div>
-                                <span class="text-sm font-medium">Light</span>
+                            <!-- Light Theme -->
+                            <button onclick="setTheme('light')" class="theme-option group flex flex-col items-center space-y-2 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 border-2 border-transparent hover:border-blue-200">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-sun text-2xl text-yellow-500"></i>
+                                    <div class="w-8 h-8 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg border border-gray-200"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300" data-tr="Aydınlık" data-en="Light">Aydınlık</span>
                             </button>
-                            <button onclick="setTheme('dark')" class="theme-option flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <div class="w-6 h-6 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg"></div>
-                                <span class="text-sm font-medium">Dark</span>
+                            
+                            <!-- Dark Theme -->
+                            <button onclick="setTheme('dark')" class="theme-option group flex flex-col items-center space-y-2 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 border-2 border-transparent hover:border-gray-400">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-moon text-2xl text-blue-400"></i>
+                                    <div class="w-8 h-8 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg border border-gray-600"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300" data-tr="Karanlık" data-en="Dark">Karanlık</span>
                             </button>
-                            <button onclick="setTheme('neon')" class="theme-option flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <div class="w-6 h-6 bg-gradient-to-br from-cyan-400 to-pink-500 rounded-lg"></div>
-                                <span class="text-sm font-medium">Neon</span>
+                            
+                            <!-- Neon Theme -->
+                            <button onclick="setTheme('neon')" class="theme-option group flex flex-col items-center space-y-2 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 border-2 border-transparent hover:border-cyan-200">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-lightning text-2xl text-cyan-400"></i>
+                                    <div class="w-8 h-8 bg-gradient-to-br from-cyan-400 to-pink-500 rounded-lg shadow-lg"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300" data-tr="Neon" data-en="Neon">Neon</span>
                             </button>
-                            <button onclick="setTheme('nature')" class="theme-option flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <div class="w-6 h-6 bg-gradient-to-br from-green-400 to-emerald-600 rounded-lg"></div>
-                                <span class="text-sm font-medium">Nature</span>
+                            
+                            <!-- Nature Theme -->
+                            <button onclick="setTheme('nature')" class="theme-option group flex flex-col items-center space-y-2 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 border-2 border-transparent hover:border-green-200">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-leaf text-2xl text-green-500"></i>
+                                    <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-600 rounded-lg"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300" data-tr="Doğa" data-en="Nature">Doğa</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Auto Theme Detection -->
+                        <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <button onclick="setTheme('auto')" class="w-full flex items-center justify-center space-x-2 p-3 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
+                                <i class="ph ph-magic-wand text-blue-600"></i>
+                                <span class="text-sm font-medium text-blue-700 dark:text-blue-300" data-tr="Otomatik (Sistem)" data-en="Auto (System)">Otomatik (Sistem)</span>
                             </button>
                         </div>
                     </div>
@@ -843,11 +932,62 @@
             
             <!-- Right Side - System Status and Profile -->
             <div class="flex items-center space-x-4">
+                <!-- SignalR Connection Status -->
+                <div id="signalr-status" class="flex items-center space-x-2 bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-2">
+                    <div class="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></div>
+                    <span class="text-amber-700 dark:text-amber-300 font-medium text-sm">Connecting...</span>
+                </div>
+                
                 <!-- System Health Indicator -->
                 <div class="flex items-center space-x-2 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-xl px-4 py-2">
                     <div class="w-3 h-3 bg-green-500 rounded-full status-indicator-live"></div>
                     <span class="text-green-700 dark:text-green-300 font-medium text-sm">System Healthy</span>
                 </div>
+
+                <!-- Language Selector -->
+                <div class="relative">
+                    <button id="languageToggle" onclick="toggleLanguageMenu()" class="flex items-center space-x-2 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Dil Seçimi / Language Selection">
+                        <i class="ph ph-globe text-xl"></i>
+                        <span id="currentLanguage" class="text-sm font-medium hidden sm:inline">TR</span>
+                        <i class="ph ph-caret-down text-sm"></i>
+                    </button>
+                    <div id="languageMenu" class="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 hidden z-50">
+                        <button onclick="setLanguage('tr')" class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+                            <span class="text-lg">🇹🇷</span>
+                            <div>
+                                <div class="font-medium">Türkçe</div>
+                                <div class="text-sm text-gray-500">Turkish</div>
+                            </div>
+                        </button>
+                        <button onclick="setLanguage('en')" class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+                            <span class="text-lg">🇺🇸</span>
+                            <div>
+                                <div class="font-medium">English</div>
+                                <div class="text-sm text-gray-500">İngilizce</div>
+                            </div>
+                        </button>
+                        <button onclick="setLanguage('de')" class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+                            <span class="text-lg">🇩🇪</span>
+                            <div>
+                                <div class="font-medium">Deutsch</div>
+                                <div class="text-sm text-gray-500">Almanca</div>
+                            </div>
+                        </button>
+                        <button onclick="setLanguage('fr')" class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+                            <span class="text-lg">🇫🇷</span>
+                            <div>
+                                <div class="font-medium">Français</div>
+                                <div class="text-sm text-gray-500">Fransızca</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dark Mode Toggle -->
+                <button id="themeToggle" onclick="toggleTheme()" class="flex items-center space-x-2 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300" title="Karanlık/Aydınlık Mod / Dark/Light Mode">
+                    <i id="themeIcon" class="ph ph-sun text-xl text-yellow-500 dark:text-yellow-400"></i>
+                    <span id="themeText" class="text-sm font-medium hidden sm:inline" data-tr="Aydınlık" data-en="Light">Aydınlık</span>
+                </button>
 
                 <!-- Notifications -->
                 <button class="relative p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
@@ -881,43 +1021,43 @@
                 <div class="space-y-1">
                     <!-- Core Management -->
                     <div class="mb-6">
-                        <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-4">Core Management</h3>
+                        <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-4" data-tr="Ana Yönetim" data-en="Core Management">Core Management</h3>
                         <a href="#dashboard" class="meschain-nav-link active" data-section="dashboard">
                             <i class="ph ph-squares-four w-5 h-5 mr-3"></i>
-                            Dashboard
+                            <span data-tr="Dashboard" data-en="Dashboard">Dashboard</span>
                         </a>
                         <a href="#analytics" class="meschain-nav-link" data-section="analytics">
                             <i class="ph ph-chart-line w-5 h-5 mr-3"></i>
-                            Analytics
+                            <span data-tr="Analitik" data-en="Analytics">Analytics</span>
                         </a>
                         <a href="#team" class="meschain-nav-link" data-section="team">
                             <i class="ph ph-users w-5 h-5 mr-3"></i>
-                            Team Performance
+                            <span data-tr="Takım Performansı" data-en="Team Performance">Team Performance</span>
                         </a>
                         <a href="#systems" class="meschain-nav-link" data-section="systems">
                             <i class="ph ph-gear w-5 h-5 mr-3"></i>
-                            System Status
+                            <span data-tr="Sistem Durumu" data-en="System Status">System Status</span>
                         </a>
                     </div>
 
                     <!-- Service Management -->
                     <div class="mb-6">
-                        <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-4">Service Management</h3>
+                        <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-4" data-tr="Servis Yönetimi" data-en="Service Management">Service Management</h3>
                         <a href="#services" class="meschain-nav-link" data-section="services">
                             <i class="ph ph-circles-four w-5 h-5 mr-3"></i>
-                            All Services
+                            <span data-tr="Tüm Servisler" data-en="All Services">All Services</span>
                         </a>
                         <a href="#integrations" class="meschain-nav-link" data-section="integrations">
                             <i class="ph ph-link w-5 h-5 mr-3"></i>
-                            Integrations
+                            <span data-tr="Entegrasyonlar" data-en="Integrations">Integrations</span>
                         </a>
                         <a href="#automation" class="meschain-nav-link" data-section="automation">
                             <i class="ph ph-robot w-5 h-5 mr-3"></i>
-                            Automation
+                            <span data-tr="Otomasyon" data-en="Automation">Automation</span>
                         </a>
                         <a href="#workflows" class="meschain-nav-link" data-section="workflows">
                             <i class="ph ph-flow-arrow w-5 h-5 mr-3"></i>
-                            Workflows
+                            <span data-tr="İş Akışları" data-en="Workflows">Workflows</span>
                         </a>
                     </div>
 
@@ -984,83 +1124,83 @@
             <!-- Dashboard Section -->
             <section id="dashboard-section" class="meschain-section">
                 <div class="mb-8">
-                    <h2 class="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-3">
+                    <h2 class="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-3" data-tr="🔗 MesChain-Sync Kurumsal Gösterge Paneli" data-en="🔗 MesChain-Sync Enterprise Dashboard" data-de="🔗 MesChain-Sync Enterprise Dashboard" data-fr="🔗 Tableau de bord MesChain-Sync Enterprise">
                         🔗 MesChain-Sync Enterprise Dashboard
                     </h2>
-                    <p class="text-lg text-gray-600 dark:text-gray-300">Advanced multi-marketplace integration platform with real-time chain synchronization and AI-powered analytics</p>
+                    <p class="text-lg text-gray-600 dark:text-gray-300" data-tr="Gerçek zamanlı zincir senkronizasyonu ve AI destekli analitik ile gelişmiş çoklu pazaryeri entegrasyon platformu" data-en="Advanced multi-marketplace integration platform with real-time chain synchronization and AI-powered analytics" data-de="Erweiterte Multi-Marktplatz-Integrationsplattform mit Echtzeit-Kettensynchronisation und KI-gestützter Analytik" data-fr="Plateforme d'intégration multi-marché avancée avec synchronisation de chaîne en temps réel et analytique alimentée par l'IA">Advanced multi-marketplace integration platform with real-time chain synchronization and AI-powered analytics</p>
                 </div>
 
                 <!-- System Overview Metrics - GEMINI Advanced Style -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                     <div class="meschain-metric-card fade-in-up">
                         <div class="metric-value">99.98%</div>
-                        <div class="metric-label">Chain Sync Uptime</div>
-                        <div class="achievement-metric">+23% mesh stability</div>
+                        <div class="metric-label" data-tr="Zincir Senkronizasyon Çalışma Süresi" data-en="Chain Sync Uptime" data-de="Ketten-Sync-Betriebszeit" data-fr="Temps de fonctionnement de synchronisation de chaîne">Chain Sync Uptime</div>
+                        <div class="achievement-metric" data-tr="+%23 mesh kararlılığı" data-en="+23% mesh stability" data-de="+23% Mesh-Stabilität" data-fr="+23% stabilité du maillage">+23% mesh stability</div>
                     </div>
                     <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.1s">
                         <div class="metric-value">₺2.847M</div>
-                        <div class="metric-label">MesChain Revenue</div>
-                        <div class="achievement-metric">+89.2% growth</div>
+                        <div class="metric-label" data-tr="MesChain Geliri" data-en="MesChain Revenue" data-de="MesChain-Umsatz" data-fr="Revenus MesChain">MesChain Revenue</div>
+                        <div class="achievement-metric" data-tr="+%89.2 büyüme" data-en="+89.2% growth" data-de="+89,2% Wachstum" data-fr="+89,2% de croissance">+89.2% growth</div>
                     </div>
                     <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.2s">
                         <div class="metric-value">96.4%</div>
-                        <div class="metric-label">Mesh Network Health</div>
-                        <div class="achievement-metric">Chain accuracy AI</div>
+                        <div class="metric-label" data-tr="Mesh Ağ Sağlığı" data-en="Mesh Network Health" data-de="Mesh-Netzwerk-Gesundheit" data-fr="Santé du réseau maillé">Mesh Network Health</div>
+                        <div class="achievement-metric" data-tr="Zincir doğruluğu AI" data-en="Chain accuracy AI" data-de="Kettengenauigkeit KI" data-fr="Précision de la chaîne IA">Chain accuracy AI</div>
                     </div>
                     <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.3s">
                         <div class="metric-value">100%</div>
-                        <div class="metric-label">System Integration</div>
-                        <div class="achievement-metric">All chain priorities</div>
+                        <div class="metric-label" data-tr="Sistem Entegrasyonu" data-en="System Integration" data-de="Systemintegration" data-fr="Intégration système">System Integration</div>
+                        <div class="achievement-metric" data-tr="Tüm zincir öncelikleri" data-en="All chain priorities" data-de="Alle Kettenprioritäten" data-fr="Toutes les priorités de chaîne">All chain priorities</div>
                     </div>
                 </div>
 
                 <!-- Quick Team Achievements Overview - GEMINI Enhanced -->
                 <div class="meschain-glass rounded-2xl p-8 mb-8">
-                    <h2 class="text-3xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    <h2 class="text-3xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent" data-tr="🏆 MesChain-Sync Takım Mükemmelliği Genel Bakış" data-en="🏆 MesChain-Sync Team Excellence Overview" data-de="🏆 MesChain-Sync Team Excellence Übersicht" data-fr="🏆 Aperçu de l'excellence d'équipe MesChain-Sync">
                         🏆 MesChain-Sync Team Excellence Overview
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div class="team-achievement">
-                            <h3 class="font-bold text-xl mb-3 text-blue-700 dark:text-blue-300">🤖 AI Analytics Team</h3>
-                            <div class="achievement-metric">96.4% chain accuracy</div>
-                            <div class="achievement-metric">93.7% revenue prediction</div>
-                            <div class="achievement-metric">91.8% mesh optimization</div>
-                            <div class="achievement-metric">Real-time sync analytics</div>
+                            <h3 class="font-bold text-xl mb-3 text-blue-700 dark:text-blue-300" data-tr="🤖 AI Analitik Takımı" data-en="🤖 AI Analytics Team" data-de="🤖 KI-Analytics-Team" data-fr="🤖 Équipe d'analytique IA">🤖 AI Analytics Team</h3>
+                            <div class="achievement-metric" data-tr="%96.4 zincir doğruluğu" data-en="96.4% chain accuracy" data-de="96,4% Kettengenauigkeit" data-fr="96,4% de précision de chaîne">96.4% chain accuracy</div>
+                            <div class="achievement-metric" data-tr="%93.7 gelir tahmini" data-en="93.7% revenue prediction" data-de="93,7% Umsatzvorhersage" data-fr="93,7% de prédiction de revenus">93.7% revenue prediction</div>
+                            <div class="achievement-metric" data-tr="%91.8 mesh optimizasyonu" data-en="91.8% mesh optimization" data-de="91,8% Mesh-Optimierung" data-fr="91,8% d'optimisation de maillage">91.8% mesh optimization</div>
+                            <div class="achievement-metric" data-tr="Gerçek zamanlı senkronizasyon analitikleri" data-en="Real-time sync analytics" data-de="Echtzeit-Sync-Analytik" data-fr="Analytique de synchronisation en temps réel">Real-time sync analytics</div>
                         </div>
                         <div class="team-achievement">
-                            <h3 class="font-bold text-xl mb-3 text-green-700 dark:text-green-300">👥 Customer Behavior AI</h3>
-                            <div class="achievement-metric">95.8% behavior recognition</div>
-                            <div class="achievement-metric">6 intelligent segments</div>
-                            <div class="achievement-metric">Chain journey analysis</div>
-                            <div class="achievement-metric">Mesh customer insights</div>
+                            <h3 class="font-bold text-xl mb-3 text-green-700 dark:text-green-300" data-tr="👥 Müşteri Davranışı AI" data-en="👥 Customer Behavior AI" data-de="👥 Kundenverhalten KI" data-fr="👥 IA de comportement client">👥 Customer Behavior AI</h3>
+                            <div class="achievement-metric" data-tr="%95.8 davranış tanıma" data-en="95.8% behavior recognition" data-de="95,8% Verhaltenserkennung" data-fr="95,8% de reconnaissance de comportement">95.8% behavior recognition</div>
+                            <div class="achievement-metric" data-tr="6 akıllı segment" data-en="6 intelligent segments" data-de="6 intelligente Segmente" data-fr="6 segments intelligents">6 intelligent segments</div>
+                            <div class="achievement-metric" data-tr="Zincir yolculuk analizi" data-en="Chain journey analysis" data-de="Kettenreise-Analyse" data-fr="Analyse de parcours de chaîne">Chain journey analysis</div>
+                            <div class="achievement-metric" data-tr="Mesh müşteri öngörüleri" data-en="Mesh customer insights" data-de="Mesh-Kundeneinblicke" data-fr="Aperçus clients maillés">Mesh customer insights</div>
                         </div>
                         <div class="team-achievement">
-                            <h3 class="font-bold text-xl mb-3 text-purple-700 dark:text-purple-300">⚡ Advanced Automation</h3>
-                            <div class="achievement-metric">28 chain workflows</div>
-                            <div class="achievement-metric">82.3% automation success</div>
-                            <div class="achievement-metric">₺2.847M revenue impact</div>
-                            <div class="achievement-metric">Smart mesh processes</div>
+                            <h3 class="font-bold text-xl mb-3 text-purple-700 dark:text-purple-300" data-tr="⚡ Gelişmiş Otomasyon" data-en="⚡ Advanced Automation" data-de="⚡ Erweiterte Automatisierung" data-fr="⚡ Automatisation avancée">⚡ Advanced Automation</h3>
+                            <div class="achievement-metric" data-tr="28 zincir iş akışı" data-en="28 chain workflows" data-de="28 Ketten-Workflows" data-fr="28 flux de travail de chaîne">28 chain workflows</div>
+                            <div class="achievement-metric" data-tr="%82.3 otomasyon başarısı" data-en="82.3% automation success" data-de="82,3% Automatisierungserfolg" data-fr="82,3% de succès d'automatisation">82.3% automation success</div>
+                            <div class="achievement-metric" data-tr="₺2.847M gelir etkisi" data-en="₺2.847M revenue impact" data-de="₺2.847M Umsatzimpact" data-fr="₺2.847M d'impact sur les revenus">₺2.847M revenue impact</div>
+                            <div class="achievement-metric" data-tr="Akıllı mesh süreçleri" data-en="Smart mesh processes" data-de="Intelligente Mesh-Prozesse" data-fr="Processus de maillage intelligent">Smart mesh processes</div>
                         </div>
                         <div class="team-achievement">
-                            <h3 class="font-bold text-xl mb-3 text-amber-700 dark:text-amber-300">📊 Advanced Monitoring</h3>
-                            <div class="achievement-metric">98.6% system health</div>
-                            <div class="achievement-metric">24/7 chain monitoring</div>
-                            <div class="achievement-metric">Predictive alerts</div>
-                            <div class="achievement-metric">Mesh status tracking</div>
+                            <h3 class="font-bold text-xl mb-3 text-amber-700 dark:text-amber-300" data-tr="📊 Gelişmiş İzleme" data-en="📊 Advanced Monitoring" data-de="📊 Erweiterte Überwachung" data-fr="📊 Surveillance avancée">📊 Advanced Monitoring</h3>
+                            <div class="achievement-metric" data-tr="%98.6 sistem sağlığı" data-en="98.6% system health" data-de="98,6% Systemgesundheit" data-fr="98,6% de santé du système">98.6% system health</div>
+                            <div class="achievement-metric" data-tr="7/24 zincir izleme" data-en="24/7 chain monitoring" data-de="24/7 Kettenüberwachung" data-fr="Surveillance de chaîne 24/7">24/7 chain monitoring</div>
+                            <div class="achievement-metric" data-tr="Öngörülü uyarılar" data-en="Predictive alerts" data-de="Vorhersagbare Warnungen" data-fr="Alertes prédictives">Predictive alerts</div>
+                            <div class="achievement-metric" data-tr="Mesh durum takibi" data-en="Mesh status tracking" data-de="Mesh-Status-Verfolgung" data-fr="Suivi de l'état du maillage">Mesh status tracking</div>
                         </div>
                         <div class="team-achievement">
-                            <h3 class="font-bold text-xl mb-3 text-cyan-700 dark:text-cyan-300">🔧 Performance Optimization</h3>
-                            <div class="achievement-metric">94.7% efficiency gain</div>
-                            <div class="achievement-metric">Speed optimization</div>
-                            <div class="achievement-metric">Resource conservation</div>
-                            <div class="achievement-metric">Chain performance tuning</div>
+                            <h3 class="font-bold text-xl mb-3 text-cyan-700 dark:text-cyan-300" data-tr="🔧 Performans Optimizasyonu" data-en="🔧 Performance Optimization" data-de="🔧 Leistungsoptimierung" data-fr="🔧 Optimisation des performances">🔧 Performance Optimization</h3>
+                            <div class="achievement-metric" data-tr="%94.7 verimlilik kazancı" data-en="94.7% efficiency gain" data-de="94,7% Effizienzgewinn" data-fr="94,7% de gain d'efficacité">94.7% efficiency gain</div>
+                            <div class="achievement-metric" data-tr="Hız optimizasyonu" data-en="Speed optimization" data-de="Geschwindigkeitsoptimierung" data-fr="Optimisation de la vitesse">Speed optimization</div>
+                            <div class="achievement-metric" data-tr="Kaynak koruma" data-en="Resource conservation" data-de="Ressourcenschonung" data-fr="Conservation des ressources">Resource conservation</div>
+                            <div class="achievement-metric" data-tr="Zincir performans ayarı" data-en="Chain performance tuning" data-de="Ketten-Performance-Tuning" data-fr="Réglage des performances de chaîne">Chain performance tuning</div>
                         </div>
                         <div class="team-achievement">
-                            <h3 class="font-bold text-xl mb-3 text-teal-700 dark:text-teal-300">🔗 System Integration</h3>
-                            <div class="achievement-metric">97.8% integration success</div>
-                            <div class="achievement-metric">8 marketplace chains</div>
-                            <div class="achievement-metric">API mesh sync</div>
-                            <div class="achievement-metric">Cross-chain compatibility</div>
+                            <h3 class="font-bold text-xl mb-3 text-teal-700 dark:text-teal-300" data-tr="🔗 Sistem Entegrasyonu" data-en="🔗 System Integration" data-de="🔗 Systemintegration" data-fr="🔗 Intégration système">🔗 System Integration</h3>
+                            <div class="achievement-metric" data-tr="%97.8 entegrasyon başarısı" data-en="97.8% integration success" data-de="97,8% Integrationserfolg" data-fr="97,8% de succès d'intégration">97.8% integration success</div>
+                            <div class="achievement-metric" data-tr="8 pazaryeri zinciri" data-en="8 marketplace chains" data-de="8 Marktplatz-Ketten" data-fr="8 chaînes de marché">8 marketplace chains</div>
+                            <div class="achievement-metric" data-tr="API mesh senkronizasyonu" data-en="API mesh sync" data-de="API-Mesh-Sync" data-fr="Synchronisation de maillage API">API mesh sync</div>
+                            <div class="achievement-metric" data-tr="Çapraz zincir uyumluluğu" data-en="Cross-chain compatibility" data-de="Kettenübergreifende Kompatibilität" data-fr="Compatibilité inter-chaînes">Cross-chain compatibility</div>
                         </div>
                     </div>
                 </div>
@@ -2635,6 +2775,405 @@
             </section>
             </section>
     </div>
+
+    <!-- Multi-Language & Theme System JavaScript -->
+    <script>
+        // Multi-Language Support System
+        const translations = {
+            tr: {
+                // Header
+                'headerTitle': 'MesChain-Sync Süper Admin Dashboard',
+                'headerSubtitle': 'Süper Admin Dashboard v4.0',
+                'quickAccess': 'Hızlı Erişim',
+                'usageGuide': 'Kullanım Kılavuzu', 
+                'techManual': 'Teknik Kılavuz',
+                'systemReport': 'Sistem Raporu',
+                'backupManager': 'Yedek Yöneticisi',
+                'themes': 'Temalar',
+                'light': 'Aydınlık',
+                'dark': 'Karanlık',
+                'connecting': 'Bağlanıyor...',
+                'systemHealthy': 'Sistem Sağlıklı',
+                'superAdmin': 'Süper Admin',
+                'fullAccess': 'Tam Erişim',
+                
+                // Navigation
+                'dashboard': 'Dashboard',
+                'systemAnalytics': 'Sistem Analizi',
+                'userManagement': 'Kullanıcı Yönetimi',
+                'apiManagement': 'API Yönetimi',
+                'systemMonitoring': 'Sistem İzleme',
+                'securityCenter': 'Güvenlik Merkezi',
+                'settings': 'Ayarlar',
+                'systemLogs': 'Sistem Logları',
+                
+                // Dashboard Metrics
+                'totalUsers': 'Toplam Kullanıcı',
+                'activeSystems': 'Aktif Sistemler',
+                'securityScore': 'Güvenlik Skoru',
+                'systemPerformance': 'Sistem Performansı',
+                'activeConnections': 'Aktif Bağlantılar',
+                'totalTransactions': 'Toplam İşlemler',
+                'monthlyRevenue': 'Aylık Gelir',
+                'avgResponseTime': 'Ortalama Yanıt Süresi',
+                
+                // System Status
+                'online': 'Çevrimiçi',
+                'offline': 'Çevrimdışı',
+                'maintenance': 'Bakım',
+                'active': 'Aktif',
+                'inactive': 'Pasif',
+                'critical': 'Kritik',
+                'warning': 'Uyarı',
+                'success': 'Başarılı',
+                
+                // Buttons
+                'save': 'Kaydet',
+                'cancel': 'İptal',
+                'delete': 'Sil',
+                'edit': 'Düzenle',
+                'add': 'Ekle',
+                'refresh': 'Yenile',
+                'export': 'Dışa Aktar',
+                'import': 'İçe Aktar',
+                'backup': 'Yedekle',
+                'restore': 'Geri Yükle'
+            },
+            en: {
+                // Header
+                'headerTitle': 'MesChain-Sync Super Admin Dashboard',
+                'headerSubtitle': 'Super Admin Dashboard v4.0',
+                'quickAccess': 'Quick Access',
+                'usageGuide': 'Usage Guide',
+                'techManual': 'Technical Manual',
+                'systemReport': 'System Report',
+                'backupManager': 'Backup Manager',
+                'themes': 'Themes',
+                'light': 'Light',
+                'dark': 'Dark',
+                'connecting': 'Connecting...',
+                'systemHealthy': 'System Healthy',
+                'superAdmin': 'Super Admin',
+                'fullAccess': 'Full Access',
+                
+                // Navigation
+                'dashboard': 'Dashboard',
+                'systemAnalytics': 'System Analytics',
+                'userManagement': 'User Management',
+                'apiManagement': 'API Management',
+                'systemMonitoring': 'System Monitoring',
+                'securityCenter': 'Security Center',
+                'settings': 'Settings',
+                'systemLogs': 'System Logs',
+                
+                // Dashboard Metrics
+                'totalUsers': 'Total Users',
+                'activeSystems': 'Active Systems',
+                'securityScore': 'Security Score',
+                'systemPerformance': 'System Performance',
+                'activeConnections': 'Active Connections',
+                'totalTransactions': 'Total Transactions',
+                'monthlyRevenue': 'Monthly Revenue',
+                'avgResponseTime': 'Average Response Time',
+                
+                // System Status
+                'online': 'Online',
+                'offline': 'Offline',
+                'maintenance': 'Maintenance',
+                'active': 'Active',
+                'inactive': 'Inactive',
+                'critical': 'Critical',
+                'warning': 'Warning',
+                'success': 'Success',
+                
+                // Buttons
+                'save': 'Save',
+                'cancel': 'Cancel',
+                'delete': 'Delete',
+                'edit': 'Edit',
+                'add': 'Add',
+                'refresh': 'Refresh',
+                'export': 'Export',
+                'import': 'Import',
+                'backup': 'Backup',
+                'restore': 'Restore'
+            },
+            de: {
+                // Header
+                'headerTitle': 'MesChain-Sync Super Admin Dashboard',
+                'headerSubtitle': 'Super Admin Dashboard v4.0',
+                'quickAccess': 'Schnellzugriff',
+                'usageGuide': 'Benutzerhandbuch',
+                'techManual': 'Technisches Handbuch',
+                'systemReport': 'Systembericht',
+                'backupManager': 'Backup-Manager',
+                'themes': 'Themen',
+                'light': 'Hell',
+                'dark': 'Dunkel',
+                'connecting': 'Verbinde...',
+                'systemHealthy': 'System Gesund',
+                'superAdmin': 'Super Admin',
+                'fullAccess': 'Vollzugriff',
+                
+                // Navigation
+                'dashboard': 'Dashboard',
+                'systemAnalytics': 'Systemanalyse',
+                'userManagement': 'Benutzerverwaltung',
+                'apiManagement': 'API-Verwaltung',
+                'systemMonitoring': 'Systemüberwachung',
+                'securityCenter': 'Sicherheitszentrum',
+                'settings': 'Einstellungen',
+                'systemLogs': 'Systemprotokolle'
+            },
+            fr: {
+                // Header
+                'headerTitle': 'MesChain-Sync Tableau de Bord Super Admin',
+                'headerSubtitle': 'Tableau de Bord Super Admin v4.0',
+                'quickAccess': 'Accès Rapide',
+                'usageGuide': 'Guide d\'Utilisation',
+                'techManual': 'Manuel Technique',
+                'systemReport': 'Rapport Système',
+                'backupManager': 'Gestionnaire de Sauvegarde',
+                'themes': 'Thèmes',
+                'light': 'Clair',
+                'dark': 'Sombre',
+                'connecting': 'Connexion...',
+                'systemHealthy': 'Système Sain',
+                'superAdmin': 'Super Admin',
+                'fullAccess': 'Accès Complet',
+                
+                // Navigation
+                'dashboard': 'Tableau de Bord',
+                'systemAnalytics': 'Analyses Système',
+                'userManagement': 'Gestion des Utilisateurs',
+                'apiManagement': 'Gestion API',
+                'systemMonitoring': 'Surveillance Système',
+                'securityCenter': 'Centre de Sécurité',
+                'settings': 'Paramètres',
+                'systemLogs': 'Journaux Système'
+            }
+        };
+
+        // Current language state
+        let currentLanguage = localStorage.getItem('meschain-language') || 'tr';
+        let currentTheme = localStorage.getItem('meschain-theme') || 'light';
+
+        // Language functions
+        function toggleLanguageMenu() {
+            const menu = document.getElementById('languageMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('meschain-language', lang);
+            
+            // Update current language display
+            const currentLangElement = document.getElementById('currentLanguage');
+            if (currentLangElement) {
+                currentLangElement.textContent = lang.toUpperCase();
+            }
+            
+            // Update HTML lang attribute
+            document.documentElement.lang = lang;
+            
+            // Apply translations
+            applyTranslations();
+            
+            // Hide language menu
+            document.getElementById('languageMenu').classList.add('hidden');
+            
+            // Show notification
+            showNotification(`Dil değiştirildi: ${lang.toUpperCase()}`, 'success');
+        }
+
+        function applyTranslations() {
+            // Update all elements with data-tr, data-en, etc. attributes
+            const elements = document.querySelectorAll('[data-tr], [data-en], [data-de], [data-fr]');
+            
+            elements.forEach(element => {
+                const translationKey = `data-${currentLanguage}`;
+                const translation = element.getAttribute(translationKey);
+                
+                if (translation) {
+                    if (element.tagName === 'INPUT' && element.type === 'text') {
+                        element.placeholder = translation;
+                    } else {
+                        element.textContent = translation;
+                    }
+                }
+            });
+
+            // Update elements with translation keys
+            Object.keys(translations[currentLanguage]).forEach(key => {
+                const elements = document.querySelectorAll(`[data-translate="${key}"]`);
+                elements.forEach(element => {
+                    if (element.tagName === 'INPUT' && element.type === 'text') {
+                        element.placeholder = translations[currentLanguage][key];
+                    } else {
+                        element.textContent = translations[currentLanguage][key];
+                    }
+                });
+            });
+        }
+
+        // Theme functions
+        function toggleTheme() {
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('meschain-theme', theme);
+            
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                themeIcon.className = 'ph ph-moon text-xl text-blue-400';
+                if (themeText) {
+                    themeText.setAttribute('data-tr', 'Karanlık');
+                    themeText.setAttribute('data-en', 'Dark');
+                    applyTranslations();
+                }
+            } else {
+                html.classList.remove('dark');
+                themeIcon.className = 'ph ph-sun text-xl text-yellow-500';
+                if (themeText) {
+                    themeText.setAttribute('data-tr', 'Aydınlık');
+                    themeText.setAttribute('data-en', 'Light');
+                    applyTranslations();
+                }
+            }
+            
+            // Show notification
+            const themeMsg = theme === 'dark' ? 'Karanlık mod aktif' : 'Aydınlık mod aktif';
+            showNotification(themeMsg, 'info');
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.meschain-notification');
+            existingNotifications.forEach(notif => notif.remove());
+            
+            // Create notification
+            const notification = document.createElement('div');
+            notification.className = `meschain-notification fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg transition-all duration-300 transform translate-x-full`;
+            
+            // Set colors based on type
+            let bgColor, textColor, icon;
+            switch (type) {
+                case 'success':
+                    bgColor = 'bg-green-500';
+                    textColor = 'text-white';
+                    icon = 'ph-check-circle';
+                    break;
+                case 'error':
+                    bgColor = 'bg-red-500';
+                    textColor = 'text-white';
+                    icon = 'ph-x-circle';
+                    break;
+                case 'warning':
+                    bgColor = 'bg-yellow-500';
+                    textColor = 'text-white';
+                    icon = 'ph-warning';
+                    break;
+                default:
+                    bgColor = 'bg-blue-500';
+                    textColor = 'text-white';
+                    icon = 'ph-info';
+            }
+            
+            notification.className += ` ${bgColor} ${textColor}`;
+            notification.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <i class="ph ${icon} text-lg"></i>
+                    <span class="font-medium">${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Close menus when clicking outside
+        document.addEventListener('click', function(event) {
+            const languageMenu = document.getElementById('languageMenu');
+            const languageToggle = document.getElementById('languageToggle');
+            
+            if (languageMenu && !languageToggle.contains(event.target) && !languageMenu.contains(event.target)) {
+                languageMenu.classList.add('hidden');
+            }
+        });
+
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial theme
+            setTheme(currentTheme);
+            
+            // Set initial language
+            setLanguage(currentLanguage);
+            
+            // Update language display
+            const currentLangElement = document.getElementById('currentLanguage');
+            if (currentLangElement) {
+                currentLangElement.textContent = currentLanguage.toUpperCase();
+            }
+            
+            console.log('✅ Multi-language and theme system initialized');
+            console.log(`🌍 Current language: ${currentLanguage}`);
+            console.log(`🎨 Current theme: ${currentTheme}`);
+        });
+
+        // Additional utility functions
+        function toggleQuickAccess() {
+            const menu = document.getElementById('quickAccessMenu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        function toggleThemeSelector() {
+            const selector = document.getElementById('themeSelector');
+            if (selector) {
+                selector.classList.toggle('hidden');
+            }
+        }
+
+        function openUsageGuide() {
+            showNotification('Kullanım kılavuzu açılıyor...', 'info');
+        }
+
+        function openTechnicalManual() {
+            showNotification('Teknik kılavuz açılıyor...', 'info');
+        }
+
+        function generateSystemReport() {
+            showNotification('Sistem raporu oluşturuluyor...', 'info');
+        }
+
+        function openBackupManager() {
+            showNotification('Yedek yöneticisi açılıyor...', 'info');
+        }
+
+        function openSettings() {
+            showNotification('Ayarlar açılıyor...', 'info');
+        }
+    </script>
 
     <script src="meschain_sync_super_admin.js"></script>
 </body>
