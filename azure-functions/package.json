@@ -5,9 +5,15 @@
   "main": "src/functions.js",
   "scripts": {
     "start": "func start",
-    "test": "jest",
+    "start:production": "func start --javascript",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
     "build": "tsc",
-    "watch": "tsc -w"
+    "build:production": "tsc --sourceMap false --declaration false",
+    "watch": "tsc -w",
+    "optimize": "npm run build:production && npm run performance:analyze",
+    "performance:analyze": "node scripts/performance-analyzer.js",
+    "supreme:start": "echo '🔥 VSCODE SUPREME FUNCTIONS BAŞLADI!' && npm run build:production && func start"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
@@ -15,7 +21,16 @@
     "axios": "^1.6.0",
     "jsonwebtoken": "^9.0.0",
     "mysql2": "^3.6.0",
-    "redis": "^4.6.0"
+    "redis": "^4.6.0",
+    "express": "^4.18.0",
+    "compression": "^1.7.4",
+    "helmet": "^7.0.0",
+    "cors": "^2.8.5",
+    "ioredis": "^5.3.0",
+    "pino": "^8.15.0",
+    "pino-pretty": "^10.2.0",
+    "fast-json-stringify": "^5.8.0",
+    "node-cache": "^5.1.2"
   },
   "devDependencies": {
     "@types/jest": "^29.0.0",

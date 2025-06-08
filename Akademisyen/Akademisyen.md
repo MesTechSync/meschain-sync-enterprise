@@ -61,7 +61,7 @@ Bu projenin başarısı, kapsamlı ve iyi tanımlanmış paydaş yapısına bağ
 - **Teknik Ekip:**   
   - **Back-End Geliştiricileri:** OpenCart çekirdeği ve mikro servisler üzerinde çalışarak API entegrasyon yöntemlerini geliştirir.  
   - **Front-End Geliştiricileri:** Kullanıcı arayüzü (UI) ve deneyim (UX) tasarımlarının oluşturulmasından sorumludur.  
-  - **API Geliştiricileri:** Harici pazaryeri API’leri ile entegrasyonu sağlamak için gerekli kodlamaları yapar ve veri alışverişini optimize eder.  
+  - **API Geliştiricileri:** Harici pazaryeri API'leri ile entegrasyonu sağlamak için gerekli kodlamaları yapar ve veri alışverişini optimize eder.  
 - **Güvenlik Uzmanları:** Veri güvenliği ve kullanıcı erişimlerinin düzenlenmesi için rol tabanlı erişim kontrol mekanizmalarını tasarlar ve uygular.  
 - **Destek ve Operasyon Ekibi:** Günlük sistem operasyonlarının düzgün çalışmasını sağlar, sorun giderme ve bakım işlemlerini yürütür.  
 
@@ -69,7 +69,7 @@ Bu projenin başarısı, kapsamlı ve iyi tanımlanmış paydaş yapısına bağ
 Her paydaş, projenin farklı aşamalarında belirli rolleri üstlenmektedir:  
 - **Proje Yöneticisi:** Kaynak planlaması, proje ilerleme raporlaması ve stratejik toplantıların düzenlenmesinden sorumludur.  
 - **Geliştirme Ekibi:** Fonksiyonel gereksinimlere uygun yeni modüllerin geliştirilmesi, test süreçleri ve kod entegrasyonu gibi teknik görevleri üstlenir.  
-- **Entegrasyon Ekibi:** Dış API’lerin entegrasyonu ve gerçek zamanlı veri senkronizasyonunu sağlamak amacıyla mikro servislerin ve mesaj kuyruklarının (RabbitMQ) yapılandırılmasını gerçekleştirir.  
+- **Entegrasyon Ekibi:** Dış API'lerin entegrasyonu ve gerçek zamanlı veri senkronizasyonunu sağlamak amacıyla mikro servislerin ve mesaj kuyruklarının (RabbitMQ) yapılandırılmasını gerçekleştirir.  
 - **Kalite Güvence Ekibi:** Sistem testleri, A/B test uygulamaları ve performans değerlendirmeleri ile platformun kullanıcı beklentilerini ve teknik gereksinimleri karşıladığından emin olur.  
 
 Aşağıdaki tabloda, projenin ana paydaşları ve bu paydaşların üstlendiği roller özetlenmiştir:  
@@ -103,14 +103,14 @@ Projenin başarılı bir şekilde hayata geçirilebilmesi için sistemin karşı
 - **Veri Güvenliği:** Tüm müşteri ve satış verileri, SSL sertifikaları ve benzeri güvenlik teknolojileri ile korunmalıdır. Böylece, veri sızıntısı veya yetkisiz erişim riski minimize edilir.  
 
 ### 4.3 API Tabanlı Entegrasyon  
-- **RESTful API’ler:** Platform, satış verileri, ürün envanteri ve sipariş işlemleri için RESTful API’ler aracılığıyla hem dahili hem de harici sistemlerle veri alışverişi yapabilecek şekilde tasarlanmalıdır.  
-- **Gerçek Zamanlı Veri Senkronizasyonu:** API entegrasyonu sayesinde, tüm pazaryeri kanallarındaki veriler anlık olarak güncellenmeli ve senkronize edilmelidir. Bu, stok yönetimi ve fiyat güncellemeleri gibi işlemlerde hata payını azaltır.  
-- **WebSocket Desteği:** Gerçek zamanlı bildirim ve veri aktarımı için WebSocket teknolojisinin kullanılması, siparişlerin anında güncellenmesi ve kullanıcı bilgilendirmesi açısından kritik öneme sahiptir.  
+- **RESTful API'ler:** Platform, harici platformlarla veri alışverişini sağlamak üzere RESTful API'ler ile entegre edilmiştir. Bu sayede, ürün güncellemeleri, stok bilgileri ve sipariş detayları anlık olarak güncellenmektedir.  
+- **WebSocket Desteği:** Gerçek zamanlı bildirimler ve anlık veri aktarımı için WebSocket teknolojileri kullanılmaktadır. Bu sayede, sipariş durumundaki değişiklikler anında kullanıcı arayüzüne yansımaktadır.  
+- **Entegrasyon Testleri:** API entegrasyon aşamalarında, A/B testleri ve performans ölçümleri yapılarak, veri akışında herhangi bir gecikmenin veya hata payının minimize edilmesi hedeflenmiştir.  
 
 ### 4.4 Kullanıcı Deneyimi (UX) ve Arayüz Tasarımı  
 - **Duyarlı Tasarım:** Platform, masaüstü, tablet ve mobil cihazlarda sorunsuz çalışacak şekilde duyarlı (responsive) tasarım prensipleri ile geliştirilmelidir.  
 - **Kullanıcı Dostu Arayüz:** Hem yönetici hem de satıcılar için sezgisel ve kolay kullanılabilir arayüzler oluşturulmalıdır.  
-- **Özelleştirilebilir Dashboard:** Kullanıcılar, kişiselleştirilebilir dashboard’lar aracılığıyla istatistiksel verilere, raporlara ve sipariş durumlarına anında erişebilmelidir.  
+- **Özelleştirilebilir Dashboard:** Kullanıcılar, kişiselleştirilebilir dashboard'lar aracılığıyla istatistiksel verilere, raporlara ve sipariş durumlarına anında erişebilmelidir.  
 
 Aşağıdaki tablo, fonksiyonel gereksinimlerin ana kategorilerini ve her bir kategori için öngörülen ana özellikleri özetlemektedir:  
 
@@ -118,7 +118,7 @@ Aşağıdaki tablo, fonksiyonel gereksinimlerin ana kategorilerini ve her bir ka
 |--------------------------------|--------------------------------------------------------------------------------------------------------------------------|  
 | Ürün Yönetimi ve Satış İşlemleri | Çoklu pazaryeri entegrasyonu, dropshipping, ürün kataloğu, sipariş takibi, raporlama                                      |  
 | Rol Tabanlı Erişim             | Kullanıcı rolleri belirleme, erişim kontrol mekanizmaları, iki faktörlü kimlik doğrulama                                  |  
-| API Entegrasyonu               | RESTful API’ler, gerçek zamanlı veri senkronizasyonu, WebSocket desteği                                                  |  
+| API Entegrasyonu               | RESTful API'ler, gerçek zamanlı veri senkronizasyonu, WebSocket desteği                                                  |  
 | Kullanıcı Deneyimi             | Duyarlı tasarım, kullanıcı dostu arayüz, özelleştirilebilir dashboard                                                      |  
 
 Bu kapsamlı fonksiyonel gereksinimler dizisi, projenin temel işlevlerinin ve kullanıcı beklentilerinin karşılanmasını garanti eder niteliktedir.  
@@ -132,8 +132,8 @@ Projenin sistem mimarisi, OpenCart çekirdeği üzerinde çoklu pazaryeri kontro
 Sistem mimarisi aşağıdaki temel bileşenlerden oluşmaktadır:  
 
 - **Kullanıcı Arayüzü (UI):** React veya Vue tabanlı duyarlı kullanıcı arayüzü, kullanıcıların platform ile etkileşimde bulunmasını sağlar.  
-- **API Geçidi (API Gateway):** RESTful istekleri kabul eden, verileri işleyen ve geriye yanıt veren temel bileşen. Bu katman, dış pazaryeri API’leriyle de entegrasyonu koordine eder.  
-- **OpenCart Çekirdeği ve Yönetim Panosu:** OpenCart’ın değişmemiş çekirdeği, yönetici işlemlerini ve veri depolamayı gerçekleştirir. Sisteme yeni işlevler eklenirken orjinal yapı korunmuştur.  
+- **API Geçidi (API Gateway):** RESTful istekleri kabul eden, verileri işleyen ve geriye yanıt veren temel bileşen. Bu katman, dış pazaryeri API'leriyle de entegrasyonu koordine eder.  
+- **OpenCart Çekirdeği ve Yönetim Panosu:** OpenCart'ın değişmemiş çekirdeği, yönetici işlemlerini ve veri depolamayı gerçekleştirir. Sisteme yeni işlevler eklenirken orjinal yapı korunmuştur.  
 - **Mikro Servisler:** Çoklu pazaryeri entegrasyonları, Amazon, Etsy, eBay, Trendyol gibi platformlar için ayrı mikro servisler aracılığıyla yürütülür.  
 - **Servis Katmanı (PHP):** OpenCart çekirdeğinden alınan girdileri işleyen, iş kuralları ve veri dönüşümlerini gerçekleştiren katmandır.  
 - **Mesaj Kuyruğu (RabbitMQ):** Birden fazla mikro servis arasında senkronize veri akışı ve iş taleplerinin dağıtımını sağlamak üzere kullanılır.  
@@ -198,12 +198,12 @@ Bu şema, sistem içerisindeki verilerin nasıl düzenlendiğini açık ve net b
 Projede, OpenCart tabanlı platformun çoklu pazaryeri entegrasyonu sayesinde, satış süreçleri, dropshipping işlemleri ve gerçek zamanlı veri senkronizasyonu gibi kritik fonksiyonlar kapsamlı bir şekilde ele alınmıştır.  
 
 ### 7.1 API Entegrasyonu  
-- **RESTful API Kullanımı:** Platform, harici platformlarla veri alışverişini sağlamak üzere RESTful API’ler ile entegre edilmiştir. Bu sayede, ürün güncellemeleri, stok bilgileri ve sipariş detayları anlık olarak güncellenmektedir.  
+- **RESTful API Kullanımı:** Platform, harici platformlarla veri alışverişini sağlamak üzere RESTful API'ler ile entegre edilmiştir. Bu sayede, ürün güncellemeleri, stok bilgileri ve sipariş detayları anlık olarak güncellenmektedir.  
 - **WebSocket Desteği:** Gerçek zamanlı bildirimler ve anlık veri aktarımı için WebSocket teknolojileri kullanılmaktadır. Bu sayede, sipariş durumundaki değişiklikler anında kullanıcı arayüzüne yansımaktadır.  
 - **Entegrasyon Testleri:** API entegrasyon aşamalarında, A/B testleri ve performans ölçümleri yapılarak, veri akışında herhangi bir gecikmenin veya hata payının minimize edilmesi hedeflenmiştir.  
 
 ### 7.2 Dış Pazaryeri Entegrasyonları  
-- **Amazon, Etsy, eBay, Trendyol:** Her bir pazaryeri için ayrı mikro servisler geliştirilmiştir. Bu servisler, ilgili platformların API’leri ile iletişime geçerek veri alışverişini sağlar ve ürün, sipariş ve stok bilgilerini güncel tutar.  
+- **Amazon, Etsy, eBay, Trendyol:** Her bir pazaryeri için ayrı mikro servisler geliştirilmiştir. Bu servisler, ilgili platformların API'leri ile iletişime geçerek veri alışverişini sağlar ve ürün, sipariş ve stok bilgilerini güncel tutar.  
 - **Veri Senkronizasyonu:** Entegrasyon sürecinde, veri senkronizasyonu için mesaj kuyruğu mekanizması (RabbitMQ) kullanılarak, tüm platformlardaki bilgilerin tutarlılığı ve güncelliği sağlanmaktadır.  
 - **Hata Yönetimi:** Entegrasyon sırasında oluşabilecek hatalar, uygun logging ve uyarı sistemleri ile anında tespit edilip giderilmektedir. Böylece, operasyonel aksaklıklar minimuma indirgenmiştir.  
 
@@ -276,7 +276,7 @@ Proje için belirlenen 12 haftalık yol haritası, geliştirme aşamalarını, e
   - İlk prototiplerin oluşturulması  
 - **4. Hafta:**  
   - Mikro servislerin geliştirilmesine yönelik çalışma  
-  - Harici pazaryeri API’leri ile ilk entegrasyon denemeleri  
+  - Harici pazaryeri API'leri ile ilk entegrasyon denemeleri  
 - **5. Hafta:**  
   - Veri tabanı şemasının oluşturulması  
   - Roller ve erişim kontrollerinin yapılandırılması  
@@ -346,7 +346,7 @@ Bu stratejiler, sistemin sadece bugünkü gereksinimlere değil, gelecekteki bü
 Her teknoloji projesinde olduğu gibi, projenin hayata geçirilmesi sürecinde çeşitli riskler ve belirsizlikler bulunmaktadır. Bu bölümde, öngörülen riskler ve bu risklerin minimize edilmesine yönelik alınan önlemler detaylı olarak ele alınmaktadır.  
 
 ### 12.1 Öngörülen Riskler  
-- **Entegrasyon Hataları:** Dış pazaryeri API’leri ile veri alışverişinde oluşabilecek senkronizasyon sorunları.  
+- **Entegrasyon Hataları:** Dış pazaryeri API'leri ile veri alışverişinde oluşabilecek senkronizasyon sorunları.  
 - **Güvenlik Tehditleri:** Siber saldırılar, veri şifreleme açıkları ve yetkisiz erişim riskleri.  
 - **Performans Problemleri:** Artan kullanıcı yükü ve yoğun veri trafiğinde sistem yanıt süresinin düşmesi.  
 - **Planlanan Zaman Çizelgesine Uymama:** Proje aşamalarında gecikmeler yaşanması.  
@@ -390,7 +390,7 @@ Bu proje, modern e-ticaret ihtiyaçlarına cevap verebilen, güvenli, ölçeklen
 ---  
 
 ## Genel Değerlendirme ve Gelecek Öngörüleri  
-Proje kapsamında elde edilen veriler ve deneyimler, geleceğe yönelik çeşitli gelişim alanlarını da ortaya koymaktadır. Gelecekte, yapay zeka destekli analiz araçlarının entegre edilmesi, satış trendlerinin öngörülmesi ve müşteri öneri sistemlerinin geliştirilmesi gibi ek modüller eklenerek platformun rekabet gücünün daha da artırılması hedeflenmektedir. Ayrıca, blockchain teknolojilerinin entegrasyonu ile ödeme süreçlerinin daha şeffaf ve güvenli hale getirilmesi planlanmaktadır.  
+Proje kapsamında elde edilen veriler ve deneyimler, geleceğe yönelik çeşitli gelişim alanlarını da ortaya koymaktadır. Gelecekte, yapay zeka destekli analiz araçlarının entegre edilmesi, satış trendlerinin öngörülmesi ve müşteri öneri sistemlerinin geliştirilmesi gibi ek modüller eklenerek platformun rekabet gücünün daha da artırılması hedeflenmektedir. Ayrıca, blockchain teknolojilerinin entegrasyonu ile ödeme süreçlerinin daha şeffaf ve güvenli hale getirilmesi planlanmaktadır.
 
 Güncel e-ticaret trendleri çerçevesinde, sistemin sürekli geliştirilmesi ve yenilikçi teknolojilerin entegrasyonu, işletmelerin pazardaki rekabet gücünü artıracaktır. Projeyi geliştiren ekip, düzenli güncellemeler ve müşteri geri bildirimleri ile sürekli iyileştirme prensibini benimsemiştir. Bu yaklaşım, sistemin yalnızca bugünkü gereksinimlere değil, gelecekteki değişimlere de uyum sağlayabilecek dinamik bir yapıya sahip olmasını garanti eder.  
 
@@ -408,27 +408,6 @@ Bu rapor, "OpenCart Tabanlı Çoklu Pazaryeri Kontrol Paneli: Algoritmalar, API 
 - Sürekli izleme ve bakım süreçleri sayesinde operasyonel kesintilerin minimize edilmesi  
 
 Bu özellikler, platformun hem işletmelerin stratejik hedeflerine ulaşmasında hem de müşterilere güvenli ve sorunsuz bir alışveriş deneyimi sunulmasında kritik rol oynamaktadır. Geleceğe dönük olarak, sistemin yeni teknolojilerle entegre edilmesi ve ek modüllerle zenginleştirilmesi, projenin e-ticaret sektöründeki yerini daha da sağlamlaştıracaktır.  
-
----  
-
-## Genel Sonuç ve Öneriler  
-Projenin başarılı bir şekilde hayata geçirilmesi, aşağıdaki temel sonuçları ve önerileri beraberinde getirmiştir:  
-
-- **Sonuçlar:**  
-  1. OpenCart tabanlı sistem, mevcut e-ticaret altyapılarına kolaylıkla entegre olabilen güvenli ve ölçeklenebilir bir çözüm sunmaktadır.  
-  2. API entegrasyonları sayesinde, çoklu pazaryerlerinden gelen veriler gerçek zamanlı olarak senkronize edilmekte, bu da stok yönetimi ve sipariş takibi konularında önemli avantajlar sağlamaktadır.  
-  3. Rol tabanlı erişim mekanizmaları, sistemin hem teknik hem de güvenlik açısından yüksek standartlara ulaşmasını garanti eder.  
-  4. CI/CD süreçleri ve otomasyon testleri, yazılım güncellemelerinin hızlı ve güvenli bir şekilde uygulanmasını sağlamaktadır.  
-  5. Sistem mimarisinin modüler yapısı, gelecekte eklenecek yeni özellikler ve teknolojiler için genişleme imkanı sunmaktadır.  
-
-- **Öneriler:**  
-  1. Yapay zeka destekli analiz ve öneri sistemleri entegre edilerek, satış trendlerinin öngörülmesi ve müşteri deneyiminin daha da kişiselleştirilmesi sağlanabilir.  
-  2. Blockchain teknolojilerinin ödeme ve ürün izlenebilirliği süreçlerine entegre edilmesiyle, şeffaflık ve güven artırıcı önlemler geliştirilebilir.  
-  3. Düzenli aralıklarla gerçekleştirilecek güvenlik denetimleri ve performans testleri, sistemin sürekli güncel ve güvenli kalmasını sağlayacaktır.  
-  4. Müşteri geri bildirimlerine dayalı iyileştirme çalışmalarının sürdürülmesi, platformun kullanıcı dostu deneyimini devam ettirecektir.  
-  5. Gelecekte, uluslararası pazarlarda daha geniş kapsamlı entegrasyonların yapılması, sistemin rekabet gücünü artıracaktır.  
-
-Bu sonuçlar ve öneriler, OpenCart tabanlı platformun hem mevcut hem de gelecekteki e-ticaret ihtiyaçlarına yönelik kapsamlı bir çözüm sunduğunu ortaya koymaktadır. Proje, teknolojik altyapısının yanı sıra, operasyonel süreçlerde sağladığı verimlilik ve güvenlik avantajlarıyla sektörde fark yaratmaya devam edecektir.  
 
 ---  
 
@@ -451,12 +430,12 @@ _Açıklama:_ Aşağıdaki tablo, API entegrasyon süreçleri, dış pazaryeri e
 ### Görsel 3: Güvenlik ve Erişim Kontrol Süreç Akışı  
 _Açıklama:_ Bu şema, sistemdeki kullanıcı doğrulama, rol tabanlı erişim kontrolleri ve güvenlik protokollerinin entegrasyon sürecini grafiksel olarak özetlemektedir.  
 
-```mermaid  
-flowchart TD  
-    A["\"Kullanıcı Girişi\""] --> B["\"Çok Katmanlı Kimlik Doğrulaması\""]  
-    B --> C["\"Rol Belirleme\""]  
-    C --> D["\"Erişim İzinleri Kontrolü\""]  
-    D --> E["\"Güvenli Oturum Yönetimi\""]  
+```mermaid
+graph TD
+    A["\"Kullanıcı Girişi\""] --> B["\"Çok Katmanlı Kimlik Doğrulaması\""]
+    B --> C["\"Rol Belirleme\""]
+    C --> D["\"Erişim İzinleri Kontrolü\""]
+    D --> E["\"Güvenli Oturum Yönetimi\""]
 ```  
 
 ---  
@@ -483,9 +462,7 @@ Geliştirilen sistem, modern e-ticaret ihtiyaçlarını karşılamakla kalmayıp
 ✅ **Amazon & eBay Integration** - Marketplace otomasyonu  
 ✅ **Smart Inventory Management** - Intelligent stok yönetimi  
 
-### ❌ Trendyol Hariç Tutuldu:
-🚫 **Trendyol entegrasyonu** VSCode ekibi ve proje sahibi tarafından yapılacak  
-✅ **Alternatif odak:** Amazon, eBay, performance optimization, multi-vendor sistem  
+
 
 ### 📄 Doküman Lokasyonu:
 📁 **Dosya:** `YENI_OPENCART_GOREVLERI_HAZIRAN2025.md`  
