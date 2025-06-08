@@ -1,0 +1,99 @@
+{
+  "version": "2.0",
+  "functionAppScaleLimit": 200,
+  "functions": [
+    {
+      "name": "negotiate",
+      "bindings": [
+        {
+          "authLevel": "anonymous",
+          "type": "httpTrigger",
+          "direction": "in",
+          "name": "req",
+          "methods": ["post"]
+        },
+        {
+          "type": "http",
+          "direction": "out",
+          "name": "res"
+        },
+        {
+          "type": "signalRConnectionInfo",
+          "name": "connectionInfo",
+          "direction": "in",
+          "hubName": "MesChainHub",
+          "connectionStringSetting": "SignalRConnectionString"
+        }
+      ]
+    },
+    {
+      "name": "adminDashboardUpdater",
+      "bindings": [
+        {
+          "name": "timerTrigger",
+          "type": "timerTrigger",
+          "direction": "in",
+          "schedule": "0 */30 * * * *"
+        },
+        {
+          "type": "signalR",
+          "name": "signalRMessages",
+          "direction": "out",
+          "hubName": "MesChainAdminHub",
+          "connectionStringSetting": "SignalRConnectionString"
+        }
+      ]
+    },
+    {
+      "name": "marketplaceSyncHandler",
+      "bindings": [
+        {
+          "authLevel": "function",
+          "type": "httpTrigger",
+          "direction": "in",
+          "name": "req",
+          "methods": ["post"]
+        },
+        {
+          "type": "http",
+          "direction": "out",
+          "name": "res"
+        },
+        {
+          "type": "signalR",
+          "name": "signalRMessages",
+          "direction": "out",
+          "hubName": "MesChainMarketplaceHub",
+          "connectionStringSetting": "SignalRConnectionString"
+        }
+      ]
+    },
+    {
+      "name": "signalRMessages",
+      "bindings": [
+        {
+          "type": "signalRTrigger",
+          "name": "invocation",
+          "direction": "in",
+          "hubName": "MesChainHub"
+        },
+        {
+          "type": "signalR",
+          "name": "signalRGroupActions",
+          "direction": "out",
+          "hubName": "MesChainHub",
+          "connectionStringSetting": "SignalRConnectionString"
+        }
+      ]
+    }
+  ],
+  "extensions": {
+    "signalRService": {
+      "connectionString": "SignalRConnectionString"
+    }
+  },
+  "extensionBundle": {
+    "id": "Microsoft.Azure.Functions.ExtensionBundle",
+    "version": "[4.*, 5.0.0)"
+  }
+}
