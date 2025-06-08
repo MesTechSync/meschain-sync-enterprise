@@ -1,0 +1,910 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <button type="button" id="start-analytics" class="btn btn-success">
+                    <i class="fa fa-brain"></i> {{ text_start_analytics }}
+                </button>
+                <button type="button" id="train-models" class="btn btn-warning">
+                    <i class="fa fa-cogs"></i> {{ text_train_models }}
+                </button>
+                <button type="button" id="export-insights" class="btn btn-primary">
+                    <i class="fa fa-download"></i> {{ text_export_insights }}
+                </button>
+                <button type="button" id="refresh-data" class="btn btn-info">
+                    <i class="fa fa-refresh"></i> {{ text_refresh }}
+                </button>
+            </div>
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- AI Analytics Overview Cards -->
+        <div class="row">
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-brain fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge" id="ai-accuracy">0%</div>
+                                <div>{{ text_ai_accuracy }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span class="pull-left" id="ai-status">{{ text_processing }}</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-green">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-line-chart fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge" id="predictions-count">0</div>
+                                <div>{{ text_predictions_generated }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span class="pull-left" id="predictions-status">{{ text_forecasting }}</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-yellow">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-lightbulb-o fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge" id="insights-count">0</div>
+                                <div>{{ text_insights_generated }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span class="pull-left" id="insights-status">{{ text_analyzing }}</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-red">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-database fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge" id="data-quality">0%</div>
+                                <div>{{ text_data_quality }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span class="pull-left" id="data-status">{{ text_monitoring }}</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Analytics Charts -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-area-chart fa-fw"></i> {{ text_predictive_analytics }}
+                    </div>
+                    <div class="panel-body">
+                        <canvas id="predictiveAnalyticsChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-pie-chart fa-fw"></i> {{ text_model_performance }}
+                    </div>
+                    <div class="panel-body">
+                        <canvas id="modelPerformanceChart" width="200" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Machine Learning Models & Real-time Analytics -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-cogs fa-fw"></i> {{ text_ml_models }}
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-xs btn-success" id="train-new-model">
+                                <i class="fa fa-plus"></i> {{ text_train_new }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>{{ text_model_name }}</th>
+                                        <th>{{ text_accuracy }}</th>
+                                        <th>{{ text_status }}</th>
+                                        <th>{{ text_last_trained }}</th>
+                                        <th>{{ text_actions }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ml-models-table">
+                                    <tr>
+                                        <td colspan="5" class="text-center">{{ text_loading }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-tachometer fa-fw"></i> {{ text_real_time_analytics }}
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="description-block">
+                                    <span class="description-percentage text-green" id="stream-throughput">0</span>
+                                    <h5 class="description-header">{{ text_stream_throughput }}</h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="description-block">
+                                    <span class="description-percentage text-blue" id="processing-latency">0ms</span>
+                                    <h5 class="description-header">{{ text_processing_latency }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="description-block">
+                                    <span class="description-percentage text-yellow" id="anomalies-detected">0</span>
+                                    <h5 class="description-header">{{ text_anomalies_detected }}</h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="description-block">
+                                    <span class="description-percentage text-red" id="alerts-generated">0</span>
+                                    <h5 class="description-header">{{ text_alerts_generated }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Insights & Forecasting -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-lightbulb-o fa-fw"></i> {{ text_automated_insights }}
+                    </div>
+                    <div class="panel-body">
+                        <div id="insights-container">
+                            <div class="text-center">{{ text_loading_insights }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-crystal-ball fa-fw"></i> {{ text_business_forecasts }}
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>{{ text_forecast_type }}</label>
+                            <select class="form-control" id="forecast-type">
+                                <option value="sales">{{ text_sales_forecast }}</option>
+                                <option value="revenue">{{ text_revenue_forecast }}</option>
+                                <option value="demand">{{ text_demand_forecast }}</option>
+                                <option value="inventory">{{ text_inventory_forecast }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>{{ text_forecast_horizon }}</label>
+                            <select class="form-control" id="forecast-horizon">
+                                <option value="7">{{ text_7_days }}</option>
+                                <option value="30">{{ text_30_days }}</option>
+                                <option value="90">{{ text_90_days }}</option>
+                                <option value="365">{{ text_1_year }}</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-block" id="generate-forecast">
+                            <i class="fa fa-magic"></i> {{ text_generate_forecast }}
+                        </button>
+                        
+                        <hr>
+                        
+                        <div id="forecast-results">
+                            <div class="text-center">{{ text_no_forecasts }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Visualization & Advanced Analytics -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-bar-chart fa-fw"></i> {{ text_advanced_visualizations }}
+                        <div class="pull-right">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-xs btn-default" data-chart="correlation">{{ text_correlation_matrix }}</button>
+                                <button type="button" class="btn btn-xs btn-default" data-chart="distribution">{{ text_distribution_analysis }}</button>
+                                <button type="button" class="btn btn-xs btn-default" data-chart="clustering">{{ text_clustering_analysis }}</button>
+                                <button type="button" class="btn btn-xs btn-default" data-chart="timeseries">{{ text_time_series }}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div id="advanced-visualization-container">
+                            <canvas id="advancedVisualizationChart" width="800" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Recommendations & Performance Metrics -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <i class="fa fa-magic fa-fw"></i> {{ text_ai_recommendations }}
+                    </div>
+                    <div class="panel-body">
+                        <div id="ai-recommendations">
+                            <div class="text-center">{{ text_loading_recommendations }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-dashboard fa-fw"></i> {{ text_performance_metrics }}
+                    </div>
+                    <div class="panel-body">
+                        <div class="progress-group">
+                            <span class="progress-text">{{ text_model_accuracy }}</span>
+                            <span class="float-right"><b id="model-accuracy-progress">0</b>%</span>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-success" id="model-accuracy-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-group">
+                            <span class="progress-text">{{ text_prediction_confidence }}</span>
+                            <span class="float-right"><b id="prediction-confidence-progress">0</b>%</span>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-info" id="prediction-confidence-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-group">
+                            <span class="progress-text">{{ text_data_completeness }}</span>
+                            <span class="float-right"><b id="data-completeness-progress">0</b>%</span>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-warning" id="data-completeness-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-group">
+                            <span class="progress-text">{{ text_processing_efficiency }}</span>
+                            <span class="float-right"><b id="processing-efficiency-progress">0</b>%</span>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-primary" id="processing-efficiency-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ML Model Training Modal -->
+<div class="modal fade" id="mlTrainingModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">{{ text_ml_model_training }}</h4>
+            </div>
+            <div class="modal-body">
+                <form id="ml-training-form">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>{{ text_model_name }}</label>
+                                <input type="text" class="form-control" id="model-name" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>{{ text_model_type }}</label>
+                                <select class="form-control" id="model-type">
+                                    <option value="linear_regression">{{ text_linear_regression }}</option>
+                                    <option value="logistic_regression">{{ text_logistic_regression }}</option>
+                                    <option value="decision_tree">{{ text_decision_tree }}</option>
+                                    <option value="random_forest">{{ text_random_forest }}</option>
+                                    <option value="neural_network">{{ text_neural_network }}</option>
+                                    <option value="clustering">{{ text_clustering }}</option>
+                                    <option value="time_series">{{ text_time_series }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>{{ text_data_source }}</label>
+                                <select class="form-control" id="data-source">
+                                    <option value="sales">{{ text_sales_data }}</option>
+                                    <option value="customers">{{ text_customer_data }}</option>
+                                    <option value="products">{{ text_product_data }}</option>
+                                    <option value="orders">{{ text_order_data }}</option>
+                                    <option value="marketplace">{{ text_marketplace_data }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>{{ text_training_period }}</label>
+                                <select class="form-control" id="training-period">
+                                    <option value="30">{{ text_last_30_days }}</option>
+                                    <option value="90">{{ text_last_90_days }}</option>
+                                    <option value="180">{{ text_last_6_months }}</option>
+                                    <option value="365">{{ text_last_year }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ text_cancel }}</button>
+                <button type="button" class="btn btn-success" id="start-training-btn">{{ text_start_training }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.panel-green {
+    border-color: #5cb85c;
+}
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+.panel-red > .panel-heading {
+    border-color: #d9534f;
+    color: white;
+    background-color: #d9534f;
+}
+
+.huge {
+    font-size: 40px;
+}
+
+.progress-group {
+    margin-bottom: 15px;
+}
+
+.description-block {
+    text-align: center;
+    padding: 15px;
+}
+
+.description-percentage {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.description-header {
+    margin: 10px 0 5px 0;
+    font-size: 16px;
+}
+
+.text-green { color: #5cb85c !important; }
+.text-blue { color: #337ab7 !important; }
+.text-yellow { color: #f0ad4e !important; }
+.text-red { color: #d9534f !important; }
+
+.bg-success { background-color: #5cb85c !important; }
+.bg-info { background-color: #5bc0de !important; }
+.bg-warning { background-color: #f0ad4e !important; }
+.bg-primary { background-color: #337ab7 !important; }
+
+.insight-item {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid #337ab7;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+.insight-title {
+    font-weight: bold;
+    color: #337ab7;
+    margin-bottom: 8px;
+}
+
+.insight-description {
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.insight-confidence {
+    font-size: 12px;
+    color: #999;
+}
+
+.recommendation-item {
+    padding: 12px;
+    margin-bottom: 12px;
+    border-left: 4px solid #5cb85c;
+    background-color: #f0f8f0;
+    border-radius: 4px;
+}
+
+.forecast-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.forecast-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #337ab7;
+}
+
+.forecast-confidence {
+    font-size: 12px;
+    color: #999;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+$(document).ready(function() {
+    let predictiveChart, performanceChart, advancedChart;
+    
+    // Initialize Charts
+    function initializeCharts() {
+        // Predictive Analytics Chart
+        const predictiveCtx = document.getElementById('predictiveAnalyticsChart').getContext('2d');
+        predictiveChart = new Chart(predictiveCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '{{ text_actual_values }}',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }, {
+                    label: '{{ text_predicted_values }}',
+                    data: [],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.1,
+                    borderDash: [5, 5]
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Model Performance Chart
+        const performanceCtx = document.getElementById('modelPerformanceChart').getContext('2d');
+        performanceChart = new Chart(performanceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['{{ text_linear_regression }}', '{{ text_random_forest }}', '{{ text_neural_network }}', '{{ text_clustering }}'],
+                datasets: [{
+                    data: [85, 92, 94, 87],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 205, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Advanced Visualization Chart
+        const advancedCtx = document.getElementById('advancedVisualizationChart').getContext('2d');
+        advancedChart = new Chart(advancedCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: '{{ text_data_points }}',
+                    data: [],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // Load Analytics Data
+    function loadAnalyticsData() {
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_analytics_dashboard/getAnalyticsMetrics&user_token={{ user_token }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                updateDashboard(data);
+            },
+            error: function() {
+                console.error('Failed to load analytics data');
+            }
+        });
+    }
+
+    // Update Dashboard
+    function updateDashboard(data) {
+        // Update overview cards
+        $('#ai-accuracy').text((data.overview.ai_accuracy || 0) + '%');
+        $('#predictions-count').text(data.overview.predictions_count || 0);
+        $('#insights-count').text(data.overview.insights_count || 0);
+        $('#data-quality').text((data.overview.data_quality || 0) + '%');
+
+        // Update real-time metrics
+        $('#stream-throughput').text(data.real_time.stream_throughput || 0);
+        $('#processing-latency').text((data.real_time.processing_latency || 0) + 'ms');
+        $('#anomalies-detected').text(data.real_time.anomalies_detected || 0);
+        $('#alerts-generated').text(data.real_time.alerts_generated || 0);
+
+        // Update performance metrics
+        $('#model-accuracy-progress').text(data.performance.model_accuracy || 0);
+        $('#model-accuracy-bar').css('width', (data.performance.model_accuracy || 0) + '%');
+        $('#prediction-confidence-progress').text(data.performance.prediction_confidence || 0);
+        $('#prediction-confidence-bar').css('width', (data.performance.prediction_confidence || 0) + '%');
+        $('#data-completeness-progress').text(data.performance.data_completeness || 0);
+        $('#data-completeness-bar').css('width', (data.performance.data_completeness || 0) + '%');
+        $('#processing-efficiency-progress').text(data.performance.processing_efficiency || 0);
+        $('#processing-efficiency-bar').css('width', (data.performance.processing_efficiency || 0) + '%');
+
+        // Update tables and other sections
+        updateMLModelsTable(data.ml_models || []);
+        updateInsights(data.insights || []);
+        updateRecommendations(data.recommendations || []);
+
+        // Update charts
+        updateCharts(data.charts || {});
+    }
+
+    // Update ML Models Table
+    function updateMLModelsTable(models) {
+        let html = '';
+        if (models.length === 0) {
+            html = '<tr><td colspan="5" class="text-center">{{ text_no_models }}</td></tr>';
+        } else {
+            models.forEach(function(model) {
+                html += `
+                    <tr>
+                        <td><strong>${model.name}</strong></td>
+                        <td><span class="label label-success">${model.accuracy}%</span></td>
+                        <td><span class="label label-${model.status === 'trained' ? 'success' : 'warning'}">${model.status}</span></td>
+                        <td>${model.last_trained}</td>
+                        <td>
+                            <div class="btn-group btn-group-xs">
+                                <button class="btn btn-info" onclick="viewModel('${model.id}')">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                <button class="btn btn-warning" onclick="retrainModel('${model.id}')">
+                                    <i class="fa fa-refresh"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        $('#ml-models-table').html(html);
+    }
+
+    // Update Insights
+    function updateInsights(insights) {
+        let html = '';
+        if (insights.length === 0) {
+            html = '<div class="text-center">{{ text_no_insights }}</div>';
+        } else {
+            insights.forEach(function(insight) {
+                html += `
+                    <div class="insight-item">
+                        <div class="insight-title">${insight.title}</div>
+                        <div class="insight-description">${insight.description}</div>
+                        <div class="insight-confidence">{{ text_confidence }}: ${insight.confidence}%</div>
+                    </div>
+                `;
+            });
+        }
+        $('#insights-container').html(html);
+    }
+
+    // Update Recommendations
+    function updateRecommendations(recommendations) {
+        let html = '';
+        if (recommendations.length === 0) {
+            html = '<div class="text-center">{{ text_no_recommendations }}</div>';
+        } else {
+            recommendations.forEach(function(rec) {
+                html += `
+                    <div class="recommendation-item">
+                        <strong>${rec.title}</strong><br>
+                        <p>${rec.description}</p>
+                        <small><strong>{{ text_impact }}:</strong> ${rec.impact}</small>
+                    </div>
+                `;
+            });
+        }
+        $('#ai-recommendations').html(html);
+    }
+
+    // Update Charts
+    function updateCharts(chartData) {
+        if (chartData.predictive) {
+            predictiveChart.data.labels = chartData.predictive.labels || [];
+            predictiveChart.data.datasets[0].data = chartData.predictive.actual || [];
+            predictiveChart.data.datasets[1].data = chartData.predictive.predicted || [];
+            predictiveChart.update();
+        }
+
+        if (chartData.performance) {
+            performanceChart.data.datasets[0].data = chartData.performance.data || [];
+            performanceChart.update();
+        }
+
+        if (chartData.advanced) {
+            advancedChart.data.datasets[0].data = chartData.advanced.data || [];
+            advancedChart.update();
+        }
+    }
+
+    // Event Handlers
+    $('#refresh-data').click(function() {
+        loadAnalyticsData();
+    });
+
+    $('#start-analytics').click(function() {
+        startAnalytics();
+    });
+
+    $('#train-models, #train-new-model').click(function() {
+        $('#mlTrainingModal').modal('show');
+    });
+
+    $('#start-training-btn').click(function() {
+        startModelTraining();
+    });
+
+    $('#generate-forecast').click(function() {
+        generateForecast();
+    });
+
+    $('#export-insights').click(function() {
+        window.location.href = 'index.php?route=extension/module/ai_analytics_dashboard/exportInsights&user_token={{ user_token }}';
+    });
+
+    // Chart type buttons
+    $('[data-chart]').click(function() {
+        const chartType = $(this).data('chart');
+        loadAdvancedVisualization(chartType);
+    });
+
+    // Functions
+    function startAnalytics() {
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_analytics_dashboard/startAnalytics&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert('{{ text_analytics_started }}');
+                    loadAnalyticsData();
+                } else {
+                    alert('{{ text_analytics_failed }}: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('{{ text_analytics_error }}');
+            }
+        });
+    }
+
+    function startModelTraining() {
+        const trainingData = {
+            name: $('#model-name').val(),
+            type: $('#model-type').val(),
+            data_source: $('#data-source').val(),
+            training_period: $('#training-period').val()
+        };
+
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_analytics_dashboard/trainModel&user_token={{ user_token }}',
+            type: 'POST',
+            data: trainingData,
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert('{{ text_training_started }}');
+                    $('#mlTrainingModal').modal('hide');
+                    loadAnalyticsData();
+                } else {
+                    alert('{{ text_training_failed }}: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('{{ text_training_error }}');
+            }
+        });
+    }
+
+    function generateForecast() {
+        const forecastData = {
+            type: $('#forecast-type').val(),
+            horizon: $('#forecast-horizon').val()
+        };
+
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_analytics_dashboard/generateForecast&user_token={{ user_token }}',
+            type: 'POST',
+            data: forecastData,
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    displayForecastResults(response.forecast);
+                } else {
+                    alert('{{ text_forecast_failed }}: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('{{ text_forecast_error }}');
+            }
+        });
+    }
+
+    function displayForecastResults(forecast) {
+        let html = '';
+        if (forecast && forecast.predictions) {
+            forecast.predictions.forEach(function(pred) {
+                html += `
+                    <div class="forecast-item">
+                        <div class="forecast-value">${pred.value}</div>
+                        <div>${pred.period}</div>
+                        <div class="forecast-confidence">{{ text_confidence }}: ${pred.confidence}%</div>
+                    </div>
+                `;
+            });
+        } else {
+            html = '<div class="text-center">{{ text_forecast_generation_failed }}</div>';
+        }
+        $('#forecast-results').html(html);
+    }
+
+    function loadAdvancedVisualization(chartType) {
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_analytics_dashboard/getVisualizationData&user_token={{ user_token }}',
+            type: 'POST',
+            data: { chart_type: chartType },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    updateAdvancedChart(response.data, chartType);
+                }
+            },
+            error: function() {
+                console.error('Failed to load visualization data');
+            }
+        });
+    }
+
+    function updateAdvancedChart(data, chartType) {
+        // Update chart based on type
+        advancedChart.data = data;
+        advancedChart.update();
+    }
+
+    // Global functions for table actions
+    window.viewModel = function(modelId) {
+        // Implementation for viewing model details
+    };
+
+    window.retrainModel = function(modelId) {
+        // Implementation for retraining model
+    };
+
+    // Initialize
+    initializeCharts();
+    loadAnalyticsData();
+    
+    // Auto-refresh every 60 seconds
+    setInterval(loadAnalyticsData, 60000);
+});
+</script>
+
+{{ footer }} 

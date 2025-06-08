@@ -431,6 +431,20 @@
                 <button class="btn btn-primary" onclick="openTrendyolAdmin()" data-tr="🛒 Trendyol Admin'e Git" data-en="🛒 Go to Trendyol Admin">🛒 Trendyol Admin'e Git</button>
                 <button class="btn btn-warning" onclick="testTrendyolAPI()" data-tr="🔍 API Test" data-en="🔍 API Test">🔍 API Test</button>
             </div>
+
+            <!-- MesChain-Sync Super Admin Dashboard -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-title" data-tr="🔗 MesChain-Sync Super Admin" data-en="🔗 MesChain-Sync Super Admin">🔗 MesChain-Sync Super Admin</div>
+                    <div class="service-status"></div>
+                </div>
+                <div class="service-url">http://localhost:3023/meschain_sync_super_admin.html</div>
+                <div class="service-description" data-tr="MesChain-Sync Design System ile modernize edilmiş Super Admin Dashboard - Takım başarıları, gerçek zamanlı analitik ve glassmorphism tema." data-en="Super Admin Dashboard modernized with MesChain-Sync Design System - Team achievements, real-time analytics and glassmorphism theme.">
+                    MesChain-Sync Design System ile modernize edilmiş Super Admin Dashboard - Takım başarıları, gerçek zamanlı analitik ve glassmorphism tema.
+                </div>
+                <a href="http://localhost:3023/meschain_sync_super_admin.html" class="btn btn-primary" target="_blank" data-tr="🔗 MesChain-Sync Dashboard'a Git" data-en="🔗 Go to MesChain-Sync Dashboard">🔗 MesChain-Sync Dashboard'a Git</a>
+                <button class="btn btn-success" onclick="openMesChainSyncDashboard()" data-tr="🎨 Canlı Demo" data-en="🎨 Live Demo">🎨 Canlı Demo</button>
+            </div>
         </div>
     </div>
 
@@ -530,7 +544,18 @@
                 '• Gelişmiş analitik': '• Advanced analytics',
                 '• Tüm panel gözetimi': '• All panel oversight',
                 'Erişim Reddedildi!': 'Access Denied!',
-                'Yanlış şifre. Süper Admin erişimi uygun kimlik bilgileri gerektirir.': 'Incorrect password. Super Admin access requires proper credentials.'
+                'Yanlış şifre. Süper Admin erişimi uygun kimlik bilgileri gerektirir.': 'Incorrect password. Super Admin access requires proper credentials.',
+                '💎 GEMINI Super Admin Dashboard Demo': '💎 GEMINI Super Admin Dashboard Demo',
+                '🔗 MesChain-Sync Super Admin Dashboard Demo': '🔗 MesChain-Sync Super Admin Dashboard Demo',
+                '🎨 Tema yükleniyor...': '🎨 Loading theme...',
+                '✨ Özellikler:': '✨ Features:',
+                '• Glassmorphism tasarım': '• Glassmorphism design',
+                '• Takım başarıları görüntüleme': '• Team achievements display',
+                '• Gerçek zamanlı analitik': '• Real-time analytics',
+                '• Light/Dark tema desteği': '• Light/Dark theme support',
+                '• Mobil responsive tasarım': '• Mobile responsive design',
+                '🚀 GEMINI Dashboard açılıyor...': '🚀 Opening GEMINI Dashboard...',
+                '🚀 MesChain-Sync Dashboard açılıyor...': '🚀 Opening MesChain-Sync Dashboard...'
             }
         };
 
@@ -622,6 +647,23 @@
             alert(currentLanguage === 'tr' ? 
                 '🔍 Trendyol API Test\n\n⚡ API Endpoint: api.trendyol.com\n🔑 Authentication: Checking...\n📡 Connection: Testing...\n\n✅ Test başlatılıyor...' :
                 '🔍 Trendyol API Test\n\n⚡ API Endpoint: api.trendyol.com\n🔑 Authentication: Checking...\n📡 Connection: Testing...\n\n✅ Test starting...');
+        }
+
+        function openMesChainSyncDashboard() {
+            const messages = {
+                title: translate('🔗 MesChain-Sync Super Admin Dashboard Demo'),
+                loading: translate('🎨 Tema yükleniyor...'),
+                features: translate('✨ Özellikler:'),
+                feat1: translate('• Glassmorphism tasarım'),
+                feat2: translate('• Takım başarıları görüntüleme'),
+                feat3: translate('• Gerçek zamanlı analitik'),
+                feat4: translate('• Light/Dark tema desteği'),
+                feat5: translate('• Mobil responsive tasarım'),
+                opening: translate('🚀 MesChain-Sync Dashboard açılıyor...')
+            };
+
+            alert(`${messages.title}\n\n${messages.loading}\n\n${messages.features}\n${messages.feat1}\n${messages.feat2}\n${messages.feat3}\n${messages.feat4}\n${messages.feat5}\n\n${messages.opening}`);
+            window.open('http://localhost:3023/meschain_sync_super_admin.html', '_blank');
         }
 
         let testProgress = 0;
