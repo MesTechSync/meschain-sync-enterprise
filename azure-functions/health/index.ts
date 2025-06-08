@@ -68,3 +68,6 @@ const healthCheck: AzureFunction = async function(context: Context, req: HttpReq
 };
 
 export default healthCheck;
+
+// Also export for Azure Functions runtime compatibility
+module.exports = healthCheck;
