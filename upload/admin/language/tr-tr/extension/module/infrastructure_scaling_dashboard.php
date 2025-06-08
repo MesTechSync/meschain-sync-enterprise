@@ -1,236 +1,219 @@
 <?php
 /**
- * Infrastructure Scaling Dashboard Language File (Turkish) - ATOM-M008
- * MesChain-Sync Infrastructure Scaling Preparation
+ * MesChain-Sync Infrastructure Scaling Dashboard Language File (Turkish)
  * 
- * @package MesChain-Sync
- * @version 3.0.4.0 - ATOM-M008
- * @author Musti DevOps Team
- * @date 2025-06-08
+ * @package    MesChain-Sync
+ * @author     MesChain Development Team
+ * @copyright  2024 MesChain
+ * @license    Commercial License
+ * @version    1.0.0
+ * @since      File available since Release 1.0.0
  */
 
-// Main Headings
-$_['heading_title'] = 'Altyapı Ölçeklendirme Panosu - ATOM-M008';
+// Heading
+$_['heading_title'] = 'Altyapı Ölçeklendirme Dashboard\'u';
 
-// Navigation
-$_['text_home'] = 'Ana Sayfa';
-$_['text_extension'] = 'Uzantılar';
-
-// Executive Summary
-$_['text_scaling_readiness'] = 'Ölçeklendirme Hazırlığı';
-$_['text_overall_readiness'] = 'Genel Hazırlık Durumu';
-$_['text_capacity_increase'] = 'Kapasite Artışı';
-$_['text_projected_capacity'] = 'Öngörülen Kapasite';
-$_['text_cost_optimization'] = 'Maliyet Optimizasyonu';
-$_['text_cost_savings'] = 'Maliyet Tasarrufu';
-$_['text_recommendations'] = 'Öneriler';
-$_['text_action_items'] = 'Eylem Maddeleri';
-
-// Microservices Architecture
-$_['text_microservices_architecture'] = 'Mikroservis Mimarisi';
-$_['text_readiness_metrics'] = 'Hazırlık Metrikleri';
-$_['text_code_modularity'] = 'Kod Modülerliği';
-$_['text_data_separation'] = 'Veri Ayrımı';
-$_['text_team_readiness'] = 'Takım Hazırlığı';
-$_['text_migration_plan'] = 'Geçiş Planı';
-
-// Auto-scaling
-$_['text_auto_scaling'] = 'Otomatik Ölçeklendirme';
-$_['text_horizontal_scaling'] = 'Yatay Ölçeklendirme';
-$_['text_vertical_scaling'] = 'Dikey Ölçeklendirme';
-$_['text_predictive_scaling'] = 'Tahminsel Ölçeklendirme';
-$_['text_min_instances'] = 'Min Örnek';
-$_['text_current_instances'] = 'Mevcut Örnekler';
-$_['text_max_instances'] = 'Max Örnek';
-$_['text_ml_accuracy'] = 'ML Doğruluğu';
-
-// Container Orchestration
-$_['text_container_orchestration'] = 'Konteyner Orkestrasyonu';
-$_['text_cluster_nodes'] = 'Küme Düğümleri';
-$_['text_deployments'] = 'Dağıtımlar';
-$_['text_service'] = 'Hizmet';
-$_['text_replicas'] = 'Kopyalar';
-$_['text_status'] = 'Durum';
-$_['text_resources'] = 'Kaynaklar';
-
-// Database Clustering
-$_['text_database_clustering'] = 'Veritabanı Kümeleme';
-$_['text_cluster_health'] = 'Küme Sağlığı';
-$_['text_master_node'] = 'Ana Düğüm';
-$_['text_slave_node'] = 'İkincil Düğüm';
-$_['text_read_replicas'] = 'Okuma Kopyaları';
-$_['text_redis_cluster'] = 'Redis Kümesi';
-$_['text_healthy'] = 'Sağlıklı';
-$_['text_configured'] = 'Yapılandırılmış';
-
-// Load Balancer & CDN
-$_['text_load_balancer'] = 'Yük Dengeleyici';
-$_['text_global_routing'] = 'Küresel Yönlendirme';
-$_['text_performance_metrics'] = 'Performans Metrikleri';
-$_['text_response_time'] = 'Yanıt Süresi';
-$_['text_throughput'] = 'İş Hacmi';
-$_['text_ssl_termination'] = 'SSL Sonlandırma';
+// Text
+$_['text_extension'] = 'Eklentiler';
+$_['text_success'] = 'Başarılı: Infrastructure Scaling Dashboard modülü güncellendi!';
+$_['text_edit'] = 'Infrastructure Scaling Dashboard Düzenle';
 $_['text_enabled'] = 'Etkin';
-$_['text_cdn_integration'] = 'CDN Entegrasyonu';
-$_['text_cdn_metrics'] = 'CDN Metrikleri';
-$_['text_cache_hit_ratio'] = 'Önbellek İsabet Oranı';
-$_['text_bandwidth_savings'] = 'Bant Genişliği Tasarrufu';
-$_['text_edge_locations'] = 'Edge Konumları';
+$_['text_disabled'] = 'Devre Dışı';
 
-// CI/CD Pipeline
-$_['text_cicd_pipeline'] = 'CI/CD Boru Hattı';
-$_['text_pipeline_visualization'] = 'Boru Hattı Görselleştirme';
-$_['text_deployment_strategies'] = 'Dağıtım Stratejileri';
-$_['text_blue_green_deployment'] = 'Mavi-Yeşil Dağıtım';
-$_['text_canary_deployment'] = 'Kanarya Dağıtımı';
-$_['text_quality_gates'] = 'Kalite Kapıları';
-$_['text_code_coverage'] = 'Kod Kapsamı';
-$_['text_security_scan'] = 'Güvenlik Taraması';
-$_['text_dependency_check'] = 'Bağımlılık Kontrolü';
-$_['text_performance_tests'] = 'Performans Testleri';
-
-// Next Steps
-$_['text_next_steps'] = 'Sonraki Adımlar';
-$_['text_immediate'] = 'Acil';
-$_['text_short_term'] = 'Kısa Vadeli';
-$_['text_long_term'] = 'Uzun Vadeli';
-
-// Common Actions
-$_['text_export'] = 'Dışa Aktar';
+// Dashboard Elements
+$_['text_export_report'] = 'Raporu Dışa Aktar';
 $_['text_refresh'] = 'Yenile';
-$_['text_refreshing'] = 'Yenileniyor...';
-$_['text_no_recommendations'] = 'Şu anda kritik öneri bulunmuyor.';
-$_['text_estimated_effort'] = 'Tahmini Çaba';
+$_['text_loading'] = 'Yükleniyor...';
 
-// Alerts & Messages
-$_['text_alert_cpu_high'] = 'Yüksek CPU Kullanımı Uyarısı';
-$_['text_alert_memory_high'] = 'Yüksek Bellek Kullanımı Uyarısı';
-$_['text_alert_response_slow'] = 'Yavaş Yanıt Süresi Uyarısı';
-$_['text_alert_scaling_triggered'] = 'Otomatik Ölçeklendirme Tetiklendi';
-$_['text_alert_deployment_failed'] = 'Dağıtım Başarısız';
+// Overview Cards
+$_['text_microservices_ready'] = 'Hazır Mikroservis';
+$_['text_scaling_capacity'] = 'Ölçeklendirme Kapasitesi';
+$_['text_containers_active'] = 'Aktif Container';
+$_['text_database_nodes'] = 'Veritabanı Node\'u';
 
-// Success Messages
-$_['text_success_export'] = 'Rapor başarıyla dışa aktarıldı.';
-$_['text_success_config_saved'] = 'Yapılandırma başarıyla kaydedildi.';
-$_['text_success_alert_acknowledged'] = 'Uyarı kabul edildi.';
-$_['text_success_alert_resolved'] = 'Uyarı çözüldü.';
+// Status Messages
+$_['text_evaluating'] = 'Değerlendiriliyor';
+$_['text_ready'] = 'Hazır';
+$_['text_initializing'] = 'Başlatılıyor';
+$_['text_single_node'] = 'Tek Node';
 
-// Error Messages
-$_['error_export_failed'] = 'Rapor dışa aktarma başarısız oldu.';
-$_['error_config_save_failed'] = 'Yapılandırma kaydetme başarısız oldu.';
-$_['error_metrics_load_failed'] = 'Metrikler yüklenemedi.';
-$_['error_database_connection'] = 'Veritabanı bağlantı hatası.';
-$_['error_insufficient_permissions'] = 'Yetersiz izinler.';
-
-// Scaling Configuration
-$_['text_scaling_configuration'] = 'Ölçeklendirme Yapılandırması';
-$_['text_cpu_threshold'] = 'CPU Eşik Değeri (%)';
-$_['text_memory_threshold'] = 'Bellek Eşik Değeri (%)';
-$_['text_response_threshold'] = 'Yanıt Süresi Eşiği (ms)';
-$_['text_scale_up_cooldown'] = 'Ölçek Artırma Bekleme Süresi (saniye)';
-$_['text_scale_down_cooldown'] = 'Ölçek Azaltma Bekleme Süresi (saniye)';
-$_['text_target_cpu_utilization'] = 'Hedef CPU Kullanımı (%)';
+// Chart Titles
+$_['text_scaling_trends'] = 'Ölçeklendirme Trendleri';
+$_['text_resource_distribution'] = 'Kaynak Dağılımı';
 
 // Infrastructure Components
-$_['text_infrastructure_components'] = 'Altyapı Bileşenleri';
+$_['text_load_balancer_status'] = 'Load Balancer Durumu';
+$_['text_cicd_pipeline'] = 'CI/CD Pipeline';
+$_['text_kubernetes_cluster'] = 'Kubernetes Cluster';
+$_['text_scaling_recommendations'] = 'Ölçeklendirme Önerileri';
+
+// Table Headers
+$_['text_endpoint'] = 'Endpoint';
+$_['text_status'] = 'Durum';
+$_['text_response_time'] = 'Yanıt Süresi';
+$_['text_load'] = 'Yük';
+
+// Pipeline Stages
+$_['text_build_stage'] = 'Build Aşaması';
+$_['text_test_stage'] = 'Test Aşaması';
+$_['text_deploy_stage'] = 'Deploy Aşaması';
+
+// Metrics
+$_['text_cpu_usage'] = 'CPU Kullanımı';
+$_['text_memory_usage'] = 'Bellek Kullanımı';
+$_['text_network_io'] = 'Ağ G/Ç';
+$_['text_cluster_wide'] = 'Cluster Geneli';
+$_['text_pods_running'] = 'Çalışan Pod\'lar';
+$_['text_active_pods'] = 'Aktif Pod\'lar';
+$_['text_nodes_ready'] = 'Hazır Node\'lar';
+$_['text_cluster_nodes'] = 'Cluster Node\'ları';
+
+// Resource Types
 $_['text_web_servers'] = 'Web Sunucuları';
-$_['text_application_servers'] = 'Uygulama Sunucuları';
-$_['text_database_servers'] = 'Veritabanı Sunucuları';
-$_['text_cache_servers'] = 'Önbellek Sunucuları';
-$_['text_load_balancers'] = 'Yük Dengeleyiciler';
-$_['text_cdn_nodes'] = 'CDN Düğümleri';
+$_['text_databases'] = 'Veritabanları';
+$_['text_cache_servers'] = 'Cache Sunucuları';
+$_['text_queue_workers'] = 'Queue Worker\'ları';
 
-// Performance Metrics
-$_['text_performance_overview'] = 'Performans Genel Bakış';
-$_['text_current_load'] = 'Mevcut Yük';
-$_['text_average_response_time'] = 'Ortalama Yanıt Süresi';
-$_['text_requests_per_second'] = 'Saniye Başına İstek';
-$_['text_error_rate'] = 'Hata Oranı';
-$_['text_uptime'] = 'Çalışma Süresi';
-$_['text_availability'] = 'Kullanılabilirlik';
+// Messages
+$_['text_analyzing_recommendations'] = 'Öneriler analiz ediliyor...';
+$_['text_no_load_balancers'] = 'Load balancer bulunamadı';
+$_['text_no_recommendations'] = 'Şu anda öneri bulunmuyor';
 
-// Marketplace Status
-$_['text_marketplace_status'] = 'Pazaryeri Durumu';
-$_['text_trendyol_status'] = 'Trendyol Durumu';
-$_['text_n11_status'] = 'N11 Durumu';
-$_['text_amazon_status'] = 'Amazon Durumu';
-$_['text_hepsiburada_status'] = 'Hepsiburada Durumu';
-$_['text_ebay_status'] = 'eBay Durumu';
-$_['text_ozon_status'] = 'Ozon Durumu';
+// Configuration Categories
+$_['text_kubernetes_config'] = 'Kubernetes Yapılandırması';
+$_['text_scaling_config'] = 'Ölçeklendirme Yapılandırması';
+$_['text_database_config'] = 'Veritabanı Yapılandırması';
+$_['text_loadbalancer_config'] = 'Load Balancer Yapılandırması';
+$_['text_cicd_config'] = 'CI/CD Yapılandırması';
+$_['text_monitoring_config'] = 'İzleme Yapılandırması';
 
-// Status Values
-$_['text_status_active'] = 'Aktif';
-$_['text_status_inactive'] = 'Pasif';
-$_['text_status_maintenance'] = 'Bakım';
-$_['text_status_error'] = 'Hata';
-$_['text_status_warning'] = 'Uyarı';
-$_['text_status_good'] = 'İyi';
-$_['text_status_excellent'] = 'Mükemmel';
+// Configuration Keys
+$_['text_cluster_name'] = 'Cluster Adı';
+$_['text_namespace'] = 'Namespace';
+$_['text_cpu_threshold'] = 'CPU Eşiği';
+$_['text_memory_threshold'] = 'Bellek Eşiği';
+$_['text_min_replicas'] = 'Minimum Replica';
+$_['text_max_replicas'] = 'Maximum Replica';
+$_['text_scale_up_cooldown'] = 'Scale Up Cooldown';
+$_['text_scale_down_cooldown'] = 'Scale Down Cooldown';
+$_['text_replication_type'] = 'Replikasyon Tipi';
+$_['text_health_check_interval'] = 'Health Check Aralığı';
+$_['text_pipeline_timeout'] = 'Pipeline Timeout';
+$_['text_auto_deploy'] = 'Otomatik Deploy';
+$_['text_metric_retention_days'] = 'Metrik Saklama Süresi';
+$_['text_alert_cooldown'] = 'Alert Cooldown';
+
+// Event Types
+$_['text_scale_up'] = 'Ölçek Artırma';
+$_['text_scale_down'] = 'Ölçek Azaltma';
+$_['text_deployment'] = 'Deployment';
+$_['text_rollback'] = 'Rollback';
+$_['text_health_check'] = 'Sağlık Kontrolü';
+
+// Event Status
+$_['text_pending'] = 'Beklemede';
+$_['text_in_progress'] = 'Devam Ediyor';
+$_['text_completed'] = 'Tamamlandı';
+$_['text_failed'] = 'Başarısız';
+
+// Resource Types for Events
+$_['text_pod'] = 'Pod';
+$_['text_deployment'] = 'Deployment';
+$_['text_service'] = 'Service';
+$_['text_ingress'] = 'Ingress';
+$_['text_configmap'] = 'ConfigMap';
+$_['text_secret'] = 'Secret';
+$_['text_pvc'] = 'PersistentVolumeClaim';
+
+// Recommendations
+$_['text_high_cpu_usage'] = 'Yüksek CPU Kullanımı';
+$_['text_high_memory_usage'] = 'Yüksek Bellek Kullanımı';
+$_['text_database_clustering'] = 'Veritabanı Clustering';
+$_['text_container_optimization'] = 'Container Optimizasyonu';
+$_['text_cdn_integration'] = 'CDN Entegrasyonu';
+
+// Priority Levels
+$_['text_priority_high'] = 'Yüksek';
+$_['text_priority_medium'] = 'Orta';
+$_['text_priority_low'] = 'Düşük';
 
 // Time Periods
-$_['text_last_hour'] = 'Son Saat';
+$_['text_last_hour'] = 'Son 1 Saat';
+$_['text_last_6_hours'] = 'Son 6 Saat';
 $_['text_last_24_hours'] = 'Son 24 Saat';
-$_['text_last_week'] = 'Son Hafta';
-$_['text_last_month'] = 'Son Ay';
-$_['text_real_time'] = 'Gerçek Zamanlı';
+$_['text_last_7_days'] = 'Son 7 Gün';
+$_['text_last_30_days'] = 'Son 30 Gün';
 
-// Business Impact
-$_['text_business_impact'] = 'İş Etkisi';
-$_['text_cost_reduction'] = 'Maliyet Azaltma';
-$_['text_efficiency_improvement'] = 'Verimlilik İyileştirme';
-$_['text_incident_resolution'] = 'Olay Çözümü';
-$_['text_customer_satisfaction'] = 'Müşteri Memnuniyeti';
+// Units
+$_['text_percentage'] = '%';
+$_['text_milliseconds'] = 'ms';
+$_['text_seconds'] = 'saniye';
+$_['text_minutes'] = 'dakika';
+$_['text_hours'] = 'saat';
+$_['text_days'] = 'gün';
+$_['text_gb'] = 'GB';
+$_['text_mb'] = 'MB';
+$_['text_kb'] = 'KB';
 
-// Kubernetes
-$_['text_kubernetes_overview'] = 'Kubernetes Genel Bakış';
-$_['text_master_nodes'] = 'Ana Düğümler';
-$_['text_worker_nodes'] = 'İşçi Düğümleri';
-$_['text_pods'] = 'Pod\'lar';
-$_['text_services'] = 'Hizmetler';
-$_['text_ingress'] = 'Giriş';
-$_['text_configmaps'] = 'Yapılandırma Haritaları';
-$_['text_secrets'] = 'Gizli Anahtarlar';
+// Actions
+$_['text_view_details'] = 'Detayları Görüntüle';
+$_['text_edit_config'] = 'Yapılandırmayı Düzenle';
+$_['text_restart_service'] = 'Servisi Yeniden Başlat';
+$_['text_scale_now'] = 'Şimdi Ölçeklendir';
+$_['text_rollback_deployment'] = 'Deployment\'ı Geri Al';
 
-// Scaling Events
-$_['text_scaling_events'] = 'Ölçeklendirme Olayları';
-$_['text_scale_up_event'] = 'Ölçek Artırma Olayı';
-$_['text_scale_down_event'] = 'Ölçek Azaltma Olayı';
-$_['text_auto_scaling_triggered'] = 'Otomatik Ölçeklendirme Tetiklendi';
-$_['text_manual_scaling'] = 'Manuel Ölçeklendirme';
-$_['text_predictive_scaling_triggered'] = 'Tahminsel Ölçeklendirme Tetiklendi';
-
-// Recommendations Types
-$_['text_recommendation_high_priority'] = 'Yüksek Öncelikli Öneri';
-$_['text_recommendation_medium_priority'] = 'Orta Öncelikli Öneri';
-$_['text_recommendation_low_priority'] = 'Düşük Öncelikli Öneri';
-$_['text_recommendation_data_architecture'] = 'Veri Mimarisi Önerisi';
-$_['text_recommendation_performance'] = 'Performans Önerisi';
-$_['text_recommendation_security'] = 'Güvenlik Önerisi';
-$_['text_recommendation_cost'] = 'Maliyet Önerisi';
-
-// Report Types
-$_['text_report_executive_summary'] = 'Yönetici Özeti Raporu';
-$_['text_report_technical_details'] = 'Teknik Detay Raporu';
-$_['text_report_performance_analysis'] = 'Performans Analiz Raporu';
-$_['text_report_cost_analysis'] = 'Maliyet Analiz Raporu';
-$_['text_report_security_assessment'] = 'Güvenlik Değerlendirme Raporu';
+// Alerts
+$_['text_alert_cpu_high'] = 'CPU kullanımı yüksek seviyede!';
+$_['text_alert_memory_high'] = 'Bellek kullanımı yüksek seviyede!';
+$_['text_alert_disk_full'] = 'Disk alanı dolmak üzere!';
+$_['text_alert_service_down'] = 'Servis çalışmıyor!';
+$_['text_alert_deployment_failed'] = 'Deployment başarısız oldu!';
 
 // Help Text
-$_['help_scaling_readiness'] = 'Sistemin ölçeklendirme için hazır olma derecesini gösterir.';
-$_['help_capacity_increase'] = 'Ölçeklendirme sonrası beklenen kapasite artışı.';
-$_['help_cost_optimization'] = 'Ölçeklendirme ile elde edilecek maliyet tasarrufu.';
-$_['help_microservices_readiness'] = 'Mikroservis mimarisine geçiş hazırlığı.';
-$_['help_auto_scaling'] = 'Otomatik ölçeklendirme yapılandırması ve durumu.';
-$_['help_container_orchestration'] = 'Konteyner orkestrasyonu için Kubernetes yapılandırması.';
-$_['help_database_clustering'] = 'Veritabanı kümeleme ve yüksek kullanılabilirlik.';
-$_['help_load_balancer'] = 'Yük dengeleme ve trafik dağıtımı.';
-$_['help_cdn_integration'] = 'İçerik dağıtım ağı entegrasyonu ve performansı.';
-$_['help_cicd_pipeline'] = 'Sürekli entegrasyon ve dağıtım boru hattı.';
+$_['help_cpu_threshold'] = 'CPU kullanımı bu değeri aştığında otomatik ölçeklendirme tetiklenir.';
+$_['help_memory_threshold'] = 'Bellek kullanımı bu değeri aştığında otomatik ölçeklendirme tetiklenir.';
+$_['help_min_replicas'] = 'Minimum pod replica sayısı.';
+$_['help_max_replicas'] = 'Maximum pod replica sayısı.';
+$_['help_cooldown'] = 'Ölçeklendirme işlemleri arasındaki minimum bekleme süresi.';
 
-// Footer
-$_['text_footer_note'] = 'ATOM-M008: Infrastructure Scaling Preparation - Musti DevOps Team © 2025';
-$_['text_version'] = 'Sürüm 3.0.4.0-ATOM-M008';
-$_['text_last_updated'] = 'Son Güncelleme';
-$_['text_generated_at'] = 'Oluşturulma Zamanı';
-$_['text_powered_by'] = 'Destekleyen: MesChain-Sync Enterprise';
+// Error Messages
+$_['error_permission'] = 'Uyarı: Infrastructure Scaling Dashboard\'a erişim yetkiniz yok!';
+$_['error_kubernetes_connection'] = 'Kubernetes cluster\'a bağlanılamadı!';
+$_['error_database_connection'] = 'Veritabanı bağlantısı başarısız!';
+$_['error_invalid_config'] = 'Geçersiz yapılandırma değeri!';
+$_['error_scaling_failed'] = 'Ölçeklendirme işlemi başarısız oldu!';
+$_['error_deployment_failed'] = 'Deployment işlemi başarısız oldu!';
+
+// Success Messages
+$_['success_config_saved'] = 'Yapılandırma başarıyla kaydedildi!';
+$_['success_scaling_initiated'] = 'Ölçeklendirme işlemi başlatıldı!';
+$_['success_deployment_started'] = 'Deployment işlemi başlatıldı!';
+$_['success_service_restarted'] = 'Servis başarıyla yeniden başlatıldı!';
+
+// Tabs
+$_['tab_overview'] = 'Genel Bakış';
+$_['tab_metrics'] = 'Metrikler';
+$_['tab_events'] = 'Olaylar';
+$_['tab_configuration'] = 'Yapılandırma';
+$_['tab_recommendations'] = 'Öneriler';
+
+// Buttons
+$_['button_save'] = 'Kaydet';
+$_['button_cancel'] = 'İptal';
+$_['button_reset'] = 'Sıfırla';
+$_['button_apply'] = 'Uygula';
+$_['button_test'] = 'Test Et';
+$_['button_export'] = 'Dışa Aktar';
+$_['button_import'] = 'İçe Aktar';
+
+// Placeholders
+$_['placeholder_search'] = 'Ara...';
+$_['placeholder_filter'] = 'Filtrele...';
+$_['placeholder_select'] = 'Seçiniz...';
+
+// Tooltips
+$_['tooltip_refresh'] = 'Verileri yenile';
+$_['tooltip_export'] = 'Raporu dışa aktar';
+$_['tooltip_settings'] = 'Ayarlar';
+$_['tooltip_help'] = 'Yardım';
 ?> 

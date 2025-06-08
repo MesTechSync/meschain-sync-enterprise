@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="tr" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMINI SUPER ADMIN - Meschain Sync Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* TEMEL STİLLER */
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .glass-sidebar { backdrop-filter: blur(20px); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .card-glass { backdrop-filter: blur(15px); transition: all 0.3s ease; }
+        .sidebar-link, .dropdown-item, .dropdown button, .btn-primary { transition: all 0.2s ease-in-out; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; right: 0; min-width: 220px; border-radius: 0.75rem; z-index: 50; overflow: hidden; transform-origin: top right; animation: growOut 0.2s ease-in-out forwards; }
+        .dropdown:hover .dropdown-content { display: block; }
+        @keyframes growOut {
+            0% { transform: scale(0.95) translateY(-10px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        /* TEMA DEĞİŞKENLERİ */
+        :root { /* Light Mode */
+            --bg-primary: #f8fafc; --bg-secondary: #ffffff;
+            --text-primary: #020617; --text-secondary: #475569; --text-tertiary: #94a3b8;
+            --border-primary: #e2e8f0; --border-secondary: #cbd5e1;
+            --accent-primary: #6d28d9; --accent-secondary: #8b5cf6;
+            --accent-glow: rgba(109, 40, 217, 0.05);
+            --sidebar-link-active-bg: #f1f5f9; --sidebar-link-active-border: #8b5cf6; --sidebar-link-active-text: #5b21b6;
+            --sidebar-link-hover-bg: #f1f5f9; --sidebar-link-hover-text: #6d28d9;
+            --dropdown-bg: #ffffff;
+            --shadow-color: rgba(100, 116, 139, 0.12);
+            --status-green-bg: #ecfdf5; --status-green-text: #065f46; --status-green-border: #a7f3d0;
+            --status-amber-bg: #fffbeb; --status-amber-text: #b45309; --status-amber-border: #fcd34d;
+            --status-red-bg: #fff1f2; --status-red-text: #9f1239; --status-red-border: #fca5a5;
+        }
+        :root.dark { /* Dark Mode */
+            --bg-primary: #0f172a; --bg-secondary: #1e293b;
+            --text-primary: #e2e8f0; --text-secondary: #94a3b8; --text-tertiary: #64748b;
+            --border-primary: rgba(255, 255, 255, 0.1); --border-secondary: #334155;
+            --accent-primary: #a78bfa; --accent-secondary: #c4b5fd;
+            --accent-glow: rgba(167, 139, 250, 0.1);
+            --sidebar-link-active-bg: linear-gradient(90deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.0) 100%);
+            --sidebar-link-active-border: #a78bfa; --sidebar-link-active-text: #e9d5ff;
+            --sidebar-link-hover-bg: rgba(139, 92, 246, 0.1); --sidebar-link-hover-text: #d8b4fe;
+            --dropdown-bg: #1e293b;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --status-green-bg: rgba(74, 222, 128, 0.1); --status-green-text: #4ade80; --status-green-border: rgba(74, 222, 128, 0.3);
+            --status-amber-bg: rgba(251, 191, 36, 0.1); --status-amber-text: #fbbf24; --status-amber-border: rgba(251, 191, 36, 0.3);
+            --status-red-bg: rgba(248, 113, 113, 0.1); --status-red-text: #f87171; --status-red-border: rgba(248, 113, 113, 0.3);
+        }
+
+        /* DEĞİŞKENLERİ UYGULAYAN STİLLER */
+        body { background-color: var(--bg-primary); color: var(--text-primary); }
+        h1, h2, h3, h4, h5, h6, .font-bold { color: var(--text-primary); }
+        .text-secondary { color: var(--text-secondary); }
+        .glass-sidebar { background-color: var(--sidebar-bg); border-right: 1px solid var(--border-primary); }
+        .main-content { background-color: var(--bg-primary); }
+        .card-glass { background-color: var(--bg-secondary); border: 1px solid var(--border-primary); box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color); }
+        .card-glass:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -4px var(--shadow-color); }
+        .sidebar-link { color: var(--text-secondary); font-weight: 500;}
+        .sidebar-link:hover { background-color: var(--sidebar-link-hover-bg); color: var(--sidebar-link-hover-text); transform: translateX(5px); }
+        .sidebar-link.active { border-right: 3px solid var(--sidebar-link-active-border); color: var(--sidebar-link-active-text); font-weight: 600; background-color: var(--sidebar-link-active-bg); }
+        .sidebar-link i { color: var(--text-tertiary); transition: color 0.2s ease-in-out; }
+        .sidebar-link:hover i, .sidebar-link.active i { color: var(--accent-primary); }
+        .dropdown-content { background-color: var(--dropdown-bg); border: 1px solid var(--border-primary); box-shadow: 0 8px 16px 0 var(--shadow-color); }
+        .dropdown-item { display: flex; align-items: center; padding: 12px 16px; color: var(--text-secondary); }
+        .dropdown-item:hover { background-color: var(--sidebar-link-hover-bg); color: var(--sidebar-link-hover-text); }
+        .dropdown-item i { margin-right: 12px; font-size: 1.25rem; }
+        .header-button { width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center; border-radius: 9999px; cursor: pointer; }
+        .header-button:hover { background-color: var(--sidebar-link-hover-bg); }
+        .header-button i { color: var(--text-secondary); }
+        .status-pill { padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; border: 1px solid; }
+        .status-pill-green { background-color: var(--status-green-bg); color: var(--status-green-text); border-color: var(--status-green-border); }
+        .status-pill-amber { background-color: var(--status-amber-bg); color: var(--status-amber-text); border-color: var(--status-amber-border); }
+        .status-pill-red { background-color: var(--status-red-bg); color: var(--status-red-text); border-color: var(--status-red-border); }
+        .activity-table { width: 100%; text-align: left; }
+        .activity-table thead { border-bottom: 1px solid var(--border-secondary); }
+        .activity-table th { padding: 12px 16px; color: var(--text-secondary); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .activity-table tbody tr { border-bottom: 1px solid var(--border-secondary); }
+        .activity-table tbody tr:last-child { border-bottom: none; }
+        .activity-table tbody td { padding: 12px 16px; color: var(--text-secondary); }
+        .activity-table tbody .font-semibold { color: var(--text-primary); }
+        .activity-table tbody tr:hover { background-color: var(--sidebar-link-hover-bg); }
+
+        /* TOAST BİLDİRİMİ */
+        .toast-notification {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            min-width: 320px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-left: 5px solid var(--accent-primary);
+            box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -4px var(--shadow-color);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            z-index: 100;
+            transform: translateX(-150%);
+            transition: transform 0.5s cubic-bezier(0.215, 0.610, 0.355, 1);
+        }
+        .toast-notification.show {
+            transform: translateX(0);
+        }
+        .toast-icon { font-size: 2rem; color: var(--accent-primary); margin-right: 1rem; }
+        .toast-close { position: absolute; top: 0.75rem; right: 0.75rem; cursor: pointer; color: var(--text-tertiary); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Toast Bildirimi -->
+    <div id="toast-notification" class="toast-notification">
+        <i class="ph-duotone ph-rocket-launch toast-icon"></i>
+        <div>
+            <h4 class="font-bold">Gelişmiş Arayüz Aktif!</h4>
+            <p class="text-secondary text-sm mt-1">Yeni GEMINI arayüz motoru başarıyla yüklendi.</p>
+        </div>
+        <i id="toast-close" class="ph ph-x toast-close"></i>
+    </div>
+
+    <div class="flex h-screen">
+        <aside class="w-64 flex-shrink-0 glass-sidebar flex flex-col">
+            <div class="h-20 flex items-center px-6 border-b" style="border-color: var(--border-primary);">
+                <i class="ph-duotone ph-buildings text-4xl" style="color: var(--accent-primary);"></i>
+                <h1 class="text-xl font-bold ml-3">Meschain <span class="font-light text-secondary">Sync</span></h1>
+            </div>
+            <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+                <a href="#" class="sidebar-link active flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-gauge text-xl mr-3"></i>Kontrol Paneli</a>
+                
+                <p class="px-4 pt-4 pb-2 text-xs font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">Pazaryerleri</p>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-storefront text-xl mr-3"></i>Trendyol</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-storefront text-xl mr-3"></i>Hepsiburada</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-storefront text-xl mr-3"></i>N11</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-storefront text-xl mr-3"></i>Amazon</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-storefront text-xl mr-3"></i>Ozon</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-storefront text-xl mr-3"></i>eBay</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-storefront text-xl mr-3"></i>Pazarama</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-flower-lotus text-xl mr-3"></i>Çiçeksepeti</a>
+
+                <p class="px-4 pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Yönetim</p>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-package text-xl mr-3"></i>Ürün Yönetimi</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-truck text-xl mr-3"></i>Dropshipping</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-users text-xl mr-3"></i>Kullanıcı Yönetimi</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-lock-key text-xl mr-3"></i>Yetki Yönetimi (RBAC)</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-chart-bar text-xl mr-3"></i>Raporlar & Analiz</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-bell-ringing text-xl mr-3"></i>Duyurular</a>
+                
+                <p class="px-4 pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Gelişmiş</p>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-robot text-xl mr-3"></i>Otomasyon</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-arrows-clockwise text-xl mr-3"></i>Webhook Yönetimi</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-brain text-xl mr-3"></i>AI Analizleri</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-currency-circle-dollar text-xl mr-3"></i>Çoklu Para Birimi</a>
+                
+                <p class="px-4 pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Sistem</p>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-monitor text-xl mr-3"></i>Sistem Monitörü</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-terminal-window text-xl mr-3"></i>Log Görüntüleyici</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-plugs-connected text-xl mr-3"></i>API Yönetimi</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-shield-check text-xl mr-3"></i>Güvenlik Monitörü</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-cloud-arrow-up text-xl mr-3"></i>Altyapı & Ölçekleme</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-atom text-xl mr-3"></i>Quantum Modülleri</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-gear-six text-xl mr-3"></i>Genel Ayarlar</a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-2.5 rounded-lg"><i class="ph-duotone ph-question text-xl mr-3"></i>Yardım & Destek</a>
+            </nav>
+        </aside>
+        <main class="flex-1 p-8 overflow-y-auto main-content">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold">Süper Admin Kontrol Paneli</h2>
+                    <p class="mt-1 text-secondary">Sistem genel durumu ve kritik metrikler.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="theme-switcher" title="Temayı Değiştir" class="header-button">
+                        <i id="theme-icon" class="ph-fill text-2xl"></i>
+                    </button>
+                    <div class="dropdown">
+                        <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-700/50">
+                            <img src="https://flagcdn.com/w40/tr.png" alt="Türkçe" class="flag-icon">
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="#" class="dropdown-item">
+                                <img src="https://flagcdn.com/w40/tr.png" alt="Türkçe" class="flag-icon mr-3">
+                                <span>Türkçe</span>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <img src="https://flagcdn.com/w40/gb.png" alt="English" class="flag-icon mr-3">
+                                <span>English</span>
+                            </a>
+                             <a href="#" class="dropdown-item">
+                                <img src="https://flagcdn.com/w40/de.png" alt="Deutsch" class="flag-icon mr-3">
+                                <span>Deutsch</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-700/50 relative">
+                            <i class="ph-duotone ph-bell text-2xl"></i>
+                            <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-slate-900"></span>
+                        </button>
+                        <div class="dropdown-content">
+                            <div class="p-3 border-b border-slate-700">
+                                <h4 class="font-semibold text-white">Duyurular</h4>
+                            </div>
+                            <a href="#" class="dropdown-item border-b border-slate-700/50">
+                                <i class="ph ph-warning-circle text-amber-400"></i>
+                                <div>
+                                    <p class="text-sm text-slate-200">N11 API Gecikmesi</p>
+                                    <p class="text-xs">Siparişler 5dk gecikmeli düşebilir.</p>
+                                </div>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                               <i class="ph ph-rocket-launch text-green-400"></i>
+                                <div>
+                                    <p class="text-sm text-slate-200">Yeni Versiyon Aktif!</p>
+                                    <p class="text-xs">Opus-7 tüm sistemlerde canlı.</p>
+                                </div>
+                            </a>
+                             <div class="p-2 text-center text-sm text-slate-400 hover:text-violet-300 transition">
+                                <a href="#">Tümünü Gör</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown">
+                         <button class="flex items-center">
+                            <img src="https://i.pravatar.cc/40?u=superadmin" alt="Admin" class="w-10 h-10 rounded-full border-2 border-violet-400 hover:border-violet-300 transition">
+                            <div class="ml-3 text-left hidden md:block">
+                                <p class="font-semibold text-white">Mezbjen</p>
+                                <p class="text-xs text-slate-400">Süper Admin</p>
+                            </div>
+                        </button>
+                        <div class="dropdown-content">
+                             <a href="#" class="dropdown-item"><i class="ph ph-user-circle"></i>Hesap Bilgileri</a>
+                             <a href="#" class="dropdown-item"><i class="ph ph-users-three"></i>Kullanıcı Yönetimi</a>
+                             <a href="#" class="dropdown-item"><i class="ph ph-file-text"></i>Ticari Şartlar</a>
+                             <a href="#" class="dropdown-item"><i class="ph ph-palette"></i>Temalar</a>
+                             <a href="#" class="dropdown-item"><i class="ph ph-gear"></i>Ayarlar</a>
+                             <div class="w-full h-px bg-slate-700 my-1"></div>
+                             <a href="#" class="dropdown-item text-red-400 hover:text-red-300"><i class="ph ph-sign-out"></i>Çıkış Yap</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-3 gap-6">
+                <div class="col-span-3 lg:col-span-2 card-glass p-6 rounded-2xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">Satış Performansı</h3>
+                        <div class="flex space-x-2">
+                             <button class="px-3 py-1 text-xs font-semibold text-white bg-slate-700 rounded-md">Günlük</button>
+                             <button class="px-3 py-1 text-xs font-semibold text-slate-400 hover:bg-slate-700/50 rounded-md">Haftalık</button>
+                             <button class="px-3 py-1 text-xs font-semibold text-slate-400 hover:bg-slate-700/50 rounded-md">Aylık</button>
+                        </div>
+                    </div>
+                    <div id="sales-chart"></div>
+                </div>
+
+                <div class="col-span-3 lg:col-span-1 card-glass p-6 rounded-2xl">
+                    <h3 class="text-lg font-bold mb-4">Platform Durumu</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <img src="https://icon.horse/icon/trendyol.com" class="w-8 h-8 rounded-full" />
+                                <span class="ml-3 font-semibold">Trendyol API</span>
+                            </div>
+                            <div class="status-pill status-pill-green">Aktif</div>
+                        </div>
+                         <div class="flex justify-between items-center">
+                             <div class="flex items-center">
+                                <img src="https://icon.horse/icon/hepsiburada.com" class="w-8 h-8 rounded-full" />
+                                <span class="ml-3 font-semibold">Hepsiburada</span>
+                            </div>
+                            <div class="status-pill status-pill-green">Aktif</div>
+                        </div>
+                         <div class="flex justify-between items-center">
+                             <div class="flex items-center">
+                                <img src="https://icon.horse/icon/n11.com" class="w-8 h-8 rounded-full" />
+                                <span class="ml-3 font-semibold">N11 API</span>
+                            </div>
+                            <div class="status-pill status-pill-amber">Gecikme Var</div>
+                        </div>
+                         <div class="flex justify-between items-center">
+                             <div class="flex items-center">
+                                <img src="https://icon.horse/icon/amazon.com" class="w-8 h-8 rounded-full" />
+                                <span class="ml-3 font-semibold">Amazon EU</span>
+                            </div>
+                            <div class="status-pill status-pill-green">Aktif</div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                             <div class="flex items-center">
+                                <img src="https://icon.horse/icon/ozon.ru" class="w-8 h-8 rounded-full" />
+                                <span class="ml-3 font-semibold">Ozon Global</span>
+                            </div>
+                            <div class="status-pill status-pill-red">Çevrımdışı</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-3 card-glass p-6 rounded-2xl">
+                    <h3 class="text-lg font-bold mb-4">Son Aktiviteler</h3>
+                    <div class="overflow-x-auto">
+                        <table class="activity-table">
+                            <thead>
+                                <tr>
+                                    <th>Kullanıcı</th>
+                                    <th>Eylem</th>
+                                    <th>Detay</th>
+                                    <th>Zaman</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-semibold">SELINAY</td>
+                                    <td><span class="status-pill status-pill-green">Ürün Eklendi</span></td>
+                                    <td>5 yeni "Elektronik" kategori ürünü eklendi.</td>
+                                    <td>2 dakika önce</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-semibold">MUSTI</td>
+                                    <td><span class="status-pill status-pill-amber">Ayar Değişti</span></td>
+                                    <td>Trendyol komisyon oranı %15 olarak güncellendi.</td>
+                                    <td>1 saat önce</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-semibold">CURSOR</td>
+                                    <td><span class="status-pill status-pill-red">Sistem Uyarısı</span></td>
+                                    <td>N11 API bağlantısında timeout aşıldı.</td>
+                                    <td>3 saat önce</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeSwitcher = document.getElementById('theme-switcher');
+            const themeIcon = document.getElementById('theme-icon');
+            const html = document.documentElement;
+
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
+                    html.classList.add('dark');
+                    themeIcon.classList.remove('ph-moon');
+                    themeIcon.classList.add('ph-sun');
+                } else {
+                    html.classList.remove('dark');
+                    themeIcon.classList.remove('ph-sun');
+                    themeIcon.classList.add('ph-moon');
+                }
+            };
+            
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else {
+                applyTheme(systemPrefersDark ? 'dark' : 'light');
+            }
+
+            themeSwitcher.addEventListener('click', () => {
+                const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+
+            var options = {
+                series: [{
+                    name: 'Trendyol',
+                    data: [31, 40, 28, 51, 42, 109, 100]
+                }, {
+                    name: 'Hepsiburada',
+                    data: [11, 32, 45, 32, 34, 52, 41]
+                }],
+                chart: {
+                    height: 350,
+                    type: 'area',
+                    toolbar: { show: false }
+                },
+                dataLabels: { enabled: false },
+                stroke: { curve: 'smooth', width: 2 },
+                xaxis: {
+                    type: 'datetime',
+                    categories: ["2025-06-01T00:00:00.000Z", "2025-06-02T00:00:00.000Z", "2025-06-03T00:00:00.000Z", "2025-06-04T00:00:00.000Z", "2025-06-05T00:00:00.000Z", "2025-06-06T00:00:00.000Z", "2025-06-07T00:00:00.000Z"],
+                    labels: { style: { colors: '#94a3b8' } },
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
+                },
+                yaxis: {
+                    labels: { style: { colors: '#94a3b8' } }
+                },
+                tooltip: {
+                    x: { format: 'dd/MM/yy' },
+                    theme: 'dark'
+                },
+                grid: {
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    strokeDashArray: 5
+                },
+                legend: {
+                    labels: { colors: '#94a3b8' },
+                    position: 'top',
+                    horizontalAlign: 'right',
+                    markers: { radius: 12 }
+                },
+                colors: ['#8b5cf6', '#3b82f6'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'dark',
+                        type: 'vertical',
+                        shadeIntensity: 0.5,
+                        inverseColors: false,
+                        opacityFrom: 0.4,
+                        opacityTo: 0.0,
+                        stops: [0, 90, 100]
+                    }
+                }
+            };
+
+            var chart = new ApexCharts(document.querySelector("#sales-chart"), options);
+            chart.render();
+
+            // Toast Bildirimi
+            const toast = document.getElementById('toast-notification');
+            const toastClose = document.getElementById('toast-close');
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 1500); // 1.5 saniye sonra göster
+            toastClose.addEventListener('click', () => {
+                toast.classList.remove('show');
+            });
+        });
+    </script>
+</body>
+</html> 

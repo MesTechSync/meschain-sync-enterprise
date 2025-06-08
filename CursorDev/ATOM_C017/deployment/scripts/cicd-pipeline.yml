@@ -1,0 +1,424 @@
+# 🚀 ATOM-C017 Production CI/CD Pipeline
+# Advanced Marketplace Intelligence Platform
+# Phase 3: Production Deployment Architecture
+
+name: ATOM-C017 Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - production
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - production
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: atom-c017/marketplace-intelligence
+  KUBERNETES_NAMESPACE: atom-c017-production
+
+jobs:
+  # ========================================
+  # Code Quality & Security Checks
+  # ========================================
+  quality-checks:
+    name: 🔍 Code Quality & Security
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: ESLint Code Analysis
+      run: npm run lint
+
+    - name: TypeScript Type Check
+      run: npm run type-check
+
+    - name: Security Vulnerability Scan
+      run: npm audit --audit-level high
+
+    - name: Snyk Security Scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
+
+    - name: SonarCloud Analysis
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ========================================
+  # Automated Testing Suite
+  # ========================================
+  test-suite:
+    name: 🧪 Automated Testing
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: atom_c017_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run Unit Tests
+      run: npm run test:unit
+      env:
+        NODE_ENV: test
+        DATABASE_URL: postgresql://postgres:testpassword@localhost:5432/atom_c017_test
+        REDIS_URL: redis://localhost:6379
+
+    - name: Run Integration Tests
+      run: npm run test:integration
+      env:
+        NODE_ENV: test
+        DATABASE_URL: postgresql://postgres:testpassword@localhost:5432/atom_c017_test
+        REDIS_URL: redis://localhost:6379
+
+    - name: Run E2E Tests
+      run: npm run test:e2e
+      env:
+        NODE_ENV: test
+
+    - name: Generate Test Coverage
+      run: npm run test:coverage
+
+    - name: Upload Coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage/lcov.info
+
+  # ========================================
+  # AI/ML Model Validation
+  # ========================================
+  ai-model-validation:
+    name: 🤖 AI Model Validation
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install AI Dependencies
+      run: |
+        pip install tensorflow==2.13.0 scikit-learn==1.3.0 pandas==2.0.3 numpy==1.24.3
+        pip install pytest pytest-cov
+
+    - name: Validate AI Models
+      run: |
+        python -m pytest tests/ai/ -v --cov=ai/
+        python scripts/validate_models.py
+
+    - name: Model Performance Benchmarks
+      run: |
+        python scripts/benchmark_models.py
+        python scripts/accuracy_validation.py
+
+  # ========================================
+  # Build & Push Docker Images
+  # ========================================
+  build-and-push:
+    name: 🐳 Build & Push Images
+    runs-on: ubuntu-latest
+    needs: [test-suite, ai-model-validation]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production' || startsWith(github.ref, 'refs/tags/'))
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract Metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+
+    - name: Build and Push Image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./deployment/docker/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_DATE=${{ steps.meta.outputs.created }}
+          VCS_REF=${{ github.sha }}
+          VERSION=${{ steps.meta.outputs.version }}
+
+  # ========================================
+  # Security Scanning
+  # ========================================
+  security-scan:
+    name: 🔒 Security Scanning
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+    - name: Run Trivy Vulnerability Scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ needs.build-and-push.outputs.image-tag }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy Results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # ========================================
+  # Staging Deployment
+  # ========================================
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-and-push, security-scan]
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: staging
+      url: https://staging.atom-c017.com
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure Kubernetes Context
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+
+    - name: Deploy to Staging
+      run: |
+        export KUBECONFIG=kubeconfig
+        envsubst < deployment/kubernetes/staging-deployment.yaml | kubectl apply -f -
+        kubectl set image deployment/atom-c017-api api-server=${{ needs.build-and-push.outputs.image-tag }} -n atom-c017-staging
+        kubectl rollout status deployment/atom-c017-api -n atom-c017-staging --timeout=600s
+
+    - name: Run Smoke Tests
+      run: |
+        npm run test:smoke
+      env:
+        TEST_URL: https://staging.atom-c017.com
+
+  # ========================================
+  # Production Deployment
+  # ========================================
+  deploy-production:
+    name: 🏭 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-and-push, security-scan, deploy-staging]
+    if: github.ref == 'refs/heads/production' || startsWith(github.ref, 'refs/tags/')
+    environment:
+      name: production
+      url: https://atom-c017.com
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure Kubernetes Context
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+
+    - name: Pre-deployment Health Check
+      run: |
+        export KUBECONFIG=kubeconfig
+        kubectl get pods -n ${{ env.KUBERNETES_NAMESPACE }}
+        kubectl get services -n ${{ env.KUBERNETES_NAMESPACE }}
+
+    - name: Deploy to Production
+      run: |
+        export KUBECONFIG=kubeconfig
+        envsubst < deployment/kubernetes/production-deployment.yaml | kubectl apply -f -
+        kubectl set image deployment/atom-c017-api api-server=${{ needs.build-and-push.outputs.image-tag }} -n ${{ env.KUBERNETES_NAMESPACE }}
+        kubectl rollout status deployment/atom-c017-api -n ${{ env.KUBERNETES_NAMESPACE }} --timeout=600s
+
+    - name: Post-deployment Verification
+      run: |
+        export KUBECONFIG=kubeconfig
+        kubectl get pods -n ${{ env.KUBERNETES_NAMESPACE }}
+        kubectl logs -l app=atom-c017-api -n ${{ env.KUBERNETES_NAMESPACE }} --tail=50
+
+    - name: Run Production Health Checks
+      run: |
+        npm run test:health
+      env:
+        TEST_URL: https://api.atom-c017.com
+
+  # ========================================
+  # Load Testing
+  # ========================================
+  load-testing:
+    name: ⚡ Load Testing
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: github.ref == 'refs/heads/production' || startsWith(github.ref, 'refs/tags/')
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup K6
+      run: |
+        wget https://github.com/grafana/k6/releases/download/v0.46.0/k6-v0.46.0-linux-amd64.tar.gz
+        tar -xzf k6-v0.46.0-linux-amd64.tar.gz
+        sudo mv k6-v0.46.0-linux-amd64/k6 /usr/local/bin/
+
+    - name: Run Load Tests
+      run: |
+        k6 run tests/load/api-load-test.js
+        k6 run tests/load/websocket-load-test.js
+      env:
+        API_URL: https://api.atom-c017.com
+        WS_URL: wss://api.atom-c017.com/websocket
+
+  # ========================================
+  # Notification & Cleanup
+  # ========================================
+  notify-success:
+    name: 📢 Deployment Success Notification
+    runs-on: ubuntu-latest
+    needs: [deploy-production, load-testing]
+    if: success()
+    steps:
+    - name: Slack Notification
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        channel: '#atom-c017-deployments'
+        text: |
+          🎉 ATOM-C017 v${{ github.ref_name }} successfully deployed to production!
+          
+          ✅ All tests passed
+          ✅ Security scans clean
+          ✅ Load tests successful
+          ✅ Health checks passing
+          
+          🔗 Production: https://atom-c017.com
+          📊 Dashboard: https://dashboard.atom-c017.com
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: Teams Notification
+      uses: skitionek/notify-microsoft-teams@master
+      with:
+        webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        message: |
+          🚀 **ATOM-C017 Production Deployment Successful** 🚀
+          
+          **Version**: ${{ github.ref_name }}
+          **Commit**: ${{ github.sha }}
+          **Deployed by**: ${{ github.actor }}
+          
+          All systems operational! 🟢
+
+  notify-failure:
+    name: 🚨 Deployment Failure Notification
+    runs-on: ubuntu-latest
+    needs: [deploy-production, load-testing]
+    if: failure()
+    steps:
+    - name: Slack Failure Notification
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        channel: '#atom-c017-alerts'
+        text: |
+          🚨 ATOM-C017 deployment failed!
+          
+          ❌ Deployment unsuccessful
+          🔗 Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          @channel - Immediate attention required!
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+# ========================================
+# Environment Variables Template
+# ========================================
+# Add these secrets to your GitHub repository:
+# 
+# GITHUB_TOKEN: (auto-provided)
+# SNYK_TOKEN: Your Snyk authentication token
+# SONAR_TOKEN: Your SonarCloud token
+# CODECOV_TOKEN: Your Codecov token
+# KUBE_CONFIG_STAGING: Base64 encoded staging kubeconfig
+# KUBE_CONFIG_PRODUCTION: Base64 encoded production kubeconfig
+# SLACK_WEBHOOK_URL: Slack webhook for notifications
+# TEAMS_WEBHOOK_URL: Teams webhook for notifications 

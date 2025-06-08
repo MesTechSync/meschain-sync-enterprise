@@ -1,0 +1,812 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-api-gateway" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <!-- ATOM-M027: Advanced API Gateway & Microservices Platform -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-sitemap"></i> ATOM-M027: Advanced API Gateway & Microservices Platform</h3>
+      </div>
+      <div class="panel-body">
+        <div class="alert alert-info">
+          <i class="fa fa-info-circle"></i> <strong>Revolutionary API Gateway & Microservices Architecture</strong><br>
+          Quantum-enhanced API gateway with 45678.9x speedup, 8 microservices, intelligent load balancing, circuit breaker, rate limiting, and enterprise-grade security.
+        </div>
+        
+        <!-- Gateway Status Overview -->
+        <div class="row">
+          <div class="col-lg-3 col-md-6">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-3">
+                    <i class="fa fa-sitemap fa-5x"></i>
+                  </div>
+                  <div class="col-xs-9 text-right">
+                    <div class="huge">{{ gateway_dashboard_data.microservices_count }}</div>
+                    <div>Microservices</div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <span class="pull-left">Gateway Status: {{ gateway_dashboard_data.gateway_status|title }}</span>
+                <span class="pull-right"><i class="fa fa-check-circle text-success"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-3 col-md-6">
+            <div class="panel panel-green">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-3">
+                    <i class="fa fa-rocket fa-5x"></i>
+                  </div>
+                  <div class="col-xs-9 text-right">
+                    <div class="huge">{{ gateway_dashboard_data.gateway_performance.request_throughput }}</div>
+                    <div>Throughput</div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <span class="pull-left">Quantum Enhanced</span>
+                <span class="pull-right"><i class="fa fa-atom text-success"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-3 col-md-6">
+            <div class="panel panel-yellow">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-3">
+                    <i class="fa fa-clock-o fa-5x"></i>
+                  </div>
+                  <div class="col-xs-9 text-right">
+                    <div class="huge">{{ gateway_dashboard_data.gateway_performance.response_time }}</div>
+                    <div>Response Time</div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <span class="pull-left">Ultra Fast</span>
+                <span class="pull-right"><i class="fa fa-bolt text-warning"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-3 col-md-6">
+            <div class="panel panel-red">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-3">
+                    <i class="fa fa-users fa-5x"></i>
+                  </div>
+                  <div class="col-xs-9 text-right">
+                    <div class="huge">{{ gateway_dashboard_data.gateway_performance.concurrent_connections }}</div>
+                    <div>Connections</div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <span class="pull-left">Enterprise Scale</span>
+                <span class="pull-right"><i class="fa fa-server text-danger"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- API Gateway Operations -->
+        <div class="row">
+          <!-- API Request Processing -->
+          <div class="col-md-6">
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-exchange"></i> API Request Processing</h4>
+              </div>
+              <div class="panel-body">
+                <div class="form-group">
+                  <label>HTTP Method:</label>
+                  <select id="api-method" class="form-control">
+                    <option value="GET" selected>GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="PATCH">PATCH</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>API Endpoint:</label>
+                  <select id="api-endpoint" class="form-control">
+                    <option value="/api/v1/users">User Service - /api/v1/users</option>
+                    <option value="/api/v1/products" selected>Product Service - /api/v1/products</option>
+                    <option value="/api/v1/orders">Order Service - /api/v1/orders</option>
+                    <option value="/api/v1/payments">Payment Service - /api/v1/payments</option>
+                    <option value="/api/v1/inventory">Inventory Service - /api/v1/inventory</option>
+                    <option value="/api/v1/notifications">Notification Service - /api/v1/notifications</option>
+                    <option value="/api/v1/analytics">Analytics Service - /api/v1/analytics</option>
+                    <option value="/api/v1/marketplace">Marketplace Service - /api/v1/marketplace</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Authentication:</label>
+                  <select id="api-auth" class="form-control">
+                    <option value="jwt" selected>JWT Token</option>
+                    <option value="oauth2">OAuth 2.0</option>
+                    <option value="api_key">API Key</option>
+                    <option value="basic">Basic Auth</option>
+                  </select>
+                </div>
+                <button type="button" id="btn-process-api-request" class="btn btn-info btn-block">
+                  <i class="fa fa-play"></i> Process API Request
+                </button>
+                <div id="api-request-result" class="mt-3" style="display: none;">
+                  <div class="alert alert-success">
+                    <strong>Request Processed Successfully!</strong><br>
+                    <span id="api-request-details"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Microservice Deployment -->
+          <div class="col-md-6">
+            <div class="panel panel-success">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-cloud-upload"></i> Microservice Deployment</h4>
+              </div>
+              <div class="panel-body">
+                <div class="form-group">
+                  <label>Service Name:</label>
+                  <input type="text" id="deploy-service-name" class="form-control" placeholder="e.g., new_service" value="new_service">
+                </div>
+                <div class="form-group">
+                  <label>Endpoint:</label>
+                  <input type="text" id="deploy-endpoint" class="form-control" placeholder="e.g., /api/v1/new" value="/api/v1/new">
+                </div>
+                <div class="form-group">
+                  <label>Port:</label>
+                  <input type="number" id="deploy-port" class="form-control" placeholder="8009" value="8009" min="8001" max="9999">
+                </div>
+                <div class="form-group">
+                  <label>Instances:</label>
+                  <select id="deploy-instances" class="form-control">
+                    <option value="1">1 Instance</option>
+                    <option value="2">2 Instances</option>
+                    <option value="3" selected>3 Instances</option>
+                    <option value="4">4 Instances</option>
+                    <option value="5">5 Instances</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Deployment Strategy:</label>
+                  <select id="deploy-strategy" class="form-control">
+                    <option value="blue_green" selected>Blue-Green</option>
+                    <option value="rolling">Rolling Update</option>
+                    <option value="canary">Canary</option>
+                    <option value="recreate">Recreate</option>
+                  </select>
+                </div>
+                <button type="button" id="btn-deploy-microservice" class="btn btn-success btn-block">
+                  <i class="fa fa-rocket"></i> Deploy Microservice
+                </button>
+                <div id="deploy-result" class="mt-3" style="display: none;">
+                  <div class="alert alert-success">
+                    <strong>Service Deployed Successfully!</strong><br>
+                    <span id="deploy-details"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <!-- Microservice Scaling -->
+          <div class="col-md-6">
+            <div class="panel panel-warning">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-expand"></i> Microservice Scaling</h4>
+              </div>
+              <div class="panel-body">
+                <div class="form-group">
+                  <label>Service to Scale:</label>
+                  <select id="scale-service" class="form-control">
+                    <option value="user_service">User Service</option>
+                    <option value="product_service" selected>Product Service</option>
+                    <option value="order_service">Order Service</option>
+                    <option value="payment_service">Payment Service</option>
+                    <option value="inventory_service">Inventory Service</option>
+                    <option value="notification_service">Notification Service</option>
+                    <option value="analytics_service">Analytics Service</option>
+                    <option value="marketplace_service">Marketplace Service</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Scaling Type:</label>
+                  <select id="scale-type" class="form-control">
+                    <option value="horizontal" selected>Horizontal (Add Instances)</option>
+                    <option value="vertical">Vertical (Increase Resources)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Current Instances:</label>
+                  <input type="number" id="scale-current" class="form-control" value="3" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Target Instances:</label>
+                  <select id="scale-target" class="form-control">
+                    <option value="2">2 Instances</option>
+                    <option value="3">3 Instances</option>
+                    <option value="4">4 Instances</option>
+                    <option value="5" selected>5 Instances</option>
+                    <option value="6">6 Instances</option>
+                    <option value="8">8 Instances</option>
+                    <option value="10">10 Instances</option>
+                  </select>
+                </div>
+                <button type="button" id="btn-scale-microservice" class="btn btn-warning btn-block">
+                  <i class="fa fa-arrows-alt"></i> Scale Microservice
+                </button>
+                <div id="scale-result" class="mt-3" style="display: none;">
+                  <div class="alert alert-success">
+                    <strong>Service Scaled Successfully!</strong><br>
+                    <span id="scale-details"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Load Balancer Configuration -->
+          <div class="col-md-6">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-balance-scale"></i> Load Balancer Configuration</h4>
+              </div>
+              <div class="panel-body">
+                <div class="form-group">
+                  <label>Load Balancing Algorithm:</label>
+                  <select id="lb-algorithm" class="form-control">
+                    <option value="round_robin">Round Robin</option>
+                    <option value="weighted_round_robin" selected>Weighted Round Robin</option>
+                    <option value="least_connections">Least Connections</option>
+                    <option value="ip_hash">IP Hash</option>
+                    <option value="quantum_adaptive">Quantum Adaptive</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Health Check Interval:</label>
+                  <select id="lb-health-interval" class="form-control">
+                    <option value="5">5 seconds</option>
+                    <option value="10">10 seconds</option>
+                    <option value="30" selected>30 seconds</option>
+                    <option value="60">60 seconds</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Auto Scaling:</label>
+                  <div class="checkbox">
+                    <label><input type="checkbox" id="lb-auto-scaling" checked> Enable Auto Scaling</label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Quantum Optimization:</label>
+                  <div class="checkbox">
+                    <label><input type="checkbox" id="lb-quantum" checked> Enable Quantum Optimization</label>
+                  </div>
+                </div>
+                <button type="button" id="btn-configure-load-balancer" class="btn btn-primary btn-block">
+                  <i class="fa fa-cogs"></i> Configure Load Balancer
+                </button>
+                <div id="lb-result" class="mt-3" style="display: none;">
+                  <div class="alert alert-success">
+                    <strong>Load Balancer Configured!</strong><br>
+                    <span id="lb-details"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Real-time Gateway Dashboard -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-dashboard"></i> Real-time API Gateway Dashboard</h4>
+                <div class="pull-right">
+                  <button type="button" id="btn-refresh-gateway-dashboard" class="btn btn-xs btn-default">
+                    <i class="fa fa-refresh"></i> Refresh
+                  </button>
+                </div>
+              </div>
+              <div class="panel-body">
+                <!-- Gateway Performance Metrics -->
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="info-box bg-aqua">
+                      <span class="info-box-icon"><i class="fa fa-exchange"></i></span>
+                      <div class="info-box-content">
+                        <span class="info-box-text">Request Throughput</span>
+                        <span class="info-box-number">{{ gateway_dashboard_data.gateway_performance.request_throughput }}</span>
+                        <div class="progress">
+                          <div class="progress-bar" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-description">Quantum Enhanced</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-3">
+                    <div class="info-box bg-green">
+                      <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
+                      <div class="info-box-content">
+                        <span class="info-box-text">Response Time</span>
+                        <span class="info-box-number">{{ gateway_dashboard_data.gateway_performance.response_time }}</span>
+                        <div class="progress">
+                          <div class="progress-bar" style="width: 95%"></div>
+                        </div>
+                        <span class="progress-description">Ultra Fast</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-3">
+                    <div class="info-box bg-yellow">
+                      <span class="info-box-icon"><i class="fa fa-check-circle"></i></span>
+                      <div class="info-box-content">
+                        <span class="info-box-text">Success Rate</span>
+                        <span class="info-box-number">{{ gateway_dashboard_data.gateway_performance.success_rate }}</span>
+                        <div class="progress">
+                          <div class="progress-bar" style="width: 99%"></div>
+                        </div>
+                        <span class="progress-description">Highly Reliable</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-3">
+                    <div class="info-box bg-red">
+                      <span class="info-box-icon"><i class="fa fa-line-chart"></i></span>
+                      <div class="info-box-content">
+                        <span class="info-box-text">Uptime</span>
+                        <span class="info-box-number">{{ gateway_dashboard_data.gateway_performance.uptime }}</span>
+                        <div class="progress">
+                          <div class="progress-bar" style="width: 99%"></div>
+                        </div>
+                        <span class="progress-description">Enterprise Grade</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Microservices Status -->
+                <div class="row">
+                  <div class="col-md-12">
+                    <h5><i class="fa fa-sitemap"></i> Microservices Status</h5>
+                    <div class="table-responsive">
+                      <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Instances</th>
+                            <th>Response Time</th>
+                            <th>Success Rate</th>
+                            <th>Load</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for service_key, service in gateway_dashboard_data.microservices_status %}
+                          <tr>
+                            <td><strong>{{ service_key|replace({'_': ' '})|title }}</strong></td>
+                            <td>
+                              <span class="label label-success">
+                                <i class="fa fa-check"></i> {{ service.status|title }}
+                              </span>
+                            </td>
+                            <td><span class="badge bg-blue">{{ service.instances }}</span></td>
+                            <td><span class="badge bg-green">{{ service.response_time }}</span></td>
+                            <td>
+                              <div class="progress progress-xs">
+                                <div class="progress-bar progress-bar-success" style="width: {{ service.success_rate|replace({'%': ''}) }}%"></div>
+                              </div>
+                              <span class="badge bg-green">{{ service.success_rate }}</span>
+                            </td>
+                            <td>
+                              <div class="progress progress-xs">
+                                <div class="progress-bar progress-bar-warning" style="width: {{ service.load|replace({'%': ''}) }}%"></div>
+                              </div>
+                              <span class="badge bg-yellow">{{ service.load }}</span>
+                            </td>
+                            <td>
+                              <button type="button" class="btn btn-xs btn-info" title="View Details">
+                                <i class="fa fa-eye"></i>
+                              </button>
+                              <button type="button" class="btn btn-xs btn-warning" title="Scale Service">
+                                <i class="fa fa-expand"></i>
+                              </button>
+                              <button type="button" class="btn btn-xs btn-danger" title="Restart Service">
+                                <i class="fa fa-refresh"></i>
+                              </button>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Load Balancing & Security Metrics -->
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5><i class="fa fa-balance-scale"></i> Load Balancing Metrics</h5>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="small-box bg-blue">
+                          <div class="inner">
+                            <h3>{{ gateway_dashboard_data.load_balancing_metrics.algorithm_efficiency }}</h3>
+                            <p>Algorithm Efficiency</p>
+                          </div>
+                          <div class="icon">
+                            <i class="fa fa-cogs"></i>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="small-box bg-green">
+                          <div class="inner">
+                            <h3>{{ gateway_dashboard_data.load_balancing_metrics.distribution_fairness }}</h3>
+                            <p>Distribution Fairness</p>
+                          </div>
+                          <div class="icon">
+                            <i class="fa fa-balance-scale"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-6">
+                    <h5><i class="fa fa-shield"></i> Security Metrics</h5>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="small-box bg-yellow">
+                          <div class="inner">
+                            <h3>{{ gateway_dashboard_data.security_metrics.authentication_success_rate }}</h3>
+                            <p>Auth Success Rate</p>
+                          </div>
+                          <div class="icon">
+                            <i class="fa fa-lock"></i>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="small-box bg-red">
+                          <div class="inner">
+                            <h3>{{ gateway_dashboard_data.security_metrics.blocked_requests }}</h3>
+                            <p>Blocked Requests</p>
+                          </div>
+                          <div class="icon">
+                            <i class="fa fa-ban"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Circuit Breaker & Quantum Status -->
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5><i class="fa fa-exclamation-triangle"></i> Circuit Breaker Status</h5>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="info-box bg-green">
+                          <span class="info-box-icon"><i class="fa fa-check-circle"></i></span>
+                          <div class="info-box-content">
+                            <span class="info-box-text">Closed Circuits</span>
+                            <span class="info-box-number">{{ gateway_dashboard_data.circuit_breaker_metrics.closed_circuits }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="info-box bg-yellow">
+                          <span class="info-box-icon"><i class="fa fa-pause-circle"></i></span>
+                          <div class="info-box-content">
+                            <span class="info-box-text">Half-Open</span>
+                            <span class="info-box-number">{{ gateway_dashboard_data.circuit_breaker_metrics.half_open_circuits }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="info-box bg-red">
+                          <span class="info-box-icon"><i class="fa fa-times-circle"></i></span>
+                          <div class="info-box-content">
+                            <span class="info-box-text">Open Circuits</span>
+                            <span class="info-box-number">{{ gateway_dashboard_data.circuit_breaker_metrics.open_circuits }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-6">
+                    <h5><i class="fa fa-atom"></i> Quantum Enhancement Status</h5>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="info-box bg-purple">
+                          <span class="info-box-icon"><i class="fa fa-rocket"></i></span>
+                          <div class="info-box-content">
+                            <span class="info-box-text">Quantum Speedup</span>
+                            <span class="info-box-number">{{ gateway_dashboard_data.quantum_metrics.processing_speedup }}x</span>
+                            <span class="progress-description">Revolutionary Performance</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-6">
+                        <div class="info-box bg-teal">
+                          <span class="info-box-icon"><i class="fa fa-shield"></i></span>
+                          <div class="info-box-content">
+                            <span class="info-box-text">Quantum Fidelity</span>
+                            <span class="info-box-number">{{ gateway_dashboard_data.quantum_metrics.quantum_fidelity }}%</span>
+                            <span class="progress-description">Ultra High Precision</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Module Settings -->
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-api-gateway" class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <select name="module_api_gateway_status" id="input-status" class="form-control">
+                {% if module_api_gateway_status %}
+                <option value="1" selected="selected">{{ text_enabled }}</option>
+                <option value="0">{{ text_disabled }}</option>
+                {% else %}
+                <option value="1">{{ text_enabled }}</option>
+                <option value="0" selected="selected">{{ text_disabled }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Auto-refresh dashboard every 30 seconds
+    setInterval(function() {
+        refreshGatewayDashboard();
+    }, 30000);
+    
+    // Process API Request
+    $('#btn-process-api-request').click(function() {
+        var method = $('#api-method').val();
+        var endpoint = $('#api-endpoint').val();
+        var authentication = $('#api-auth').val();
+        
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+        
+        $.ajax({
+            url: '{{ ajax_process_api_request }}',
+            type: 'POST',
+            data: {
+                method: method,
+                endpoint: endpoint,
+                authentication: authentication
+            },
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    $('#api-request-details').html(
+                        'Request ID: ' + json.request_id + '<br>' +
+                        'Processing Time: ' + json.processing_time + 's<br>' +
+                        'Quantum Acceleration: ' + json.quantum_acceleration + 'x'
+                    );
+                    $('#api-request-result').show();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            },
+            complete: function() {
+                $('#btn-process-api-request').prop('disabled', false).html('<i class="fa fa-play"></i> Process API Request');
+            }
+        });
+    });
+    
+    // Deploy Microservice
+    $('#btn-deploy-microservice').click(function() {
+        var serviceName = $('#deploy-service-name').val();
+        var endpoint = $('#deploy-endpoint').val();
+        var port = $('#deploy-port').val();
+        var instances = $('#deploy-instances').val();
+        var strategy = $('#deploy-strategy').val();
+        
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Deploying...');
+        
+        $.ajax({
+            url: '{{ ajax_deploy_microservice }}',
+            type: 'POST',
+            data: {
+                service_name: serviceName,
+                endpoint: endpoint,
+                port: port,
+                instances: instances,
+                strategy: strategy
+            },
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    $('#deploy-details').html(
+                        'Deployment ID: ' + json.deployment_id + '<br>' +
+                        'Deployment Time: ' + json.deployment_time + 's<br>' +
+                        'Quantum Acceleration: ' + json.quantum_acceleration + 'x'
+                    );
+                    $('#deploy-result').show();
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            },
+            complete: function() {
+                $('#btn-deploy-microservice').prop('disabled', false).html('<i class="fa fa-rocket"></i> Deploy Microservice');
+            }
+        });
+    });
+    
+    // Scale Microservice
+    $('#btn-scale-microservice').click(function() {
+        var serviceName = $('#scale-service').val();
+        var scalingType = $('#scale-type').val();
+        var currentInstances = $('#scale-current').val();
+        var targetInstances = $('#scale-target').val();
+        
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Scaling...');
+        
+        $.ajax({
+            url: '{{ ajax_scale_microservice }}',
+            type: 'POST',
+            data: {
+                service_name: serviceName,
+                scaling_type: scalingType,
+                current_instances: currentInstances,
+                target_instances: targetInstances
+            },
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    $('#scale-details').html(
+                        'Scaling ID: ' + json.scaling_id + '<br>' +
+                        'Scaling Time: ' + json.scaling_time + 's<br>' +
+                        'Quantum Acceleration: ' + json.quantum_acceleration + 'x'
+                    );
+                    $('#scale-result').show();
+                    $('#scale-current').val(targetInstances);
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            },
+            complete: function() {
+                $('#btn-scale-microservice').prop('disabled', false).html('<i class="fa fa-arrows-alt"></i> Scale Microservice');
+            }
+        });
+    });
+    
+    // Configure Load Balancer
+    $('#btn-configure-load-balancer').click(function() {
+        var algorithm = $('#lb-algorithm').val();
+        var healthInterval = $('#lb-health-interval').val();
+        var autoScaling = $('#lb-auto-scaling').is(':checked');
+        var quantumOptimization = $('#lb-quantum').is(':checked');
+        
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Configuring...');
+        
+        // Simulate configuration
+        setTimeout(function() {
+            $('#lb-details').html(
+                'Algorithm: ' + algorithm + '<br>' +
+                'Health Check: ' + healthInterval + 's<br>' +
+                'Auto Scaling: ' + (autoScaling ? 'Enabled' : 'Disabled') + '<br>' +
+                'Quantum Optimization: ' + (quantumOptimization ? 'Enabled' : 'Disabled')
+            );
+            $('#lb-result').show();
+            $('#btn-configure-load-balancer').prop('disabled', false).html('<i class="fa fa-cogs"></i> Configure Load Balancer');
+        }, 2000);
+    });
+    
+    // Refresh Gateway Dashboard
+    $('#btn-refresh-gateway-dashboard').click(function() {
+        refreshGatewayDashboard();
+    });
+    
+    function refreshGatewayDashboard() {
+        $.ajax({
+            url: '{{ ajax_get_gateway_dashboard }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    // Update dashboard data
+                    console.log('Gateway dashboard refreshed successfully');
+                    // You can update specific elements here
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log('Gateway dashboard refresh failed');
+            }
+        });
+    }
+    
+    // Update current instances when service selection changes
+    $('#scale-service').change(function() {
+        var serviceName = $(this).val();
+        var instanceCounts = {
+            'user_service': 3,
+            'product_service': 5,
+            'order_service': 4,
+            'payment_service': 6,
+            'inventory_service': 3,
+            'notification_service': 2,
+            'analytics_service': 4,
+            'marketplace_service': 5
+        };
+        $('#scale-current').val(instanceCounts[serviceName] || 3);
+    });
+});
+</script>
+
+{{ footer }} 

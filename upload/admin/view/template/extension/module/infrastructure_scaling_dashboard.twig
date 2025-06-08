@@ -3,61 +3,61 @@
   <div class="page-header">
     <div class="container-fluid">
       <div class="pull-right">
-        <button type="button" class="btn btn-success" onclick="exportInfrastructureReport()">
+        <button type="button" id="export-scaling-report" class="btn btn-primary">
           <i class="fa fa-download"></i> {{ text_export_report }}
         </button>
-        <button type="button" class="btn btn-primary" onclick="runScalingSimulation()">
-          <i class="fa fa-play"></i> {{ text_run_simulation }}
+        <button type="button" id="refresh-scaling-data" class="btn btn-success">
+          <i class="fa fa-refresh"></i> {{ text_refresh }}
         </button>
       </div>
       <h1>{{ heading_title }}</h1>
       <ul class="breadcrumb">
-        <li><a href="{{ home }}">{{ text_home }}</a></li>
-        <li><a href="{{ extension }}">{{ text_extension }}</a></li>
-        <li>{{ heading_title }}</li>
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
       </ul>
     </div>
   </div>
 
   <div class="container-fluid">
-    <!-- Infrastructure Health Overview -->
+    <!-- Infrastructure Overview Cards -->
     <div class="row">
       <div class="col-lg-3 col-md-6">
         <div class="panel panel-primary">
           <div class="panel-heading">
             <div class="row">
               <div class="col-xs-3">
-                <i class="fa fa-server fa-5x"></i>
+                <i class="fa fa-cubes fa-5x"></i>
               </div>
               <div class="col-xs-9 text-right">
-                <div class="huge" id="infrastructure-score">98.5%</div>
-                <div>{{ text_infrastructure_health }}</div>
+                <div class="huge" id="microservices-count">0</div>
+                <div>{{ text_microservices_ready }}</div>
               </div>
             </div>
           </div>
           <div class="panel-footer">
-            <div class="progress">
-              <div class="progress-bar progress-bar-success" role="progressbar" id="health-bar" style="width: 98.5%"></div>
-            </div>
+            <span class="pull-left" id="microservices-status">{{ text_evaluating }}</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
           </div>
         </div>
       </div>
 
       <div class="col-lg-3 col-md-6">
-        <div class="panel panel-success">
+        <div class="panel panel-green">
           <div class="panel-heading">
             <div class="row">
               <div class="col-xs-3">
                 <i class="fa fa-expand fa-5x"></i>
               </div>
               <div class="col-xs-9 text-right">
-                <div class="huge" id="scaling-efficiency">92.3%</div>
-                <div>{{ text_scaling_efficiency }}</div>
+                <div class="huge" id="scaling-capacity">100%</div>
+                <div>{{ text_scaling_capacity }}</div>
               </div>
             </div>
           </div>
           <div class="panel-footer">
-            <span class="pull-left">{{ text_auto_scaling_active }}</span>
+            <span class="pull-left" id="scaling-status">{{ text_ready }}</span>
             <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
             <div class="clearfix"></div>
           </div>
@@ -65,20 +65,20 @@
       </div>
 
       <div class="col-lg-3 col-md-6">
-        <div class="panel panel-warning">
+        <div class="panel panel-yellow">
           <div class="panel-heading">
             <div class="row">
               <div class="col-xs-3">
-                <i class="fa fa-balance-scale fa-5x"></i>
+                <i class="fa fa-docker fa-5x"></i>
               </div>
               <div class="col-xs-9 text-right">
-                <div class="huge" id="load-balance">87%</div>
-                <div>{{ text_load_balance }}</div>
+                <div class="huge" id="container-count">0</div>
+                <div>{{ text_containers_active }}</div>
               </div>
             </div>
           </div>
           <div class="panel-footer">
-            <span class="pull-left">{{ text_load_distributed }}</span>
+            <span class="pull-left" id="container-status">{{ text_initializing }}</span>
             <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
             <div class="clearfix"></div>
           </div>
@@ -86,20 +86,20 @@
       </div>
 
       <div class="col-lg-3 col-md-6">
-        <div class="panel panel-info">
+        <div class="panel panel-red">
           <div class="panel-heading">
             <div class="row">
               <div class="col-xs-3">
-                <i class="fa fa-cloud fa-5x"></i>
+                <i class="fa fa-database fa-5x"></i>
               </div>
               <div class="col-xs-9 text-right">
-                <div class="huge" id="cloud-readiness">95%</div>
-                <div>{{ text_cloud_readiness }}</div>
+                <div class="huge" id="db-cluster-nodes">1</div>
+                <div>{{ text_database_nodes }}</div>
               </div>
             </div>
           </div>
           <div class="panel-footer">
-            <span class="pull-left">{{ text_microservices_ready }}</span>
+            <span class="pull-left" id="db-cluster-status">{{ text_single_node }}</span>
             <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
             <div class="clearfix"></div>
           </div>
@@ -107,40 +107,26 @@
       </div>
     </div>
 
-    <!-- Real-time Scaling Charts -->
+    <!-- Scaling Metrics Charts -->
     <div class="row">
-      <div class="col-lg-6">
+      <div class="col-lg-8">
         <div class="panel panel-default">
           <div class="panel-heading">
-            <i class="fa fa-line-chart fa-fw"></i> {{ text_resource_utilization }}
-            <div class="pull-right">
-              <div class="btn-group">
-                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                  {{ text_actions }}
-                  <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu pull-right" role="menu">
-                  <li><a href="#" onclick="refreshResourceChart()">{{ text_refresh }}</a></li>
-                  <li><a href="#" onclick="exportResourceData()">{{ text_export }}</a></li>
-                  <li class="divider"></li>
-                  <li><a href="#" onclick="configureAlerts()">{{ text_configure_alerts }}</a></li>
-                </ul>
-              </div>
-            </div>
+            <i class="fa fa-line-chart fa-fw"></i> {{ text_scaling_trends }}
           </div>
           <div class="panel-body">
-            <canvas id="resourceChart" height="300"></canvas>
+            <canvas id="scalingTrendsChart" width="400" height="200"></canvas>
           </div>
         </div>
       </div>
 
-      <div class="col-lg-6">
+      <div class="col-lg-4">
         <div class="panel panel-default">
           <div class="panel-heading">
-            <i class="fa fa-bar-chart-o fa-fw"></i> {{ text_scaling_prediction }}
+            <i class="fa fa-pie-chart fa-fw"></i> {{ text_resource_distribution }}
           </div>
           <div class="panel-body">
-            <canvas id="scalingPredictionChart" height="300"></canvas>
+            <canvas id="resourceDistributionChart" width="200" height="200"></canvas>
           </div>
         </div>
       </div>
@@ -148,76 +134,100 @@
 
     <!-- Infrastructure Components Status -->
     <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-server fa-fw"></i> {{ text_load_balancer_status }}
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>{{ text_endpoint }}</th>
+                    <th>{{ text_status }}</th>
+                    <th>{{ text_response_time }}</th>
+                    <th>{{ text_load }}</th>
+                  </tr>
+                </thead>
+                <tbody id="load-balancer-table">
+                  <tr>
+                    <td colspan="4" class="text-center">{{ text_loading }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-cogs fa-fw"></i> {{ text_cicd_pipeline }}
+          </div>
+          <div class="panel-body">
+            <div class="progress-group">
+              <span class="progress-text">{{ text_build_stage }}</span>
+              <span class="float-right"><b id="build-progress">0</b>/100</span>
+              <div class="progress progress-sm">
+                <div class="progress-bar bg-primary" id="build-bar" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="progress-group">
+              <span class="progress-text">{{ text_test_stage }}</span>
+              <span class="float-right"><b id="test-progress">0</b>/100</span>
+              <div class="progress progress-sm">
+                <div class="progress-bar bg-success" id="test-bar" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="progress-group">
+              <span class="progress-text">{{ text_deploy_stage }}</span>
+              <span class="float-right"><b id="deploy-progress">0</b>/100</span>
+              <div class="progress progress-sm">
+                <div class="progress-bar bg-warning" id="deploy-bar" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kubernetes Cluster Status -->
+    <div class="row">
       <div class="col-lg-12">
         <div class="panel panel-default">
           <div class="panel-heading">
-            <i class="fa fa-sitemap fa-fw"></i> {{ text_infrastructure_components }}
-            <div class="pull-right">
-              <button type="button" class="btn btn-xs btn-primary" onclick="refreshComponents()">
-                <i class="fa fa-refresh"></i> {{ text_refresh }}
-              </button>
-            </div>
+            <i class="fa fa-ship fa-fw"></i> {{ text_kubernetes_cluster }}
           </div>
           <div class="panel-body">
             <div class="row">
-              <!-- Load Balancers -->
-              <div class="col-lg-4">
-                <h4>{{ text_load_balancers }}</h4>
-                <div class="list-group" id="load-balancer-list">
-                  <div class="list-group-item">
-                    <span class="badge badge-success">{{ text_active }}</span>
-                    <i class="fa fa-balance-scale"></i> Main Load Balancer
-                    <div class="small text-muted">CPU: 45% | Memory: 62%</div>
-                  </div>
-                  <div class="list-group-item">
-                    <span class="badge badge-success">{{ text_active }}</span>
-                    <i class="fa fa-balance-scale"></i> Secondary LB
-                    <div class="small text-muted">CPU: 38% | Memory: 55%</div>
-                  </div>
+              <div class="col-lg-3">
+                <div class="description-block border-right">
+                  <span class="description-percentage text-green" id="k8s-cpu-usage">0%</span>
+                  <h5 class="description-header">{{ text_cpu_usage }}</h5>
+                  <span class="description-text">{{ text_cluster_wide }}</span>
                 </div>
               </div>
-
-              <!-- Database Clusters -->
-              <div class="col-lg-4">
-                <h4>{{ text_database_clusters }}</h4>
-                <div class="list-group" id="database-cluster-list">
-                  <div class="list-group-item">
-                    <span class="badge badge-success">{{ text_master }}</span>
-                    <i class="fa fa-database"></i> MySQL Master
-                    <div class="small text-muted">Connections: 156/200</div>
-                  </div>
-                  <div class="list-group-item">
-                    <span class="badge badge-info">{{ text_slave }}</span>
-                    <i class="fa fa-database"></i> MySQL Slave-1
-                    <div class="small text-muted">Lag: 0.2s</div>
-                  </div>
-                  <div class="list-group-item">
-                    <span class="badge badge-info">{{ text_slave }}</span>
-                    <i class="fa fa-database"></i> MySQL Slave-2
-                    <div class="small text-muted">Lag: 0.1s</div>
-                  </div>
+              <div class="col-lg-3">
+                <div class="description-block border-right">
+                  <span class="description-percentage text-blue" id="k8s-memory-usage">0%</span>
+                  <h5 class="description-header">{{ text_memory_usage }}</h5>
+                  <span class="description-text">{{ text_cluster_wide }}</span>
                 </div>
               </div>
-
-              <!-- Microservices -->
-              <div class="col-lg-4">
-                <h4>{{ text_microservices }}</h4>
-                <div class="list-group" id="microservices-list">
-                  <div class="list-group-item">
-                    <span class="badge badge-success">3/3</span>
-                    <i class="fa fa-cube"></i> User Service
-                    <div class="small text-muted">Response: 45ms</div>
-                  </div>
-                  <div class="list-group-item">
-                    <span class="badge badge-success">5/5</span>
-                    <i class="fa fa-cube"></i> Product Service
-                    <div class="small text-muted">Response: 67ms</div>
-                  </div>
-                  <div class="list-group-item">
-                    <span class="badge badge-warning">2/3</span>
-                    <i class="fa fa-cube"></i> Order Service
-                    <div class="small text-muted">Response: 123ms</div>
-                  </div>
+              <div class="col-lg-3">
+                <div class="description-block border-right">
+                  <span class="description-percentage text-yellow" id="k8s-pods-running">0</span>
+                  <h5 class="description-header">{{ text_pods_running }}</h5>
+                  <span class="description-text">{{ text_active_pods }}</span>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="description-block">
+                  <span class="description-percentage text-red" id="k8s-nodes-ready">0</span>
+                  <h5 class="description-header">{{ text_nodes_ready }}</h5>
+                  <span class="description-text">{{ text_cluster_nodes }}</span>
                 </div>
               </div>
             </div>
@@ -226,111 +236,17 @@
       </div>
     </div>
 
-    <!-- Auto-scaling Configuration -->
-    <div class="row">
-      <div class="col-lg-6">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <i class="fa fa-cogs fa-fw"></i> {{ text_autoscaling_config }}
-          </div>
-          <div class="panel-body">
-            <div class="form-group">
-              <label>{{ text_cpu_threshold }}</label>
-              <div class="input-group">
-                <input type="number" class="form-control" id="cpu-threshold" value="75" min="1" max="100">
-                <span class="input-group-addon">%</span>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>{{ text_memory_threshold }}</label>
-              <div class="input-group">
-                <input type="number" class="form-control" id="memory-threshold" value="80" min="1" max="100">
-                <span class="input-group-addon">%</span>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>{{ text_scale_out_instances }}</label>
-              <input type="number" class="form-control" id="scale-out-instances" value="2" min="1" max="10">
-            </div>
-            <div class="form-group">
-              <label>{{ text_cooldown_period }}</label>
-              <div class="input-group">
-                <input type="number" class="form-control" id="cooldown-period" value="300" min="60" max="3600">
-                <span class="input-group-addon">{{ text_seconds }}</span>
-              </div>
-            </div>
-            <button type="button" class="btn btn-primary" onclick="updateAutoscalingConfig()">
-              {{ text_update_config }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-6">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <i class="fa fa-bell fa-fw"></i> {{ text_scaling_alerts }}
-          </div>
-          <div class="panel-body">
-            <div class="list-group" id="scaling-alerts">
-              <div class="list-group-item list-group-item-success">
-                <strong>{{ text_scaling_success }}</strong>
-                <p class="small">{{ text_scaled_up_message }}</p>
-                <small class="text-muted">2 {{ text_minutes_ago }}</small>
-              </div>
-              <div class="list-group-item list-group-item-info">
-                <strong>{{ text_threshold_warning }}</strong>
-                <p class="small">{{ text_cpu_high_message }}</p>
-                <small class="text-muted">5 {{ text_minutes_ago }}</small>
-              </div>
-              <div class="list-group-item list-group-item-warning">
-                <strong>{{ text_predictive_alert }}</strong>
-                <p class="small">{{ text_traffic_spike_prediction }}</p>
-                <small class="text-muted">8 {{ text_minutes_ago }}</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Kubernetes Dashboard Integration -->
+    <!-- Scaling Recommendations -->
     <div class="row">
       <div class="col-lg-12">
-        <div class="panel panel-default">
+        <div class="panel panel-info">
           <div class="panel-heading">
-            <i class="fa fa-ship fa-fw"></i> Kubernetes Cluster Status
-            <div class="pull-right">
-              <button type="button" class="btn btn-xs btn-info" onclick="openKubernetesDashboard()">
-                <i class="fa fa-external-link"></i> {{ text_open_k8s_dashboard }}
-              </button>
-            </div>
+            <i class="fa fa-lightbulb-o fa-fw"></i> {{ text_scaling_recommendations }}
           </div>
           <div class="panel-body">
-            <div class="row">
-              <div class="col-md-3">
-                <div class="text-center">
-                  <h3 class="text-success" id="k8s-nodes">12</h3>
-                  <p>{{ text_active_nodes }}</p>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="text-center">
-                  <h3 class="text-info" id="k8s-pods">47</h3>
-                  <p>{{ text_running_pods }}</p>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="text-center">
-                  <h3 class="text-warning" id="k8s-services">15</h3>
-                  <p>{{ text_active_services }}</p>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="text-center">
-                  <h3 class="text-primary" id="k8s-deployments">8</h3>
-                  <p>{{ text_deployments }}</p>
-                </div>
+            <div id="recommendations-list">
+              <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i> {{ text_analyzing_recommendations }}
               </div>
             </div>
           </div>
@@ -340,374 +256,283 @@
   </div>
 </div>
 
-<!-- Infrastructure Scaling JavaScript -->
+<style>
+.panel-green {
+  border-color: #5cb85c;
+}
+.panel-green > .panel-heading {
+  border-color: #5cb85c;
+  color: white;
+  background-color: #5cb85c;
+}
+.panel-green > a {
+  color: #5cb85c;
+}
+.panel-green > a:hover {
+  color: #3d8b3d;
+}
+
+.panel-yellow {
+  border-color: #f0ad4e;
+}
+.panel-yellow > .panel-heading {
+  border-color: #f0ad4e;
+  color: white;
+  background-color: #f0ad4e;
+}
+
+.panel-red {
+  border-color: #d9534f;
+}
+.panel-red > .panel-heading {
+  border-color: #d9534f;
+  color: white;
+  background-color: #d9534f;
+}
+
+.huge {
+  font-size: 40px;
+}
+
+.progress-group {
+  margin-bottom: 15px;
+}
+
+.description-block {
+  text-align: center;
+  padding: 15px;
+}
+
+.description-percentage {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.description-header {
+  margin: 10px 0 5px 0;
+  font-size: 16px;
+}
+
+.description-text {
+  color: #999;
+  font-size: 12px;
+}
+
+.border-right {
+  border-right: 1px solid #f0f0f0;
+}
+
+.text-green { color: #5cb85c !important; }
+.text-blue { color: #337ab7 !important; }
+.text-yellow { color: #f0ad4e !important; }
+.text-red { color: #d9534f !important; }
+
+.bg-primary { background-color: #337ab7 !important; }
+.bg-success { background-color: #5cb85c !important; }
+.bg-warning { background-color: #f0ad4e !important; }
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Real-time data update interval
-let updateInterval;
-let resourceChart, scalingChart;
-
-// Initialize dashboard
 $(document).ready(function() {
-    initializeCharts();
-    startRealTimeUpdates();
-    loadInitialData();
-});
-
-// Initialize Chart.js charts
-function initializeCharts() {
-    // Resource Utilization Chart
-    const resourceCtx = document.getElementById('resourceChart').getContext('2d');
-    resourceChart = new Chart(resourceCtx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'CPU %',
-                data: [],
-                borderColor: 'rgb(255, 99, 132)',
-                backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                tension: 0.1
-            }, {
-                label: 'Memory %',
-                data: [],
-                borderColor: 'rgb(54, 162, 235)',
-                backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                tension: 0.1
-            }, {
-                label: 'Network I/O',
-                data: [],
-                borderColor: 'rgb(255, 205, 86)',
-                backgroundColor: 'rgba(255, 205, 86, 0.1)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100
-                }
-            },
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
-            }
+  let scalingTrendsChart, resourceDistributionChart;
+  
+  // Initialize Charts
+  function initializeCharts() {
+    // Scaling Trends Chart
+    const scalingCtx = document.getElementById('scalingTrendsChart').getContext('2d');
+    scalingTrendsChart = new Chart(scalingCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: '{{ text_cpu_usage }}',
+          data: [],
+          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.1
+        }, {
+          label: '{{ text_memory_usage }}',
+          data: [],
+          borderColor: 'rgb(255, 99, 132)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          tension: 0.1
+        }, {
+          label: '{{ text_network_io }}',
+          data: [],
+          borderColor: 'rgb(54, 162, 235)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100
+          }
         }
+      }
     });
 
-    // Scaling Prediction Chart
-    const scalingCtx = document.getElementById('scalingPredictionChart').getContext('2d');
-    scalingChart = new Chart(scalingCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Current', '1h Pred', '6h Pred', '24h Pred'],
-            datasets: [{
-                label: 'Instance Count',
-                data: [8, 12, 15, 10],
-                backgroundColor: [
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(255, 99, 132, 0.8)',
-                    'rgba(54, 162, 235, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
+    // Resource Distribution Chart
+    const resourceCtx = document.getElementById('resourceDistributionChart').getContext('2d');
+    resourceDistributionChart = new Chart(resourceCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['{{ text_web_servers }}', '{{ text_databases }}', '{{ text_cache_servers }}', '{{ text_queue_workers }}'],
+        datasets: [{
+          data: [40, 25, 20, 15],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 205, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
     });
-}
+  }
 
-// Start real-time updates
-function startRealTimeUpdates() {
-    updateInterval = setInterval(function() {
-        updateMetrics();
-        updateCharts();
-        updateComponentStatus();
-    }, 5000); // Update every 5 seconds
-}
-
-// Update real-time metrics
-function updateMetrics() {
+  // Load Infrastructure Data
+  function loadInfrastructureData() {
     $.ajax({
-        url: 'index.php?route=extension/module/infrastructure_scaling_monitor/getMetrics',
-        type: 'POST',
-        dataType: 'json',
-        success: function(data) {
-            if (data.success) {
-                // Update main metrics
-                $('#infrastructure-score').text(data.infrastructure_health + '%');
-                $('#scaling-efficiency').text(data.scaling_efficiency + '%');
-                $('#load-balance').text(data.load_balance + '%');
-                $('#cloud-readiness').text(data.cloud_readiness + '%');
-                
-                // Update progress bars
-                $('#health-bar').css('width', data.infrastructure_health + '%');
-                
-                // Update Kubernetes stats
-                $('#k8s-nodes').text(data.k8s_nodes);
-                $('#k8s-pods').text(data.k8s_pods);
-                $('#k8s-services').text(data.k8s_services);
-                $('#k8s-deployments').text(data.k8s_deployments);
-            }
-        }
+      url: 'index.php?route=extension/module/infrastructure_scaling_dashboard/getScalingMetrics&user_token={{ user_token }}',
+      type: 'GET',
+      dataType: 'json',
+      success: function(data) {
+        updateDashboard(data);
+      },
+      error: function() {
+        console.error('Failed to load infrastructure data');
+      }
     });
-}
+  }
 
-// Update charts with real-time data
-function updateCharts() {
-    $.ajax({
-        url: 'index.php?route=extension/module/infrastructure_scaling_monitor/getChartData',
-        type: 'POST',
-        dataType: 'json',
-        success: function(data) {
-            if (data.success) {
-                // Update resource chart
-                const now = new Date().toLocaleTimeString();
-                resourceChart.data.labels.push(now);
-                resourceChart.data.datasets[0].data.push(data.cpu_usage);
-                resourceChart.data.datasets[1].data.push(data.memory_usage);
-                resourceChart.data.datasets[2].data.push(data.network_io);
-                
-                // Keep only last 20 data points
-                if (resourceChart.data.labels.length > 20) {
-                    resourceChart.data.labels.shift();
-                    resourceChart.data.datasets.forEach(dataset => dataset.data.shift());
-                }
-                
-                resourceChart.update('none');
-                
-                // Update scaling prediction
-                scalingChart.data.datasets[0].data = data.scaling_prediction;
-                scalingChart.update('none');
-            }
-        }
-    });
-}
-
-// Update component status
-function updateComponentStatus() {
-    $.ajax({
-        url: 'index.php?route=extension/module/infrastructure_scaling_monitor/getComponentStatus',
-        type: 'POST',
-        dataType: 'json',
-        success: function(data) {
-            if (data.success) {
-                updateComponentList('#load-balancer-list', data.load_balancers);
-                updateComponentList('#database-cluster-list', data.databases);
-                updateComponentList('#microservices-list', data.microservices);
-                updateAlertsList(data.alerts);
-            }
-        }
-    });
-}
-
-// Update component list
-function updateComponentList(selector, components) {
-    const container = $(selector);
-    container.empty();
+  // Update Dashboard
+  function updateDashboard(data) {
+    // Update overview cards
+    $('#microservices-count').text(data.microservices.ready_count || 0);
+    $('#microservices-status').text(data.microservices.status || '{{ text_evaluating }}');
     
-    components.forEach(function(component) {
-        const badgeClass = component.status === 'active' ? 'badge-success' : 
-                          component.status === 'warning' ? 'badge-warning' : 'badge-danger';
-        
-        const item = `
-            <div class="list-group-item">
-                <span class="badge ${badgeClass}">${component.status_text}</span>
-                <i class="fa ${component.icon}"></i> ${component.name}
-                <div class="small text-muted">${component.details}</div>
-            </div>
+    $('#scaling-capacity').text((data.scaling.current_capacity || 100) + '%');
+    $('#scaling-status').text(data.scaling.status || '{{ text_ready }}');
+    
+    $('#container-count').text(data.containers.active_count || 0);
+    $('#container-status').text(data.containers.status || '{{ text_initializing }}');
+    
+    $('#db-cluster-nodes').text(data.database.cluster_nodes || 1);
+    $('#db-cluster-status').text(data.database.status || '{{ text_single_node }}');
+
+    // Update Kubernetes metrics
+    $('#k8s-cpu-usage').text((data.kubernetes.cpu_usage || 0) + '%');
+    $('#k8s-memory-usage').text((data.kubernetes.memory_usage || 0) + '%');
+    $('#k8s-pods-running').text(data.kubernetes.pods_running || 0);
+    $('#k8s-nodes-ready').text(data.kubernetes.nodes_ready || 0);
+
+    // Update CI/CD Pipeline
+    updatePipelineProgress(data.cicd || {});
+
+    // Update Load Balancer Table
+    updateLoadBalancerTable(data.load_balancer || []);
+
+    // Update Charts
+    updateCharts(data.metrics || {});
+
+    // Update Recommendations
+    updateRecommendations(data.recommendations || []);
+  }
+
+  // Update Pipeline Progress
+  function updatePipelineProgress(cicd) {
+    $('#build-progress').text(cicd.build_progress || 0);
+    $('#build-bar').css('width', (cicd.build_progress || 0) + '%');
+    
+    $('#test-progress').text(cicd.test_progress || 0);
+    $('#test-bar').css('width', (cicd.test_progress || 0) + '%');
+    
+    $('#deploy-progress').text(cicd.deploy_progress || 0);
+    $('#deploy-bar').css('width', (cicd.deploy_progress || 0) + '%');
+  }
+
+  // Update Load Balancer Table
+  function updateLoadBalancerTable(loadBalancers) {
+    let html = '';
+    if (loadBalancers.length === 0) {
+      html = '<tr><td colspan="4" class="text-center">{{ text_no_load_balancers }}</td></tr>';
+    } else {
+      loadBalancers.forEach(function(lb) {
+        const statusClass = lb.status === 'healthy' ? 'success' : 'danger';
+        html += `
+          <tr>
+            <td>${lb.endpoint}</td>
+            <td><span class="label label-${statusClass}">${lb.status}</span></td>
+            <td>${lb.response_time}ms</td>
+            <td>${lb.load}%</td>
+          </tr>
         `;
-        container.append(item);
-    });
-}
-
-// Update alerts list
-function updateAlertsList(alerts) {
-    const container = $('#scaling-alerts');
-    container.empty();
-    
-    alerts.forEach(function(alert) {
-        const itemClass = alert.type === 'success' ? 'list-group-item-success' :
-                         alert.type === 'warning' ? 'list-group-item-warning' :
-                         alert.type === 'info' ? 'list-group-item-info' : 'list-group-item-danger';
-        
-        const item = `
-            <div class="list-group-item ${itemClass}">
-                <strong>${alert.title}</strong>
-                <p class="small">${alert.message}</p>
-                <small class="text-muted">${alert.time_ago}</small>
-            </div>
-        `;
-        container.append(item);
-    });
-}
-
-// Export infrastructure report
-function exportInfrastructureReport() {
-    window.open('index.php?route=extension/module/infrastructure_scaling_monitor/exportReport', '_blank');
-}
-
-// Run scaling simulation
-function runScalingSimulation() {
-    $.ajax({
-        url: 'index.php?route=extension/module/infrastructure_scaling_monitor/runSimulation',
-        type: 'POST',
-        dataType: 'json',
-        beforeSend: function() {
-            $('button:contains("{{ text_run_simulation }}")').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ text_running }}');
-        },
-        success: function(data) {
-            if (data.success) {
-                alert('{{ text_simulation_success }}');
-                updateCharts();
-            } else {
-                alert('{{ text_simulation_error }}');
-            }
-        },
-        complete: function() {
-            $('button:contains("{{ text_running }}")').prop('disabled', false).html('<i class="fa fa-play"></i> {{ text_run_simulation }}');
-        }
-    });
-}
-
-// Update autoscaling configuration
-function updateAutoscalingConfig() {
-    const config = {
-        cpu_threshold: $('#cpu-threshold').val(),
-        memory_threshold: $('#memory-threshold').val(),
-        scale_out_instances: $('#scale-out-instances').val(),
-        cooldown_period: $('#cooldown-period').val()
-    };
-    
-    $.ajax({
-        url: 'index.php?route=extension/module/infrastructure_scaling_monitor/updateConfig',
-        type: 'POST',
-        data: config,
-        dataType: 'json',
-        success: function(data) {
-            if (data.success) {
-                alert('{{ text_config_updated }}');
-            } else {
-                alert('{{ text_config_error }}');
-            }
-        }
-    });
-}
-
-// Open Kubernetes dashboard
-function openKubernetesDashboard() {
-    window.open('/kubernetes-dashboard', '_blank');
-}
-
-// Load initial data
-function loadInitialData() {
-    updateMetrics();
-    updateCharts();
-    updateComponentStatus();
-}
-
-// Refresh functions
-function refreshResourceChart() {
-    updateCharts();
-}
-
-function refreshComponents() {
-    updateComponentStatus();
-}
-
-// Cleanup on page unload
-$(window).on('beforeunload', function() {
-    if (updateInterval) {
-        clearInterval(updateInterval);
+      });
     }
+    $('#load-balancer-table').html(html);
+  }
+
+  // Update Charts
+  function updateCharts(metrics) {
+    if (metrics.timeline) {
+      scalingTrendsChart.data.labels = metrics.timeline;
+      scalingTrendsChart.data.datasets[0].data = metrics.cpu_usage || [];
+      scalingTrendsChart.data.datasets[1].data = metrics.memory_usage || [];
+      scalingTrendsChart.data.datasets[2].data = metrics.network_io || [];
+      scalingTrendsChart.update();
+    }
+
+    if (metrics.resource_distribution) {
+      resourceDistributionChart.data.datasets[0].data = metrics.resource_distribution;
+      resourceDistributionChart.update();
+    }
+  }
+
+  // Update Recommendations
+  function updateRecommendations(recommendations) {
+    let html = '';
+    if (recommendations.length === 0) {
+      html = '<div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_no_recommendations }}</div>';
+    } else {
+      recommendations.forEach(function(rec) {
+        const alertClass = rec.priority === 'high' ? 'danger' : (rec.priority === 'medium' ? 'warning' : 'info');
+        html += `
+          <div class="alert alert-${alertClass}">
+            <i class="fa fa-${rec.icon || 'info-circle'}"></i>
+            <strong>${rec.title}</strong><br>
+            ${rec.description}
+          </div>
+        `;
+      });
+    }
+    $('#recommendations-list').html(html);
+  }
+
+  // Event Handlers
+  $('#refresh-scaling-data').click(function() {
+    loadInfrastructureData();
+  });
+
+  $('#export-scaling-report').click(function() {
+    window.location.href = 'index.php?route=extension/module/infrastructure_scaling_dashboard/exportReport&user_token={{ user_token }}';
+  });
+
+  // Initialize
+  initializeCharts();
+  loadInfrastructureData();
+  
+  // Auto-refresh every 10 seconds
+  setInterval(loadInfrastructureData, 10000);
 });
 </script>
-
-<style>
-.huge {
-    font-size: 32px;
-    font-weight: bold;
-}
-
-.panel-heading .fa-5x {
-    font-size: 3em;
-}
-
-.progress {
-    margin-bottom: 0;
-}
-
-.badge-success {
-    background-color: #5cb85c;
-}
-
-.badge-warning {
-    background-color: #f0ad4e;
-}
-
-.badge-info {
-    background-color: #5bc0de;
-}
-
-.badge-danger {
-    background-color: #d9534f;
-}
-
-.list-group-item {
-    border: 1px solid #ddd;
-    margin-bottom: 2px;
-}
-
-.list-group-item:hover {
-    background-color: #f5f5f5;
-}
-
-.text-center h3 {
-    margin: 10px 0;
-}
-
-#resourceChart, #scalingPredictionChart {
-    max-height: 300px;
-}
-
-.btn-group .dropdown-menu {
-    min-width: 150px;
-}
-
-@media (max-width: 768px) {
-    .huge {
-        font-size: 24px;
-    }
-    
-    .panel-heading .fa-5x {
-        font-size: 2em;
-    }
-}
-</style>
 
 {{ footer }}
