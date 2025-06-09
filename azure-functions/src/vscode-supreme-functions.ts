@@ -31,12 +31,10 @@ const supremeCache = new NodeCache({
 const redisCluster = new Redis({
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379'),
-    retryDelayOnFailover: 100,
     enableReadyCheck: false,
     maxRetriesPerRequest: 3,
     lazyConnect: true,
-    keepAlive: 30000,
-    compression: 'gzip'
+    keepAlive: 30000
 });
 
 // 🔥 ATOM-VSCODE-106: QUANTUM-LEVEL BACKEND SUPREMACY
