@@ -179,6 +179,408 @@ class ControllerExtensionModuleTrendyol extends ControllerExtensionModuleBaseMar
     }
 
     /**
+     * Trendyol AI-Powered Analytics Dashboard
+     */
+    public function advancedAnalytics() {
+        $json = array();
+        
+        try {
+            // Access control
+            if (!$this->checkTrendyolAccess('view')) {
+                throw new Exception('Access denied');
+            }
+            
+            $analytics_type = $this->request->post['analytics_type'] ?? 'performance';
+            $date_range = $this->request->post['date_range'] ?? 'last_30_days';
+            
+            $this->load->model('extension/module/trendyol');
+            $this->load->library('meschain/helper/trendyol_analytics');
+            
+            switch ($analytics_type) {
+                case 'performance':
+                    $analytics_data = $this->trendyol_analytics->getPerformanceAnalytics($date_range);
+                    break;
+                case 'financial':
+                    $analytics_data = $this->trendyol_analytics->getFinancialAnalytics($date_range);
+                    break;
+                case 'competitive':
+                    $analytics_data = $this->trendyol_analytics->getCompetitiveAnalytics($date_range);
+                    break;
+                case 'customer_insights':
+                    $analytics_data = $this->trendyol_analytics->getCustomerInsights($date_range);
+                    break;
+                case 'predictive':
+                    $analytics_data = $this->trendyol_analytics->getPredictiveAnalytics($date_range);
+                    break;
+                default:
+                    throw new Exception('Invalid analytics type');
+            }
+            
+            $json['success'] = true;
+            $json['analytics_data'] = $analytics_data;
+            $json['ai_insights'] = $this->trendyol_analytics->generateAiInsights($analytics_data);
+            $json['recommendations'] = $this->trendyol_analytics->generateRecommendations($analytics_type, $analytics_data);
+            $json['generated_at'] = date('Y-m-d H:i:s');
+            
+            $this->writeLog('analytics', 'ADVANCED_ANALYTICS_GENERATED', "Gelişmiş analiz raporu oluşturuldu: {$analytics_type}");
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->writeLog('error', 'ADVANCED_ANALYTICS_ERROR', $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Trendyol Smart Pricing Engine with AI
+     */
+    public function smartPricingEngine() {
+        $json = array();
+        
+        try {
+            // Access control
+            if (!$this->checkTrendyolAccess('modify')) {
+                throw new Exception('Modify access denied');
+            }
+            
+            // Feature limit check
+            $limitCheck = $this->checkFeatureLimit('price_optimization');
+            if (!$limitCheck['allowed']) {
+                throw new Exception($limitCheck['message']);
+            }
+            
+            $products = $this->request->post['products'] ?? array();
+            $pricing_strategy = $this->request->post['strategy'] ?? 'ai_optimized';
+            $market_analysis = $this->request->post['market_analysis'] ?? true;
+            $competitor_tracking = $this->request->post['competitor_tracking'] ?? true;
+            
+            $this->load->model('extension/module/trendyol');
+            $this->load->library('meschain/helper/trendyol_pricing');
+            
+            $pricing_results = array();
+            $total_optimizations = 0;
+            $total_revenue_impact = 0;
+            
+            foreach ($products as $product_id) {
+                try {
+                    $product = $this->model_extension_module_trendyol->getProduct($product_id);
+                    
+                    // Market analysis
+                    $market_data = array();
+                    if ($market_analysis) {
+                        $market_data = $this->trendyol_pricing->analyzeMarketPosition($product);
+                    }
+                    
+                    // Competitor tracking
+                    $competitor_data = array();
+                    if ($competitor_tracking) {
+                        $competitor_data = $this->trendyol_pricing->trackCompetitorPrices($product);
+                    }
+                    
+                    // AI-powered optimal price calculation
+                    $optimal_price = $this->trendyol_pricing->calculateAiOptimalPrice(
+                        $product, 
+                        $market_data, 
+                        $competitor_data, 
+                        $pricing_strategy
+                    );
+                    
+                    // Price update on Trendyol
+                    $update_result = $this->trendyol_pricing->updateProductPrice($product_id, $optimal_price);
+                    
+                    // Calculate impact
+                    $revenue_impact = $this->trendyol_pricing->calculateRevenueImpact($product, $optimal_price);
+                    
+                    $pricing_results[$product_id] = array(
+                        'product_name' => $product['name'],
+                        'current_price' => $product['price'],
+                        'optimal_price' => $optimal_price,
+                        'price_difference' => $optimal_price - $product['price'],
+                        'percentage_change' => (($optimal_price - $product['price']) / $product['price']) * 100,
+                        'market_position' => $market_data['position'] ?? 'N/A',
+                        'competitor_min_price' => $competitor_data['min_price'] ?? 0,
+                        'competitor_avg_price' => $competitor_data['avg_price'] ?? 0,
+                        'revenue_impact' => $revenue_impact,
+                        'confidence_score' => $this->trendyol_pricing->getConfidenceScore($product, $optimal_price),
+                        'update_status' => $update_result['success'] ? 'updated' : 'failed',
+                        'ai_reasoning' => $this->trendyol_pricing->getAiReasoning($product, $optimal_price)
+                    );
+                    
+                    if ($update_result['success']) {
+                        $total_optimizations++;
+                        $total_revenue_impact += $revenue_impact['projected_increase'] ?? 0;
+                    }
+                    
+                } catch (Exception $e) {
+                    $pricing_results[$product_id] = array('error' => $e->getMessage());
+                }
+            }
+            
+            $json['success'] = true;
+            $json['pricing_results'] = $pricing_results;
+            $json['summary'] = array(
+                'total_products' => count($products),
+                'successful_optimizations' => $total_optimizations,
+                'total_revenue_impact' => $total_revenue_impact,
+                'strategy_used' => $pricing_strategy,
+                'ai_confidence' => $this->trendyol_pricing->getOverallConfidence($pricing_results)
+            );
+            
+            $this->writeLog('pricing', 'SMART_PRICING_COMPLETED', "AI fiyat optimizasyonu tamamlandı. {$total_optimizations} ürün güncellendi.");
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->writeLog('error', 'SMART_PRICING_ERROR', $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Trendyol Premium Seller Features Management
+     */
+    public function premiumSellerFeatures() {
+        $json = array();
+        
+        try {
+            // Access control
+            if (!$this->checkTrendyolAccess('modify')) {
+                throw new Exception('Modify access denied');
+            }
+            
+            $feature_type = $this->request->post['feature_type'] ?? 'sponsored_products';
+            $action = $this->request->post['action'] ?? 'activate';
+            
+            $this->load->model('extension/module/trendyol');
+            $this->load->library('meschain/helper/trendyol_premium');
+            
+            switch ($feature_type) {
+                case 'sponsored_products':
+                    $result = $this->trendyol_premium->manageSponsoredProducts($action, $this->request->post);
+                    break;
+                case 'trendyol_express':
+                    $result = $this->trendyol_premium->manageTrendyolExpress($action, $this->request->post);
+                    break;
+                case 'elite_membership':
+                    $result = $this->trendyol_premium->manageEliteMembership($action, $this->request->post);
+                    break;
+                case 'fast_delivery':
+                    $result = $this->trendyol_premium->manageFastDelivery($action, $this->request->post);
+                    break;
+                case 'premium_support':
+                    $result = $this->trendyol_premium->managePremiumSupport($action, $this->request->post);
+                    break;
+                case 'advanced_analytics':
+                    $result = $this->trendyol_premium->manageAdvancedAnalytics($action, $this->request->post);
+                    break;
+                default:
+                    throw new Exception('Invalid premium feature type');
+            }
+            
+            $json['success'] = true;
+            $json['feature_type'] = $feature_type;
+            $json['action'] = $action;
+            $json['result'] = $result;
+            $json['premium_status'] = $this->trendyol_premium->getPremiumStatus();
+            
+            $this->writeLog('premium', 'PREMIUM_FEATURE_MANAGED', "Premium özellik yönetildi: {$feature_type} - {$action}");
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->writeLog('error', 'PREMIUM_FEATURE_ERROR', $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Trendyol Automated Marketing Campaigns
+     */
+    public function automatedMarketing() {
+        $json = array();
+        
+        try {
+            // Access control
+            if (!$this->checkTrendyolAccess('modify')) {
+                throw new Exception('Modify access denied');
+            }
+            
+            $campaign_type = $this->request->post['campaign_type'] ?? 'seasonal_promotion';
+            $target_products = $this->request->post['products'] ?? array();
+            $budget = $this->request->post['budget'] ?? 1000;
+            $duration = $this->request->post['duration'] ?? 30;
+            
+            $this->load->model('extension/module/trendyol');
+            $this->load->library('meschain/helper/trendyol_marketing');
+            
+            switch ($campaign_type) {
+                case 'seasonal_promotion':
+                    $campaign_result = $this->trendyol_marketing->createSeasonalPromotion($target_products, $this->request->post);
+                    break;
+                case 'flash_sale':
+                    $campaign_result = $this->trendyol_marketing->createFlashSale($target_products, $this->request->post);
+                    break;
+                case 'cross_sell_campaign':
+                    $campaign_result = $this->trendyol_marketing->createCrossSellCampaign($target_products, $this->request->post);
+                    break;
+                case 'loyalty_program':
+                    $campaign_result = $this->trendyol_marketing->createLoyaltyProgram($this->request->post);
+                    break;
+                case 'influencer_collaboration':
+                    $campaign_result = $this->trendyol_marketing->createInfluencerCollaboration($target_products, $this->request->post);
+                    break;
+                case 'social_media_campaign':
+                    $campaign_result = $this->trendyol_marketing->createSocialMediaCampaign($target_products, $this->request->post);
+                    break;
+                default:
+                    throw new Exception('Invalid campaign type');
+            }
+            
+            $json['success'] = true;
+            $json['campaign_type'] = $campaign_type;
+            $json['campaign_result'] = $campaign_result;
+            $json['target_products_count'] = count($target_products);
+            $json['budget_allocated'] = $budget;
+            $json['campaign_duration'] = $duration;
+            $json['expected_roi'] = $this->trendyol_marketing->calculateExpectedRoi($campaign_result);
+            
+            $this->writeLog('marketing', 'AUTOMATED_CAMPAIGN_CREATED', "Otomatik kampanya oluşturuldu: {$campaign_type}");
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->writeLog('error', 'AUTOMATED_MARKETING_ERROR', $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Trendyol Advanced Inventory Intelligence
+     */
+    public function inventoryIntelligence() {
+        $json = array();
+        
+        try {
+            // Access control
+            if (!$this->checkTrendyolAccess('view')) {
+                throw new Exception('Access denied');
+            }
+            
+            $intelligence_type = $this->request->post['intelligence_type'] ?? 'demand_forecasting';
+            
+            $this->load->model('extension/module/trendyol');
+            $this->load->library('meschain/helper/trendyol_inventory');
+            
+            switch ($intelligence_type) {
+                case 'demand_forecasting':
+                    $intelligence_data = $this->trendyol_inventory->forecastDemand();
+                    break;
+                case 'stock_optimization':
+                    $intelligence_data = $this->trendyol_inventory->optimizeStock();
+                    break;
+                case 'seasonal_analysis':
+                    $intelligence_data = $this->trendyol_inventory->analyzeSeasonalPatterns();
+                    break;
+                case 'supplier_performance':
+                    $intelligence_data = $this->trendyol_inventory->analyzeSupplierPerformance();
+                    break;
+                case 'cost_optimization':
+                    $intelligence_data = $this->trendyol_inventory->optimizeCosts();
+                    break;
+                case 'risk_assessment':
+                    $intelligence_data = $this->trendyol_inventory->assessRisks();
+                    break;
+                default:
+                    throw new Exception('Invalid intelligence type');
+            }
+            
+            $json['success'] = true;
+            $json['intelligence_type'] = $intelligence_type;
+            $json['intelligence_data'] = $intelligence_data;
+            $json['ai_recommendations'] = $this->trendyol_inventory->generateAiRecommendations($intelligence_type, $intelligence_data);
+            $json['automation_opportunities'] = $this->trendyol_inventory->identifyAutomationOpportunities($intelligence_data);
+            $json['generated_at'] = date('Y-m-d H:i:s');
+            
+            $this->writeLog('inventory', 'INVENTORY_INTELLIGENCE_GENERATED', "Envanter zekası raporu oluşturuldu: {$intelligence_type}");
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->writeLog('error', 'INVENTORY_INTELLIGENCE_ERROR', $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Trendyol Customer Experience Optimization
+     */
+    public function customerExperienceOptimization() {
+        $json = array();
+        
+        try {
+            // Access control
+            if (!$this->checkTrendyolAccess('modify')) {
+                throw new Exception('Modify access denied');
+            }
+            
+            $optimization_type = $this->request->post['optimization_type'] ?? 'review_management';
+            
+            $this->load->model('extension/module/trendyol');
+            $this->load->library('meschain/helper/trendyol_customer_experience');
+            
+            switch ($optimization_type) {
+                case 'review_management':
+                    $optimization_result = $this->trendyol_customer_experience->optimizeReviewManagement();
+                    break;
+                case 'question_response':
+                    $optimization_result = $this->trendyol_customer_experience->optimizeQuestionResponse();
+                    break;
+                case 'customer_service':
+                    $optimization_result = $this->trendyol_customer_experience->optimizeCustomerService();
+                    break;
+                case 'delivery_experience':
+                    $optimization_result = $this->trendyol_customer_experience->optimizeDeliveryExperience();
+                    break;
+                case 'return_process':
+                    $optimization_result = $this->trendyol_customer_experience->optimizeReturnProcess();
+                    break;
+                case 'communication':
+                    $optimization_result = $this->trendyol_customer_experience->optimizeCommunication();
+                    break;
+                default:
+                    throw new Exception('Invalid optimization type');
+            }
+            
+            $json['success'] = true;
+            $json['optimization_type'] = $optimization_type;
+            $json['optimization_result'] = $optimization_result;
+            $json['customer_satisfaction_score'] = $this->trendyol_customer_experience->getCustomerSatisfactionScore();
+            $json['improvement_recommendations'] = $this->trendyol_customer_experience->getImprovementRecommendations($optimization_type);
+            
+            $this->writeLog('customer_experience', 'CX_OPTIMIZATION_COMPLETED', "Müşteri deneyimi optimizasyonu tamamlandı: {$optimization_type}");
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->writeLog('error', 'CX_OPTIMIZATION_ERROR', $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
      * Modül yükleme
      */
     public function install() {

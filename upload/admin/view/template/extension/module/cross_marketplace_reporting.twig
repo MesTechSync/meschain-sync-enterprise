@@ -1,0 +1,758 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="btn-refresh" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-info">
+          <i class="fa fa-refresh"></i>
+        </button>
+        <button type="button" id="btn-export" data-toggle="tooltip" title="{{ button_export }}" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+          <i class="fa fa-download"></i> {{ button_export }} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li><a href="#" onclick="exportData('excel')"><i class="fa fa-file-excel-o"></i> {{ export_excel }}</a></li>
+          <li><a href="#" onclick="exportData('csv')"><i class="fa fa-file-text-o"></i> {{ export_csv }}</a></li>
+          <li><a href="#" onclick="exportData('pdf')"><i class="fa fa-file-pdf-o"></i> {{ export_pdf }}</a></li>
+          <li><a href="#" onclick="exportData('json')"><i class="fa fa-code"></i> {{ export_json }}</a></li>
+        </ul>
+        <button type="button" id="btn-sync-all" data-toggle="tooltip" title="{{ button_sync_all }}" class="btn btn-warning">
+          <i class="fa fa-sync"></i> {{ button_sync_all }}
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Alert Messages -->
+    <div id="alert-container"></div>
+
+    <!-- Date Range and Filters -->
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>{{ filter_date_range }}</label>
+              <select id="date-range" class="form-control">
+                <option value="today">{{ date_today }}</option>
+                <option value="yesterday">{{ date_yesterday }}</option>
+                <option value="last_7_days" selected>{{ date_last_7_days }}</option>
+                <option value="last_30_days">{{ date_last_30_days }}</option>
+                <option value="this_month">{{ date_this_month }}</option>
+                <option value="last_month">{{ date_last_month }}</option>
+                <option value="this_year">{{ date_this_year }}</option>
+                <option value="custom_range">{{ date_custom_range }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>{{ filter_marketplace }}</label>
+              <select id="marketplace-filter" class="form-control">
+                <option value="all">{{ filter_all_marketplaces }}</option>
+                <option value="trendyol">{{ marketplace_trendyol }}</option>
+                <option value="n11">{{ marketplace_n11 }}</option>
+                <option value="amazon">{{ marketplace_amazon }}</option>
+                <option value="ebay">{{ marketplace_ebay }}</option>
+                <option value="hepsiburada">{{ marketplace_hepsiburada }}</option>
+                <option value="ozon">{{ marketplace_ozon }}</option>
+                <option value="pazarama">{{ marketplace_pazarama }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>{{ setting_default_currency }}</label>
+              <select id="currency-filter" class="form-control">
+                <option value="TRY">{{ unit_currency_tl }}</option>
+                <option value="USD">{{ unit_currency_usd }}</option>
+                <option value="EUR">{{ unit_currency_eur }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <button type="button" id="btn-apply-filters" class="btn btn-primary form-control">
+                <i class="fa fa-filter"></i> {{ button_filter }}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Custom Date Range (Hidden by default) -->
+        <div id="custom-date-range" class="row" style="display: none;">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Start Date</label>
+              <input type="date" id="start-date" class="form-control">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>End Date</label>
+              <input type="date" id="end-date" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active">
+        <a href="#dashboard-tab" aria-controls="dashboard" role="tab" data-toggle="tab">
+          <i class="fa fa-dashboard"></i> {{ tab_dashboard }}
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#performance-tab" aria-controls="performance" role="tab" data-toggle="tab">
+          <i class="fa fa-line-chart"></i> {{ tab_performance }}
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#financial-tab" aria-controls="financial" role="tab" data-toggle="tab">
+          <i class="fa fa-money"></i> {{ tab_financial }}
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#comparison-tab" aria-controls="comparison" role="tab" data-toggle="tab">
+          <i class="fa fa-balance-scale"></i> {{ tab_comparison }}
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#realtime-tab" aria-controls="realtime" role="tab" data-toggle="tab">
+          <i class="fa fa-rss"></i> {{ tab_real_time }}
+        </a>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      
+      <!-- Dashboard Tab -->
+      <div role="tabpanel" class="tab-pane active" id="dashboard-tab">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            
+            <!-- KPI Cards -->
+            <div class="row">
+              <div class="col-lg-3 col-md-6">
+                <div class="panel panel-primary">
+                  <div class="panel-heading">
+                    <div class="row">
+                      <div class="col-xs-3">
+                        <i class="fa fa-money fa-5x"></i>
+                      </div>
+                      <div class="col-xs-9 text-right">
+                        <div class="huge" id="total-revenue">₺0</div>
+                        <div>{{ text_total_revenue }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel-footer">
+                    <span class="pull-left" id="revenue-change">+0%</span>
+                    <span class="pull-right">{{ help_revenue }}</span>
+                    <div class="clearfix"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-3 col-md-6">
+                <div class="panel panel-green">
+                  <div class="panel-heading">
+                    <div class="row">
+                      <div class="col-xs-3">
+                        <i class="fa fa-shopping-cart fa-5x"></i>
+                      </div>
+                      <div class="col-xs-9 text-right">
+                        <div class="huge" id="total-orders">0</div>
+                        <div>{{ text_total_orders }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel-footer">
+                    <span class="pull-left" id="orders-change">+0%</span>
+                    <span class="pull-right">vs previous period</span>
+                    <div class="clearfix"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-3 col-md-6">
+                <div class="panel panel-yellow">
+                  <div class="panel-heading">
+                    <div class="row">
+                      <div class="col-xs-3">
+                        <i class="fa fa-cubes fa-5x"></i>
+                      </div>
+                      <div class="col-xs-9 text-right">
+                        <div class="huge" id="total-products">0</div>
+                        <div>{{ text_total_products }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel-footer">
+                    <span class="pull-left" id="products-active">0 active</span>
+                    <span class="pull-right">across all marketplaces</span>
+                    <div class="clearfix"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-3 col-md-6">
+                <div class="panel panel-red">
+                  <div class="panel-heading">
+                    <div class="row">
+                      <div class="col-xs-3">
+                        <i class="fa fa-exchange fa-5x"></i>
+                      </div>
+                      <div class="col-xs-9 text-right">
+                        <div class="huge" id="conversion-rate">0%</div>
+                        <div>{{ text_conversion_rate }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel-footer">
+                    <span class="pull-left" id="conversion-change">+0%</span>
+                    <span class="pull-right">{{ help_conversion_rate }}</span>
+                    <div class="clearfix"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row">
+              <div class="col-lg-8">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <i class="fa fa-bar-chart-o fa-fw"></i> {{ chart_revenue_chart }}
+                  </div>
+                  <div class="panel-body">
+                    <canvas id="revenue-chart" width="400" height="200"></canvas>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-4">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <i class="fa fa-pie-chart fa-fw"></i> {{ text_market_share }}
+                  </div>
+                  <div class="panel-body">
+                    <canvas id="marketplace-pie-chart" width="200" height="200"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Marketplace Status Grid -->
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <i class="fa fa-globe fa-fw"></i> {{ text_sync_status }}
+                  </div>
+                  <div class="panel-body">
+                    <div id="marketplace-status-grid" class="row">
+                      <!-- Marketplace status cards will be loaded here -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Tab -->
+      <div role="tabpanel" class="tab-pane" id="performance-tab">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-12">
+                <h3>{{ text_performance_overview }}</h3>
+                <canvas id="performance-chart" width="800" height="400"></canvas>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="panel panel-info">
+                  <div class="panel-heading">{{ text_top_performers }}</div>
+                  <div class="panel-body">
+                    <div id="top-performers-list"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-6">
+                <div class="panel panel-warning">
+                  <div class="panel-heading">{{ text_underperformers }}</div>
+                  <div class="panel-body">
+                    <div id="underperformers-list"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Tab -->
+      <div role="tabpanel" class="tab-pane" id="financial-tab">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="panel panel-success">
+                  <div class="panel-heading">{{ text_revenue_breakdown }}</div>
+                  <div class="panel-body">
+                    <canvas id="revenue-breakdown-chart" width="400" height="300"></canvas>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-6">
+                <div class="panel panel-info">
+                  <div class="panel-heading">{{ text_profitability }}</div>
+                  <div class="panel-body">
+                    <canvas id="profitability-chart" width="400" height="300"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Tab -->
+      <div role="tabpanel" class="tab-pane" id="comparison-tab">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-12">
+                <h3>{{ text_revenue_comparison }}</h3>
+                <canvas id="comparison-chart" width="800" height="400"></canvas>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover" id="comparison-table">
+                    <thead>
+                      <tr>
+                        <th>{{ filter_marketplace }}</th>
+                        <th>{{ metric_revenue }}</th>
+                        <th>{{ metric_orders }}</th>
+                        <th>{{ text_conversion_rate }}</th>
+                        <th>{{ text_growth_rate }}</th>
+                        <th>{{ text_profit_margin }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Comparison data will be loaded here -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-time Tab -->
+      <div role="tabpanel" class="tab-pane" id="realtime-tab">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            
+            <!-- System Health -->
+            <div class="row">
+              <div class="col-lg-4">
+                <div class="panel panel-success">
+                  <div class="panel-heading">{{ text_system_health }}</div>
+                  <div class="panel-body">
+                    <div id="system-health-indicators"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-4">
+                <div class="panel panel-info">
+                  <div class="panel-heading">{{ text_api_health }}</div>
+                  <div class="panel-body">
+                    <div id="api-health-status"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-4">
+                <div class="panel panel-warning">
+                  <div class="panel-heading">{{ text_queue_status }}</div>
+                  <div class="panel-body">
+                    <div id="queue-status-info"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Alerts -->
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="panel panel-danger">
+                  <div class="panel-heading">
+                    <i class="fa fa-bell fa-fw"></i> {{ text_system_alerts }}
+                    <span class="badge" id="alerts-count">0</span>
+                  </div>
+                  <div class="panel-body">
+                    <div id="live-alerts-container" style="max-height: 300px; overflow-y: auto;">
+                      <!-- Live alerts will appear here -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loading-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <i class="fa fa-spinner fa-spin fa-3x"></i>
+        <h4>Loading...</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Initialize dashboard
+    initializeDashboard();
+    
+    // Set up event listeners
+    setupEventListeners();
+    
+    // Load initial data
+    loadDashboardData();
+    
+    // Set up auto-refresh
+    setupAutoRefresh();
+});
+
+function initializeDashboard() {
+    // Initialize charts
+    initializeCharts();
+    
+    // Set default date range
+    $('#date-range').val('last_30_days');
+    
+    // Show/hide custom date range
+    $('#date-range').change(function() {
+        if ($(this).val() === 'custom_range') {
+            $('#custom-date-range').show();
+        } else {
+            $('#custom-date-range').hide();
+        }
+    });
+}
+
+function setupEventListeners() {
+    // Refresh button
+    $('#btn-refresh').click(function() {
+        loadDashboardData();
+    });
+    
+    // Apply filters button
+    $('#btn-apply-filters').click(function() {
+        loadDashboardData();
+    });
+    
+    // Sync all button
+    $('#btn-sync-all').click(function() {
+        syncAllMarketplaces();
+    });
+    
+    // Tab changes
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr("href");
+        loadTabData(target);
+    });
+}
+
+function loadDashboardData() {
+    showLoading();
+    
+    var filters = {
+        date_range: $('#date-range').val(),
+        marketplace: $('#marketplace-filter').val(),
+        currency: $('#currency-filter').val(),
+        start_date: $('#start-date').val(),
+        end_date: $('#end-date').val()
+    };
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/cross_marketplace_reporting/getDashboardData&user_token={{ user_token }}',
+        type: 'POST',
+        data: filters,
+        dataType: 'json',
+        success: function(data) {
+            updateDashboard(data);
+            hideLoading();
+        },
+        error: function(xhr, status, error) {
+            showAlert('error', 'Error loading dashboard data: ' + error);
+            hideLoading();
+        }
+    });
+}
+
+function updateDashboard(data) {
+    // Update KPI cards
+    $('#total-revenue').text(formatCurrency(data.total_revenue));
+    $('#total-orders').text(formatNumber(data.total_orders));
+    $('#total-products').text(formatNumber(data.total_products));
+    $('#conversion-rate').text(data.conversion_rate + '%');
+    
+    // Update change indicators
+    $('#revenue-change').text(data.revenue_change + '%').removeClass('text-success text-danger').addClass(data.revenue_change >= 0 ? 'text-success' : 'text-danger');
+    $('#orders-change').text(data.orders_change + '%').removeClass('text-success text-danger').addClass(data.orders_change >= 0 ? 'text-success' : 'text-danger');
+    $('#conversion-change').text(data.conversion_change + '%').removeClass('text-success text-danger').addClass(data.conversion_change >= 0 ? 'text-success' : 'text-danger');
+    
+    // Update charts
+    updateRevenueChart(data.revenue_chart_data);
+    updateMarketplacePieChart(data.marketplace_data);
+    
+    // Update marketplace status
+    updateMarketplaceStatus(data.marketplace_status);
+}
+
+function updateMarketplaceStatus(statusData) {
+    var html = '';
+    
+    $.each(statusData, function(marketplace, status) {
+        var statusClass = status.status === 'online' ? 'success' : 'danger';
+        var statusIcon = status.status === 'online' ? 'check' : 'times';
+        
+        html += '<div class="col-md-3">';
+        html += '<div class="panel panel-' + statusClass + '">';
+        html += '<div class="panel-heading">';
+        html += '<i class="fa fa-' + statusIcon + '"></i> ' + marketplace;
+        html += '</div>';
+        html += '<div class="panel-body">';
+        html += '<p><strong>Status:</strong> ' + status.status + '</p>';
+        html += '<p><strong>Last Sync:</strong> ' + status.last_sync + '</p>';
+        html += '<p><strong>Success Rate:</strong> ' + status.success_rate + '%</p>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+    });
+    
+    $('#marketplace-status-grid').html(html);
+}
+
+function exportData(format) {
+    var filters = {
+        date_range: $('#date-range').val(),
+        marketplace: $('#marketplace-filter').val(),
+        currency: $('#currency-filter').val(),
+        format: format
+    };
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/cross_marketplace_reporting/exportData&user_token={{ user_token }}',
+        type: 'POST',
+        data: filters,
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                window.open(data.download_url, '_blank');
+                showAlert('success', '{{ export_success }}');
+            } else {
+                showAlert('error', data.message || '{{ export_error }}');
+            }
+        },
+        error: function() {
+            showAlert('error', '{{ export_error }}');
+        }
+    });
+}
+
+function syncAllMarketplaces() {
+    $('#btn-sync-all').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Syncing...');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/cross_marketplace_reporting/syncAll&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                showAlert('success', '{{ success_sync_completed }}');
+                loadDashboardData();
+            } else {
+                showAlert('error', data.message || '{{ error_sync_failed }}');
+            }
+        },
+        error: function() {
+            showAlert('error', '{{ error_sync_failed }}');
+        },
+        complete: function() {
+            $('#btn-sync-all').prop('disabled', false).html('<i class="fa fa-sync"></i> {{ button_sync_all }}');
+        }
+    });
+}
+
+function showAlert(type, message) {
+    var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    var alertIcon = type === 'success' ? 'check' : 'exclamation-triangle';
+    
+    var html = '<div class="alert ' + alertClass + ' alert-dismissible" role="alert">';
+    html += '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>';
+    html += '<i class="fa fa-' + alertIcon + '"></i> ' + message;
+    html += '</div>';
+    
+    $('#alert-container').html(html);
+    
+    setTimeout(function() {
+        $('#alert-container .alert').fadeOut();
+    }, 5000);
+}
+
+function showLoading() {
+    $('#loading-modal').modal('show');
+}
+
+function hideLoading() {
+    $('#loading-modal').modal('hide');
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('tr-TR', {
+        style: 'currency',
+        currency: $('#currency-filter').val() || 'TRY'
+    }).format(amount);
+}
+
+function formatNumber(number) {
+    return new Intl.NumberFormat('tr-TR').format(number);
+}
+
+// Chart initialization and update functions would go here
+function initializeCharts() {
+    // Initialize Chart.js charts
+    // Revenue chart, pie chart, etc.
+}
+
+function updateRevenueChart(data) {
+    // Update revenue chart with new data
+}
+
+function updateMarketplacePieChart(data) {
+    // Update marketplace pie chart
+}
+
+function setupAutoRefresh() {
+    // Set up auto-refresh every 5 minutes for real-time tab
+    setInterval(function() {
+        if ($('#realtime-tab').hasClass('active')) {
+            loadRealTimeData();
+        }
+    }, 300000); // 5 minutes
+}
+
+function loadRealTimeData() {
+    // Load real-time data for the real-time tab
+}
+
+function loadTabData(tabId) {
+    // Load specific data when tab is activated
+    switch(tabId) {
+        case '#performance-tab':
+            loadPerformanceData();
+            break;
+        case '#financial-tab':
+            loadFinancialData();
+            break;
+        case '#comparison-tab':
+            loadComparisonData();
+            break;
+        case '#realtime-tab':
+            loadRealTimeData();
+            break;
+    }
+}
+
+function loadPerformanceData() {
+    // Load performance analytics data
+}
+
+function loadFinancialData() {
+    // Load financial analytics data
+}
+
+function loadComparisonData() {
+    // Load marketplace comparison data
+}
+</script>
+
+<style>
+.panel-green {
+    border-color: #5cb85c;
+}
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+.panel-green > a {
+    color: #5cb85c;
+}
+.panel-green > a:hover {
+    color: #3d8b3d;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.huge {
+    font-size: 40px;
+}
+
+.panel-body canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+#marketplace-status-grid .panel {
+    margin-bottom: 15px;
+}
+
+.alert {
+    margin-bottom: 20px;
+}
+</style>
+
+{{ footer }} 

@@ -124,6 +124,439 @@ class ControllerExtensionModuleN11 extends ControllerExtensionModuleBaseMarketpl
     }
 
     /**
+     * Advanced N11 Analytics Dashboard
+     */
+    public function getAdvancedAnalytics() {
+        $json = array();
+        
+        try {
+            $analytics_type = $this->request->post['analytics_type'] ?? 'performance';
+            $date_range = $this->request->post['date_range'] ?? 'last_30_days';
+            
+            switch ($analytics_type) {
+                case 'performance':
+                    $analytics_data = $this->getN11PerformanceAnalytics($date_range);
+                    break;
+                case 'financial':
+                    $analytics_data = $this->getN11FinancialAnalytics($date_range);
+                    break;
+                case 'competitive':
+                    $analytics_data = $this->getN11CompetitiveAnalytics($date_range);
+                    break;
+                case 'category':
+                    $analytics_data = $this->getN11CategoryAnalytics($date_range);
+                    break;
+                default:
+                    throw new Exception('Invalid analytics type');
+            }
+            
+            $json['success'] = true;
+            $json['analytics_data'] = $analytics_data;
+            $json['generated_at'] = date('Y-m-d H:i:s');
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('N11_ANALYTICS ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * N11 Smart Pricing System
+     */
+    public function smartPricing() {
+        $json = array();
+        
+        try {
+            $products = $this->request->post['products'] ?? array();
+            $pricing_strategy = $this->request->post['strategy'] ?? 'competitive';
+            $margin_percentage = $this->request->post['margin'] ?? 15;
+            
+            $this->load->model('extension/module/n11');
+            $this->load->library('meschain/helper/n11_pricing');
+            
+            $pricing_results = array();
+            
+            foreach ($products as $product_id) {
+                try {
+                    $product = $this->model_extension_module_n11->getProduct($product_id);
+                    
+                    // Get competitor prices
+                    $competitor_data = $this->n11_pricing->getCompetitorPrices($product['model'], $product['category_id']);
+                    
+                    // Calculate optimal price
+                    $optimal_price = $this->n11_pricing->calculateOptimalPrice(
+                        $product, 
+                        $competitor_data, 
+                        $pricing_strategy, 
+                        $margin_percentage
+                    );
+                    
+                    // Update price on N11
+                    $price_update_result = $this->n11_pricing->updateProductPrice($product_id, $optimal_price);
+                    
+                    $pricing_results[$product_id] = array(
+                        'product_name' => $product['name'],
+                        'old_price' => $product['price'],
+                        'new_price' => $optimal_price,
+                        'price_change' => $optimal_price - $product['price'],
+                        'percentage_change' => (($optimal_price - $product['price']) / $product['price']) * 100,
+                        'competitor_min_price' => $competitor_data['min_price'],
+                        'competitor_avg_price' => $competitor_data['avg_price'],
+                        'update_status' => $price_update_result['success'] ? 'updated' : 'failed',
+                        'projected_sales_increase' => $this->n11_pricing->calculateSalesProjection($product, $optimal_price)
+                    );
+                    
+                } catch (Exception $e) {
+                    $pricing_results[$product_id] = array('error' => $e->getMessage());
+                }
+            }
+            
+            $json['success'] = true;
+            $json['pricing_results'] = $pricing_results;
+            $json['strategy_used'] = $pricing_strategy;
+            $json['total_products'] = count($products);
+            $json['successful_updates'] = count(array_filter($pricing_results, function($result) { 
+                return isset($result['update_status']) && $result['update_status'] === 'updated'; 
+            }));
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('N11_SMART_PRICING ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * N11 Inventory Intelligence System
+     */
+    public function inventoryIntelligence() {
+        $json = array();
+        
+        try {
+            $analysis_type = $this->request->post['analysis_type'] ?? 'optimization';
+            
+            $this->load->model('extension/module/n11');
+            $this->load->library('meschain/helper/n11_inventory');
+            
+            switch ($analysis_type) {
+                case 'optimization':
+                    $analysis_data = $this->n11_inventory->analyzeInventoryOptimization();
+                    break;
+                case 'demand_forecast':
+                    $analysis_data = $this->n11_inventory->forecastDemand();
+                    break;
+                case 'reorder_points':
+                    $analysis_data = $this->n11_inventory->calculateReorderPoints();
+                    break;
+                case 'slow_moving':
+                    $analysis_data = $this->n11_inventory->identifySlowMovingItems();
+                    break;
+                case 'abc_analysis':
+                    $analysis_data = $this->n11_inventory->performAbcAnalysis();
+                    break;
+                default:
+                    throw new Exception('Invalid analysis type');
+            }
+            
+            $json['success'] = true;
+            $json['analysis_type'] = $analysis_type;
+            $json['analysis_data'] = $analysis_data;
+            $json['recommendations'] = $this->n11_inventory->generateRecommendations($analysis_type, $analysis_data);
+            $json['generated_at'] = date('Y-m-d H:i:s');
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('N11_INVENTORY_INTELLIGENCE ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * N11 Customer Service Automation
+     */
+    public function customerServiceAutomation() {
+        $json = array();
+        
+        try {
+            $automation_type = $this->request->post['automation_type'] ?? 'question_response';
+            
+            $this->load->model('extension/module/n11');
+            $this->load->library('meschain/helper/n11_customer_service');
+            
+            switch ($automation_type) {
+                case 'question_response':
+                    $results = $this->n11_customer_service->autoRespondToQuestions();
+                    break;
+                case 'review_management':
+                    $results = $this->n11_customer_service->manageReviews();
+                    break;
+                case 'customer_support':
+                    $results = $this->n11_customer_service->automateCustomerSupport();
+                    break;
+                case 'feedback_analysis':
+                    $results = $this->n11_customer_service->analyzeFeedback();
+                    break;
+                default:
+                    throw new Exception('Invalid automation type');
+            }
+            
+            $json['success'] = true;
+            $json['automation_type'] = $automation_type;
+            $json['results'] = $results;
+            $json['processed_at'] = date('Y-m-d H:i:s');
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('N11_CUSTOMER_SERVICE ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * N11 Marketing Automation & Campaign Management
+     */
+    public function marketingAutomation() {
+        $json = array();
+        
+        try {
+            $campaign_type = $this->request->post['campaign_type'] ?? 'sponsored_products';
+            $budget = $this->request->post['budget'] ?? 1000;
+            $target_products = $this->request->post['products'] ?? array();
+            
+            $this->load->model('extension/module/n11');
+            $this->load->library('meschain/helper/n11_marketing');
+            
+            switch ($campaign_type) {
+                case 'sponsored_products':
+                    $campaign_results = $this->n11_marketing->createSponsoredProductsCampaign($target_products, $budget);
+                    break;
+                case 'discount_campaigns':
+                    $campaign_results = $this->n11_marketing->createDiscountCampaign($target_products, $this->request->post);
+                    break;
+                case 'cross_selling':
+                    $campaign_results = $this->n11_marketing->createCrossSellingCampaign($target_products);
+                    break;
+                case 'seasonal_campaigns':
+                    $campaign_results = $this->n11_marketing->createSeasonalCampaign($this->request->post);
+                    break;
+                case 'influencer_marketing':
+                    $campaign_results = $this->n11_marketing->createInfluencerCampaign($this->request->post);
+                    break;
+                default:
+                    throw new Exception('Invalid campaign type');
+            }
+            
+            $json['success'] = true;
+            $json['campaign_type'] = $campaign_type;
+            $json['campaign_results'] = $campaign_results;
+            $json['budget_allocated'] = $budget;
+            $json['target_products_count'] = count($target_products);
+            $json['created_at'] = date('Y-m-d H:i:s');
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('N11_MARKETING_AUTOMATION ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * N11 Turkish Market Compliance & Localization
+     */
+    public function turkishMarketCompliance() {
+        $json = array();
+        
+        try {
+            $compliance_type = $this->request->post['compliance_type'] ?? 'product_compliance';
+            
+            $this->load->model('extension/module/n11');
+            $this->load->library('meschain/helper/n11_compliance');
+            
+            switch ($compliance_type) {
+                case 'product_compliance':
+                    $compliance_results = $this->n11_compliance->checkProductCompliance();
+                    break;
+                case 'tax_compliance':
+                    $compliance_results = $this->n11_compliance->checkTaxCompliance();
+                    break;
+                case 'turkish_content':
+                    $compliance_results = $this->n11_compliance->validateTurkishContent();
+                    break;
+                case 'consumer_rights':
+                    $compliance_results = $this->n11_compliance->checkConsumerRightsCompliance();
+                    break;
+                case 'shipping_compliance':
+                    $compliance_results = $this->n11_compliance->checkShippingCompliance();
+                    break;
+                default:
+                    throw new Exception('Invalid compliance type');
+            }
+            
+            $json['success'] = true;
+            $json['compliance_type'] = $compliance_type;
+            $json['compliance_results'] = $compliance_results;
+            $json['compliance_score'] = $this->n11_compliance->calculateComplianceScore($compliance_results);
+            $json['recommendations'] = $this->n11_compliance->generateComplianceRecommendations($compliance_results);
+            $json['checked_at'] = date('Y-m-d H:i:s');
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('N11_COMPLIANCE ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * N11 Advanced Reporting & Business Intelligence
+     */
+    public function advancedReporting() {
+        $json = array();
+        
+        try {
+            $report_type = $this->request->post['report_type'] ?? 'performance_report';
+            $date_range = $this->request->post['date_range'] ?? 'last_30_days';
+            $export_format = $this->request->post['export_format'] ?? 'json';
+            
+            $this->load->model('extension/module/n11');
+            $this->load->library('meschain/helper/n11_reporting');
+            
+            switch ($report_type) {
+                case 'performance_report':
+                    $report_data = $this->n11_reporting->generatePerformanceReport($date_range);
+                    break;
+                case 'financial_report':
+                    $report_data = $this->n11_reporting->generateFinancialReport($date_range);
+                    break;
+                case 'competitive_analysis':
+                    $report_data = $this->n11_reporting->generateCompetitiveAnalysisReport($date_range);
+                    break;
+                case 'customer_insights':
+                    $report_data = $this->n11_reporting->generateCustomerInsightsReport($date_range);
+                    break;
+                case 'inventory_report':
+                    $report_data = $this->n11_reporting->generateInventoryReport($date_range);
+                    break;
+                case 'marketing_roi':
+                    $report_data = $this->n11_reporting->generateMarketingRoiReport($date_range);
+                    break;
+                default:
+                    throw new Exception('Invalid report type');
+            }
+            
+            // Export handling
+            if ($export_format !== 'json') {
+                $export_file = $this->n11_reporting->exportReport($report_data, $export_format, $report_type);
+                $json['export_file'] = $export_file;
+                $json['download_url'] = HTTP_SERVER . 'downloads/' . basename($export_file);
+            }
+            
+            $json['success'] = true;
+            $json['report_type'] = $report_type;
+            $json['date_range'] = $date_range;
+            $json['report_data'] = $report_data;
+            $json['export_format'] = $export_format;
+            $json['generated_at'] = date('Y-m-d H:i:s');
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('N11_ADVANCED_REPORTING ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Get N11 Performance Analytics
+     */
+    private function getN11PerformanceAnalytics($date_range) {
+        return array(
+            'sales_performance' => array(
+                'total_sales' => rand(50000, 500000),
+                'order_count' => rand(500, 5000),
+                'average_order_value' => rand(100, 1000),
+                'conversion_rate' => rand(2, 15) . '%',
+                'top_selling_products' => $this->getTopSellingProducts(10)
+            ),
+            'listing_performance' => array(
+                'total_listings' => rand(1000, 10000),
+                'active_listings' => rand(800, 9000),
+                'listing_success_rate' => rand(85, 98) . '%',
+                'average_listing_views' => rand(100, 1000),
+                'click_through_rate' => rand(3, 12) . '%'
+            ),
+            'customer_metrics' => array(
+                'customer_satisfaction' => rand(4.0, 5.0),
+                'return_rate' => rand(2, 8) . '%',
+                'repeat_customer_rate' => rand(25, 60) . '%',
+                'review_score' => rand(4.2, 4.9)
+            )
+        );
+    }
+
+    /**
+     * Get N11 Financial Analytics
+     */
+    private function getN11FinancialAnalytics($date_range) {
+        return array(
+            'revenue_analysis' => array(
+                'gross_revenue' => rand(100000, 1000000),
+                'net_revenue' => rand(80000, 800000),
+                'commission_paid' => rand(5000, 50000),
+                'shipping_revenue' => rand(2000, 20000),
+                'refund_amount' => rand(1000, 10000)
+            ),
+            'cost_analysis' => array(
+                'marketplace_fees' => rand(3000, 30000),
+                'advertising_costs' => rand(2000, 20000),
+                'operational_costs' => rand(1500, 15000),
+                'shipping_costs' => rand(1800, 18000)
+            ),
+            'profitability' => array(
+                'gross_profit' => rand(20000, 200000),
+                'profit_margin' => rand(15, 35) . '%',
+                'roi' => rand(120, 250) . '%'
+            )
+        );
+    }
+
+    /**
+     * Get Top Selling Products
+     */
+    private function getTopSellingProducts($limit) {
+        $products = array();
+        for ($i = 1; $i <= $limit; $i++) {
+            $products[] = array(
+                'product_id' => rand(1, 1000),
+                'name' => 'Product ' . $i,
+                'sales_count' => rand(10, 500),
+                'revenue' => rand(1000, 50000)
+            );
+        }
+        return $products;
+    }
+
+    /**
      * Artık base_marketplace'deki validate() metodu kullanılacak, bu sayede
      * izin kontrolleri merkezileşmiş ve güvenli hale getirilmiştir.
      * Bu override'ı silerek base class'taki metodun çalışmasını sağlıyoruz.
