@@ -1,0 +1,929 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="btn-train-model" data-toggle="tooltip" title="{{ button_train_model }}" class="btn btn-primary">
+          <i class="fa fa-cogs"></i> {{ button_train_model }}
+        </button>
+        <button type="button" id="btn-generate-predictions" data-toggle="tooltip" title="{{ button_generate_predictions }}" class="btn btn-info">
+          <i class="fa fa-magic"></i> {{ button_generate_predictions }}
+        </button>
+        <button type="button" id="btn-refresh" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-warning">
+          <i class="fa fa-refresh"></i>
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    
+    <!-- Alert Messages -->
+    <div id="alert-container"></div>
+
+    <!-- AI Model Status Cards -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-brain fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="total-models">{{ ai_stats.total_models|default(0) }}</div>
+                <div>{{ text_total_models }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">{{ ai_stats.deployed_models|default(0) }} {{ text_deployed }}</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-lightbulb-o fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="monthly-predictions">{{ ai_stats.monthly_predictions|default(0) }}</div>
+                <div>{{ text_monthly_predictions }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">{{ (ai_stats.avg_confidence|default(0) * 100)|number_format(1) }}% {{ text_avg_confidence }}</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-eye fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="monthly-insights">{{ ai_stats.monthly_insights|default(0) }}</div>
+                <div>{{ text_monthly_insights }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">{{ ai_stats.high_priority_insights|default(0) }} {{ text_high_priority }}</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-tasks fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="running-jobs">{{ ai_stats.running_jobs|default(0) }}</div>
+                <div>{{ text_running_jobs }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">{{ ai_stats.daily_completed_jobs|default(0) }} {{ text_completed_today }}</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active">
+        <a href="#models-tab" aria-controls="models" role="tab" data-toggle="tab">
+          <i class="fa fa-cogs"></i> {{ tab_ai_models }}
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#predictions-tab" aria-controls="predictions" role="tab" data-toggle="tab">
+          <i class="fa fa-magic"></i> {{ tab_predictions }}
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#insights-tab" aria-controls="insights" role="tab" data-toggle="tab">
+          <i class="fa fa-lightbulb-o"></i> {{ tab_insights }}
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#training-tab" aria-controls="training" role="tab" data-toggle="tab">
+          <i class="fa fa-graduation-cap"></i> {{ tab_training }}
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#performance-tab" aria-controls="performance" role="tab" data-toggle="tab">
+          <i class="fa fa-line-chart"></i> {{ tab_performance }}
+        </a>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      
+      <!-- AI Models Tab -->
+      <div role="tabpanel" class="tab-pane active" id="models-tab">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_ai_models_overview }}</h3>
+          </div>
+          <div class="panel-body">
+            
+            <!-- Model Performance Grid -->
+            <div class="row">
+              <div class="col-md-4">
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h4>{{ model_price_optimization }}</h4>
+                    <span class="badge">95% {{ text_accuracy }}</span>
+                  </div>
+                  <div class="panel-body">
+                    <p><strong>{{ text_status }}:</strong> <span class="label label-success">{{ text_deployed }}</span></p>
+                    <p><strong>{{ text_last_trained }}:</strong> 2024-01-15</p>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-success" role="progressbar" style="width: 95%">95%</div>
+                    </div>
+                    <p class="text-muted">{{ help_price_optimization }}</p>
+                  </div>
+                  <div class="panel-footer">
+                    <button class="btn btn-sm btn-primary" onclick="retrainModel('price_optimization')">
+                      <i class="fa fa-refresh"></i> {{ button_retrain }}
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="viewModelDetails('price_optimization')">
+                      <i class="fa fa-eye"></i> {{ button_details }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h4>{{ model_demand_forecasting }}</h4>
+                    <span class="badge">90% {{ text_accuracy }}</span>
+                  </div>
+                  <div class="panel-body">
+                    <p><strong>{{ text_status }}:</strong> <span class="label label-success">{{ text_deployed }}</span></p>
+                    <p><strong>{{ text_last_trained }}:</strong> 2024-01-12</p>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-success" role="progressbar" style="width: 90%">90%</div>
+                    </div>
+                    <p class="text-muted">{{ help_demand_forecasting }}</p>
+                  </div>
+                  <div class="panel-footer">
+                    <button class="btn btn-sm btn-primary" onclick="retrainModel('demand_forecasting')">
+                      <i class="fa fa-refresh"></i> {{ button_retrain }}
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="viewModelDetails('demand_forecasting')">
+                      <i class="fa fa-eye"></i> {{ button_details }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h4>{{ model_customer_segmentation }}</h4>
+                    <span class="badge">85% {{ text_accuracy }}</span>
+                  </div>
+                  <div class="panel-body">
+                    <p><strong>{{ text_status }}:</strong> <span class="label label-success">{{ text_deployed }}</span></p>
+                    <p><strong>{{ text_last_trained }}:</strong> 2024-01-10</p>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-warning" role="progressbar" style="width: 85%">85%</div>
+                    </div>
+                    <p class="text-muted">{{ help_customer_segmentation }}</p>
+                  </div>
+                  <div class="panel-footer">
+                    <button class="btn btn-sm btn-primary" onclick="retrainModel('customer_segmentation')">
+                      <i class="fa fa-refresh"></i> {{ button_retrain }}
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="viewModelDetails('customer_segmentation')">
+                      <i class="fa fa-eye"></i> {{ button_details }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Second Row of Models -->
+            <div class="row">
+              <div class="col-md-4">
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h4>{{ model_inventory_optimization }}</h4>
+                    <span class="badge">92% {{ text_accuracy }}</span>
+                  </div>
+                  <div class="panel-body">
+                    <p><strong>{{ text_status }}:</strong> <span class="label label-success">{{ text_deployed }}</span></p>
+                    <p><strong>{{ text_last_trained }}:</strong> 2024-01-14</p>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-success" role="progressbar" style="width: 92%">92%</div>
+                    </div>
+                    <p class="text-muted">{{ help_inventory_optimization }}</p>
+                  </div>
+                  <div class="panel-footer">
+                    <button class="btn btn-sm btn-primary" onclick="retrainModel('inventory_optimization')">
+                      <i class="fa fa-refresh"></i> {{ button_retrain }}
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="viewModelDetails('inventory_optimization')">
+                      <i class="fa fa-eye"></i> {{ button_details }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h4>{{ model_competitor_analysis }}</h4>
+                    <span class="badge">88% {{ text_accuracy }}</span>
+                  </div>
+                  <div class="panel-body">
+                    <p><strong>{{ text_status }}:</strong> <span class="label label-success">{{ text_deployed }}</span></p>
+                    <p><strong>{{ text_last_trained }}:</strong> 2024-01-11</p>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-warning" role="progressbar" style="width: 88%">88%</div>
+                    </div>
+                    <p class="text-muted">{{ help_competitor_analysis }}</p>
+                  </div>
+                  <div class="panel-footer">
+                    <button class="btn btn-sm btn-primary" onclick="retrainModel('competitor_analysis')">
+                      <i class="fa fa-refresh"></i> {{ button_retrain }}
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="viewModelDetails('competitor_analysis')">
+                      <i class="fa fa-eye"></i> {{ button_details }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h4>{{ model_fraud_detection }}</h4>
+                    <span class="badge">98% {{ text_accuracy }}</span>
+                  </div>
+                  <div class="panel-body">
+                    <p><strong>{{ text_status }}:</strong> <span class="label label-success">{{ text_deployed }}</span></p>
+                    <p><strong>{{ text_last_trained }}:</strong> 2024-01-16</p>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-success" role="progressbar" style="width: 98%">98%</div>
+                    </div>
+                    <p class="text-muted">{{ help_fraud_detection }}</p>
+                  </div>
+                  <div class="panel-footer">
+                    <button class="btn btn-sm btn-primary" onclick="retrainModel('fraud_detection')">
+                      <i class="fa fa-refresh"></i> {{ button_retrain }}
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="viewModelDetails('fraud_detection')">
+                      <i class="fa fa-eye"></i> {{ button_details }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sentiment Analysis Model -->
+            <div class="row">
+              <div class="col-md-4">
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h4>{{ model_sentiment_analysis }}</h4>
+                    <span class="badge">93% {{ text_accuracy }}</span>
+                  </div>
+                  <div class="panel-body">
+                    <p><strong>{{ text_status }}:</strong> <span class="label label-success">{{ text_deployed }}</span></p>
+                    <p><strong>{{ text_last_trained }}:</strong> 2024-01-13</p>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-success" role="progressbar" style="width: 93%">93%</div>
+                    </div>
+                    <p class="text-muted">{{ help_sentiment_analysis }}</p>
+                  </div>
+                  <div class="panel-footer">
+                    <button class="btn btn-sm btn-primary" onclick="retrainModel('sentiment_analysis')">
+                      <i class="fa fa-refresh"></i> {{ button_retrain }}
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="viewModelDetails('sentiment_analysis')">
+                      <i class="fa fa-eye"></i> {{ button_details }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Predictions Tab -->
+      <div role="tabpanel" class="tab-pane" id="predictions-tab">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_recent_predictions }}</h3>
+          </div>
+          <div class="panel-body">
+            
+            <!-- Prediction Filters -->
+            <div class="row">
+              <div class="col-md-3">
+                <select class="form-control" id="prediction-type-filter">
+                  <option value="">{{ filter_all_types }}</option>
+                  <option value="price_optimization">{{ prediction_price_optimization }}</option>
+                  <option value="demand_forecasting">{{ prediction_demand_forecasting }}</option>
+                  <option value="customer_segmentation">{{ prediction_customer_segmentation }}</option>
+                  <option value="inventory_optimization">{{ prediction_inventory_optimization }}</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select class="form-control" id="marketplace-filter">
+                  <option value="">{{ filter_all_marketplaces }}</option>
+                  <option value="trendyol">{{ marketplace_trendyol }}</option>
+                  <option value="n11">{{ marketplace_n11 }}</option>
+                  <option value="amazon">{{ marketplace_amazon }}</option>
+                  <option value="hepsiburada">{{ marketplace_hepsiburada }}</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select class="form-control" id="confidence-filter">
+                  <option value="">{{ filter_all_confidence }}</option>
+                  <option value="high">{{ confidence_high }}</option>
+                  <option value="medium">{{ confidence_medium }}</option>
+                  <option value="low">{{ confidence_low }}</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <button class="btn btn-primary" onclick="loadPredictions()">
+                  <i class="fa fa-filter"></i> {{ button_filter }}
+                </button>
+              </div>
+            </div>
+
+            <br>
+
+            <!-- Predictions Table -->
+            <div class="table-responsive">
+              <table class="table table-striped table-hover" id="predictions-table">
+                <thead>
+                  <tr>
+                    <th>{{ column_prediction_type }}</th>
+                    <th>{{ column_entity }}</th>
+                    <th>{{ column_predicted_value }}</th>
+                    <th>{{ column_confidence }}</th>
+                    <th>{{ column_marketplace }}</th>
+                    <th>{{ column_date }}</th>
+                    <th>{{ column_status }}</th>
+                    <th>{{ column_action }}</th>
+                  </tr>
+                </thead>
+                <tbody id="predictions-table-body">
+                  <!-- Predictions will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Insights Tab -->
+      <div role="tabpanel" class="tab-pane" id="insights-tab">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_ai_insights }}</h3>
+          </div>
+          <div class="panel-body">
+            
+            <!-- High Priority Insights -->
+            <div class="alert alert-warning">
+              <h4><i class="fa fa-exclamation-triangle"></i> {{ text_high_priority_insights }}</h4>
+              <div id="high-priority-insights">
+                <!-- High priority insights will be loaded here -->
+              </div>
+            </div>
+
+            <!-- Insights Grid -->
+            <div id="insights-grid" class="row">
+              <!-- Insights cards will be loaded here -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Training Tab -->
+      <div role="tabpanel" class="tab-pane" id="training-tab">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_training_jobs }}</h3>
+          </div>
+          <div class="panel-body">
+            
+            <!-- Active Training Jobs -->
+            <div class="row">
+              <div class="col-lg-12">
+                <h4>{{ text_active_training_jobs }}</h4>
+                <div id="active-jobs-container">
+                  <!-- Active training jobs will be loaded here -->
+                </div>
+              </div>
+            </div>
+
+            <hr>
+
+            <!-- Training History -->
+            <div class="row">
+              <div class="col-lg-12">
+                <h4>{{ text_training_history }}</h4>
+                <div class="table-responsive">
+                  <table class="table table-striped" id="training-history-table">
+                    <thead>
+                      <tr>
+                        <th>{{ column_job_name }}</th>
+                        <th>{{ column_model }}</th>
+                        <th>{{ column_job_type }}</th>
+                        <th>{{ column_start_time }}</th>
+                        <th>{{ column_duration }}</th>
+                        <th>{{ column_status }}</th>
+                        <th>{{ column_accuracy }}</th>
+                        <th>{{ column_action }}</th>
+                      </tr>
+                    </thead>
+                    <tbody id="training-history-body">
+                      <!-- Training history will be loaded here -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Tab -->
+      <div role="tabpanel" class="tab-pane" id="performance-tab">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_ai_performance_analytics }}</h3>
+          </div>
+          <div class="panel-body">
+            
+            <!-- Performance Charts -->
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="panel panel-info">
+                  <div class="panel-heading">{{ chart_model_accuracy }}</div>
+                  <div class="panel-body">
+                    <canvas id="accuracy-chart" width="400" height="300"></canvas>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-6">
+                <div class="panel panel-success">
+                  <div class="panel-heading">{{ chart_prediction_confidence }}</div>
+                  <div class="panel-body">
+                    <canvas id="confidence-chart" width="400" height="300"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="panel panel-warning">
+                  <div class="panel-heading">{{ chart_prediction_trends }}</div>
+                  <div class="panel-body">
+                    <canvas id="trends-chart" width="800" height="400"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Model Details Modal -->
+<div class="modal fade" id="model-details-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_model_details }}</h4>
+      </div>
+      <div class="modal-body" id="model-details-content">
+        <!-- Model details will be loaded here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Training Job Modal -->
+<div class="modal fade" id="training-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_start_training }}</h4>
+      </div>
+      <div class="modal-body">
+        <form id="training-form">
+          <div class="form-group">
+            <label>{{ entry_model_type }}</label>
+            <select class="form-control" name="model_type" required>
+              <option value="price_optimization">{{ model_price_optimization }}</option>
+              <option value="demand_forecasting">{{ model_demand_forecasting }}</option>
+              <option value="customer_segmentation">{{ model_customer_segmentation }}</option>
+              <option value="inventory_optimization">{{ model_inventory_optimization }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>{{ entry_training_data }}</label>
+            <select class="form-control" name="data_range">
+              <option value="last_30_days">{{ option_last_30_days }}</option>
+              <option value="last_90_days">{{ option_last_90_days }}</option>
+              <option value="last_6_months">{{ option_last_6_months }}</option>
+              <option value="last_year">{{ option_last_year }}</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_cancel }}</button>
+        <button type="button" class="btn btn-primary" onclick="startTraining()">{{ button_start_training }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Initialize dashboard
+    initializeAIDashboard();
+    
+    // Set up event listeners
+    setupAIEventListeners();
+    
+    // Load initial data
+    loadAIModelsData();
+    
+    // Set up auto-refresh for training jobs
+    setupTrainingJobRefresh();
+});
+
+function initializeAIDashboard() {
+    // Initialize charts
+    initializeAICharts();
+    
+    // Load active training jobs
+    loadActiveTrainingJobs();
+}
+
+function setupAIEventListeners() {
+    // Train model button
+    $('#btn-train-model').click(function() {
+        $('#training-modal').modal('show');
+    });
+    
+    // Generate predictions button
+    $('#btn-generate-predictions').click(function() {
+        generatePredictions();
+    });
+    
+    // Refresh button
+    $('#btn-refresh').click(function() {
+        refreshAllData();
+    });
+    
+    // Tab changes
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr("href");
+        loadTabData(target);
+    });
+}
+
+function loadAIModelsData() {
+    // Load AI models status
+    $.ajax({
+        url: 'index.php?route=extension/module/ai_powered_analytics/getModelsStatus&user_token={{ user_token }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            updateModelsStatus(data);
+        },
+        error: function() {
+            showAlert('error', '{{ error_loading_models }}');
+        }
+    });
+}
+
+function loadPredictions() {
+    var filters = {
+        type: $('#prediction-type-filter').val(),
+        marketplace: $('#marketplace-filter').val(),
+        confidence: $('#confidence-filter').val()
+    };
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/ai_powered_analytics/getPredictions&user_token={{ user_token }}',
+        type: 'POST',
+        data: filters,
+        dataType: 'json',
+        success: function(data) {
+            updatePredictionsTable(data.predictions);
+        },
+        error: function() {
+            showAlert('error', '{{ error_loading_predictions }}');
+        }
+    });
+}
+
+function loadInsights() {
+    $.ajax({
+        url: 'index.php?route=extension/module/ai_powered_analytics/getInsights&user_token={{ user_token }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            updateInsightsGrid(data.insights);
+            updateHighPriorityInsights(data.high_priority);
+        },
+        error: function() {
+            showAlert('error', '{{ error_loading_insights }}');
+        }
+    });
+}
+
+function loadActiveTrainingJobs() {
+    $.ajax({
+        url: 'index.php?route=extension/module/ai_powered_analytics/getActiveJobs&user_token={{ user_token }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            updateActiveJobs(data.jobs);
+        },
+        error: function() {
+            showAlert('error', '{{ error_loading_jobs }}');
+        }
+    });
+}
+
+function retrainModel(modelType) {
+    if (confirm('{{ confirm_retrain_model }}')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/ai_powered_analytics/retrainModel&user_token={{ user_token }}',
+            type: 'POST',
+            data: { model_type: modelType },
+            dataType: 'json',
+            success: function(data) {
+                if (data.success) {
+                    showAlert('success', '{{ success_retrain_started }}');
+                    loadActiveTrainingJobs();
+                } else {
+                    showAlert('error', data.message);
+                }
+            },
+            error: function() {
+                showAlert('error', '{{ error_retrain_failed }}');
+            }
+        });
+    }
+}
+
+function viewModelDetails(modelType) {
+    $.ajax({
+        url: 'index.php?route=extension/module/ai_powered_analytics/getModelDetails&user_token={{ user_token }}',
+        type: 'POST',
+        data: { model_type: modelType },
+        dataType: 'json',
+        success: function(data) {
+            $('#model-details-content').html(data.html);
+            $('#model-details-modal').modal('show');
+        },
+        error: function() {
+            showAlert('error', '{{ error_loading_details }}');
+        }
+    });
+}
+
+function startTraining() {
+    var formData = $('#training-form').serialize();
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/ai_powered_analytics/startTraining&user_token={{ user_token }}',
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                $('#training-modal').modal('hide');
+                showAlert('success', '{{ success_training_started }}');
+                loadActiveTrainingJobs();
+            } else {
+                showAlert('error', data.message);
+            }
+        },
+        error: function() {
+            showAlert('error', '{{ error_training_failed }}');
+        }
+    });
+}
+
+function generatePredictions() {
+    $('#btn-generate-predictions').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ text_generating }}...');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/ai_powered_analytics/generatePredictions&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                showAlert('success', '{{ success_predictions_generated }}');
+                loadPredictions();
+            } else {
+                showAlert('error', data.message);
+            }
+        },
+        error: function() {
+            showAlert('error', '{{ error_predictions_failed }}');
+        },
+        complete: function() {
+            $('#btn-generate-predictions').prop('disabled', false).html('<i class="fa fa-magic"></i> {{ button_generate_predictions }}');
+        }
+    });
+}
+
+function refreshAllData() {
+    loadAIModelsData();
+    loadPredictions();
+    loadInsights();
+    loadActiveTrainingJobs();
+    showAlert('info', '{{ info_data_refreshed }}');
+}
+
+function loadTabData(tabId) {
+    switch(tabId) {
+        case '#predictions-tab':
+            loadPredictions();
+            break;
+        case '#insights-tab':
+            loadInsights();
+            break;
+        case '#training-tab':
+            loadActiveTrainingJobs();
+            loadTrainingHistory();
+            break;
+        case '#performance-tab':
+            loadPerformanceData();
+            break;
+    }
+}
+
+function updateModelsStatus(data) {
+    // Update model status cards with real data
+    $('#total-models').text(data.total_models);
+    $('#monthly-predictions').text(data.monthly_predictions);
+    $('#monthly-insights').text(data.monthly_insights);
+    $('#running-jobs').text(data.running_jobs);
+}
+
+function updatePredictionsTable(predictions) {
+    var html = '';
+    
+    $.each(predictions, function(index, prediction) {
+        var confidenceClass = prediction.confidence_score > 0.8 ? 'success' : prediction.confidence_score > 0.6 ? 'warning' : 'danger';
+        var confidenceText = prediction.confidence_score > 0.8 ? '{{ confidence_high }}' : prediction.confidence_score > 0.6 ? '{{ confidence_medium }}' : '{{ confidence_low }}';
+        
+        html += '<tr>';
+        html += '<td>' + prediction.prediction_type + '</td>';
+        html += '<td>' + prediction.entity_type + ' #' + prediction.entity_id + '</td>';
+        html += '<td>' + prediction.predicted_value + '</td>';
+        html += '<td><span class="label label-' + confidenceClass + '">' + Math.round(prediction.confidence_score * 100) + '% (' + confidenceText + ')</span></td>';
+        html += '<td>' + prediction.marketplace + '</td>';
+        html += '<td>' + prediction.prediction_date + '</td>';
+        html += '<td><span class="label label-info">' + prediction.prediction_status + '</span></td>';
+        html += '<td><button class="btn btn-sm btn-primary" onclick="viewPredictionDetails(' + prediction.prediction_id + ')"><i class="fa fa-eye"></i></button></td>';
+        html += '</tr>';
+    });
+    
+    $('#predictions-table-body').html(html);
+}
+
+function setupTrainingJobRefresh() {
+    // Refresh training jobs every 30 seconds
+    setInterval(function() {
+        if ($('#training-tab').hasClass('active')) {
+            loadActiveTrainingJobs();
+        }
+    }, 30000);
+}
+
+function showAlert(type, message) {
+    var alertClass = type === 'success' ? 'alert-success' : type === 'info' ? 'alert-info' : type === 'warning' ? 'alert-warning' : 'alert-danger';
+    var alertIcon = type === 'success' ? 'check' : type === 'info' ? 'info-circle' : type === 'warning' ? 'exclamation-triangle' : 'times-circle';
+    
+    var html = '<div class="alert ' + alertClass + ' alert-dismissible" role="alert">';
+    html += '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>';
+    html += '<i class="fa fa-' + alertIcon + '"></i> ' + message;
+    html += '</div>';
+    
+    $('#alert-container').html(html);
+    
+    setTimeout(function() {
+        $('#alert-container .alert').fadeOut();
+    }, 5000);
+}
+
+// Chart initialization functions
+function initializeAICharts() {
+    // Initialize Chart.js charts for performance metrics
+}
+
+function loadPerformanceData() {
+    // Load and display performance analytics
+}
+
+function loadTrainingHistory() {
+    // Load training history data
+}
+</script>
+
+<style>
+.panel-green {
+    border-color: #5cb85c;
+}
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.huge {
+    font-size: 40px;
+}
+
+.progress {
+    margin-bottom: 10px;
+}
+
+#predictions-table-body tr:hover {
+    background-color: #f5f5f5;
+}
+
+.panel-footer .btn {
+    margin-right: 5px;
+}
+
+#insights-grid .panel {
+    margin-bottom: 20px;
+}
+
+#active-jobs-container .panel {
+    margin-bottom: 15px;
+}
+</style>
+
+{{ footer }} 

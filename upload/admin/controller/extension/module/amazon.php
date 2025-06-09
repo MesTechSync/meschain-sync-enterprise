@@ -563,6 +563,439 @@ class ControllerExtensionModuleAmazon extends ControllerExtensionModuleBaseMarke
         $this->response->addHeader('Content-Type: application/json');
         $this->response->setOutput(json_encode($json));
     }
+
+    /**
+     * FBA (Fulfillment by Amazon) Yönetimi
+     */
+    public function manageFBA() {
+        $this->load->language('extension/module/amazon');
+        
+        $json = array();
+        
+        try {
+            require_once(DIR_SYSTEM . 'library/meschain/helper/amazon.php');
+            $amazonHelper = new MeschainAmazonHelper($this->registry);
+            
+            $action = $this->request->post['action'] ?? 'list';
+            
+            switch ($action) {
+                case 'list':
+                    $result = $amazonHelper->getFBAInventory();
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['data'] = $result['inventory'];
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'create_shipment':
+                    $shipment_data = $this->request->post['shipment'];
+                    $result = $amazonHelper->createFBAShipment($shipment_data);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['shipment_id'] = $result['shipment_id'];
+                        $json['message'] = 'FBA shipment created successfully';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'update_shipment':
+                    $shipment_id = $this->request->post['shipment_id'];
+                    $updates = $this->request->post['updates'];
+                    $result = $amazonHelper->updateFBAShipment($shipment_id, $updates);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['message'] = 'FBA shipment updated successfully';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+            }
+            
+        } catch (Exception $e) {
+            $json['error'] = $e->getMessage();
+            $this->writeLog('admin', 'FBA_ERROR', 'FBA management error: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Amazon Brand Registry İşlemleri
+     */
+    public function manageBrandRegistry() {
+        $this->load->language('extension/module/amazon');
+        
+        $json = array();
+        
+        try {
+            require_once(DIR_SYSTEM . 'library/meschain/helper/amazon.php');
+            $amazonHelper = new MeschainAmazonHelper($this->registry);
+            
+            $action = $this->request->post['action'] ?? 'get_brands';
+            
+            switch ($action) {
+                case 'get_brands':
+                    $result = $amazonHelper->getBrands();
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['brands'] = $result['brands'];
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'submit_brand':
+                    $brand_data = $this->request->post['brand'];
+                    $result = $amazonHelper->submitBrandApplication($brand_data);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['application_id'] = $result['application_id'];
+                        $json['message'] = 'Brand application submitted successfully';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'check_status':
+                    $application_id = $this->request->post['application_id'];
+                    $result = $amazonHelper->checkBrandApplicationStatus($application_id);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['status'] = $result['status'];
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+            }
+            
+        } catch (Exception $e) {
+            $json['error'] = $e->getMessage();
+            $this->writeLog('admin', 'BRAND_ERROR', 'Brand Registry error: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Amazon Advertising (Sponsored Products) Yönetimi
+     */
+    public function manageAdvertising() {
+        $this->load->language('extension/module/amazon');
+        
+        $json = array();
+        
+        try {
+            require_once(DIR_SYSTEM . 'library/meschain/helper/amazon.php');
+            $amazonHelper = new MeschainAmazonHelper($this->registry);
+            
+            $action = $this->request->post['action'] ?? 'list_campaigns';
+            
+            switch ($action) {
+                case 'list_campaigns':
+                    $result = $amazonHelper->getAdvertisingCampaigns();
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['campaigns'] = $result['campaigns'];
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'create_campaign':
+                    $campaign_data = $this->request->post['campaign'];
+                    $result = $amazonHelper->createAdvertisingCampaign($campaign_data);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['campaign_id'] = $result['campaign_id'];
+                        $json['message'] = 'Advertising campaign created successfully';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'update_bid':
+                    $campaign_id = $this->request->post['campaign_id'];
+                    $bid_amount = $this->request->post['bid_amount'];
+                    $result = $amazonHelper->updateCampaignBid($campaign_id, $bid_amount);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['message'] = 'Campaign bid updated successfully';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'get_performance':
+                    $campaign_id = $this->request->post['campaign_id'];
+                    $date_range = $this->request->post['date_range'] ?? 'last_30_days';
+                    $result = $amazonHelper->getCampaignPerformance($campaign_id, $date_range);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['performance'] = $result['performance'];
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+            }
+            
+        } catch (Exception $e) {
+            $json['error'] = $e->getMessage();
+            $this->writeLog('admin', 'ADVERTISING_ERROR', 'Advertising management error: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Amazon Business (B2B) Özellikleri
+     */
+    public function manageBusinessFeatures() {
+        $this->load->language('extension/module/amazon');
+        
+        $json = array();
+        
+        try {
+            require_once(DIR_SYSTEM . 'library/meschain/helper/amazon.php');
+            $amazonHelper = new MeschainAmazonHelper($this->registry);
+            
+            $action = $this->request->post['action'] ?? 'get_business_orders';
+            
+            switch ($action) {
+                case 'get_business_orders':
+                    $result = $amazonHelper->getBusinessOrders();
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['orders'] = $result['orders'];
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'set_business_pricing':
+                    $product_id = $this->request->post['product_id'];
+                    $pricing_tiers = $this->request->post['pricing_tiers'];
+                    $result = $amazonHelper->setBusinessPricing($product_id, $pricing_tiers);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['message'] = 'Business pricing set successfully';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'manage_tax_settings':
+                    $tax_settings = $this->request->post['tax_settings'];
+                    $result = $amazonHelper->updateTaxSettings($tax_settings);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['message'] = 'Tax settings updated successfully';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+            }
+            
+        } catch (Exception $e) {
+            $json['error'] = $e->getMessage();
+            $this->writeLog('admin', 'BUSINESS_ERROR', 'Business features error: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Amazon Türkiye Özel Özellikleri
+     */
+    public function manageTurkeyFeatures() {
+        $this->load->language('extension/module/amazon');
+        
+        $json = array();
+        
+        try {
+            require_once(DIR_SYSTEM . 'library/meschain/helper/amazon.php');
+            $amazonHelper = new MeschainAmazonHelper($this->registry);
+            
+            $action = $this->request->post['action'] ?? 'get_turkey_categories';
+            
+            switch ($action) {
+                case 'get_turkey_categories':
+                    $result = $amazonHelper->getTurkeyCategories();
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['categories'] = $result['categories'];
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'set_turkish_compliance':
+                    $product_id = $this->request->post['product_id'];
+                    $compliance_data = $this->request->post['compliance'];
+                    $result = $amazonHelper->setTurkishCompliance($product_id, $compliance_data);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['message'] = 'Turkish compliance settings updated';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'setup_turkish_shipping':
+                    $shipping_settings = $this->request->post['shipping'];
+                    $result = $amazonHelper->setupTurkishShipping($shipping_settings);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['message'] = 'Turkish shipping setup completed';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+            }
+            
+        } catch (Exception $e) {
+            $json['error'] = $e->getMessage();
+            $this->writeLog('admin', 'TURKEY_ERROR', 'Turkey features error: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Gelişmiş Analytics ve Raporlama
+     */
+    public function getAdvancedAnalytics() {
+        $this->load->language('extension/module/amazon');
+        
+        $json = array();
+        
+        try {
+            require_once(DIR_SYSTEM . 'library/meschain/helper/amazon.php');
+            $amazonHelper = new MeschainAmazonHelper($this->registry);
+            
+            $report_type = $this->request->post['report_type'] ?? 'sales_performance';
+            $date_range = $this->request->post['date_range'] ?? 'last_30_days';
+            
+            switch ($report_type) {
+                case 'sales_performance':
+                    $result = $amazonHelper->getSalesPerformanceReport($date_range);
+                    break;
+                    
+                case 'inventory_health':
+                    $result = $amazonHelper->getInventoryHealthReport();
+                    break;
+                    
+                case 'keyword_performance':
+                    $result = $amazonHelper->getKeywordPerformanceReport($date_range);
+                    break;
+                    
+                case 'competition_analysis':
+                    $asin_list = $this->request->post['asin_list'] ?? [];
+                    $result = $amazonHelper->getCompetitionAnalysis($asin_list);
+                    break;
+                    
+                case 'profit_analysis':
+                    $result = $amazonHelper->getProfitAnalysisReport($date_range);
+                    break;
+                    
+                default:
+                    throw new Exception('Unknown report type: ' . $report_type);
+            }
+            
+            if ($result['success']) {
+                $json['success'] = true;
+                $json['report_data'] = $result['data'];
+                $json['generated_at'] = date('Y-m-d H:i:s');
+            } else {
+                $json['error'] = $result['message'];
+            }
+            
+        } catch (Exception $e) {
+            $json['error'] = $e->getMessage();
+            $this->writeLog('admin', 'ANALYTICS_ERROR', 'Analytics error: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Otomatik Repricing (Dinamik Fiyatlandırma)
+     */
+    public function manageRepricing() {
+        $this->load->language('extension/module/amazon');
+        
+        $json = array();
+        
+        try {
+            require_once(DIR_SYSTEM . 'library/meschain/helper/amazon.php');
+            $amazonHelper = new MeschainAmazonHelper($this->registry);
+            
+            $action = $this->request->post['action'] ?? 'get_rules';
+            
+            switch ($action) {
+                case 'get_rules':
+                    $result = $amazonHelper->getRepricingRules();
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['rules'] = $result['rules'];
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'create_rule':
+                    $rule_data = $this->request->post['rule'];
+                    $result = $amazonHelper->createRepricingRule($rule_data);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['rule_id'] = $result['rule_id'];
+                        $json['message'] = 'Repricing rule created successfully';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'update_rule':
+                    $rule_id = $this->request->post['rule_id'];
+                    $rule_data = $this->request->post['rule'];
+                    $result = $amazonHelper->updateRepricingRule($rule_id, $rule_data);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['message'] = 'Repricing rule updated successfully';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+                    
+                case 'execute_repricing':
+                    $rule_ids = $this->request->post['rule_ids'] ?? [];
+                    $result = $amazonHelper->executeRepricing($rule_ids);
+                    if ($result['success']) {
+                        $json['success'] = true;
+                        $json['updated_products'] = $result['updated_count'];
+                        $json['message'] = 'Repricing executed successfully';
+                    } else {
+                        $json['error'] = $result['message'];
+                    }
+                    break;
+            }
+            
+        } catch (Exception $e) {
+            $json['error'] = $e->getMessage();
+            $this->writeLog('admin', 'REPRICING_ERROR', 'Repricing error: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
 }
 
 // ... OpenCart controller fonksiyonları buraya eklenecek ... 

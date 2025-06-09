@@ -288,6 +288,331 @@ class ControllerExtensionModuleHepsiburada extends ControllerExtensionModuleBase
     }
     
     /**
+     * Webhook Handler - Receives Hepsiburada notifications
+     */
+    public function webhook() {
+        $this->load->language('extension/module/hepsiburada');
+        
+        $json = array();
+        
+        try {
+            // Get raw input
+            $raw_input = file_get_contents('php://input');
+            $webhook_data = json_decode($raw_input, true);
+            
+            if (!$webhook_data) {
+                throw new Exception('Invalid webhook data');
+            }
+            
+            // Verify webhook signature
+            if (!$this->verifyWebhookSignature($raw_input)) {
+                throw new Exception('Invalid webhook signature');
+            }
+            
+            $this->load->model('extension/module/hepsiburada');
+            $this->load->library('meschain/helper/hepsiburada_helper');
+            
+            $event_type = $webhook_data['eventType'] ?? '';
+            $webhook_id = $webhook_data['webhookId'] ?? uniqid();
+            
+            // Log webhook received
+            $this->log->write('HEPSIBURADA WEBHOOK: ' . $event_type . ' - ID: ' . $webhook_id);
+            
+            switch ($event_type) {
+                case 'ORDER_CREATED':
+                case 'ORDER_UPDATED':
+                    $order_data = $webhook_data['data'];
+                    $result = $this->processOrderWebhook($order_data, $event_type);
+                    break;
+                    
+                case 'PRODUCT_APPROVED':
+                case 'PRODUCT_REJECTED':
+                    $product_data = $webhook_data['data'];
+                    $result = $this->processProductWebhook($product_data, $event_type);
+                    break;
+                    
+                case 'INVENTORY_UPDATE':
+                    $inventory_data = $webhook_data['data'];
+                    $result = $this->processInventoryWebhook($inventory_data);
+                    break;
+                    
+                case 'PRICE_UPDATE':
+                    $price_data = $webhook_data['data'];
+                    $result = $this->processPriceWebhook($price_data);
+                    break;
+                    
+                case 'QUESTION_RECEIVED':
+                    $question_data = $webhook_data['data'];
+                    $result = $this->processQuestionWebhook($question_data);
+                    break;
+                    
+                case 'REVIEW_RECEIVED':
+                    $review_data = $webhook_data['data'];
+                    $result = $this->processReviewWebhook($review_data);
+                    break;
+                    
+                case 'CARGO_UPDATE':
+                    $cargo_data = $webhook_data['data'];
+                    $result = $this->processCargoWebhook($cargo_data);
+                    break;
+                    
+                default:
+                    throw new Exception('Unknown webhook event type: ' . $event_type);
+            }
+            
+            if ($result['success']) {
+                $json['success'] = true;
+                $json['message'] = 'Webhook processed successfully';
+                
+                // Save webhook log
+                $this->model_extension_module_hepsiburada->saveWebhookLog($webhook_id, $event_type, $webhook_data, 'success');
+            } else {
+                throw new Exception($result['error']);
+            }
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            
+            // Log error
+            $this->log->write('HEPSIBURADA WEBHOOK ERROR: ' . $e->getMessage());
+            
+            // Save failed webhook log
+            if (isset($webhook_id) && isset($event_type)) {
+                $this->model_extension_module_hepsiburada->saveWebhookLog($webhook_id, $event_type, $webhook_data ?? [], 'failed', $e->getMessage());
+            }
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Process Order Webhook
+     */
+    private function processOrderWebhook($order_data, $event_type) {
+        try {
+            $order_number = $order_data['orderNumber'] ?? '';
+            
+            if ($event_type === 'ORDER_CREATED') {
+                // Create new order in OpenCart
+                $oc_order_data = $this->convertHepsiburadaOrderToOpenCart($order_data);
+                $order_id = $this->model_extension_module_hepsiburada->createOrder($oc_order_data);
+                
+                if ($order_id) {
+                    // Save order mapping
+                    $this->model_extension_module_hepsiburada->saveOrderMapping($order_id, $order_number, $order_data);
+                    
+                    // Update stock
+                    foreach ($order_data['items'] as $item) {
+                        $this->updateProductStock($item['merchantSku'], $item['quantity']);
+                    }
+                    
+                    $this->log->write('HEPSIBURADA: New order created - ' . $order_number);
+                }
+            } else {
+                // Update existing order
+                $existing_order = $this->model_extension_module_hepsiburada->getOrderByHepsiburadaNumber($order_number);
+                
+                if ($existing_order) {
+                    $this->model_extension_module_hepsiburada->updateOrderStatus($existing_order['order_id'], $order_data['status']);
+                    $this->log->write('HEPSIBURADA: Order updated - ' . $order_number);
+                }
+            }
+            
+            return ['success' => true];
+            
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Process Product Webhook
+     */
+    private function processProductWebhook($product_data, $event_type) {
+        try {
+            $merchant_sku = $product_data['merchantSku'] ?? '';
+            $product = $this->model_extension_module_hepsiburada->getProductBySku($merchant_sku);
+            
+            if ($product) {
+                $status = ($event_type === 'PRODUCT_APPROVED') ? 'approved' : 'rejected';
+                $this->model_extension_module_hepsiburada->updateProductStatus($product['product_id'], $status);
+                
+                if ($event_type === 'PRODUCT_REJECTED') {
+                    $rejection_reason = $product_data['rejectionReason'] ?? 'Unknown reason';
+                    $this->model_extension_module_hepsiburada->saveProductRejectionReason($product['product_id'], $rejection_reason);
+                }
+                
+                $this->log->write('HEPSIBURADA: Product ' . $status . ' - ' . $merchant_sku);
+            }
+            
+            return ['success' => true];
+            
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Process Inventory Webhook
+     */
+    private function processInventoryWebhook($inventory_data) {
+        try {
+            $merchant_sku = $inventory_data['merchantSku'] ?? '';
+            $available_stock = $inventory_data['availableStock'] ?? 0;
+            
+            $product = $this->model_extension_module_hepsiburada->getProductBySku($merchant_sku);
+            
+            if ($product) {
+                // Update stock in OpenCart
+                $this->model_extension_module_hepsiburada->updateProductStock($product['product_id'], $available_stock);
+                
+                // Sync back to other marketplaces if enabled
+                if ($this->config->get('module_hepsiburada_cross_sync')) {
+                    $this->syncStockToOtherMarketplaces($product['product_id'], $available_stock);
+                }
+                
+                $this->log->write('HEPSIBURADA: Stock updated - ' . $merchant_sku . ' = ' . $available_stock);
+            }
+            
+            return ['success' => true];
+            
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Process Price Webhook
+     */
+    private function processPriceWebhook($price_data) {
+        try {
+            $merchant_sku = $price_data['merchantSku'] ?? '';
+            $new_price = $price_data['price'] ?? 0;
+            
+            $product = $this->model_extension_module_hepsiburada->getProductBySku($merchant_sku);
+            
+            if ($product) {
+                // Update price in OpenCart
+                $this->model_extension_module_hepsiburada->updateProductPrice($product['product_id'], $new_price);
+                
+                // Auto-update other marketplace prices if enabled
+                if ($this->config->get('module_hepsiburada_price_sync')) {
+                    $this->syncPriceToOtherMarketplaces($product['product_id'], $new_price);
+                }
+                
+                $this->log->write('HEPSIBURADA: Price updated - ' . $merchant_sku . ' = ' . $new_price);
+            }
+            
+            return ['success' => true];
+            
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Process Question Webhook
+     */
+    private function processQuestionWebhook($question_data) {
+        try {
+            $question_id = $question_data['questionId'] ?? '';
+            $product_sku = $question_data['merchantSku'] ?? '';
+            $question_text = $question_data['question'] ?? '';
+            $customer_name = $question_data['customerName'] ?? 'Anonymous';
+            
+            // Save question to database
+            $this->model_extension_module_hepsiburada->saveProductQuestion($question_id, $product_sku, $question_text, $customer_name);
+            
+            // Send notification email if enabled
+            if ($this->config->get('module_hepsiburada_question_notifications')) {
+                $this->sendQuestionNotification($question_data);
+            }
+            
+            $this->log->write('HEPSIBURADA: New question received - ' . $question_id);
+            
+            return ['success' => true];
+            
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Process Review Webhook
+     */
+    private function processReviewWebhook($review_data) {
+        try {
+            $review_id = $review_data['reviewId'] ?? '';
+            $product_sku = $review_data['merchantSku'] ?? '';
+            $rating = $review_data['rating'] ?? 0;
+            $review_text = $review_data['review'] ?? '';
+            $customer_name = $review_data['customerName'] ?? 'Anonymous';
+            
+            // Save review to database
+            $this->model_extension_module_hepsiburada->saveProductReview($review_id, $product_sku, $rating, $review_text, $customer_name);
+            
+            // Update product rating average
+            $this->updateProductRatingAverage($product_sku);
+            
+            $this->log->write('HEPSIBURADA: New review received - ' . $review_id . ' (Rating: ' . $rating . ')');
+            
+            return ['success' => true];
+            
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Process Cargo Webhook
+     */
+    private function processCargoWebhook($cargo_data) {
+        try {
+            $order_number = $cargo_data['orderNumber'] ?? '';
+            $tracking_number = $cargo_data['trackingNumber'] ?? '';
+            $cargo_company = $cargo_data['cargoCompany'] ?? '';
+            $status = $cargo_data['status'] ?? '';
+            
+            $order = $this->model_extension_module_hepsiburada->getOrderByHepsiburadaNumber($order_number);
+            
+            if ($order) {
+                // Update order with cargo information
+                $this->model_extension_module_hepsiburada->updateOrderCargo($order['order_id'], $tracking_number, $cargo_company, $status);
+                
+                // Send customer notification if enabled
+                if ($this->config->get('module_hepsiburada_cargo_notifications') && $status === 'shipped') {
+                    $this->sendCargoNotification($order, $tracking_number, $cargo_company);
+                }
+                
+                $this->log->write('HEPSIBURADA: Cargo updated - Order: ' . $order_number . ', Tracking: ' . $tracking_number);
+            }
+            
+            return ['success' => true];
+            
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Verify Webhook Signature
+     */
+    private function verifyWebhookSignature($raw_input) {
+        $signature = $_SERVER['HTTP_X_HEPSIBURADA_SIGNATURE'] ?? '';
+        $secret = $this->config->get('module_hepsiburada_webhook_secret');
+        
+        if (empty($signature) || empty($secret)) {
+            return false;
+        }
+        
+        $expected_signature = hash_hmac('sha256', $raw_input, $secret);
+        
+        return hash_equals($expected_signature, $signature);
+    }
+
+    /**
      * Get orders from Hepsiburada
      */
     public function getOrders() {

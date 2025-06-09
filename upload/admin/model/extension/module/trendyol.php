@@ -258,82 +258,266 @@ class ModelExtensionModuleTrendyol extends Model {
      * Trendyol modülü için kurulum işlemini gerçekleştir
      */
     public function install() {
-        // Trendyol siparişleri tablosu
         $this->db->query("
-            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_order` (
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_products` (
+                `trendyol_product_id` int(11) NOT NULL AUTO_INCREMENT,
+                `product_id` int(11) NOT NULL,
+                `trendyol_id` varchar(255) NOT NULL,
+                `barcode` varchar(255) DEFAULT NULL,
+                `title` varchar(500) NOT NULL,
+                `brand_id` int(11) DEFAULT NULL,
+                `category_id` int(11) DEFAULT NULL,
+                `list_price` decimal(15,4) DEFAULT NULL,
+                `sale_price` decimal(15,4) DEFAULT NULL,
+                `quantity` int(11) DEFAULT 0,
+                `stock_code` varchar(255) DEFAULT NULL,
+                `description` text,
+                `images` text,
+                `attributes` text,
+                `variants` text,
+                `status` enum('active','passive','draft') DEFAULT 'active',
+                `approval_status` varchar(50) DEFAULT 'pending',
+                `rejection_reason` text,
+                `commission_rate` decimal(5,2) DEFAULT NULL,
+                `cargo_company_id` int(11) DEFAULT NULL,
+                `delivery_duration` int(11) DEFAULT NULL,
+                `stock_unit_type` varchar(50) DEFAULT 'piece',
+                `vat_rate` decimal(5,2) DEFAULT NULL,
+                `marketplace_commission` decimal(15,4) DEFAULT NULL,
+                `profit_margin` decimal(5,2) DEFAULT NULL,
+                `competitor_analysis` text,
+                `last_sync` datetime DEFAULT NULL,
+                `sync_status` varchar(50) DEFAULT 'pending',
+                `error_message` text,
+                `date_added` datetime NOT NULL,
+                `date_modified` datetime NOT NULL,
+                PRIMARY KEY (`trendyol_product_id`),
+                KEY `product_id` (`product_id`),
+                KEY `trendyol_id` (`trendyol_id`),
+                KEY `status` (`status`),
+                KEY `approval_status` (`approval_status`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+
+        $this->db->query("
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_orders` (
                 `trendyol_order_id` int(11) NOT NULL AUTO_INCREMENT,
-                `order_id` varchar(128) NOT NULL,
-                `order_number` varchar(128) NOT NULL,
-                `status` varchar(32) NOT NULL,
-                `total_price` decimal(15,4) NOT NULL DEFAULT '0.0000',
-                `shipping_cost` decimal(15,4) NOT NULL DEFAULT '0.0000',
-                `customer_name` varchar(128) NOT NULL,
-                `customer_email` varchar(128) NOT NULL,
-                `customer_phone` varchar(32) NOT NULL,
-                `shipping_address` text NOT NULL,
-                `shipping_city` varchar(128) NOT NULL,
-                `shipping_district` varchar(128) NOT NULL,
+                `order_id` int(11) DEFAULT NULL,
+                `trendyol_id` varchar(255) NOT NULL,
+                `order_number` varchar(255) NOT NULL,
+                `customer_id` int(11) DEFAULT NULL,
+                `customer_first_name` varchar(255) DEFAULT NULL,
+                `customer_last_name` varchar(255) DEFAULT NULL,
+                `customer_email` varchar(255) DEFAULT NULL,
+                `customer_phone` varchar(255) DEFAULT NULL,
+                `order_date` datetime DEFAULT NULL,
+                `status` varchar(50) DEFAULT 'Created',
+                `shipment_status` varchar(50) DEFAULT 'waiting',
+                `invoice_address` text,
+                `delivery_address` text,
+                `total_amount` decimal(15,4) DEFAULT NULL,
+                `total_discount` decimal(15,4) DEFAULT NULL,
+                `cargo_tracking_number` varchar(255) DEFAULT NULL,
+                `cargo_tracking_link` varchar(500) DEFAULT NULL,
+                `cargo_sender_number` varchar(255) DEFAULT NULL,
+                `cargo_provider_name` varchar(255) DEFAULT NULL,
+                `estimated_delivery` datetime DEFAULT NULL,
+                `fast_delivery` tinyint(1) DEFAULT 0,
+                `commercial_invoice_number` varchar(255) DEFAULT NULL,
+                `package_number` varchar(255) DEFAULT NULL,
+                `currency_code` varchar(3) DEFAULT 'TRY',
+                `gross_amount` decimal(15,4) DEFAULT NULL,
+                `total_tyc_discount` decimal(15,4) DEFAULT NULL,
+                `order_items` text,
+                `payment_type` varchar(50) DEFAULT NULL,
+                `installment` int(11) DEFAULT 1,
+                `tax_number` varchar(255) DEFAULT NULL,
+                `invoice_requested` tinyint(1) DEFAULT 0,
+                `notes` text,
+                `tags` varchar(500) DEFAULT NULL,
+                `priority_level` int(11) DEFAULT 0,
+                `processing_time` int(11) DEFAULT NULL,
+                `return_request` tinyint(1) DEFAULT 0,
+                `return_reason` text,
+                `last_sync` datetime DEFAULT NULL,
+                `sync_status` varchar(50) DEFAULT 'pending',
+                `error_message` text,
                 `date_added` datetime NOT NULL,
                 `date_modified` datetime NOT NULL,
                 PRIMARY KEY (`trendyol_order_id`),
-                KEY `order_id` (`order_id`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+                KEY `order_id` (`order_id`),
+                KEY `trendyol_id` (`trendyol_id`),
+                KEY `order_number` (`order_number`),
+                KEY `status` (`status`),
+                KEY `order_date` (`order_date`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ");
-        
-        // Trendyol sipariş ürünleri tablosu
+
         $this->db->query("
-            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_order_product` (
-                `trendyol_order_product_id` int(11) NOT NULL AUTO_INCREMENT,
-                `trendyol_order_id` int(11) NOT NULL,
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_categories` (
+                `trendyol_category_id` int(11) NOT NULL AUTO_INCREMENT,
+                `category_id` int(11) NOT NULL,
+                `trendyol_id` int(11) NOT NULL,
                 `name` varchar(255) NOT NULL,
-                `barcode` varchar(64) NOT NULL,
-                `quantity` int(4) NOT NULL DEFAULT '0',
-                `price` decimal(15,4) NOT NULL DEFAULT '0.0000',
-                `total` decimal(15,4) NOT NULL DEFAULT '0.0000',
-                PRIMARY KEY (`trendyol_order_product_id`),
-                KEY `trendyol_order_id` (`trendyol_order_id`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-        ");
-        
-        // Trendyol - OpenCart sipariş ilişki tablosu
-        $this->db->query("
-            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_order_relation` (
-                `relation_id` int(11) NOT NULL AUTO_INCREMENT,
-                `trendyol_order_id` varchar(128) NOT NULL,
-                `opencart_order_id` int(11) NOT NULL,
-                `date_added` datetime NOT NULL,
-                PRIMARY KEY (`relation_id`),
-                KEY `trendyol_order_id` (`trendyol_order_id`),
-                KEY `opencart_order_id` (`opencart_order_id`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-        ");
-        
-        // Trendyol ürün eşleştirme tablosu
-        $this->db->query("
-            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_product_mapping` (
-                `mapping_id` int(11) NOT NULL AUTO_INCREMENT,
-                `product_id` int(11) NOT NULL,
-                `trendyol_category_id` int(11) NOT NULL,
-                `trendyol_brand_id` int(11) NOT NULL,
-                `trendyol_product_id` varchar(128) NOT NULL,
-                `is_active` tinyint(1) NOT NULL DEFAULT '0',
+                `parent_id` int(11) DEFAULT NULL,
+                `level` int(11) DEFAULT 0,
+                `full_path` varchar(1000) DEFAULT NULL,
+                `commission_rate` decimal(5,2) DEFAULT NULL,
+                `has_size_chart` tinyint(1) DEFAULT 0,
+                `size_chart_template` text,
+                `required_attributes` text,
+                `variable_attributes` text,
+                `category_attributes` text,
+                `allowed_brands` text,
+                `status` enum('active','passive') DEFAULT 'active',
+                `last_sync` datetime DEFAULT NULL,
                 `date_added` datetime NOT NULL,
                 `date_modified` datetime NOT NULL,
-                PRIMARY KEY (`mapping_id`),
-                KEY `product_id` (`product_id`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+                PRIMARY KEY (`trendyol_category_id`),
+                KEY `category_id` (`category_id`),
+                KEY `trendyol_id` (`trendyol_id`),
+                KEY `parent_id` (`parent_id`),
+                KEY `status` (`status`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ");
-        
-        // Trendyol log tablosu
+
         $this->db->query("
-            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_log` (
-                `log_id` int(11) NOT NULL AUTO_INCREMENT,
-                `user` varchar(64) NOT NULL,
-                `action` varchar(64) NOT NULL,
-                `message` text NOT NULL,
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_brands` (
+                `trendyol_brand_id` int(11) NOT NULL AUTO_INCREMENT,
+                `trendyol_id` int(11) NOT NULL,
+                `name` varchar(255) NOT NULL,
+                `approved` tinyint(1) DEFAULT 0,
+                `logo_url` varchar(500) DEFAULT NULL,
+                `description` text,
+                `website_url` varchar(500) DEFAULT NULL,
+                `category_ids` text,
+                `status` enum('active','passive') DEFAULT 'active',
+                `last_sync` datetime DEFAULT NULL,
                 `date_added` datetime NOT NULL,
-                PRIMARY KEY (`log_id`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+                `date_modified` datetime NOT NULL,
+                PRIMARY KEY (`trendyol_brand_id`),
+                KEY `trendyol_id` (`trendyol_id`),
+                KEY `name` (`name`),
+                KEY `approved` (`approved`),
+                KEY `status` (`status`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+
+        $this->db->query("
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_analytics` (
+                `analytics_id` int(11) NOT NULL AUTO_INCREMENT,
+                `date` date NOT NULL,
+                `metric_type` varchar(100) NOT NULL,
+                `metric_name` varchar(255) NOT NULL,
+                `metric_value` decimal(15,4) DEFAULT NULL,
+                `metric_data` text,
+                `product_id` int(11) DEFAULT NULL,
+                `category_id` int(11) DEFAULT NULL,
+                `brand_id` int(11) DEFAULT NULL,
+                `period_type` enum('daily','weekly','monthly','yearly') DEFAULT 'daily',
+                `comparison_data` text,
+                `insights` text,
+                `recommendations` text,
+                `ai_processed` tinyint(1) DEFAULT 0,
+                `confidence_score` decimal(5,4) DEFAULT NULL,
+                `data_source` varchar(100) DEFAULT 'trendyol_api',
+                `date_added` datetime NOT NULL,
+                `date_modified` datetime NOT NULL,
+                PRIMARY KEY (`analytics_id`),
+                KEY `date` (`date`),
+                KEY `metric_type` (`metric_type`),
+                KEY `product_id` (`product_id`),
+                KEY `period_type` (`period_type`),
+                KEY `ai_processed` (`ai_processed`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+
+        $this->db->query("
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_campaigns` (
+                `campaign_id` int(11) NOT NULL AUTO_INCREMENT,
+                `name` varchar(255) NOT NULL,
+                `campaign_type` varchar(100) NOT NULL,
+                `status` enum('active','passive','completed','cancelled') DEFAULT 'active',
+                `start_date` datetime NOT NULL,
+                `end_date` datetime NOT NULL,
+                `budget` decimal(15,4) DEFAULT NULL,
+                `spent_amount` decimal(15,4) DEFAULT 0,
+                `target_products` text,
+                `campaign_settings` text,
+                `performance_data` text,
+                `conversion_rate` decimal(5,4) DEFAULT NULL,
+                `roi` decimal(5,4) DEFAULT NULL,
+                `impressions` int(11) DEFAULT 0,
+                `clicks` int(11) DEFAULT 0,
+                `orders` int(11) DEFAULT 0,
+                `revenue` decimal(15,4) DEFAULT 0,
+                `automation_rules` text,
+                `ai_optimization` tinyint(1) DEFAULT 0,
+                `optimization_score` decimal(5,2) DEFAULT NULL,
+                `last_optimized` datetime DEFAULT NULL,
+                `created_by` int(11) DEFAULT NULL,
+                `date_added` datetime NOT NULL,
+                `date_modified` datetime NOT NULL,
+                PRIMARY KEY (`campaign_id`),
+                KEY `campaign_type` (`campaign_type`),
+                KEY `status` (`status`),
+                KEY `start_date` (`start_date`),
+                KEY `end_date` (`end_date`),
+                KEY `ai_optimization` (`ai_optimization`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+
+        $this->db->query("
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_inventory_tracking` (
+                `tracking_id` int(11) NOT NULL AUTO_INCREMENT,
+                `product_id` int(11) NOT NULL,
+                `trendyol_product_id` varchar(255) DEFAULT NULL,
+                `stock_quantity` int(11) NOT NULL,
+                `reserved_quantity` int(11) DEFAULT 0,
+                `available_quantity` int(11) GENERATED ALWAYS AS (`stock_quantity` - `reserved_quantity`) STORED,
+                `minimum_stock_level` int(11) DEFAULT 5,
+                `maximum_stock_level` int(11) DEFAULT 1000,
+                `reorder_point` int(11) DEFAULT 10,
+                `reorder_quantity` int(11) DEFAULT 50,
+                `supplier_lead_time` int(11) DEFAULT 7,
+                `average_daily_sales` decimal(10,2) DEFAULT NULL,
+                `forecasted_demand` int(11) DEFAULT NULL,
+                `stock_value` decimal(15,4) DEFAULT NULL,
+                `last_order_date` datetime DEFAULT NULL,
+                `next_reorder_date` datetime DEFAULT NULL,
+                `stock_alerts` text,
+                `inventory_status` enum('in_stock','low_stock','out_of_stock','excess_stock') DEFAULT 'in_stock',
+                `ai_recommendations` text,
+                `optimization_score` decimal(5,2) DEFAULT NULL,
+                `seasonal_factor` decimal(5,4) DEFAULT 1.0000,
+                `trend_factor` decimal(5,4) DEFAULT 1.0000,
+                `last_sync` datetime DEFAULT NULL,
+                `date_added` datetime NOT NULL,
+                `date_modified` datetime NOT NULL,
+                PRIMARY KEY (`tracking_id`),
+                KEY `product_id` (`product_id`),
+                KEY `trendyol_product_id` (`trendyol_product_id`),
+                KEY `inventory_status` (`inventory_status`),
+                KEY `reorder_point` (`reorder_point`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+
+        // Create settings table for Trendyol configuration
+        $this->db->query("
+            CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "trendyol_settings` (
+                `setting_id` int(11) NOT NULL AUTO_INCREMENT,
+                `store_id` int(11) NOT NULL DEFAULT 0,
+                `setting_group` varchar(100) NOT NULL,
+                `setting_key` varchar(255) NOT NULL,
+                `setting_value` text,
+                `encrypted` tinyint(1) DEFAULT 0,
+                `date_added` datetime NOT NULL,
+                `date_modified` datetime NOT NULL,
+                PRIMARY KEY (`setting_id`),
+                KEY `store_id` (`store_id`),
+                KEY `setting_group` (`setting_group`),
+                KEY `setting_key` (`setting_key`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ");
     }
     
@@ -342,16 +526,18 @@ class ModelExtensionModuleTrendyol extends Model {
      * Sadece tabloları kaldırır, ayarları kaldırmaz (güvenlik amaçlı)
      */
     public function uninstall() {
-        // Siparişler ve ürünler kalsın, diğer tabloları kaldır
-        // $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_order`");
-        // $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_order_product`");
-        
-        // İlişkilendirme ve eşleştirme tabloları
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_order_relation`");
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_product_mapping`");
-        
-        // Log tablosu da önemli bilgiler içerebilir, opsiyonel olarak kaldırılabilir
-        // $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_log`");
+        // Optional: Keep tables for data retention
+        // Uncomment to completely remove all data
+        /*
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_products`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_orders`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_categories`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_brands`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_analytics`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_campaigns`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_inventory_tracking`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "trendyol_settings`");
+        */
     }
     
     /**
@@ -813,5 +999,408 @@ class ModelExtensionModuleTrendyol extends Model {
         }
         
         return true;
+    }
+
+    /**
+     * Get product by ID
+     */
+    public function getProduct($product_id) {
+        $query = $this->db->query("
+            SELECT p.*, tp.* 
+            FROM `" . DB_PREFIX . "product` p 
+            LEFT JOIN `" . DB_PREFIX . "trendyol_products` tp ON (p.product_id = tp.product_id) 
+            WHERE p.product_id = '" . (int)$product_id . "'
+        ");
+        
+        return $query->row;
+    }
+
+    /**
+     * Get products with Trendyol integration data
+     */
+    public function getProducts($data = array()) {
+        $sql = "
+            SELECT p.product_id, p.name, p.model, p.price, p.quantity, p.status,
+                   tp.trendyol_id, tp.approval_status, tp.sync_status, tp.last_sync,
+                   tp.commission_rate, tp.profit_margin
+            FROM `" . DB_PREFIX . "product` p 
+            LEFT JOIN `" . DB_PREFIX . "trendyol_products` tp ON (p.product_id = tp.product_id)
+        ";
+
+        $conditions = array();
+        
+        if (!empty($data['filter_name'])) {
+            $conditions[] = "p.name LIKE '%" . $this->db->escape($data['filter_name']) . "%'";
+        }
+        
+        if (!empty($data['filter_status'])) {
+            $conditions[] = "tp.status = '" . $this->db->escape($data['filter_status']) . "'";
+        }
+        
+        if (!empty($data['filter_approval_status'])) {
+            $conditions[] = "tp.approval_status = '" . $this->db->escape($data['filter_approval_status']) . "'";
+        }
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $sort_data = array(
+            'p.name',
+            'p.model', 
+            'p.price',
+            'p.quantity',
+            'tp.approval_status',
+            'tp.last_sync'
+        );
+
+        if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
+            $sql .= " ORDER BY " . $data['sort'];
+        } else {
+            $sql .= " ORDER BY p.name";
+        }
+
+        if (isset($data['order']) && ($data['order'] == 'DESC')) {
+            $sql .= " DESC";
+        } else {
+            $sql .= " ASC";
+        }
+
+        if (isset($data['start']) || isset($data['limit'])) {
+            if ($data['start'] < 0) {
+                $data['start'] = 0;
+            }
+
+            if ($data['limit'] < 1) {
+                $data['limit'] = 20;
+            }
+
+            $sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
+        }
+
+        $query = $this->db->query($sql);
+
+        return $query->rows;
+    }
+
+    /**
+     * Get total products count
+     */
+    public function getTotalProducts($data = array()) {
+        $sql = "
+            SELECT COUNT(DISTINCT p.product_id) AS total 
+            FROM `" . DB_PREFIX . "product` p 
+            LEFT JOIN `" . DB_PREFIX . "trendyol_products` tp ON (p.product_id = tp.product_id)
+        ";
+
+        $conditions = array();
+        
+        if (!empty($data['filter_name'])) {
+            $conditions[] = "p.name LIKE '%" . $this->db->escape($data['filter_name']) . "%'";
+        }
+        
+        if (!empty($data['filter_status'])) {
+            $conditions[] = "tp.status = '" . $this->db->escape($data['filter_status']) . "'";
+        }
+        
+        if (!empty($data['filter_approval_status'])) {
+            $conditions[] = "tp.approval_status = '" . $this->db->escape($data['filter_approval_status']) . "'";
+        }
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $query = $this->db->query($sql);
+
+        return $query->row['total'];
+    }
+
+    /**
+     * Save product to Trendyol
+     */
+    public function saveProduct($product_id, $data) {
+        $existing = $this->db->query("
+            SELECT trendyol_product_id 
+            FROM `" . DB_PREFIX . "trendyol_products` 
+            WHERE product_id = '" . (int)$product_id . "'
+        ");
+
+        $data['date_modified'] = date('Y-m-d H:i:s');
+        
+        if ($existing->num_rows) {
+            $sql = "UPDATE `" . DB_PREFIX . "trendyol_products` SET ";
+            $update_data = array();
+            
+            foreach ($data as $key => $value) {
+                if ($key !== 'date_added') {
+                    $update_data[] = "`" . $key . "` = '" . $this->db->escape($value) . "'";
+                }
+            }
+            
+            $sql .= implode(", ", $update_data);
+            $sql .= " WHERE product_id = '" . (int)$product_id . "'";
+            
+            $this->db->query($sql);
+        } else {
+            $data['product_id'] = $product_id;
+            $data['date_added'] = date('Y-m-d H:i:s');
+            
+            $sql = "INSERT INTO `" . DB_PREFIX . "trendyol_products` SET ";
+            $insert_data = array();
+            
+            foreach ($data as $key => $value) {
+                $insert_data[] = "`" . $key . "` = '" . $this->db->escape($value) . "'";
+            }
+            
+            $sql .= implode(", ", $insert_data);
+            
+            $this->db->query($sql);
+        }
+    }
+
+    /**
+     * Get Trendyol orders
+     */
+    public function getOrders($data = array()) {
+        $sql = "SELECT * FROM `" . DB_PREFIX . "trendyol_orders`";
+        
+        $conditions = array();
+        
+        if (!empty($data['filter_status'])) {
+            $conditions[] = "status = '" . $this->db->escape($data['filter_status']) . "'";
+        }
+        
+        if (!empty($data['filter_date_from'])) {
+            $conditions[] = "order_date >= '" . $this->db->escape($data['filter_date_from']) . "'";
+        }
+        
+        if (!empty($data['filter_date_to'])) {
+            $conditions[] = "order_date <= '" . $this->db->escape($data['filter_date_to']) . "'";
+        }
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $sql .= " ORDER BY order_date DESC";
+
+        if (isset($data['start']) || isset($data['limit'])) {
+            if ($data['start'] < 0) {
+                $data['start'] = 0;
+            }
+
+            if ($data['limit'] < 1) {
+                $data['limit'] = 20;
+            }
+
+            $sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
+        }
+
+        $query = $this->db->query($sql);
+
+        return $query->rows;
+    }
+
+    /**
+     * Get analytics data
+     */
+    public function getAnalytics($date_range = 'last_30_days', $metric_type = null) {
+        $sql = "SELECT * FROM `" . DB_PREFIX . "trendyol_analytics`";
+        
+        $conditions = array();
+        
+        // Date range filtering
+        switch ($date_range) {
+            case 'today':
+                $conditions[] = "date = CURDATE()";
+                break;
+            case 'yesterday':
+                $conditions[] = "date = DATE_SUB(CURDATE(), INTERVAL 1 DAY)";
+                break;
+            case 'last_7_days':
+                $conditions[] = "date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+                break;
+            case 'last_30_days':
+                $conditions[] = "date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+                break;
+            case 'this_month':
+                $conditions[] = "YEAR(date) = YEAR(CURDATE()) AND MONTH(date) = MONTH(CURDATE())";
+                break;
+            case 'last_month':
+                $conditions[] = "date >= DATE_SUB(DATE_SUB(CURDATE(), INTERVAL DAY(CURDATE())-1 DAY), INTERVAL 1 MONTH) AND date < DATE_SUB(CURDATE(), INTERVAL DAY(CURDATE())-1 DAY)";
+                break;
+        }
+        
+        if ($metric_type) {
+            $conditions[] = "metric_type = '" . $this->db->escape($metric_type) . "'";
+        }
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $sql .= " ORDER BY date DESC, metric_type ASC";
+
+        $query = $this->db->query($sql);
+
+        return $query->rows;
+    }
+
+    /**
+     * Save analytics data
+     */
+    public function saveAnalytics($data) {
+        $data['date_added'] = date('Y-m-d H:i:s');
+        $data['date_modified'] = date('Y-m-d H:i:s');
+        
+        $sql = "INSERT INTO `" . DB_PREFIX . "trendyol_analytics` SET ";
+        $insert_data = array();
+        
+        foreach ($data as $key => $value) {
+            if (is_array($value) || is_object($value)) {
+                $value = json_encode($value);
+            }
+            $insert_data[] = "`" . $key . "` = '" . $this->db->escape($value) . "'";
+        }
+        
+        $sql .= implode(", ", $insert_data);
+        
+        $this->db->query($sql);
+        
+        return $this->db->getLastId();
+    }
+
+    /**
+     * Get inventory tracking data
+     */
+    public function getInventoryTracking($product_id = null) {
+        $sql = "
+            SELECT it.*, p.name as product_name, p.model, p.price 
+            FROM `" . DB_PREFIX . "trendyol_inventory_tracking` it 
+            LEFT JOIN `" . DB_PREFIX . "product` p ON (it.product_id = p.product_id)
+        ";
+        
+        if ($product_id) {
+            $sql .= " WHERE it.product_id = '" . (int)$product_id . "'";
+        }
+        
+        $sql .= " ORDER BY it.date_modified DESC";
+        
+        $query = $this->db->query($sql);
+        
+        return $product_id ? $query->row : $query->rows;
+    }
+
+    /**
+     * Update inventory tracking
+     */
+    public function updateInventoryTracking($product_id, $data) {
+        $existing = $this->db->query("
+            SELECT tracking_id 
+            FROM `" . DB_PREFIX . "trendyol_inventory_tracking` 
+            WHERE product_id = '" . (int)$product_id . "'
+        ");
+
+        $data['date_modified'] = date('Y-m-d H:i:s');
+        
+        if ($existing->num_rows) {
+            $sql = "UPDATE `" . DB_PREFIX . "trendyol_inventory_tracking` SET ";
+            $update_data = array();
+            
+            foreach ($data as $key => $value) {
+                if ($key !== 'date_added' && $key !== 'tracking_id') {
+                    if (is_array($value) || is_object($value)) {
+                        $value = json_encode($value);
+                    }
+                    $update_data[] = "`" . $key . "` = '" . $this->db->escape($value) . "'";
+                }
+            }
+            
+            $sql .= implode(", ", $update_data);
+            $sql .= " WHERE product_id = '" . (int)$product_id . "'";
+            
+            $this->db->query($sql);
+        } else {
+            $data['product_id'] = $product_id;
+            $data['date_added'] = date('Y-m-d H:i:s');
+            
+            $sql = "INSERT INTO `" . DB_PREFIX . "trendyol_inventory_tracking` SET ";
+            $insert_data = array();
+            
+            foreach ($data as $key => $value) {
+                if (is_array($value) || is_object($value)) {
+                    $value = json_encode($value);
+                }
+                $insert_data[] = "`" . $key . "` = '" . $this->db->escape($value) . "'";
+            }
+            
+            $sql .= implode(", ", $insert_data);
+            
+            $this->db->query($sql);
+        }
+    }
+
+    /**
+     * Get campaigns
+     */
+    public function getCampaigns($data = array()) {
+        $sql = "SELECT * FROM `" . DB_PREFIX . "trendyol_campaigns`";
+        
+        $conditions = array();
+        
+        if (!empty($data['filter_status'])) {
+            $conditions[] = "status = '" . $this->db->escape($data['filter_status']) . "'";
+        }
+        
+        if (!empty($data['filter_type'])) {
+            $conditions[] = "campaign_type = '" . $this->db->escape($data['filter_type']) . "'";
+        }
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $sql .= " ORDER BY date_added DESC";
+
+        if (isset($data['start']) || isset($data['limit'])) {
+            if ($data['start'] < 0) {
+                $data['start'] = 0;
+            }
+
+            if ($data['limit'] < 1) {
+                $data['limit'] = 20;
+            }
+
+            $sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
+        }
+
+        $query = $this->db->query($sql);
+
+        return $query->rows;
+    }
+
+    /**
+     * Save campaign
+     */
+    public function saveCampaign($data) {
+        $data['date_added'] = date('Y-m-d H:i:s');
+        $data['date_modified'] = date('Y-m-d H:i:s');
+        
+        $sql = "INSERT INTO `" . DB_PREFIX . "trendyol_campaigns` SET ";
+        $insert_data = array();
+        
+        foreach ($data as $key => $value) {
+            if (is_array($value) || is_object($value)) {
+                $value = json_encode($value);
+            }
+            $insert_data[] = "`" . $key . "` = '" . $this->db->escape($value) . "'";
+        }
+        
+        $sql .= implode(", ", $insert_data);
+        
+        $this->db->query($sql);
+        
+        return $this->db->getLastId();
     }
 } 
