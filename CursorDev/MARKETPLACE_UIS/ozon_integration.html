@@ -80,36 +80,420 @@
             position: relative;
             z-index: 2;
         }
-        
-        .ozon-nav {
-            background: var(--ozon-lighter);
-            padding: 0;
-            border-bottom: 5px solid var(--ozon-light-blue);
+          /* Collapsible Sidebar Styles for Ozon */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 15px rgba(0, 91, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1000;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
-        
-        .ozon-nav-item {
-            flex: 1;
+
+        .sidebar.collapsed {
+            width: 70px;
         }
-        
-        .ozon-nav-link {
-            color: var(--ozon-dark-gray) !important;
-            padding: 1.3rem 1.5rem;
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 91, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--ozon-gradient);
+            color: white;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            padding: 1.5rem 0.5rem;
+            justify-content: center;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-brand .brand-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }        .sidebar-nav {
+            padding: 1rem 0;
+            list-style: none;
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .sidebar.collapsed .sidebar-nav .nav-item {
+            padding: 0.75rem 1rem;
+            justify-content: center;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            background: rgba(0, 91, 255, 0.05);
+            border-left-color: var(--ozon-light-blue);
+        }
+
+        .sidebar-nav .nav-item.active {
+            background: rgba(0, 91, 255, 0.1);
+            border-left-color: var(--ozon-blue);
+            color: var(--ozon-blue);
+            font-weight: 600;
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
             text-align: center;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-nav .nav-item i {
+            margin-right: 0;
+        }
+
+        .sidebar-nav .nav-text {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-nav .nav-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .notification-badge {
+            background: var(--ozon-orange);
+            color: white;
+            border-radius: 50%;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: auto;
+            min-width: 20px;
+            text-align: center;
+            transform: scale(1);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .notification-badge {
+            position: absolute;
+            top: 0.3rem;
+            right: 0.3rem;
+            transform: scale(0.8);
+            padding: 0.1rem 0.3rem;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 280px;
+            transition: margin-left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            min-height: 100vh;
+        }
+
+        .main-content.sidebar-collapsed {
+            margin-left: 70px;
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            margin-left: 70px;
+        }
+
+        /* Mobile Overlay */
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Tab Content Styles */
+        .tab-content {
+            padding: 2rem;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Tooltip Styles */
+        .tooltip-text {
+            position: absolute;
+            left: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 1001;
+            opacity: 0;
+            animation: fadeInTooltip 0.3s ease forwards;
+        }
+
+        .tooltip-text::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 5px solid transparent;
+            border-right-color: #333;
+        }
+
+        @keyframes fadeInTooltip {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(0);
+                width: 280px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar.collapsed ~ .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Update existing ozon-container styles */
+        .ozon-container {
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            margin: 0;
+            overflow: visible;
+            border: none;
+            min-height: 100vh;
+        }
+
+        .ozon-content {
+            padding: 0;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--ozon-blue);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
             border: none;
             background: none;
-            transition: all 0.4s ease;
-            border-radius: 0;
-            font-weight: 800;
-            text-decoration: none;
-            position: relative;
-            font-size: 1.05rem;
+            width: 100%;
+            text-align: left;
+            font-weight: 500;
         }
-        
-        .ozon-nav-link:hover, .ozon-nav-link.active {
-            background: var(--ozon-gradient);
-            color: white !important;
-            transform: translateY(-4px);
-            box-shadow: 0 15px 35px rgba(0, 91, 255, 0.4);
+
+        .sidebar.collapsed .nav-link {
+            padding: 0.75rem;
+            justify-content: center;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+        }
+
+        .nav-link .nav-text {
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-link .nav-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--ozon-lighter);
+            color: var(--ozon-blue);
+            border-radius: 10px;
+            margin: 0.25rem 0.5rem;
+            padding-left: 1rem;
+        }
+
+        .sidebar.collapsed .nav-link:hover,
+        .sidebar.collapsed .nav-link.active {
+            padding: 0.75rem;
+            margin: 0.25rem 0.5rem;
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60%;
+            background: var(--ozon-blue);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .sidebar.collapsed .nav-link.active::before {
+            display: none;
+        }
+
+        .notification-badge {
+            background: var(--ozon-orange);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            margin-left: auto;
+            min-width: 20px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .notification-badge {
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            transition: margin-left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            min-height: 100vh;
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            margin-left: 70px;
+        }
+
+        .tooltip-custom {
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            margin-left: 0.5rem;
+        }
+
+        .sidebar.collapsed .nav-link:hover .tooltip-custom {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .mobile-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
         }
         
         .ozon-content {
@@ -470,7 +854,52 @@
     </style>
 </head>
 <body>
-    <div class="ozon-container">
+    <!-- Collapsible Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <div class="ozon-logo" style="width: 40px; height: 40px; font-size: 1.2rem; margin: 0;">
+                    OZ
+                </div>
+                <span class="brand-text">Ozon Integration</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#dashboard" class="nav-item active" onclick="showTab('dashboard')" data-tooltip="Панель управления">
+                <i class="fas fa-chart-area"></i>
+                <span class="nav-text">Панель управления</span>
+                <div class="notification-badge">47</div>
+            </a>
+            <a href="#fbo" class="nav-item" onclick="showTab('fbo')" data-tooltip="FBO Склады">
+                <i class="fas fa-warehouse"></i>
+                <span class="nav-text">FBO Склады</span>
+                <div class="notification-badge">12</div>
+            </a>
+            <a href="#products" class="nav-item" onclick="showTab('products')" data-tooltip="Товары">
+                <i class="fas fa-boxes"></i>
+                <span class="nav-text">Товары</span>
+            </a>
+            <a href="#orders" class="nav-item" onclick="showTab('orders')" data-tooltip="Заказы">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="nav-text">Заказы</span>
+                <div class="notification-badge">28</div>
+            </a>
+            <a href="#settings" class="nav-item" onclick="showTab('settings')" data-tooltip="API Настройки">
+                <i class="fas fa-cogs"></i>
+                <span class="nav-text">API Настройки</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
         <!-- Ozon Header -->
         <div class="ozon-header">
             <div class="d-flex align-items-center justify-content-between">
@@ -490,41 +919,11 @@
                     </span>
                 </div>
             </div>
-        </div>
-        
-        <!-- Navigation Tabs -->
-        <div class="ozon-nav d-flex">
-            <div class="ozon-nav-item">
-                <a href="#dashboard" class="ozon-nav-link active" onclick="showOzonSection('dashboard')">
-                    <i class="fas fa-chart-area me-2"></i>Панель управления
-                </a>
-            </div>
-            <div class="ozon-nav-item">
-                <a href="#fbo" class="ozon-nav-link" onclick="showOzonSection('fbo')">
-                    <i class="fas fa-warehouse me-2"></i>FBO Склады
-                </a>
-            </div>
-            <div class="ozon-nav-item">
-                <a href="#products" class="ozon-nav-link" onclick="showOzonSection('products')">
-                    <i class="fas fa-boxes me-2"></i>Товары
-                </a>
-            </div>
-            <div class="ozon-nav-item">
-                <a href="#orders" class="ozon-nav-link" onclick="showOzonSection('orders')">
-                    <i class="fas fa-shopping-cart me-2"></i>Заказы
-                </a>
-            </div>
-            <div class="ozon-nav-item">
-                <a href="#settings" class="ozon-nav-link" onclick="showOzonSection('settings')">
-                    <i class="fas fa-cogs me-2"></i>API Настройки
-                </a>
-            </div>
-        </div>
-        
-        <!-- Content Area -->
-        <div class="ozon-content">
-            <!-- Dashboard Section -->
-            <div id="ozon-dashboard-section" class="ozon-section">
+        </div>        
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Dashboard Tab -->
+            <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
                 <!-- Warehouse Selector -->
                 <div class="warehouse-selector">
                     <h5 class="fw-bold mb-3">
@@ -707,39 +1106,178 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </div>            </div>
             
-            <!-- Other sections placeholder -->
-            <div id="ozon-fbo-section" class="ozon-section" style="display:none;">
+            <!-- FBO Tab -->
+            <div class="tab-pane fade" id="fbo" role="tabpanel">
                 <div class="ozon-card">
                     <h2 class="fw-bold">FBO Управление складами</h2>
                     <p class="fs-4">Управление складами Ozon FBO отсюда...</p>
                 </div>
             </div>
             
-            <div id="ozon-products-section" class="ozon-section" style="display:none;">
+            <!-- Products Tab -->
+            <div class="tab-pane fade" id="products" role="tabpanel">
                 <div class="ozon-card">
                     <h2 class="fw-bold">Управление товарами Ozon</h2>
                     <p class="fs-4">Управление товарами Ozon отсюда...</p>
                 </div>
             </div>
             
-            <div id="ozon-orders-section" class="ozon-section" style="display:none;">
+            <!-- Orders Tab -->
+            <div class="tab-pane fade" id="orders" role="tabpanel">
                 <div class="ozon-card">
                     <h2 class="fw-bold">Отслеживание заказов Ozon</h2>
                     <p class="fs-4">Отслеживание заказов Ozon отсюда...</p>
                 </div>
             </div>
             
-            <div id="ozon-settings-section" class="ozon-section" style="display:none;">
+            <!-- Settings Tab -->
+            <div class="tab-pane fade" id="settings" role="tabpanel">
                 <div class="ozon-card">
                     <h2 class="fw-bold">Настройки Ozon API</h2>
-                    <p class="fs-4">Настройка Ozon API отсюда...</p>
-                </div>
+                    <p class="fs-4">Настройка Ozon API отсюда...</p>                </div>
             </div>
         </div>
-    </div>    <!-- Bootstrap JS -->
+    </div>
+
+    <script>
+        // Sidebar functionality for Ozon integration
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.toggle('collapsed');
+            
+            // Save state
+            localStorage.setItem('ozonSidebarCollapsed', sidebar.classList.contains('collapsed'));
+            
+            // Mobile handling
+            if (window.innerWidth <= 768) {
+                if (!sidebar.classList.contains('collapsed')) {
+                    mobileOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    mobileOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+        }
+
+        function showTab(tabId) {
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('show', 'active');
+            });
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected tab pane
+            const selectedPane = document.getElementById(tabId);
+            if (selectedPane) {
+                selectedPane.classList.add('show', 'active');
+            }
+            
+            // Add active class to clicked nav item
+            const selectedNavItem = document.querySelector(`[onclick="showTab('${tabId}')"]`);
+            if (selectedNavItem) {
+                selectedNavItem.classList.add('active');
+            }
+            
+            // Auto-collapse sidebar on mobile after selection
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileOverlay = document.getElementById('mobileOverlay');
+                sidebar.classList.add('collapsed');
+                mobileOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Mobile overlay click handler
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.add('collapsed');
+            mobileOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Initialize sidebar functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            
+            // Toggle button event
+            sidebarToggle.addEventListener('click', toggleSidebar);
+            
+            // Mobile overlay event
+            mobileOverlay.addEventListener('click', closeMobileSidebar);
+            
+            // Keyboard shortcut (Ctrl+B)
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'b') {
+                    e.preventDefault();
+                    toggleSidebar();
+                }
+            });
+            
+            // Restore saved state
+            const isCollapsed = localStorage.getItem('ozonSidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                document.getElementById('sidebar').classList.add('collapsed');
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                const sidebar = document.getElementById('sidebar');
+                const mobileOverlay = document.getElementById('mobileOverlay');
+                
+                if (window.innerWidth > 768) {
+                    mobileOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                } else if (!sidebar.classList.contains('collapsed')) {
+                    mobileOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+            
+            // Tooltip functionality for collapsed sidebar
+            const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    if (document.getElementById('sidebar').classList.contains('collapsed')) {
+                        const tooltip = this.getAttribute('data-tooltip');
+                        if (tooltip && !this.querySelector('.tooltip-text')) {
+                            const tooltipEl = document.createElement('div');
+                            tooltipEl.className = 'tooltip-text';
+                            tooltipEl.textContent = tooltip;
+                            this.appendChild(tooltipEl);
+                        }
+                    }
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    const tooltipEl = this.querySelector('.tooltip-text');
+                    if (tooltipEl) {
+                        tooltipEl.remove();
+                    }
+                });
+            });
+        });
+
+        // Legacy function compatibility
+        function showOzonSection(sectionId) {
+            showTab(sectionId);
+        }
+    </script>
+    
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../WEBSOCKET_SYSTEM/meschain-websocket.js"></script>
     <script src="ozon_integration.js"></script>
