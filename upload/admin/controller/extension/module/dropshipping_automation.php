@@ -1,96 +1,85 @@
 <?php
 /**
  * Dropshipping Automation Controller
+ * MesChain-Sync v4.1 - OpenCart 3.0.4.0 Integration
+ * Advanced Dropshipping Automation for Multiple Marketplaces
  * 
- * @package    MesChain-Sync
- * @author     MezBjen Team
- * @copyright  2024 MesChain
- * @version    1.0.0
+ * @author MesChain Development Team
+ * @version 4.1.0
+ * @copyright 2024 MesChain Technologies
+ * @features Auto-order, Inventory sync, Profit tracking, Supplier management
  */
 
+require_once DIR_SYSTEM . 'library/meschain/helper/dropshipping_helper.php';
+
 class ControllerExtensionModuleDropshippingAutomation extends Controller {
-    
+
     private $error = array();
-    
+    private $supported_suppliers = [
+        'aliexpress', 'alibaba', 'cjdropshipping', 'oberlo', 'spocket', 'wholesale_central'
+    ];
+
+    public function __construct($registry) {
+        parent::__construct($registry);
+        $this->createDropshippingTables();
+    }
+
     /**
-     * Ana sayfa - Otomasyon dashboard
+     * Ana dropshipping yönetim sayfası
      */
     public function index() {
-        $this->load->language('extension/module/dropshipping');
-        $this->document->setTitle($this->language->get('heading_title') . ' - Automation');
-        
-        $data['breadcrumbs'] = array();
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_home'),
-            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        $data['breadcrumbs'][] = array(
-            'text' => 'Dropshipping Automation',
-            'href' => $this->url->link('extension/module/dropshipping_automation', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        // Otomasyon istatistikleri
-        $this->load->model('extension/module/dropshipping');
-        $data['stats'] = $this->getAutomationStats();
-        
-        // Aktif kurallar
-        $data['rules'] = $this->getAutomationRules();
-        
-        // Son işlemler
-        $data['recent_activities'] = $this->getRecentActivities();
-        
-        // Tedarikçi performansı
-        $data['supplier_performance'] = $this->getSupplierPerformance();
-        
-        $data['user_token'] = $this->session->data['user_token'];
-        $data['header'] = $this->load->controller('common/header');
-        $data['column_left'] = $this->load->controller('common/column_left');
-        $data['footer'] = $this->load->controller('common/footer');
-        
+        $this->load->language('extension/module/dropshipping_automation');
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+            $this->load->model('setting/setting');
+            $this->model_setting_setting->editSetting('module_dropshipping_automation', $this->request->post);
+
+            $this->session->data['success'] = $this->language->get('text_success');
+            $this->response->redirect($this->url->link('extension/module/dropshipping_automation', 'user_token=' . $this->session->data['user_token'], true));
+        }
+
+        $data = $this->getViewData();
         $this->response->setOutput($this->load->view('extension/module/dropshipping_automation', $data));
     }
-    
+
     /**
      * Otomatik sipariş işleme
      */
-    public function processAutoOrders() {
-        $this->load->model('extension/module/dropshipping');
-        $this->load->model('sale/order');
+    public function processOrders() {
+        $this->load->language('extension/module/dropshipping_automation');
         
         $json = array();
         
         try {
-            // Otomatik sipariş özelliği aktif mi?
-            if (!$this->config->get('module_dropshipping_auto_order')) {
-                throw new Exception('Auto order processing is disabled');
-            }
+            $this->load->model('extension/module/dropshipping_automation');
+            $this->load->library('meschain/helper/dropshipping_helper');
             
-            // İşlenmeyi bekleyen siparişleri al
-            $pending_orders = $this->model_extension_module_dropshipping->getPendingDropshipOrders();
+            // Bekleyen siparişleri al
+            $pending_orders = $this->model_extension_module_dropshipping_automation->getPendingDropshipOrders();
             
-            $processed = 0;
+            $processed_count = 0;
             $errors = array();
             
             foreach ($pending_orders as $order) {
                 try {
-                    $result = $this->processDropshipOrder($order);
+                    // Tedarikçiye otomatik sipariş ver
+                    $result = $this->dropshipping_helper->processAutomaticOrder($order);
+                    
                     if ($result['success']) {
-                        $processed++;
+                        $processed_count++;
                         
                         // Sipariş durumunu güncelle
-                        $this->model_extension_module_dropshipping->updateDropshipOrderStatus(
-                            $order['order_id'],
-                            'processing',
+                        $this->model_extension_module_dropshipping_automation->updateOrderStatus(
+                            $order['order_id'], 
+                            'processing', 
                             $result['supplier_order_id']
                         );
                         
-                        // OpenCart sipariş durumunu güncelle
-                        $this->model_sale_order->addOrderHistory(
-                            $order['order_id'],
-                            $this->config->get('module_dropshipping_processing_status_id') ?: 2,
-                            'Dropship order sent to supplier: ' . $order['supplier_name'],
-                            true
-                        );
+                        // Müşteriye bilgi maili gönder
+                        if ($this->config->get('module_dropshipping_automation_notify_customer')) {
+                            $this->dropshipping_helper->sendCustomerNotification($order, $result);
+                        }
                     } else {
                         $errors[] = 'Order #' . $order['order_id'] . ': ' . $result['error'];
                     }
@@ -103,147 +92,86 @@ class ControllerExtensionModuleDropshippingAutomation extends Controller {
             }
             
             $json['success'] = true;
-            $json['message'] = sprintf('%d orders processed successfully', $processed);
+            $json['message'] = sprintf('Processed %d orders successfully', $processed_count);
             
             if (!empty($errors)) {
                 $json['warnings'] = $errors;
             }
             
-            // Log işlemi
-            $this->log('AUTO_ORDER_PROCESS', sprintf('Processed %d orders', $processed));
+            $this->log->write('Dropshipping: ' . $processed_count . ' orders processed');
             
         } catch (Exception $e) {
             $json['success'] = false;
             $json['error'] = $e->getMessage();
-            
-            $this->log('AUTO_ORDER_ERROR', $e->getMessage());
+            $this->log->write('Dropshipping ERROR: ' . $e->getMessage());
         }
         
         $this->response->addHeader('Content-Type: application/json');
         $this->response->setOutput(json_encode($json));
     }
-    
-    /**
-     * Tek bir dropship siparişini işle
-     */
-    private function processDropshipOrder($order) {
-        $this->load->library('meschain/helper/dropshipping/' . $order['supplier_name']);
-        
-        $helper_class = 'MesChain' . ucfirst($order['supplier_name']) . 'DropshipHelper';
-        
-        if (!class_exists($helper_class)) {
-            return array(
-                'success' => false,
-                'error' => 'Supplier helper not found: ' . $order['supplier_name']
-            );
-        }
-        
-        $helper = new $helper_class($this->registry);
-        
-        // Tedarikçi API bilgilerini al
-        $supplier = $this->model_extension_module_dropshipping->getSupplier($order['supplier_id']);
-        
-        if (!$supplier) {
-            return array(
-                'success' => false,
-                'error' => 'Supplier not found'
-            );
-        }
-        
-        // Sipariş detaylarını hazırla
-        $order_data = $this->prepareSupplierOrderData($order);
-        
-        // Tedarikçiye siparişi gönder
-        return $helper->createOrder($order_data, $supplier);
-    }
-    
-    /**
-     * Tedarikçi siparişi için veri hazırla
-     */
-    private function prepareSupplierOrderData($order) {
-        $this->load->model('sale/order');
-        
-        // OpenCart sipariş bilgilerini al
-        $oc_order = $this->model_sale_order->getOrder($order['order_id']);
-        $oc_products = $this->model_sale_order->getOrderProducts($order['order_id']);
-        
-        $products = array();
-        foreach ($oc_products as $product) {
-            // Dropship ürün eşleşmesini kontrol et
-            $dropship_product = $this->model_extension_module_dropshipping->getDropshipProduct(
-                $product['product_id'],
-                $order['supplier_id']
-            );
-            
-            if ($dropship_product) {
-                $products[] = array(
-                    'supplier_product_id' => $dropship_product['supplier_product_id'],
-                    'quantity' => $product['quantity'],
-                    'price' => $dropship_product['supplier_price'],
-                    'name' => $product['name'],
-                    'model' => $product['model']
-                );
-            }
-        }
-        
-        return array(
-            'order_id' => $order['order_id'],
-            'customer' => array(
-                'firstname' => $oc_order['shipping_firstname'],
-                'lastname' => $oc_order['shipping_lastname'],
-                'email' => $oc_order['email'],
-                'telephone' => $oc_order['telephone']
-            ),
-            'shipping_address' => array(
-                'address_1' => $oc_order['shipping_address_1'],
-                'address_2' => $oc_order['shipping_address_2'],
-                'city' => $oc_order['shipping_city'],
-                'postcode' => $oc_order['shipping_postcode'],
-                'zone' => $oc_order['shipping_zone'],
-                'country' => $oc_order['shipping_country']
-            ),
-            'products' => $products,
-            'shipping_method' => $oc_order['shipping_method'],
-            'comment' => $oc_order['comment']
-        );
-    }
-    
+
     /**
      * Stok senkronizasyonu
      */
     public function syncInventory() {
-        $this->load->model('extension/module/dropshipping');
+        $this->load->language('extension/module/dropshipping_automation');
         
         $json = array();
         
         try {
-            $supplier_id = isset($this->request->post['supplier_id']) ? (int)$this->request->post['supplier_id'] : 0;
+            $this->load->model('extension/module/dropshipping_automation');
+            $this->load->library('meschain/helper/dropshipping_helper');
             
-            if ($supplier_id) {
-                // Tek tedarikçi senkronizasyonu
-                $result = $this->syncSupplierInventory($supplier_id);
-                $json = $result;
-            } else {
-                // Tüm tedarikçiler için senkronizasyon
-                $suppliers = $this->model_extension_module_dropshipping->getActiveSuppliers();
-                $total_synced = 0;
-                $errors = array();
-                
-                foreach ($suppliers as $supplier) {
-                    $result = $this->syncSupplierInventory($supplier['supplier_id']);
-                    if ($result['success']) {
-                        $total_synced += $result['synced_count'];
+            // Dropshipping ürünlerini al
+            $products = $this->model_extension_module_dropshipping_automation->getDropshippingProducts();
+            
+            $synced_count = 0;
+            $out_of_stock = 0;
+            $errors = array();
+            
+            foreach ($products as $product) {
+                try {
+                    // Tedarikçiden stok bilgisi al
+                    $stock_info = $this->dropshipping_helper->getSupplierStockInfo($product);
+                    
+                    if ($stock_info['success']) {
+                        // OpenCart stok güncelle
+                        $this->model_extension_module_dropshipping_automation->updateProductStock(
+                            $product['product_id'], 
+                            $stock_info['quantity']
+                        );
+                        
+                        $synced_count++;
+                        
+                        if ($stock_info['quantity'] <= 0) {
+                            $out_of_stock++;
+                            
+                            // Stok bittiğinde marketplace'lerde de pasifleştir
+                            if ($this->config->get('module_dropshipping_automation_auto_disable')) {
+                                $this->dropshipping_helper->disableProductOnMarketplaces($product['product_id']);
+                            }
+                        }
+                        
+                        // Fiyat güncelleme de varsa
+                        if ($this->config->get('module_dropshipping_automation_auto_price_update')) {
+                            $this->updateProductPricing($product, $stock_info);
+                        }
                     } else {
-                        $errors[] = $supplier['supplier_name'] . ': ' . $result['error'];
+                        $errors[] = $product['name'] . ': ' . $stock_info['error'];
                     }
+                } catch (Exception $e) {
+                    $errors[] = $product['name'] . ': ' . $e->getMessage();
                 }
                 
-                $json['success'] = true;
-                $json['message'] = sprintf('%d products synced', $total_synced);
-                
-                if (!empty($errors)) {
-                    $json['warnings'] = $errors;
-                }
+                // Rate limiting
+                usleep(250000); // 250ms delay
+            }
+            
+            $json['success'] = true;
+            $json['message'] = sprintf('Synced %d products, %d out of stock', $synced_count, $out_of_stock);
+            
+            if (!empty($errors)) {
+                $json['warnings'] = $errors;
             }
             
         } catch (Exception $e) {
@@ -254,134 +182,121 @@ class ControllerExtensionModuleDropshippingAutomation extends Controller {
         $this->response->addHeader('Content-Type: application/json');
         $this->response->setOutput(json_encode($json));
     }
-    
+
     /**
-     * Tek tedarikçi için stok senkronizasyonu
+     * Kar analizi
      */
-    private function syncSupplierInventory($supplier_id) {
-        $supplier = $this->model_extension_module_dropshipping->getSupplier($supplier_id);
+    public function profitAnalysis() {
+        $this->load->language('extension/module/dropshipping_automation');
         
-        if (!$supplier) {
-            return array(
-                'success' => false,
-                'error' => 'Supplier not found'
-            );
+        $json = array();
+        
+        try {
+            $this->load->model('extension/module/dropshipping_automation');
+            
+            $analysis = $this->model_extension_module_dropshipping_automation->getProfitAnalysis();
+            
+            $json['success'] = true;
+            $json['data'] = $analysis;
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
         }
         
-        $this->load->library('meschain/helper/dropshipping/' . $supplier['supplier_name']);
-        $helper_class = 'MesChain' . ucfirst($supplier['supplier_name']) . 'DropshipHelper';
-        
-        if (!class_exists($helper_class)) {
-            return array(
-                'success' => false,
-                'error' => 'Supplier helper not found'
-            );
-        }
-        
-        $helper = new $helper_class($this->registry);
-        
-        // Dropship ürünlerini al
-        $products = $this->model_extension_module_dropshipping->getSupplierProducts($supplier_id);
-        $synced = 0;
-        
-        foreach ($products as $product) {
-            try {
-                // Tedarikçiden stok bilgisini al
-                $stock_info = $helper->getProductStock($product['supplier_product_id'], $supplier);
-                
-                if ($stock_info['success']) {
-                    // OpenCart stok güncelle
-                    $this->model_extension_module_dropshipping->updateProductStock(
-                        $product['opencart_product_id'],
-                        $stock_info['quantity'],
-                        $stock_info['price'] ?? null
-                    );
-                    $synced++;
-                }
-            } catch (Exception $e) {
-                // Hata logla ama devam et
-                $this->log('INVENTORY_SYNC_ERROR', $e->getMessage());
-            }
-        }
-        
-        return array(
-            'success' => true,
-            'synced_count' => $synced
-        );
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
     }
-    
+
     /**
-     * Fiyat kuralları yönetimi
+     * Tedarikçi yönetimi
      */
-    public function pricingRules() {
-        $this->load->language('extension/module/dropshipping');
+    public function manageSuppliers() {
+        $this->load->language('extension/module/dropshipping_automation');
+        
+        $json = array();
         
         if ($this->request->server['REQUEST_METHOD'] == 'POST') {
-            $json = array();
-            
             try {
-                $rules = isset($this->request->post['rules']) ? $this->request->post['rules'] : array();
+                $this->load->model('extension/module/dropshipping_automation');
                 
-                $this->load->model('extension/module/dropshipping');
-                $this->model_extension_module_dropshipping->savePricingRules($rules);
+                $supplier_data = $this->request->post;
+                $result = $this->model_extension_module_dropshipping_automation->saveSupplier($supplier_data);
                 
                 $json['success'] = true;
-                $json['message'] = 'Pricing rules saved successfully';
-                
+                $json['message'] = 'Supplier saved successfully';
+                $json['supplier_id'] = $result['supplier_id'];
             } catch (Exception $e) {
                 $json['success'] = false;
                 $json['error'] = $e->getMessage();
             }
-            
-            $this->response->addHeader('Content-Type: application/json');
-            $this->response->setOutput(json_encode($json));
-            return;
+        } else {
+            // GET isteği - tedarikçi listesi
+            try {
+                $this->load->model('extension/module/dropshipping_automation');
+                $suppliers = $this->model_extension_module_dropshipping_automation->getSuppliers();
+                
+                $json['success'] = true;
+                $json['data'] = $suppliers;
+            } catch (Exception $e) {
+                $json['success'] = false;
+                $json['error'] = $e->getMessage();
+            }
         }
         
-        // GET request - show pricing rules page
-        $data['rules'] = $this->model_extension_module_dropshipping->getPricingRules();
-        $data['suppliers'] = $this->model_extension_module_dropshipping->getActiveSuppliers();
-        
-        $this->response->setOutput($this->load->view('extension/module/dropshipping_pricing_rules', $data));
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
     }
-    
+
     /**
-     * Sipariş takibi güncelleme
+     * Kargo takibi
      */
-    public function updateTracking() {
-        $this->load->model('extension/module/dropshipping');
-        $this->load->model('sale/order');
+    public function trackShipments() {
+        $this->load->language('extension/module/dropshipping_automation');
         
         $json = array();
         
         try {
-            // Takip bilgisi olan siparişleri al
-            $orders = $this->model_extension_module_dropshipping->getOrdersForTrackingUpdate();
+            $this->load->model('extension/module/dropshipping_automation');
+            $this->load->library('meschain/helper/dropshipping_helper');
             
-            $updated = 0;
-            foreach ($orders as $order) {
-                $tracking = $this->getSupplierTracking($order);
-                
-                if ($tracking['success']) {
-                    // Takip bilgisini güncelle
-                    $this->model_extension_module_dropshipping->updateOrderTracking(
-                        $order['order_id'],
-                        $tracking['tracking_number'],
-                        $tracking['carrier'],
-                        $tracking['status']
-                    );
+            // Kargo takibi bekleyen siparişler
+            $shipments = $this->model_extension_module_dropshipping_automation->getPendingShipments();
+            
+            $updated_count = 0;
+            $errors = array();
+            
+            foreach ($shipments as $shipment) {
+                try {
+                    // Tedarikçiden kargo bilgisi al
+                    $tracking_info = $this->dropshipping_helper->getTrackingInfo($shipment);
                     
-                    // Müşteriye bildirim gönder
-                    if ($tracking['status'] == 'shipped' && !$order['tracking_notified']) {
-                        $this->notifyCustomerTracking($order['order_id'], $tracking);
+                    if ($tracking_info['success']) {
+                        // Sipariş durumunu güncelle
+                        $this->model_extension_module_dropshipping_automation->updateShipmentTracking(
+                            $shipment['order_id'], 
+                            $tracking_info
+                        );
+                        
+                        $updated_count++;
+                        
+                        // Müşteriye kargo bilgisi gönder
+                        if ($tracking_info['status'] == 'shipped') {
+                            $this->dropshipping_helper->sendTrackingInfoToCustomer($shipment, $tracking_info);
+                        }
+                    } else {
+                        $errors[] = 'Order #' . $shipment['order_id'] . ': ' . $tracking_info['error'];
                     }
-                    
-                    $updated++;
+                } catch (Exception $e) {
+                    $errors[] = 'Order #' . $shipment['order_id'] . ': ' . $e->getMessage();
                 }
             }
             
             $json['success'] = true;
-            $json['message'] = sprintf('%d tracking information updated', $updated);
+            $json['message'] = sprintf('Updated %d shipments', $updated_count);
+            
+            if (!empty($errors)) {
+                $json['warnings'] = $errors;
+            }
             
         } catch (Exception $e) {
             $json['success'] = false;
@@ -391,139 +306,262 @@ class ControllerExtensionModuleDropshippingAutomation extends Controller {
         $this->response->addHeader('Content-Type: application/json');
         $this->response->setOutput(json_encode($json));
     }
-    
+
     /**
-     * Tedarikçiden takip bilgisi al
+     * Otomatik fiyatlandırma kuralları
      */
-    private function getSupplierTracking($order) {
-        $supplier = $this->model_extension_module_dropshipping->getSupplier($order['supplier_id']);
+    public function managePricingRules() {
+        $this->load->language('extension/module/dropshipping_automation');
         
-        $this->load->library('meschain/helper/dropshipping/' . $supplier['supplier_name']);
-        $helper_class = 'MesChain' . ucfirst($supplier['supplier_name']) . 'DropshipHelper';
+        $json = array();
         
-        if (!class_exists($helper_class)) {
-            return array('success' => false);
+        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
+            try {
+                $this->load->model('extension/module/dropshipping_automation');
+                
+                $rules = $this->request->post['pricing_rules'];
+                $this->model_extension_module_dropshipping_automation->savePricingRules($rules);
+                
+                $json['success'] = true;
+                $json['message'] = 'Pricing rules updated successfully';
+            } catch (Exception $e) {
+                $json['success'] = false;
+                $json['error'] = $e->getMessage();
+            }
+        } else {
+            try {
+                $this->load->model('extension/module/dropshipping_automation');
+                $rules = $this->model_extension_module_dropshipping_automation->getPricingRules();
+                
+                $json['success'] = true;
+                $json['data'] = $rules;
+            } catch (Exception $e) {
+                $json['success'] = false;
+                $json['error'] = $e->getMessage();
+            }
         }
         
-        $helper = new $helper_class($this->registry);
-        
-        return $helper->getOrderTracking($order['supplier_order_id'], $supplier);
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
     }
-    
+
     /**
-     * Müşteriye takip bildirimi gönder
+     * Dashboard verileri
      */
-    private function notifyCustomerTracking($order_id, $tracking) {
-        $this->load->model('sale/order');
-        $order = $this->model_sale_order->getOrder($order_id);
+    public function getDashboardData() {
+        $this->load->language('extension/module/dropshipping_automation');
         
-        if ($order) {
-            // E-posta gönder
-            $mail = new Mail($this->config->get('config_mail_engine'));
-            $mail->parameter = $this->config->get('config_mail_parameter');
-            $mail->smtp_hostname = $this->config->get('config_mail_smtp_hostname');
-            $mail->smtp_username = $this->config->get('config_mail_smtp_username');
-            $mail->smtp_password = html_entity_decode($this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8');
-            $mail->smtp_port = $this->config->get('config_mail_smtp_port');
-            $mail->smtp_timeout = $this->config->get('config_mail_smtp_timeout');
+        $json = array();
+        
+        try {
+            $this->load->model('extension/module/dropshipping_automation');
             
-            $mail->setTo($order['email']);
-            $mail->setFrom($this->config->get('config_email'));
-            $mail->setSender(html_entity_decode($this->config->get('config_name'), ENT_QUOTES, 'UTF-8'));
-            $mail->setSubject('Your order has been shipped - Order #' . $order_id);
+            $data = [
+                'pending_orders' => $this->model_extension_module_dropshipping_automation->getPendingOrdersCount(),
+                'processing_orders' => $this->model_extension_module_dropshipping_automation->getProcessingOrdersCount(),
+                'shipped_orders' => $this->model_extension_module_dropshipping_automation->getShippedOrdersCount(),
+                'total_profit' => $this->model_extension_module_dropshipping_automation->getTotalProfit(),
+                'avg_profit_margin' => $this->model_extension_module_dropshipping_automation->getAverageProfitMargin(),
+                'top_products' => $this->model_extension_module_dropshipping_automation->getTopProfitableProducts(),
+                'supplier_performance' => $this->model_extension_module_dropshipping_automation->getSupplierPerformance(),
+                'recent_activities' => $this->model_extension_module_dropshipping_automation->getRecentActivities()
+            ];
             
-            $message = "Dear " . $order['firstname'] . ",\n\n";
-            $message .= "Your order #" . $order_id . " has been shipped!\n\n";
-            $message .= "Tracking Number: " . $tracking['tracking_number'] . "\n";
-            $message .= "Carrier: " . $tracking['carrier'] . "\n\n";
-            $message .= "You can track your shipment using the tracking number above.\n\n";
-            $message .= "Thank you for your order!\n";
-            
-            $mail->setText($message);
-            $mail->send();
-            
-            // Bildirim gönderildi olarak işaretle
-            $this->model_extension_module_dropshipping->markTrackingNotified($order_id);
+            $json['success'] = true;
+            $json['data'] = $data;
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
         }
-    }
-    
-    /**
-     * Otomasyon istatistikleri
-     */
-    private function getAutomationStats() {
-        $this->load->model('extension/module/dropshipping');
         
-        return array(
-            'total_automated_orders' => $this->model_extension_module_dropshipping->getTotalAutomatedOrders(),
-            'pending_orders' => $this->model_extension_module_dropshipping->getTotalPendingOrders(),
-            'processing_orders' => $this->model_extension_module_dropshipping->getTotalProcessingOrders(),
-            'completed_orders' => $this->model_extension_module_dropshipping->getTotalCompletedOrders(),
-            'failed_orders' => $this->model_extension_module_dropshipping->getTotalFailedOrders(),
-            'total_revenue' => $this->model_extension_module_dropshipping->getTotalDropshipRevenue(),
-            'total_profit' => $this->model_extension_module_dropshipping->getTotalDropshipProfit(),
-            'average_processing_time' => $this->model_extension_module_dropshipping->getAverageProcessingTime()
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    /**
+     * Ürün fiyatlandırmasını güncelle
+     */
+    private function updateProductPricing($product, $stock_info) {
+        if (!isset($stock_info['cost_price'])) {
+            return;
+        }
+
+        $cost_price = $stock_info['cost_price'];
+        $pricing_rules = $this->getPricingRules($product['category_id']);
+        
+        // Kar marjını hesapla
+        $profit_margin = $pricing_rules['profit_margin'] ?? 30; // %30 varsayılan
+        $markup = $pricing_rules['markup'] ?? 0; // Sabit ekleme
+        
+        $selling_price = ($cost_price * (1 + $profit_margin / 100)) + $markup;
+        
+        // Minimum/maksimum fiyat kontrolü
+        if (isset($pricing_rules['min_price']) && $selling_price < $pricing_rules['min_price']) {
+            $selling_price = $pricing_rules['min_price'];
+        }
+        
+        if (isset($pricing_rules['max_price']) && $selling_price > $pricing_rules['max_price']) {
+            $selling_price = $pricing_rules['max_price'];
+        }
+        
+        // Fiyatı güncelle
+        $this->load->model('extension/module/dropshipping_automation');
+        $this->model_extension_module_dropshipping_automation->updateProductPrice(
+            $product['product_id'], 
+            $selling_price
         );
     }
-    
+
     /**
-     * Otomasyon kuralları
+     * Kategori bazında fiyatlandırma kurallarını al
      */
-    private function getAutomationRules() {
-        $this->load->model('extension/module/dropshipping');
-        
-        return $this->model_extension_module_dropshipping->getAutomationRules();
+    private function getPricingRules($category_id) {
+        $default_rules = [
+            'profit_margin' => 30,
+            'markup' => 0,
+            'min_price' => 10,
+            'max_price' => 10000
+        ];
+
+        // Kategori özel kuralları varsa al
+        $query = $this->db->query("
+            SELECT * FROM " . DB_PREFIX . "dropshipping_pricing_rules 
+            WHERE category_id = " . (int)$category_id . " 
+            OR category_id = 0 
+            ORDER BY category_id DESC 
+            LIMIT 1
+        ");
+
+        if ($query->num_rows) {
+            return json_decode($query->row['rules'], true);
+        }
+
+        return $default_rules;
     }
-    
+
     /**
-     * Son aktiviteler
+     * Dropshipping tablolarını oluştur
      */
-    private function getRecentActivities() {
-        $this->load->model('extension/module/dropshipping');
-        
-        return $this->model_extension_module_dropshipping->getRecentActivities(20);
+    private function createDropshippingTables() {
+        // Dropshipping orders tablosu
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "dropshipping_orders` (
+            `dropship_id` int(11) NOT NULL AUTO_INCREMENT,
+            `order_id` int(11) NOT NULL,
+            `supplier_id` int(11) NOT NULL,
+            `supplier_order_id` varchar(100),
+            `cost_price` decimal(15,4) NOT NULL,
+            `selling_price` decimal(15,4) NOT NULL,
+            `profit` decimal(15,4) NOT NULL,
+            `status` enum('pending','processing','shipped','delivered','cancelled') DEFAULT 'pending',
+            `tracking_number` varchar(100),
+            `shipping_method` varchar(100),
+            `estimated_delivery` date,
+            `actual_delivery` date,
+            `notes` text,
+            `created_at` datetime NOT NULL,
+            `updated_at` datetime NOT NULL,
+            PRIMARY KEY (`dropship_id`),
+            KEY `order_id` (`order_id`),
+            KEY `supplier_id` (`supplier_id`),
+            KEY `status` (`status`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+        // Dropshipping suppliers tablosu
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "dropshipping_suppliers` (
+            `supplier_id` int(11) NOT NULL AUTO_INCREMENT,
+            `name` varchar(255) NOT NULL,
+            `type` varchar(50) NOT NULL,
+            `api_endpoint` varchar(500),
+            `api_key` varchar(255),
+            `api_secret` varchar(255),
+            `contact_info` json,
+            `performance_score` decimal(5,2) DEFAULT 0,
+            `shipping_methods` json,
+            `processing_time` int(11) DEFAULT 2,
+            `return_policy` text,
+            `status` tinyint(1) DEFAULT 1,
+            `created_at` datetime NOT NULL,
+            `updated_at` datetime NOT NULL,
+            PRIMARY KEY (`supplier_id`),
+            KEY `type` (`type`),
+            KEY `status` (`status`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+        // Dropshipping products tablosu
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "dropshipping_products` (
+            `mapping_id` int(11) NOT NULL AUTO_INCREMENT,
+            `product_id` int(11) NOT NULL,
+            `supplier_id` int(11) NOT NULL,
+            `supplier_sku` varchar(100) NOT NULL,
+            `cost_price` decimal(15,4) NOT NULL,
+            `min_quantity` int(11) DEFAULT 1,
+            `max_quantity` int(11) DEFAULT 999,
+            `processing_time` int(11) DEFAULT 2,
+            `variant_mapping` json,
+            `last_stock_check` datetime,
+            `last_price_update` datetime,
+            `status` tinyint(1) DEFAULT 1,
+            `created_at` datetime NOT NULL,
+            `updated_at` datetime NOT NULL,
+            PRIMARY KEY (`mapping_id`),
+            UNIQUE KEY `product_supplier` (`product_id`, `supplier_id`),
+            KEY `supplier_sku` (`supplier_sku`),
+            KEY `status` (`status`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+        // Pricing rules tablosu
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "dropshipping_pricing_rules` (
+            `rule_id` int(11) NOT NULL AUTO_INCREMENT,
+            `category_id` int(11) DEFAULT 0,
+            `supplier_id` int(11) DEFAULT 0,
+            `rules` json NOT NULL,
+            `priority` int(11) DEFAULT 1,
+            `status` tinyint(1) DEFAULT 1,
+            `created_at` datetime NOT NULL,
+            `updated_at` datetime NOT NULL,
+            PRIMARY KEY (`rule_id`),
+            KEY `category_id` (`category_id`),
+            KEY `supplier_id` (`supplier_id`),
+            KEY `priority` (`priority`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
     }
-    
+
     /**
-     * Tedarikçi performansı
+     * View verilerini hazırla
      */
-    private function getSupplierPerformance() {
-        $this->load->model('extension/module/dropshipping');
+    private function getViewData() {
+        $data = array();
         
-        $suppliers = $this->model_extension_module_dropshipping->getActiveSuppliers();
-        $performance = array();
+        // Form fields
+        $fields = [
+            'status', 'auto_order', 'auto_inventory_sync', 'auto_price_update',
+            'notify_customer', 'auto_disable', 'sync_interval', 'default_profit_margin'
+        ];
         
-        foreach ($suppliers as $supplier) {
-            $performance[] = array(
-                'supplier_name' => $supplier['supplier_name'],
-                'total_orders' => $this->model_extension_module_dropshipping->getSupplierOrderCount($supplier['supplier_id']),
-                'success_rate' => $this->model_extension_module_dropshipping->getSupplierSuccessRate($supplier['supplier_id']),
-                'average_processing_time' => $this->model_extension_module_dropshipping->getSupplierAvgProcessingTime($supplier['supplier_id']),
-                'total_revenue' => $this->model_extension_module_dropshipping->getSupplierRevenue($supplier['supplier_id'])
-            );
+        foreach ($fields as $field) {
+            $key = 'module_dropshipping_automation_' . $field;
+            if (isset($this->request->post[$key])) {
+                $data[$key] = $this->request->post[$key];
+            } else {
+                $data[$key] = $this->config->get($key);
+            }
         }
         
-        return $performance;
+        // Links
+        $data['action'] = $this->url->link('extension/module/dropshipping_automation', 'user_token=' . $this->session->data['user_token'], true);
+        $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true);
+        
+        return $data;
     }
-    
+
     /**
-     * Log kaydı
-     */
-    private function log($action, $message) {
-        $log_file = DIR_LOGS . 'dropshipping_automation.log';
-        $date = date('Y-m-d H:i:s');
-        $user = $this->user->getUserName();
-        $log = "[$date] [$user] [$action] $message\n";
-        file_put_contents($log_file, $log, FILE_APPEND);
-    }
-    
-    /**
-     * Doğrulama
+     * Form doğrulama
      */
     protected function validate() {
         if (!$this->user->hasPermission('modify', 'extension/module/dropshipping_automation')) {
             $this->error['warning'] = $this->language->get('error_permission');
         }
-        
+
         return !$this->error;
     }
 } 
