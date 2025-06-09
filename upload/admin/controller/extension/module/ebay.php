@@ -72,6 +72,71 @@ class ControllerExtensionModuleEbay extends ControllerExtensionModuleBaseMarketp
     }
 
     /**
+     * {@inheritdoc}
+     * OpenCart ürününü eBay API formatına dönüştürür
+     */
+    protected function prepareProductForMarketplace($product) {
+        $listing_format = $this->config->get('module_ebay_listing_format') ?? 'FixedPriceItem';
+        $site_id = $this->config->get('module_ebay_site_id') ?? 0;
+        
+        // eBay için kapsamlı ürün verisi
+        return [
+            'Title' => $this->optimizeTitle($product['name']),
+            'Description' => $this->optimizeDescription($product['description']),
+            'PrimaryCategory' => [
+                'CategoryID' => $this->mapCategory($product['category_id'], $site_id)
+            ],
+            'StartPrice' => [
+                'currencyID' => $this->getCurrencyCode($site_id),
+                'value' => $this->calculatePrice($product['price'], $site_id)
+            ],
+            'CategoryMappingAllowed' => true,
+            'Country' => $this->getCountryCode($site_id),
+            'Currency' => $this->getCurrencyCode($site_id),
+            'DispatchTimeMax' => $this->config->get('module_ebay_dispatch_time') ?? 3,
+            'ListingDuration' => $this->config->get('module_ebay_listing_duration') ?? 'Days_7',
+            'ListingType' => $listing_format,
+            'PaymentMethods' => $this->getPaymentMethods($site_id),
+            'PayPalEmailAddress' => $this->config->get('module_ebay_paypal_email'),
+            'PictureDetails' => [
+                'PictureURL' => $this->prepareImages($product['product_id'])
+            ],
+            'PostalCode' => $this->config->get('module_ebay_postal_code'),
+            'Quantity' => $product['quantity'],
+            'ReturnPolicy' => $this->getReturnPolicy($site_id),
+            'ShippingDetails' => $this->getShippingDetails($site_id),
+            'Site' => $site_id,
+            'SKU' => $product['sku'] ?: $product['product_id'],
+            'ConditionID' => $this->config->get('module_ebay_condition_id') ?? 1000,
+            'ItemSpecifics' => $this->prepareItemSpecifics($product),
+            'BusinessSellerDetails' => $this->getBusinessSellerDetails(),
+            'VATDetails' => $this->getVATDetails($site_id)
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     * eBay siparişini OpenCart formatına dönüştürür
+     */
+    protected function importOrder($order) {
+        $this->load->model('sale/order');
+        $this->load->model('extension/module/ebay');
+        
+        try {
+            // OpenCart sipariş oluşturma mantığı
+            $order_data = $this->prepareOrderData($order);
+            $order_id = $this->model_extension_module_ebay->createOrder($order_data);
+            
+            $this->log('ORDER_IMPORT_SUCCESS', 'eBay Order #' . $order['OrderID'] . ' imported as OpenCart Order #' . $order_id);
+            return true;
+            
+        } catch (Exception $e) {
+            $this->log('ORDER_IMPORT_ERROR', 'Failed to import eBay order: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Ana ayar sayfası
      */
     public function index() {
@@ -152,12 +217,109 @@ class ControllerExtensionModuleEbay extends ControllerExtensionModuleBaseMarketp
     /**
      * API kimlik bilgilerini kontrol et
      */
-    private function checkApiCredentials() {
+    protected function checkApiCredentials() {
         $app_id = $this->config->get('module_ebay_app_id');
         $dev_id = $this->config->get('module_ebay_dev_id');
         $cert_id = $this->config->get('module_ebay_cert_id');
         $user_token = $this->config->get('module_ebay_user_token');
         
         return !empty($app_id) && !empty($dev_id) && !empty($cert_id) && !empty($user_token);
+    }
+
+    /**
+     * Helper methodları
+     */
+    private function optimizeTitle($title) {
+        return substr($title, 0, 80); // eBay 80 karakter limiti
+    }
+
+    private function optimizeDescription($description) {
+        return strip_tags($description, '<p><br><strong><em><ul><li>');
+    }
+
+    private function mapCategory($categoryId, $siteId) {
+        return 9355; // Varsayılan kategori
+    }
+
+    private function getCurrencyCode($siteId) {
+        $currencies = [0 => 'USD', 3 => 'GBP', 77 => 'EUR', 71 => 'EUR', 101 => 'EUR', 186 => 'EUR', 15 => 'AUD', 2 => 'CAD', 215 => 'TRY'];
+        return $currencies[$siteId] ?? 'USD';
+    }
+
+    private function getCountryCode($siteId) {
+        $countries = [0 => 'US', 3 => 'GB', 77 => 'DE', 71 => 'FR', 101 => 'IT', 186 => 'ES', 15 => 'AU', 2 => 'CA', 215 => 'TR'];
+        return $countries[$siteId] ?? 'US';
+    }
+
+    private function calculatePrice($price, $siteId) {
+        return number_format($price, 2, '.', '');
+    }
+
+    private function getPaymentMethods($siteId) {
+        return ['PayPal', 'CreditCard'];
+    }
+
+    private function prepareImages($productId) {
+        $this->load->model('catalog/product');
+        $images = $this->model_catalog_product->getProductImages($productId);
+        $urls = [];
+        foreach ($images as $image) {
+            $urls[] = HTTP_CATALOG . 'image/' . $image['image'];
+        }
+        return array_slice($urls, 0, 12);
+    }
+
+    private function getReturnPolicy($siteId) {
+        return [
+            'ReturnsAcceptedOption' => 'ReturnsAccepted',
+            'RefundOption' => 'MoneyBack',
+            'ReturnsWithinOption' => 'Days_30'
+        ];
+    }
+
+    private function getShippingDetails($siteId) {
+        return [
+            'ShippingServiceOptions' => [
+                ['ShippingService' => 'USPSMedia', 'ShippingServiceCost' => ['currencyID' => $this->getCurrencyCode($siteId), 'value' => '2.80']]
+            ]
+        ];
+    }
+
+    private function prepareItemSpecifics($product) {
+        return [
+            'NameValueList' => [
+                ['Name' => 'Brand', 'Value' => $product['manufacturer'] ?? 'Unbranded'],
+                ['Name' => 'Condition', 'Value' => 'New']
+            ]
+        ];
+    }
+
+    private function getBusinessSellerDetails() {
+        return [
+            'Address' => [
+                'Street1' => $this->config->get('config_address'),
+                'CityName' => $this->config->get('config_city'),
+                'Country' => $this->config->get('config_country')
+            ]
+        ];
+    }
+
+    private function getVATDetails($siteId) {
+        $eu_sites = [77, 71, 101, 186];
+        if (in_array($siteId, $eu_sites)) {
+            return ['VATPercent' => 19.0, 'VATSite' => $this->getCountryCode($siteId)];
+        }
+        return null;
+    }
+
+    private function prepareOrderData($order) {
+        return [
+            'order_id' => 0,
+            'invoice_no' => $order['OrderID'],
+            'invoice_prefix' => 'EBAY-',
+            'total' => $order['Total']['value'],
+            'currency_code' => $order['Total']['currencyID'],
+            'date_added' => date('Y-m-d H:i:s')
+        ];
     }
 } 
