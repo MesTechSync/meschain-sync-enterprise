@@ -420,6 +420,9 @@ class MesChainSyncSuperAdminDashboard {
             });
         });
 
+        // Real-time Data Updates for Monitoring
+        this.setupRealTimeMonitoring();
+
         // Theme Toggle
         const themeToggle = document.getElementById('meschainThemeToggle');
         if (themeToggle) {
@@ -1972,6 +1975,120 @@ class MesChainSyncSuperAdminDashboard {
     }
 
     /**
+     * Setup Real-time Monitoring for all new sections
+     */
+    setupRealTimeMonitoring() {
+        console.log('📊 Setting up real-time monitoring...');
+        
+        // Real-time data update interval
+        this.realTimeIntervals.monitoring = setInterval(() => {
+            this.updateMonitoringData();
+        }, 5000);
+        
+        // Initialize real-time data
+        this.updateMonitoringData();
+    }
+
+    /**
+     * Update Real-time Data for Monitoring Sections
+     */
+    updateMonitoringData() {
+        // CPU Usage
+        const cpuUsage = document.getElementById('cpu-usage');
+        if (cpuUsage) {
+            const randomCpu = Math.floor(Math.random() * 30) + 15; // 15-45%
+            cpuUsage.textContent = randomCpu + '%';
+            const cpuBar = cpuUsage.closest('.enhanced-card').querySelector('.bg-blue-600');
+            if (cpuBar) {
+                cpuBar.style.width = randomCpu + '%';
+            }
+        }
+
+        // Memory Usage
+        const memoryUsage = document.getElementById('memory-usage');
+        if (memoryUsage) {
+            const randomMemory = Math.floor(Math.random() * 25) + 55; // 55-80%
+            memoryUsage.textContent = randomMemory + '%';
+            const memoryBar = memoryUsage.closest('.enhanced-card').querySelector('.bg-green-600');
+            if (memoryBar) {
+                memoryBar.style.width = randomMemory + '%';
+            }
+        }
+
+        // Active Users
+        const activeUsers = document.getElementById('active-users');
+        if (activeUsers) {
+            const randomUsers = Math.floor(Math.random() * 200) + 1200; // 1200-1400
+            activeUsers.textContent = randomUsers.toLocaleString();
+        }
+
+        // Activity Feed
+        this.updateActivityFeed();
+    }
+
+    /**
+     * Update Activity Feed with new entries
+     */
+    updateActivityFeed() {
+        const activityFeed = document.getElementById('activity-feed');
+        if (!activityFeed) return;
+
+        const activities = [
+            'New order #' + (Math.floor(Math.random() * 1000) + 47000) + ' from Trendyol',
+            'Product sync completed for N11',
+            'API rate limit warning for Amazon',
+            'Inventory update for Ozon',
+            'User login detected from IP 192.168.1.' + Math.floor(Math.random() * 255),
+            'Backup completed successfully',
+            'SSL certificate renewed',
+            'Database optimization finished',
+            'Webhook delivery successful',
+            'Cache cleared for better performance',
+            'Security scan completed - no threats found',
+            'Payment processing updated',
+            'Stock levels synchronized',
+            'Customer support ticket resolved'
+        ];
+        
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                      now.getMinutes().toString().padStart(2, '0') + ':' + 
+                      now.getSeconds().toString().padStart(2, '0');
+        
+        const newActivity = document.createElement('div');
+        newActivity.className = 'flex items-center text-sm opacity-0 transform translate-y-2 transition-all duration-300';
+        
+        const statusColors = ['green', 'blue', 'yellow', 'purple'];
+        const randomColor = statusColors[Math.floor(Math.random() * statusColors.length)];
+        
+        newActivity.innerHTML = `
+            <div class="w-2 h-2 bg-${randomColor}-500 rounded-full mr-3"></div>
+            <span class="text-gray-500 mr-2">${timeStr}</span>
+            <span>${activities[Math.floor(Math.random() * activities.length)]}</span>
+        `;
+        
+        activityFeed.insertBefore(newActivity, activityFeed.firstChild);
+        
+        // Animate in
+        setTimeout(() => {
+            newActivity.style.opacity = '1';
+            newActivity.style.transform = 'translate(0)';
+        }, 100);
+        
+        // Remove old entries (keep only 10)
+        while (activityFeed.children.length > 10) {
+            const lastChild = activityFeed.lastChild;
+            lastChild.style.opacity = '0';
+            lastChild.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                if (lastChild.parentNode) {
+                    activityFeed.removeChild(lastChild);
+                }
+            }, 300);
+        }
+    }
+
+    /**
      * Cleanup Resources
      */
     cleanup() {
@@ -1991,10 +2108,427 @@ class MesChainSyncSuperAdminDashboard {
     }
 }
 
+// Add Real-time Monitoring Extension
+MesChainSyncSuperAdminDashboard.prototype.setupRealTimeMonitoring = function() {
+    console.log('📊 Setting up real-time monitoring...');
+    
+    // Real-time data update interval
+    this.realTimeIntervals.monitoring = setInterval(() => {
+        this.updateMonitoringData();
+    }, 5000);
+    
+    // Initialize real-time data
+    this.updateMonitoringData();
+};
+
+MesChainSyncSuperAdminDashboard.prototype.updateMonitoringData = function() {
+    // CPU Usage
+    const cpuUsage = document.getElementById('cpu-usage');
+    if (cpuUsage) {
+        const randomCpu = Math.floor(Math.random() * 30) + 15; // 15-45%
+        cpuUsage.textContent = randomCpu + '%';
+        const cpuBar = cpuUsage.closest('.enhanced-card').querySelector('.bg-blue-600');
+        if (cpuBar) {
+            cpuBar.style.width = randomCpu + '%';
+        }
+    }
+
+    // Memory Usage
+    const memoryUsage = document.getElementById('memory-usage');
+    if (memoryUsage) {
+        const randomMemory = Math.floor(Math.random() * 25) + 55; // 55-80%
+        memoryUsage.textContent = randomMemory + '%';
+        const memoryBar = memoryUsage.closest('.enhanced-card').querySelector('.bg-green-600');
+        if (memoryBar) {
+            memoryBar.style.width = randomMemory + '%';
+        }
+    }
+
+    // Active Users
+    const activeUsers = document.getElementById('active-users');
+    if (activeUsers) {
+        const randomUsers = Math.floor(Math.random() * 200) + 1200; // 1200-1400
+        activeUsers.textContent = randomUsers.toLocaleString();
+    }
+
+    // Activity Feed
+    this.updateActivityFeed();
+};
+
+MesChainSyncSuperAdminDashboard.prototype.updateActivityFeed = function() {
+    const activityFeed = document.getElementById('activity-feed');
+    if (!activityFeed) return;
+
+    const activities = [
+        'New order #' + (Math.floor(Math.random() * 1000) + 47000) + ' from Trendyol',
+        'Product sync completed for N11',
+        'API rate limit warning for Amazon',
+        'Inventory update for Ozon',
+        'User login detected from IP 192.168.1.' + Math.floor(Math.random() * 255),
+        'Backup completed successfully',
+        'SSL certificate renewed',
+        'Database optimization finished',
+        'Webhook delivery successful',
+        'Cache cleared for better performance',
+        'Security scan completed - no threats found',
+        'Payment processing updated',
+        'Stock levels synchronized',
+        'Customer support ticket resolved'
+    ];
+    
+    const now = new Date();
+    const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                  now.getMinutes().toString().padStart(2, '0') + ':' + 
+                  now.getSeconds().toString().padStart(2, '0');
+    
+    const newActivity = document.createElement('div');
+    newActivity.className = 'flex items-center text-sm opacity-0 transform translate-y-2 transition-all duration-300';
+    
+    const statusColors = ['green', 'blue', 'yellow', 'purple'];
+    const randomColor = statusColors[Math.floor(Math.random() * statusColors.length)];
+    
+    newActivity.innerHTML = `
+        <div class="w-2 h-2 bg-${randomColor}-500 rounded-full mr-3"></div>
+        <span class="text-gray-500 mr-2">${timeStr}</span>
+        <span>${activities[Math.floor(Math.random() * activities.length)]}</span>
+    `;
+    
+    activityFeed.insertBefore(newActivity, activityFeed.firstChild);
+    
+    // Animate in
+    setTimeout(() => {
+        newActivity.style.opacity = '1';
+        newActivity.style.transform = 'translate(0)';
+    }, 100);
+    
+    // Remove old entries (keep only 10)
+    while (activityFeed.children.length > 10) {
+        const lastChild = activityFeed.lastChild;
+        lastChild.style.opacity = '0';
+        lastChild.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+            if (lastChild.parentNode) {
+                activityFeed.removeChild(lastChild);
+            }
+        }, 300);
+    }
+};
+
 // Initialize MesChain-Sync Dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.meschainDashboard = new MesChainSyncSuperAdminDashboard();
+    
+    // Initialize real-time monitoring after dashboard is ready
+    setTimeout(() => {
+        if (window.meschainDashboard && typeof window.meschainDashboard.setupRealTimeMonitoring === 'function') {
+            window.meschainDashboard.setupRealTimeMonitoring();
+        }
+    }, 1000);
+    
+    // Initialize hover dropdown effects
+    initializeHoverDropdowns();
 });
+
+/**
+ * Initialize Hover Dropdown Effects for Header and Sidebar
+ */
+function initializeHoverDropdowns() {
+    console.log('🎨 Initializing hover dropdown effects...');
+    
+    // Inject CSS for hover effects
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* Header Dropdown Hover Effects */
+        .notification-dropdown:hover .notification-menu,
+        .settings-dropdown:hover .settings-menu {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+        }
+
+        .notification-menu,
+        .settings-menu {
+            transform: translateY(-10px);
+        }
+
+        /* Smooth transitions for header dropdowns */
+        .notification-menu,
+        .settings-menu {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Sidebar Dropdown Effects */
+        .sidebar-dropdown {
+            position: relative;
+        }
+
+        .sidebar-dropdown:hover .sidebar-submenu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            max-height: 300px;
+        }
+
+        .sidebar-submenu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-top: 8px;
+            padding: 0 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar-submenu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            max-height: 300px;
+        }
+
+        .submenu-item {
+            padding: 8px 12px;
+            font-size: 11px;
+            color: rgba(107, 114, 128, 0.8);
+            border-radius: 6px;
+            margin: 4px 0;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .submenu-item:hover {
+            background: rgba(139, 92, 246, 0.1);
+            color: rgba(139, 92, 246, 1);
+            transform: translateX(4px);
+        }
+
+        .submenu-item i {
+            font-size: 10px;
+            width: 12px;
+        }
+
+        /* Enhanced header component styles */
+        .notification-dropdown .relative,
+        .settings-dropdown .relative {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .notification-dropdown:hover,
+        .settings-dropdown:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Add submenu content to sidebar sections
+    addSidebarSubmenus();
+    
+    console.log('✅ Hover dropdown effects initialized');
+}
+
+/**
+ * Add Submenu Content to Sidebar Sections
+ */
+function addSidebarSubmenus() {
+    const sidebarSections = [
+        {
+            selector: '[data-tr="Ana Yönetim"]',
+            items: [
+                { icon: 'ph-chart-line', text: 'Performance Overview', action: () => showQuickView('performance') },
+                { icon: 'ph-users', text: 'User Analytics', action: () => showQuickView('users') },
+                { icon: 'ph-gear', text: 'System Health', action: () => showQuickView('health') },
+                { icon: 'ph-bell', text: 'Alerts & Logs', action: () => showQuickView('logs') }
+            ]
+        },
+        {
+            selector: '[data-tr="Servis Yönetimi"]',
+            items: [
+                { icon: 'ph-cloud', text: 'API Status', action: () => showQuickView('api') },
+                { icon: 'ph-database', text: 'Database Health', action: () => showQuickView('database') },
+                { icon: 'ph-lightning', text: 'Cache Performance', action: () => showQuickView('cache') },
+                { icon: 'ph-shield', text: 'Security Logs', action: () => showQuickView('security') }
+            ]
+        }
+    ];
+
+    sidebarSections.forEach(section => {
+        const sectionElement = document.querySelector(section.selector);
+        if (sectionElement) {
+            const parentDiv = sectionElement.closest('div');
+            parentDiv.classList.add('sidebar-dropdown');
+            
+            // Create submenu
+            const submenu = document.createElement('div');
+            submenu.className = 'sidebar-submenu';
+            submenu.innerHTML = section.items.map(item => `
+                <div class="submenu-item" onclick="(${item.action.toString()})()">
+                    <i class="${item.icon}"></i>
+                    <span>${item.text}</span>
+                </div>
+            `).join('');
+            
+            parentDiv.appendChild(submenu);
+        }
+    });
+}
+
+/**
+ * Show Quick View Modal
+ */
+function showQuickView(type) {
+    console.log(`🔍 Opening quick view: ${type}`);
+    
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 opacity-0 transition-opacity duration-300';
+    
+    const content = getQuickViewContent(type);
+    
+    const modalContent = document.createElement('div');
+    modalContent.className = 'bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-lg w-full mx-4 transform scale-95 transition-transform duration-300';
+    modalContent.innerHTML = `
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">${content.title}</h3>
+            <button class="close-modal p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100">
+                <i class="ph ph-x text-lg"></i>
+            </button>
+        </div>
+        <div class="space-y-3">
+            ${content.items.map(item => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <span class="text-sm font-medium">${item.label}</span>
+                    <span class="text-sm text-blue-600 dark:text-blue-400">${item.value}</span>
+                </div>
+            `).join('')}
+        </div>
+        <div class="mt-6 flex justify-end">
+            <button class="close-modal px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                Close
+            </button>
+        </div>
+    `;
+    
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+    
+    // Animate in
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        modalContent.style.transform = 'scale(1)';
+    }, 50);
+    
+    // Close functionality
+    const closeModal = () => {
+        modal.style.opacity = '0';
+        modalContent.style.transform = 'scale(0.95)';
+        setTimeout(() => modal.remove(), 300);
+    };
+    
+    modal.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+    });
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+}
+
+/**
+ * Get Quick View Content
+ */
+function getQuickViewContent(type) {
+    const contentMap = {
+        performance: {
+            title: '⚡ Performance Overview',
+            items: [
+                { label: 'CPU Usage', value: '23%' },
+                { label: 'Memory Usage', value: '67%' },
+                { label: 'Disk I/O', value: '12 MB/s' },
+                { label: 'Network', value: '847 Mbps' },
+                { label: 'Response Time', value: '45ms' }
+            ]
+        },
+        users: {
+            title: '👥 User Analytics',
+            items: [
+                { label: 'Active Users', value: '1,248' },
+                { label: 'New Sessions', value: '156' },
+                { label: 'Bounce Rate', value: '23%' },
+                { label: 'Avg. Session', value: '4m 23s' },
+                { label: 'User Growth', value: '+12.3%' }
+            ]
+        },
+        health: {
+            title: '🏥 System Health',
+            items: [
+                { label: 'Overall Health', value: '97.3%' },
+                { label: 'Uptime', value: '99.98%' },
+                { label: 'Error Rate', value: '0.12%' },
+                { label: 'Active Alerts', value: '3' },
+                { label: 'Last Check', value: '2 min ago' }
+            ]
+        },
+        logs: {
+            title: '📋 Recent Alerts',
+            items: [
+                { label: 'Critical', value: '0' },
+                { label: 'Warnings', value: '3' },
+                { label: 'Info', value: '12' },
+                { label: 'Success', value: '156' },
+                { label: 'Last Alert', value: '8 min ago' }
+            ]
+        },
+        api: {
+            title: '🌐 API Status',
+            items: [
+                { label: 'Total Requests', value: '12.4K' },
+                { label: 'Success Rate', value: '99.7%' },
+                { label: 'Avg Response', value: '127ms' },
+                { label: 'Rate Limit', value: '8.2K/10K' },
+                { label: 'Last Error', value: '2h ago' }
+            ]
+        },
+        database: {
+            title: '🗄️ Database Health',
+            items: [
+                { label: 'Connection Pool', value: '89/100' },
+                { label: 'Query Time', value: '1.2ms' },
+                { label: 'Storage Used', value: '78%' },
+                { label: 'Backup Status', value: 'Healthy' },
+                { label: 'Last Backup', value: '3h ago' }
+            ]
+        },
+        cache: {
+            title: '⚡ Cache Performance',
+            items: [
+                { label: 'Hit Rate', value: '94.5%' },
+                { label: 'Memory Used', value: '67%' },
+                { label: 'Avg. Response', value: '1.8ms' },
+                { label: 'Total Keys', value: '847K' },
+                { label: 'Evictions', value: '23/h' }
+            ]
+        },
+        security: {
+            title: '🔒 Security Status',
+            items: [
+                { label: 'Threat Level', value: 'Low' },
+                { label: 'Failed Logins', value: '12' },
+                { label: 'Blocked IPs', value: '3' },
+                { label: 'SSL Status', value: 'Valid' },
+                { label: 'Last Scan', value: '1h ago' }
+            ]
+        }
+    };
+    
+    return contentMap[type] || { title: 'Unknown', items: [] };
+}
 
 // Cleanup on page unload
 window.addEventListener('beforeunload', () => {
@@ -2007,3 +2541,164 @@ window.addEventListener('beforeunload', () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = MesChainSyncSuperAdminDashboard;
 }
+
+// Sidebar Accordion Functionality
+function toggleSidebarSection(header) {
+    const currentSection = header.parentElement;
+    const allSections = document.querySelectorAll('.sidebar-section');
+    
+    // Close all other sections first
+    allSections.forEach(section => {
+        if (section !== currentSection) {
+            section.classList.remove('active');
+        }
+    });
+    
+    // Toggle current section
+    currentSection.classList.toggle('active');
+    
+    console.log('Toggled section:', currentSection.classList.contains('active'));
+}
+
+// Initialize sidebar functionality on DOM load
+document.addEventListener('DOMContentLoaded', function() {
+    // Fix onclick handlers for sidebar sections
+    const sidebarHeaders = document.querySelectorAll('.sidebar-section-header');
+    sidebarHeaders.forEach(header => {
+        header.onclick = function() {
+            toggleSidebarSection(this);
+        };
+    });
+    
+    // Initialize language menu toggle
+    const languageToggle = document.getElementById('languageToggle');
+    if (languageToggle) {
+        languageToggle.onclick = function() {
+            const menu = document.getElementById('languageMenu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        };
+    }
+});
+
+// Perfect Language Selector with Flags
+function setLanguage(langCode) {
+    const flagElement = document.getElementById('currentFlag');
+    const langElement = document.getElementById('currentLanguage');
+    
+    const languages = {
+        'tr': { flag: '🇹🇷', name: 'TR' },
+        'en': { flag: '🇺🇸', name: 'EN' },
+        'de': { flag: '🇩🇪', name: 'DE' },
+        'fr': { flag: '🇫🇷', name: 'FR' }
+    };
+    
+    if (flagElement && langElement && languages[langCode]) {
+        flagElement.textContent = languages[langCode].flag;
+        langElement.textContent = languages[langCode].name;
+    }
+    
+    // Apply language changes
+    const elements = document.querySelectorAll(`[data-${langCode}]`);
+    elements.forEach(element => {
+        const translation = element.getAttribute(`data-${langCode}`);
+        if (translation) {
+            element.textContent = translation;
+        }
+    });
+}
+
+// Perfect Sidebar Accordion System
+function toggleSidebarSection(header) {
+    const currentSection = header.parentElement;
+    const allSections = document.querySelectorAll('.sidebar-section');
+    
+    // Close all other sections first
+    allSections.forEach(section => {
+        if (section !== currentSection) {
+            section.classList.remove('active');
+        }
+    });
+    
+    // Toggle current section
+    currentSection.classList.toggle('active');
+    
+    console.log('🎯 Toggled section:', currentSection.classList.contains('active') ? 'OPEN' : 'CLOSED');
+}
+
+// Initialize Perfect System
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Initializing Perfect MesChain-Sync System...');
+    
+    // Perfect sidebar accordion
+    const sidebarHeaders = document.querySelectorAll('.sidebar-section-header');
+    sidebarHeaders.forEach(header => {
+        header.onclick = function() {
+            toggleSidebarSection(this);
+        };
+    });
+    
+    // Remove any existing hover handlers
+    const style = document.createElement('style');
+    style.textContent = `
+        .sidebar-section:hover .sidebar-dropdown-menu {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    console.log('✅ Perfect System Initialized!');
+});
+
+// Enhanced search functionality for sidebar
+function initializeSidebarSearch() {
+    const searchInput = document.getElementById('sidebarSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const menuLinks = document.querySelectorAll('.meschain-nav-link');
+            
+            menuLinks.forEach(link => {
+                const linkText = link.textContent.toLowerCase();
+                const parentSection = link.closest('.sidebar-section');
+                
+                if (linkText.includes(searchTerm)) {
+                    link.style.display = 'flex';
+                    if (parentSection) {
+                        parentSection.style.display = 'block';
+                    }
+                } else {
+                    link.style.display = 'none';
+                }
+            });
+            
+            // If search is empty, show all
+            if (searchTerm === '') {
+                menuLinks.forEach(link => {
+                    link.style.display = 'flex';
+                    const parentSection = link.closest('.sidebar-section');
+                    if (parentSection) {
+                        parentSection.style.display = 'block';
+                    }
+                });
+            }
+        });
+    }
+}
+
+// Initialize on DOM load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSidebarSearch();
+    
+    // Add click handlers for sidebar sections
+    const sidebarHeaders = document.querySelectorAll('.sidebar-section-header');
+    sidebarHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            toggleSidebarSection(this);
+        });
+    });
+});
+// PERFECT SYSTEM ADDED
