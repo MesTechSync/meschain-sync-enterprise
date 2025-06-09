@@ -475,4 +475,13 @@ ATOM-M026 successfully transforms MesChain-Sync Enterprise into a **world-class 
 
 **🚀 ATOM-M026: Business Intelligence & Data Visualization Platform - MISSION ACCOMPLISHED! 🚀**
 
-*Transforming data into actionable insights with quantum-enhanced intelligence.* 
+*Transforming data into actionable insights with quantum-enhanced intelligence.*
+
+// GraphQL Subscription örneği
+const unsubscribe = mesChainGraphQL.subscribe(`
+  subscription {
+    orderUpdates {
+      i
+    }
+  }
+`); 
