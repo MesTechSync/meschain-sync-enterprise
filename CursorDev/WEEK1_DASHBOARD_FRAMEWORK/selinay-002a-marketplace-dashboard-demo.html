@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<!-- filepath: c:\Users\ziyaf\Desktop\SELINAY_TEAM_WORKSPACE\meschain-sync-enterprise\CursorDev\WEEK1_DASHBOARD_FRAMEWORK\selinay-002a-marketplace-dashboard-demo.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛒 SELINAY-002A: Marketplace Dashboard Demo</title>
+    
+    <!-- 🎨 SELINAY Framework Dependencies -->
+    <link rel="stylesheet" href="./selinay-001a-css-framework-integration.css">
+    <link rel="stylesheet" href="./selinay-002a-marketplace-dashboard-styles.css">
+    
+    <!-- 🔤 Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- 📱 Mobile Optimization -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <style>
+        /* 🎯 Demo-specific Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        /* 🎨 Demo Header */
+        .demo-header {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+        }
+        
+        .demo-header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        /* 🎮 Demo Controls */
+        .demo-controls {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-controls label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .demo-controls select,
+        .demo-controls button {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .demo-controls button {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+            font-weight: 500;
+        }
+        
+        .demo-controls button:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+          .demo-controls select:focus,
+        .demo-controls button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #2563eb;
+        }
+        
+        /* 📊 Status Indicators */
+        .status-bar {
+            background: #f3f4f6;
+            padding: 12px 20px;
+            font-size: 14px;
+            color: #6b7280;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .status-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 24px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+        
+        /* 🎯 Enhancement Badge */
+        .enhancement-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 🚀 Performance Indicator */
+        .perf-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            z-index: 1000;
+        }
+        
+        /* 📱 Mobile Demo Adjustments */
+        @media (max-width: 768px) {
+            .demo-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .demo-controls > * {
+                width: 100%;
+            }
+            
+            .enhancement-badge {
+                top: 10px;
+                right: 10px;
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+            
+            .perf-indicator {
+                bottom: 10px;
+                left: 10px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 🎨 Demo Header -->
+    <div class="demo-header">
+        <h1>🛒 SELINAY-002A: Marketplace Dashboard</h1>
+        <p>Multi-Marketplace Interface System - Live Demo</p>
+    </div>
+    
+    <!-- 🎮 Demo Controls -->
+    <div class="demo-controls">
+        <label for="theme-selector">🎨 Theme:</label>
+        <select id="theme-selector">
+            <option value="light">Light Theme</option>
+            <option value="dark">Dark Theme</option>
+            <option value="custom">Custom Theme</option>
+        </select>
+        
+        <label for="refresh-rate">🔄 Refresh Rate:</label>
+        <select id="refresh-rate">
+            <option value="10000">10 seconds</option>
+            <option value="30000" selected>30 seconds</option>
+            <option value="60000">1 minute</option>
+            <option value="300000">5 minutes</option>
+        </select>
+        
+        <button onclick="toggleAutoRefresh()">⏸️ Pause Auto-Refresh</button>
+        <button onclick="simulateDataUpdate()">🔄 Simulate Update</button>
+        <button onclick="exportDemoData()">📊 Export Demo Data</button>
+    </div>
+    
+    <!-- 📊 Status Bar -->
+    <div class="status-bar">
+        <span class="status-item">
+            <span class="status-dot"></span>
+            SELINAY-002A Active
+        </span>
+        <span class="status-item">
+            <span class="status-dot" style="background: #3b82f6;"></span>
+            <span id="connected-marketplaces">4</span> Marketplaces Connected
+        </span>
+        <span class="status-item">
+            <span class="status-dot" style="background: #8b5cf6;"></span>
+            Theme System Integrated
+        </span>
+        <span class="status-item">
+            <span class="status-dot" style="background: #f59e0b;"></span>
+            <span id="last-sync">--</span>
+        </span>
+    </div>
+    
+    <!-- 🎯 Enhancement Badge -->
+    <div class="enhancement-badge">
+        ✨ SELINAY-002A Enhanced
+    </div>
+    
+    <!-- 🚀 Performance Indicator -->
+    <div class="perf-indicator" id="perf-indicator">
+        Performance: Initializing...
+    </div>
+    
+    <!-- 🛒 Main Dashboard Container (Will be populated by JavaScript) -->
+    <div id="selinay-marketplace-dashboard"></div>
+    
+    <!-- 🔧 JavaScript Dependencies -->
+    <script src="./selinay-001a-js-framework-integration.js"></script>
+    <script src="./selinay-001b-component-library-setup.js"></script>
+    <script src="./selinay-001c-theme-system-integration.js"></script>
+    <script src="./selinay-002a-marketplace-dashboard-implementation.js"></script>
+    
+    <script>
+        // 🎯 Demo Control Variables
+        let autoRefreshEnabled = true;
+        let performanceMonitor = null;
+        let dataUpdateSimulator = null;
+        
+        /**
+         * 🚀 Initialize Demo
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 SELINAY-002A Demo: Initializing...');
+            
+            // Initialize performance monitoring
+            initializePerformanceMonitoring();
+            
+            // Setup theme integration
+            setupThemeIntegration();
+            
+            // Setup demo controls
+            setupDemoControls();
+            
+            // Initialize dashboard (this will be handled by the main script)
+            console.log('🎯 Waiting for SELINAY-002A dashboard initialization...');
+            
+            // Update last sync time
+            updateLastSyncTime();
+            
+            // Start demo data simulation
+            startDataSimulation();
+            
+            console.log('✅ SELINAY-002A Demo: Initialization complete');
+        });
+        
+        /**
+         * 📊 Performance Monitoring
+         */
+        function initializePerformanceMonitoring() {
+            const perfIndicator = document.getElementById('perf-indicator');
+            
+            performanceMonitor = setInterval(() => {
+                const now = performance.now();
+                const memory = performance.memory ? 
+                    (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(1) + 'MB' : 
+                    'N/A';
+                
+                perfIndicator.textContent = `Performance: ${now.toFixed(0)}ms | Memory: ${memory}`;
+            }, 2000);
+        }
+        
+        /**
+         * 🎨 Theme Integration Setup
+         */
+        function setupThemeIntegration() {
+            const themeSelector = document.getElementById('theme-selector');
+            
+            themeSelector.addEventListener('change', (e) => {
+                const theme = e.target.value;
+                applyTheme(theme);
+            });
+        }
+        
+        /**
+         * 🎨 Apply Theme
+         */
+        function applyTheme(themeName) {
+            const body = document.body;
+            
+            // Remove existing theme classes
+            body.classList.remove('theme-light', 'theme-dark', 'theme-custom');
+            
+            // Apply new theme
+            body.classList.add(`theme-${themeName}`);
+            
+            // If SELINAY-001C theme system is available, use it
+            if (window.SelinayThemeSystem) {
+                window.SelinayThemeSystem.switchTheme(themeName);
+            }
+            
+            console.log(`🎨 Applied theme: ${themeName}`);
+        }
+        
+        /**
+         * 🎮 Setup Demo Controls
+         */
+        function setupDemoControls() {
+            const refreshRateSelector = document.getElementById('refresh-rate');
+            
+            refreshRateSelector.addEventListener('change', (e) => {
+                const newRate = parseInt(e.target.value);
+                updateRefreshRate(newRate);
+            });
+        }
+        
+        /**
+         * 🔄 Update Refresh Rate
+         */
+        function updateRefreshRate(rate) {
+            if (window.selinayMarketplaceDashboard) {
+                window.selinayMarketplaceDashboard.dashboardState.refreshRate = rate;
+                console.log(`🔄 Updated refresh rate to: ${rate}ms`);
+            }
+        }
+        
+        /**
+         * ⏸️ Toggle Auto Refresh
+         */
+        function toggleAutoRefresh() {
+            autoRefreshEnabled = !autoRefreshEnabled;
+            const button = event.target;
+            
+            if (autoRefreshEnabled) {
+                button.textContent = '⏸️ Pause Auto-Refresh';
+                button.style.background = '#2563eb';
+            } else {
+                button.textContent = '▶️ Resume Auto-Refresh';
+                button.style.background = '#dc2626';
+            }
+            
+            console.log(`🔄 Auto-refresh ${autoRefreshEnabled ? 'enabled' : 'disabled'}`);
+        }
+        
+        /**
+         * 🔄 Simulate Data Update
+         */
+        function simulateDataUpdate() {
+            if (window.selinayMarketplaceDashboard) {
+                // Trigger a manual data update
+                window.selinayMarketplaceDashboard.updateMetrics();
+                
+                // Update last sync time
+                updateLastSyncTime();
+                
+                // Visual feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '✅ Updated!';
+                button.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#2563eb';
+                }, 1500);
+                
+                console.log('🔄 Manual data update triggered');
+            }
+        }
+        
+        /**
+         * 📊 Export Demo Data
+         */
+        function exportDemoData() {
+            const demoData = {
+                timestamp: new Date().toISOString(),
+                version: '2.0.0',
+                task: 'SELINAY-002A',
+                marketplaces: ['Amazon SP-API', 'Trendyol', 'eBay', 'Etsy'],
+                currentTheme: document.getElementById('theme-selector').value,
+                refreshRate: document.getElementById('refresh-rate').value,
+                autoRefreshEnabled: autoRefreshEnabled,
+                performanceMetrics: {
+                    memoryUsage: performance.memory ? performance.memory.usedJSHeapSize : 0,
+                    timestamp: performance.now()
+                }
+            };
+            
+            // Create and download JSON file
+            const blob = new Blob([JSON.stringify(demoData, null, 2)], {
+                type: 'application/json'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `selinay-002a-demo-data-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            console.log('📊 Demo data exported');
+        }
+        
+        /**
+         * 🕒 Update Last Sync Time
+         */
+        function updateLastSyncTime() {
+            const lastSyncElement = document.getElementById('last-sync');
+            const now = new Date();
+            lastSyncElement.textContent = `Last Sync: ${now.toLocaleTimeString()}`;
+        }
+        
+        /**
+         * 📊 Start Data Simulation
+         */
+        function startDataSimulation() {
+            // Simulate realistic data changes every 5 seconds
+            dataUpdateSimulator = setInterval(() => {
+                if (autoRefreshEnabled && window.selinayMarketplaceDashboard) {
+                    // Random chance to update metrics
+                    if (Math.random() > 0.7) {
+                        updateLastSyncTime();
+                    }
+                }
+            }, 5000);
+        }
+        
+        /**
+         * 🎯 Dashboard Event Listeners
+         */
+        document.addEventListener('marketplaceSelected', (e) => {
+            console.log('🏪 Marketplace selected:', e.detail);
+            updateLastSyncTime();
+        });
+        
+        document.addEventListener('coreInitialized', (e) => {
+            console.log('🚀 Dashboard core initialized:', e.detail);
+            
+            // Update connected marketplaces count
+            if (window.selinayMarketplaceDashboard) {
+                const count = window.selinayMarketplaceDashboard.marketplaces.size;
+                document.getElementById('connected-marketplaces').textContent = count;
+            }
+        });
+        
+        /**
+         * 🧹 Cleanup on Page Unload
+         */
+        window.addEventListener('beforeunload', () => {
+            if (performanceMonitor) clearInterval(performanceMonitor);
+            if (dataUpdateSimulator) clearInterval(dataUpdateSimulator);
+            
+            if (window.selinayMarketplaceDashboard) {
+                window.selinayMarketplaceDashboard.destroy();
+            }
+        });
+        
+        /**
+         * 📱 Mobile Touch Events
+         */
+        if ('ontouchstart' in window) {
+            document.addEventListener('touchstart', () => {
+                // Add touch-friendly enhancements
+                document.body.style.setProperty('--transition-fast', '100ms');
+            });
+        }
+        
+        /**
+         * 🎯 Keyboard Shortcuts
+         */
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + R: Manual refresh
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                simulateDataUpdate();
+            }
+            
+            // Ctrl/Cmd + T: Toggle theme
+            if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+                e.preventDefault();
+                const themeSelector = document.getElementById('theme-selector');
+                const currentIndex = themeSelector.selectedIndex;
+                const nextIndex = (currentIndex + 1) % themeSelector.options.length;
+                themeSelector.selectedIndex = nextIndex;
+                applyTheme(themeSelector.value);
+            }
+            
+            // Space: Toggle auto-refresh
+            if (e.key === ' ' && e.target === document.body) {
+                e.preventDefault();
+                toggleAutoRefresh();
+            }
+        });
+        
+        // 📊 Analytics Tracking (Demo)
+        console.log('📊 SELINAY-002A Demo Analytics: Session started');
+        
+        // 🎯 Success Message
+        setTimeout(() => {
+            console.log('✅ SELINAY-002A Marketplace Dashboard Demo Ready!');
+            console.log('🎮 Controls: Ctrl+R (refresh), Ctrl+T (theme), Space (toggle auto-refresh)');
+        }, 1000);
+    </script>
+</body>
+</html>

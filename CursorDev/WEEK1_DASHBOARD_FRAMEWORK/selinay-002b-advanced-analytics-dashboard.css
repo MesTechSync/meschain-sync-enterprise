@@ -1,0 +1,983 @@
+/**
+ * 📊 SELINAY-002B: ADVANCED ANALYTICS DASHBOARD STYLES
+ * MesChain-Sync Enterprise Dashboard - Advanced Analytics CSS
+ * Modern, responsive styling for business intelligence visualization
+ * 
+ * @author Selinay - Frontend UI/UX Specialist
+ * @date June 8, 2025
+ * @version 1.0.0 - Week 1 Series
+ * @task SELINAY-002B
+ */
+
+/* ==========================================================================
+   ADVANCED ANALYTICS DASHBOARD CONTAINER
+   ========================================================================== */
+
+.selinay-analytics-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #2d3748;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.selinay-analytics-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.selinay-analytics-container > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ==========================================================================
+   DASHBOARD HEADER
+   ========================================================================== */
+
+.selinay-analytics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 3rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.selinay-analytics-title-section {
+    flex: 1;
+}
+
+.selinay-analytics-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+}
+
+.selinay-analytics-subtitle {
+    font-size: 1.1rem;
+    color: #718096;
+    margin: 0;
+    font-weight: 500;
+}
+
+.selinay-analytics-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.selinay-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #2d3748;
+    min-width: 150px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.selinay-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+}
+
+.selinay-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.selinay-btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.selinay-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.selinay-btn-secondary {
+    background: rgba(255, 255, 255, 0.9);
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+}
+
+.selinay-btn-secondary:hover {
+    background: white;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.selinay-btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+}
+
+/* ==========================================================================
+   KPI OVERVIEW CARDS
+   ========================================================================== */
+
+.selinay-kpi-overview {
+    margin-bottom: 3rem;
+}
+
+.selinay-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.selinay-kpi-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.selinay-kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.selinay-kpi-card:hover::before {
+    transform: scaleX(1);
+}
+
+.selinay-kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.selinay-kpi-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.selinay-kpi-icon {
+    font-size: 3rem;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.selinay-kpi-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.selinay-kpi-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2d3748;
+    margin: 0;
+    line-height: 1;
+}
+
+.selinay-kpi-label {
+    font-size: 1rem;
+    color: #718096;
+    margin: 0;
+    font-weight: 500;
+}
+
+.selinay-kpi-change {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.selinay-kpi-change.positive {
+    background: rgba(72, 187, 120, 0.1);
+    color: #38a169;
+}
+
+.selinay-kpi-change.negative {
+    background: rgba(245, 101, 101, 0.1);
+    color: #e53e3e;
+}
+
+.selinay-kpi-change.neutral {
+    background: rgba(113, 128, 150, 0.1);
+    color: #718096;
+}
+
+.selinay-change-icon {
+    font-size: 1rem;
+}
+
+/* ==========================================================================
+   AI INSIGHTS PANEL
+   ========================================================================== */
+
+.selinay-ai-insights-panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.selinay-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f7fafc;
+}
+
+.selinay-panel-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+}
+
+.selinay-ai-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.selinay-ai-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #68d391;
+    box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.3);
+    animation: pulse 2s infinite;
+}
+
+.selinay-ai-indicator.active {
+    background: #48bb78;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.selinay-ai-label {
+    font-size: 0.9rem;
+    color: #48bb78;
+    font-weight: 600;
+}
+
+.selinay-insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.selinay-insight-card {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.selinay-insight-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    transition: all 0.3s ease;
+}
+
+.selinay-insight-card.opportunity::before {
+    background: linear-gradient(90deg, #48bb78, #38a169);
+}
+
+.selinay-insight-card.risk::before {
+    background: linear-gradient(90deg, #f56565, #e53e3e);
+}
+
+.selinay-insight-card.trend::before {
+    background: linear-gradient(90deg, #4299e1, #3182ce);
+}
+
+.selinay-insight-card.recommendation::before {
+    background: linear-gradient(90deg, #9f7aea, #805ad5);
+}
+
+.selinay-insight-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.selinay-insight-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.selinay-insight-icon {
+    font-size: 1.5rem;
+}
+
+.selinay-insight-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.selinay-insight-content {
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+.selinay-insight-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #718096;
+    font-style: italic;
+}
+
+.selinay-insight-loading::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e2e8f0;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.selinay-insight-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid #f7fafc;
+}
+
+.selinay-insight-item:last-child {
+    border-bottom: none;
+}
+
+.selinay-insight-item-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+}
+
+.selinay-insight-item-description {
+    font-size: 0.9rem;
+    color: #718096;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.5;
+}
+
+.selinay-insight-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.selinay-confidence {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   CHARTS GRID
+   ========================================================================== */
+
+.selinay-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.selinay-chart-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.selinay-chart-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.selinay-chart-full-width {
+    grid-column: 1 / -1;
+}
+
+.selinay-chart-header {
+    padding: 1.5rem 2rem;
+    background: rgba(248, 250, 252, 0.8);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.selinay-chart-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.selinay-chart-controls {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.selinay-chart-type-selector,
+.selinay-forecast-period,
+.selinay-heatmap-metric {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    font-size: 0.8rem;
+    color: #4a5568;
+    min-width: 120px;
+}
+
+.selinay-chart-content {
+    padding: 2rem;
+    position: relative;
+    height: 400px;
+}
+
+.selinay-chart-content canvas {
+    max-height: 100%;
+}
+
+/* ==========================================================================
+   ANALYTICS TOOLS
+   ========================================================================== */
+
+.selinay-analytics-tools {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.selinay-tools-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f7fafc;
+}
+
+.selinay-tools-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+}
+
+.selinay-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.selinay-tool-card {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.selinay-tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.selinay-tool-card:hover::before {
+    opacity: 0.05;
+}
+
+.selinay-tool-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    border-color: rgba(102, 126, 234, 0.2);
+}
+
+.selinay-tool-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.selinay-tool-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.selinay-tool-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 1rem 0;
+}
+
+.selinay-tool-description {
+    color: #718096;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.5;
+}
+
+.selinay-tool-button {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.9rem;
+}
+
+.selinay-tool-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ==========================================================================
+   FOOTER STATUS
+   ========================================================================== */
+
+.selinay-analytics-footer {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.selinay-status-indicators {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.selinay-status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.selinay-status-label {
+    font-size: 0.9rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.selinay-status-value {
+    font-size: 0.9rem;
+    color: #2d3748;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 12px;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+    .selinay-charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .selinay-chart-container {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .selinay-analytics-container {
+        padding: 1rem;
+    }
+    
+    .selinay-analytics-header {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+    
+    .selinay-analytics-controls {
+        justify-content: center;
+    }
+    
+    .selinay-analytics-title {
+        font-size: 2rem;
+    }
+    
+    .selinay-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .selinay-kpi-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .selinay-insights-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .selinay-tools-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .selinay-status-indicators {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .selinay-chart-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .selinay-analytics-container {
+        padding: 0.5rem;
+    }
+    
+    .selinay-analytics-header,
+    .selinay-ai-insights-panel,
+    .selinay-chart-container,
+    .selinay-analytics-tools,
+    .selinay-analytics-footer {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+    
+    .selinay-kpi-card {
+        padding: 1.5rem;
+    }
+    
+    .selinay-analytics-title {
+        font-size: 1.8rem;
+    }
+    
+    .selinay-kpi-value {
+        font-size: 2rem;
+    }
+}
+
+/* ==========================================================================
+   DARK MODE SUPPORT
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    .selinay-analytics-container {
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        color: #e2e8f0;
+    }
+    
+    .selinay-analytics-header,
+    .selinay-ai-insights-panel,
+    .selinay-chart-container,
+    .selinay-analytics-tools,
+    .selinay-analytics-footer {
+        background: rgba(45, 55, 72, 0.95);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .selinay-kpi-card,
+    .selinay-insight-card,
+    .selinay-tool-card {
+        background: rgba(45, 55, 72, 0.8);
+    }
+    
+    .selinay-analytics-title,
+    .selinay-panel-title,
+    .selinay-tools-title,
+    .selinay-chart-title,
+    .selinay-kpi-value,
+    .selinay-insight-title,
+    .selinay-insight-item-title,
+    .selinay-tool-title {
+        color: #f7fafc;
+    }
+    
+    .selinay-analytics-subtitle,
+    .selinay-kpi-label,
+    .selinay-insight-item-description,
+    .selinay-tool-description,
+    .selinay-status-label {
+        color: #a0aec0;
+    }
+    
+    .selinay-select,
+    .selinay-chart-type-selector,
+    .selinay-forecast-period,
+    .selinay-heatmap-metric {
+        background: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .selinay-btn-secondary {
+        background: rgba(45, 55, 72, 0.9);
+        color: #e2e8f0;
+        border-color: #4a5568;
+    }
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+
+@media print {
+    .selinay-analytics-container {
+        background: white !important;
+        color: black !important;
+        padding: 1rem !important;
+    }
+    
+    .selinay-analytics-header,
+    .selinay-ai-insights-panel,
+    .selinay-chart-container,
+    .selinay-analytics-tools,
+    .selinay-analytics-footer {
+        background: white !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+        margin-bottom: 1rem !important;
+    }
+    
+    .selinay-analytics-controls,
+    .selinay-chart-controls,
+    .selinay-tool-button {
+        display: none !important;
+    }
+    
+    .selinay-charts-grid {
+        display: block !important;
+    }
+    
+    .selinay-chart-container {
+        page-break-inside: avoid;
+        margin-bottom: 2rem !important;
+    }
+}
+
+/* ==========================================================================
+   ANIMATION UTILITIES
+   ========================================================================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.selinay-animate-fade-in {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.selinay-animate-slide-in {
+    animation: slideInRight 0.6s ease-out;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+.selinay-analytics-container *:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.selinay-btn:focus,
+.selinay-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .selinay-analytics-container {
+        background: white;
+        color: black;
+    }
+    
+    .selinay-analytics-header,
+    .selinay-ai-insights-panel,
+    .selinay-chart-container,
+    .selinay-analytics-tools,
+    .selinay-analytics-footer {
+        background: white;
+        border: 2px solid black;
+    }
+    
+    .selinay-btn-primary {
+        background: black;
+        color: white;
+    }
+    
+    .selinay-btn-secondary {
+        background: white;
+        color: black;
+        border: 2px solid black;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .selinay-ai-indicator {
+        animation: none;
+    }
+}
