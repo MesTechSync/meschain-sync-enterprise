@@ -345,7 +345,7 @@ export class PazaramaApiClient extends BaseMarketplaceApiClient {
       try {
         await this.rateLimiter.waitForAvailability();
         
-        const pazaramaBatch = batch.map(this.transformToP azaramaFormat);
+        const pazaramaBatch = batch.map(this.transformToPazaramaFormat);
         
         const response = await this.authenticatedRequest('POST', '/products/bulk', {
           products: pazaramaBatch
@@ -475,7 +475,7 @@ export class PazaramaApiClient extends BaseMarketplaceApiClient {
     };
   }
 
-  private transformToP azaramaFormat(productData: any): any {
+  private transformToPazaramaFormat(productData: any): any {
     return {
       title: productData.title,
       description: productData.description,
