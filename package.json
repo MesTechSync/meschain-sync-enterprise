@@ -2,8 +2,7 @@
   "name": "meschain-sync-enterprise",
   "version": "2.1.0",
   "description": "Advanced multi-marketplace integration platform for e-commerce businesses",
-  "main": "src/index.tsx",
-  "scripts": {
+  "main": "src/index.tsx",  "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "jest",
@@ -12,7 +11,11 @@
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",
-    "analyze": "npm run build && npx webpack-bundle-analyzer build/static/js/*.js"
+    "analyze": "npm run build && npx webpack-bundle-analyzer build/static/js/*.js",
+    "deploy:dropshipping": "node -r ts-node/register src/deployment/DropshippingOptimizationDeployer.ts",
+    "test:performance": "node -r ts-node/register src/testing/DropshippingPerformanceTestSuite.ts",
+    "monitor:dashboard": "node -r ts-node/register src/monitoring/PerformanceDashboard.ts",
+    "optimize:dropshipping": "npm run deploy:dropshipping && npm run test:performance"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
