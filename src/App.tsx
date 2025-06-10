@@ -1,146 +1,70 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { Box, Container, Typography, Paper, CircularProgress } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
-import { Dashboard } from '@mui/icons-material';
-import MainDashboard from './components/Dashboard/MainDashboard';
-import AppLayout from './components/Layout/AppLayout';
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import { CssBaseline, CircularProgress, Box } from '@mui/material';
+import { ErrorBoundary } from 'react-error-boundary';
 
-// Simple Loading component
-const LoadingSpinner: React.FC = () => (
-  <Box 
-    display="flex" 
-    justifyContent="center" 
-    alignItems="center" 
-    minHeight="100vh"
-    flexDirection="column"
-    gap={2}
-  >
-    <CircularProgress size={50} />
-    <Typography variant="h6" color="text.secondary">
-      MesChain-Sync Enterprise Yükleniyor...
-    </Typography>
+import { theme } from './theme/theme';
+import { GlobalErrorFallback } from './components/ErrorBoundary/GlobalErrorFallback';
+import AppLayout from './components/Layout/AppLayout';
+import MainDashboard from './components/Dashboard/MainDashboard';
+
+// Marketplace Pages
+import TrendyolPage from './components/Marketplace/TrendyolPage';
+import N11Page from './components/Marketplace/N11Page';
+import AmazonPage from './components/Marketplace/AmazonPage';
+import HepsiburadaPage from './components/Marketplace/HepsiburadaPage';
+import EbayPage from './components/Marketplace/EbayPage';
+import OzonPage from './components/Marketplace/OzonPage';
+
+// Placeholder components for other pages
+const ProductsPage = () => <div>Ürünler Sayfası</div>;
+const OrdersPage = () => <div>Siparişler Sayfası</div>;
+const InventoryPage = () => <div>Stok Yönetimi Sayfası</div>;
+const ReportsPage = () => <div>Raporlar Sayfası</div>;
+const SettingsPage = () => <div>Ayarlar Sayfası</div>;
+const SupportPage = () => <div>Destek Sayfası</div>;
+
+const LoadingFallback = () => (
+  <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+    <CircularProgress />
   </Box>
 );
 
-// Simple Dashboard component
-const DashboardPage: React.FC = () => {
+function App() {
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Helmet>
-        <title>Dashboard - MesChain-Sync Enterprise</title>
-      </Helmet>
-      
-      <Paper 
-        elevation={3} 
-        sx={{ 
-          p: 4, 
-          mb: 4, 
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          textAlign: 'center'
-        }}
-      >
-        <Dashboard sx={{ fontSize: 60, mb: 2 }} />
-        <Typography variant="h3" component="h1" gutterBottom>
-          🎉 MesChain-Sync Enterprise v4.5
-        </Typography>
-        <Typography variant="h5" sx={{ opacity: 0.9 }}>
-          Frontend Geliştirme Başladı!
-        </Typography>
-      </Paper>
-
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' }, gap: 3 }}>
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h6" gutterBottom color="primary">
-            🚀 Backend Status
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Port 3023 - Aktif
-          </Typography>
-          <Typography variant="body2" color="success.main">
-            ✅ API Gateway Hazır
-          </Typography>
-        </Paper>
-
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h6" gutterBottom color="primary">
-            🎨 Frontend Status
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            React 18 + TypeScript
-          </Typography>
-          <Typography variant="body2" color="success.main">
-            ✅ Development Mode
-          </Typography>
-        </Paper>
-
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h6" gutterBottom color="primary">
-            📊 Features
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Material-UI + Charts
-          </Typography>
-          <Typography variant="body2" color="success.main">
-            ✅ Modern UI Ready
-          </Typography>
-        </Paper>
-      </Box>
-
-      <Paper sx={{ p: 3, mt: 4 }}>
-        <Typography variant="h6" gutterBottom>
-          🛠️ Geliştirme Notları
-        </Typography>
-        <Typography variant="body2" color="text.secondary" component="div">
-          <ul style={{ paddingLeft: '20px' }}>
-            <li>Backend tamamen hazır (Port 3023 aktif)</li>
-            <li>React 18 + TypeScript frontend kuruldu</li>
-            <li>Material-UI theme sistemi aktif</li>
-            <li>Error boundary ve global error handling</li>
-            <li>Responsive design desteği</li>
-            <li>Performance monitoring</li>
-          </ul>
-        </Typography>
-      </Paper>
-    </Container>
+    <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <AppLayout>
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
+                <Route path="/" element={<MainDashboard />} />
+                <Route path="/dashboard" element={<MainDashboard />} />
+                
+                {/* Marketplace Routes */}
+                <Route path="/marketplace/trendyol" element={<TrendyolPage />} />
+                <Route path="/marketplace/n11" element={<N11Page />} />
+                <Route path="/marketplace/amazon" element={<AmazonPage />} />
+                <Route path="/marketplace/hepsiburada" element={<HepsiburadaPage />} />
+                <Route path="/marketplace/ebay" element={<EbayPage />} />
+                <Route path="/marketplace/ozon" element={<OzonPage />} />
+                
+                {/* Other Routes */}
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/inventory" element={<InventoryPage />} />
+                <Route path="/reports" element={<ReportsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/support" element={<SupportPage />} />
+              </Routes>
+            </Suspense>
+          </AppLayout>
+        </Router>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
-};
-
-const App: React.FC = () => {
-  const [isLoading, setIsLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    // Simulate app initialization
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      console.log('🎯 MesChain-Sync Enterprise Frontend Ready!');
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
-  return (
-    <Box>
-      <Helmet>
-        <title>MesChain-Sync Enterprise v4.5</title>
-        <meta name="description" content="Advanced Multi-Marketplace Integration Platform" />
-      </Helmet>
-      
-      <AppLayout>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<MainDashboard />} />
-          <Route path="/welcome" element={<DashboardPage />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </AppLayout>
-    </Box>
-  );
-};
+}
 
 export default App; 
