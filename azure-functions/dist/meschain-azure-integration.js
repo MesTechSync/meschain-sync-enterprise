@@ -23,7 +23,6 @@ const storage_queue_1 = require("@azure/storage-queue");
 const app_configuration_1 = require("@azure/app-configuration");
 const keyvault_secrets_1 = require("@azure/keyvault-secrets");
 const identity_1 = require("@azure/identity");
-// ... existing code ...
 class MesChainAzureIntegration {
     constructor() {
         // Configuration
@@ -53,11 +52,12 @@ class MesChainAzureIntegration {
      */
     async initializeServices() {
         try {
-            // Initialize Azure Storage Blob
+            // Initialize Azure Storage Blob & Queue
             if (this.config.storage.accountKey) {
-                const credential = new storage_blob_1.StorageSharedKeyCredential(this.config.storage.accountName, this.config.storage.accountKey);
-                this.blobServiceClient = new storage_blob_1.BlobServiceClient(`https://${this.config.storage.accountName}.blob.core.windows.net`, credential);
-                this.queueServiceClient = new storage_queue_1.QueueServiceClient(`https://${this.config.storage.accountName}.queue.core.windows.net`, credential);
+                const blobCredential = new storage_blob_1.StorageSharedKeyCredential(this.config.storage.accountName, this.config.storage.accountKey);
+                const queueCredential = new storage_queue_1.StorageSharedKeyCredential(this.config.storage.accountName, this.config.storage.accountKey);
+                this.blobServiceClient = new storage_blob_1.BlobServiceClient(`https://${this.config.storage.accountName}.blob.core.windows.net`, blobCredential);
+                this.queueServiceClient = new storage_queue_1.QueueServiceClient(`https://${this.config.storage.accountName}.queue.core.windows.net`, queueCredential);
             }
             else {
                 // Use Managed Identity
@@ -85,7 +85,8 @@ class MesChainAzureIntegration {
             const containerClient = this.blobServiceClient.getContainerClient(containerName);
             await containerClient.createIfNotExists();
             const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-            const uploadResponse = await blockBlobClient.upload(data, Buffer.byteLength(data.toString()));
+            const dataBuffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
+            const uploadResponse = await blockBlobClient.upload(dataBuffer, dataBuffer.length);
             return blockBlobClient.url;
         }
         catch (error) {
@@ -104,7 +105,8 @@ class MesChainAzureIntegration {
             const chunks = [];
             if (downloadResponse.readableStreamBody) {
                 for await (const chunk of downloadResponse.readableStreamBody) {
-                    chunks.push(chunk);
+                    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+                    chunks.push(buffer);
                 }
             }
             return Buffer.concat(chunks);
@@ -312,7 +314,7 @@ class MesChainAzureIntegration {
                 }
                 catch (error) {
                     // Secret might not exist, but connection is working
-                    if (error.code !== 'SecretNotFound') {
+                    if (error?.code !== 'SecretNotFound') {
                         throw error;
                     }
                     healthStatus.services.keyVault = true;
@@ -331,4 +333,3 @@ exports.MesChainAzureIntegration = MesChainAzureIntegration;
 exports.azureIntegration = new MesChainAzureIntegration();
 // Export for use in super admin panel
 exports.default = exports.azureIntegration;
-//# sourceMappingURL=meschain-azure-integration.js.map
