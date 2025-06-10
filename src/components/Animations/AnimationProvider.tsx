@@ -4,7 +4,7 @@
  */
 
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
-import { AnimatePresence, motion, useAnimation, useInView } from 'framer-motion';
+import { AnimatePresence, motion, useAnimationControls, useInView } from 'framer-motion';
 import { useSpring, animated, useTransition, config } from '@react-spring/web';
 
 // Types
@@ -288,19 +288,35 @@ export const AnimationProvider: React.FC<AnimationProviderProps> = ({
 
 // Fade in animation hook
 export const useFadeIn = (delay = 0) => {
-  const { config } = useAnimation();
+  const { config: animConfig } = useAnimation();
+  
+  const springConfig = animConfig.reducedMotion 
+    ? { duration: 0 } 
+    : animConfig.duration === 'fast' 
+      ? config.wobbly 
+      : animConfig.duration === 'slow' 
+        ? config.slow 
+        : config.default;
   
   return useSpring({
     from: { opacity: 0, transform: 'translateY(20px)' },
     to: { opacity: 1, transform: 'translateY(0px)' },
     delay,
-    config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
+    config: springConfig
   });
 };
 
 // Slide in animation hook
 export const useSlideIn = (direction: 'left' | 'right' | 'up' | 'down' = 'left', delay = 0) => {
-  const { config } = useAnimation();
+  const { config: animConfig } = useAnimation();
+  
+  const springConfig = animConfig.reducedMotion 
+    ? { duration: 0 } 
+    : animConfig.duration === 'fast' 
+      ? config.wobbly 
+      : animConfig.duration === 'slow' 
+        ? config.slow 
+        : config.default;
   
   const getInitialTransform = () => {
     switch (direction) {
@@ -316,68 +332,84 @@ export const useSlideIn = (direction: 'left' | 'right' | 'up' | 'down' = 'left',
     from: { opacity: 0, transform: getInitialTransform() },
     to: { opacity: 1, transform: 'translate(0px, 0px)' },
     delay,
-    config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
+    config: springConfig
   });
 };
 
 // Scale animation hook
 export const useScale = (initialScale = 0.8, delay = 0) => {
-  const { config } = useAnimation();
+  const { config: animConfig } = useAnimation();
+  
+  const springConfig = animConfig.reducedMotion 
+    ? { duration: 0 } 
+    : animConfig.duration === 'fast' 
+      ? config.wobbly 
+      : animConfig.duration === 'slow' 
+        ? config.slow 
+        : config.default;
   
   return useSpring({
     from: { opacity: 0, transform: `scale(${initialScale})` },
     to: { opacity: 1, transform: 'scale(1)' },
     delay,
-    config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
+    config: springConfig
   });
 };
 
 // Stagger animation hook
 export const useStagger = (items: any[], delay = 100) => {
-  const { config } = useAnimation();
+  const { config: animConfig } = useAnimation();
+  
+  const springConfig = animConfig.reducedMotion 
+    ? { duration: 0 } 
+    : animConfig.duration === 'fast' 
+      ? config.wobbly 
+      : animConfig.duration === 'slow' 
+        ? config.slow 
+        : config.default;
   
   return useTransition(items, {
     from: { opacity: 0, transform: 'translateY(20px)' },
     enter: { opacity: 1, transform: 'translateY(0px)' },
-    trail: config.reducedMotion ? 0 : delay,
-    config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
+    trail: animConfig.reducedMotion ? 0 : delay,
+    config: springConfig
   });
 };
 
 // Scroll-triggered animation hook
 export const useScrollAnimation = (threshold = 0.1) => {
-  const { config } = useAnimation();
-  const controls = useAnimation();
+  const { config: animConfig } = useAnimation();
+  const controls = useAnimationControls();
   const ref = React.useRef(null);
-  const inView = useInView(ref, { threshold });
+  const inView = useInView(ref, { amount: threshold });
 
   useEffect(() => {
-    if (inView && config.scrollAnimations && !config.reducedMotion) {
+    if (inView && animConfig.scrollAnimations && !animConfig.reducedMotion) {
       controls.start('visible');
     }
-  }, [controls, inView, config.scrollAnimations, config.reducedMotion]);
+  }, [controls, inView, animConfig.scrollAnimations, animConfig.reducedMotion]);
 
   return { ref, controls, inView };
 };
 
 // Hover animation hook
 export const useHoverAnimation = () => {
-  const { config } = useAnimation();
+  const { config: animConfig } = useAnimation();
   
   const [springs, api] = useSpring(() => ({
     scale: 1,
     shadow: 0,
-    config: config.reducedMotion ? { duration: 0 } : config.bounce
+    config: animConfig.reducedMotion ? { duration: 0 } : config.default
   }));
 
   const handleMouseEnter = () => {
-    if (config.microInteractions && !config.reducedMotion) {
+    if (animConfig.microInteractions && !animConfig.reducedMotion) {
       api.start({ scale: 1.05, shadow: 15 });
     }
   };
 
   const handleMouseLeave = () => {
-    if (config.microInteractions && !config.reducedMotion) {
+    if (animConfig.microInteractions && !animConfig.reducedMotion) {
       api.start({ scale: 1, shadow: 0 });
     }
   };
@@ -564,12 +596,12 @@ export const AnimatedProgressBar: React.FC<{
   color?: string;
   className?: string;
 }> = ({ progress, height = 4, color = '#1976d2', className }) => {
-  const { config } = useAnimation();
+  const { config: animConfig } = useAnimation();
   
   const { width } = useSpring({
     from: { width: '0%' },
     to: { width: `${Math.min(100, Math.max(0, progress))}%` },
-    config: config.reducedMotion ? { duration: 0 } : config.bounce
+    config: animConfig.reducedMotion ? { duration: 0 } : config.default
   });
 
   return (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-// ML Pipeline interfaces
+// Enhanced ML Pipeline interfaces for Priority 2
 interface MLModel {
   id: string;
   name: string;
@@ -10,8 +10,20 @@ interface MLModel {
   trainingProgress: number;
   lastTrained: string;
   datasetSize: number;
-  modelType: 'neural_network' | 'arima' | 'random_forest' | 'hybrid';
+  modelType: 'neural_network' | 'arima' | 'random_forest' | 'hybrid' | 'transformer' | 'quantum_ml';
   deploymentStage: 'development' | 'staging' | 'production';
+  realTimeMetrics?: {
+    inferenceLatency: number;
+    throughput: number;
+    memoryUsage: number;
+    gpuUtilization: number;
+  };
+  aiOptimizations?: {
+    autoScaling: boolean;
+    edgeDeployment: boolean;
+    quantization: 'int8' | 'fp16' | 'none';
+    caching: boolean;
+  };
 }
 
 interface TrainingJob {
@@ -25,6 +37,12 @@ interface TrainingJob {
   loss: number;
   validationAccuracy: number;
   status: 'queued' | 'running' | 'completed' | 'failed';
+  aiEnhancements?: {
+    distributedTraining: boolean;
+    mixedPrecision: boolean;
+    gradientAccumulation: number;
+    learningRateSchedule: string;
+  };
 }
 
 interface ABTest {
@@ -41,6 +59,11 @@ interface ABTest {
     modelB: { accuracy: number; responseTime: number; userSatisfaction: number };
   };
   winner?: 'A' | 'B' | 'inconclusive';
+  aiAnalytics?: {
+    statisticalSignificance: number;
+    confidenceInterval: [number, number];
+    recommendedAction: string;
+  };
 }
 
 interface DataPipeline {
@@ -52,6 +75,35 @@ interface DataPipeline {
   recordsProcessed: number;
   dataQuality: number;
   transformations: string[];
+  aiFeatures?: {
+    autoFeatureEngineering: boolean;
+    anomalyDetection: boolean;
+    dataValidation: boolean;
+    smartSampling: boolean;
+  };
+}
+
+// Advanced AI/ML Performance Monitor
+interface AIPerformanceMetrics {
+  systemHealth: number;
+  modelEnsemble: {
+    activeModels: number;
+    avgAccuracy: number;
+    totalInferences: number;
+    errorRate: number;
+  };
+  realTimeOptimization: {
+    autoScalingActive: boolean;
+    resourceUtilization: number;
+    costOptimization: number;
+    energyEfficiency: number;
+  };
+  predictiveAnalytics: {
+    demandForecast: number;
+    anomaliesDetected: number;
+    businessImpact: number;
+    confidenceScore: number;
+  };
 }
 
 export const MachineLearningPipeline: React.FC = () => {
@@ -59,86 +111,150 @@ export const MachineLearningPipeline: React.FC = () => {
   const [trainingJobs, setTrainingJobs] = useState<TrainingJob[]>([]);
   const [abTests, setABTests] = useState<ABTest[]>([]);
   const [dataPipelines, setDataPipelines] = useState<DataPipeline[]>([]);
+  const [aiMetrics, setAiMetrics] = useState<AIPerformanceMetrics | null>(null);
   const [isTraining, setIsTraining] = useState(false);
   const [selectedTab, setSelectedTab] = useState('models');
+  const [aiOptimizationMode, setAiOptimizationMode] = useState<'standard' | 'aggressive' | 'conservative'>('standard');
 
-  // Initialize ML Pipeline
+  // Initialize Enhanced AI/ML Pipeline
   useEffect(() => {
+    // Initialize advanced models with AI optimizations
     setModels([
       {
         id: 'mdl_001',
-        name: 'Sales Prediction Neural Network',
-        version: '2.1.3',
+        name: 'Advanced Sales Prediction Transformer',
+        version: '3.2.1',
         status: 'deployed',
-        accuracy: 94.7,
+        accuracy: 97.3,
         trainingProgress: 100,
         lastTrained: '2025-01-17T15:30:00Z',
-        datasetSize: 125000,
-        modelType: 'neural_network',
-        deploymentStage: 'production'
+        datasetSize: 250000,
+        modelType: 'transformer',
+        deploymentStage: 'production',
+        realTimeMetrics: {
+          inferenceLatency: 12,
+          throughput: 8500,
+          memoryUsage: 2.3,
+          gpuUtilization: 45
+        },
+        aiOptimizations: {
+          autoScaling: true,
+          edgeDeployment: true,
+          quantization: 'int8',
+          caching: true
+        }
       },
       {
         id: 'mdl_002',
-        name: 'Pricing Optimization ARIMA',
-        version: '1.8.5',
-        status: 'deployed',
-        accuracy: 92.3,
+        name: 'Quantum-Enhanced Pricing Optimizer',
+        version: '2.1.0',
+        status: 'deployed',  
+        accuracy: 94.8,
         trainingProgress: 100,
         lastTrained: '2025-01-16T09:15:00Z',
-        datasetSize: 89000,
-        modelType: 'arima',
-        deploymentStage: 'production'
+        datasetSize: 156000,
+        modelType: 'quantum_ml',
+        deploymentStage: 'production',
+        realTimeMetrics: {
+          inferenceLatency: 8,
+          throughput: 12000,
+          memoryUsage: 1.8,
+          gpuUtilization: 38
+        },
+        aiOptimizations: {
+          autoScaling: true,
+          edgeDeployment: false,
+          quantization: 'fp16',
+          caching: true
+        }
       },
       {
         id: 'mdl_003',
-        name: 'Inventory Forecasting Hybrid',
-        version: '3.0.2',
+        name: 'AI-Powered Inventory Intelligence',
+        version: '4.0.3',
         status: 'training',
-        accuracy: 96.1,
-        trainingProgress: 78,
+        accuracy: 98.2,
+        trainingProgress: 85,
         lastTrained: '2025-01-17T12:00:00Z',
-        datasetSize: 156000,
+        datasetSize: 320000,
         modelType: 'hybrid',
-        deploymentStage: 'staging'
+        deploymentStage: 'staging',
+        realTimeMetrics: {
+          inferenceLatency: 15,
+          throughput: 6800,
+          memoryUsage: 3.1,
+          gpuUtilization: 62
+        },
+        aiOptimizations: {
+          autoScaling: true,
+          edgeDeployment: true,
+          quantization: 'int8',
+          caching: true
+        }
       },
       {
         id: 'mdl_004',
-        name: 'Customer Behavior Random Forest',
-        version: '1.5.7',
+        name: 'Neural Customer Behavior Predictor',
+        version: '2.8.4',
         status: 'validating',
-        accuracy: 89.8,
+        accuracy: 92.1,
         trainingProgress: 100,
         lastTrained: '2025-01-17T18:45:00Z',
-        datasetSize: 203000,
-        modelType: 'random_forest',
-        deploymentStage: 'staging'
+        datasetSize: 410000,
+        modelType: 'neural_network',
+        deploymentStage: 'staging',
+        realTimeMetrics: {
+          inferenceLatency: 18,
+          throughput: 5200,
+          memoryUsage: 2.7,
+          gpuUtilization: 51
+        },
+        aiOptimizations: {
+          autoScaling: false,
+          edgeDeployment: true,
+          quantization: 'fp16',
+          caching: true
+        }
       }
     ]);
 
+    // Initialize enhanced training jobs
     setTrainingJobs([
       {
-        id: 'job_001',
+        id: 'job_003',
         modelId: 'mdl_003',
         startTime: '2025-01-17T20:00:00Z',
-        estimatedCompletion: '2025-01-17T23:30:00Z',
-        progress: 78,
-        currentEpoch: 156,
-        totalEpochs: 200,
-        loss: 0.0234,
-        validationAccuracy: 96.1,
-        status: 'running'
+        estimatedCompletion: '2025-01-18T02:30:00Z',
+        progress: 85,
+        currentEpoch: 127,
+        totalEpochs: 150,
+        loss: 0.0043,
+        validationAccuracy: 98.2,
+        status: 'running',
+        aiEnhancements: {
+          distributedTraining: true,
+          mixedPrecision: true,
+          gradientAccumulation: 4,
+          learningRateSchedule: 'cosine_annealing'
+        }
       },
       {
-        id: 'job_002',
-        modelId: 'mdl_004',
-        startTime: '2025-01-17T18:00:00Z',
-        estimatedCompletion: '2025-01-17T22:00:00Z',
-        progress: 100,
-        currentEpoch: 100,
-        totalEpochs: 100,
-        loss: 0.0189,
-        validationAccuracy: 89.8,
-        status: 'completed'
+        id: 'job_004',
+        modelId: 'mdl_005',
+        startTime: '2025-01-17T19:15:00Z',
+        estimatedCompletion: '2025-01-18T01:45:00Z',
+        progress: 92,
+        currentEpoch: 138,
+        totalEpochs: 150,
+        loss: 0.0028,
+        validationAccuracy: 96.7,
+        status: 'running',
+        aiEnhancements: {
+          distributedTraining: true,
+          mixedPrecision: true,
+          gradientAccumulation: 8,
+          learningRateSchedule: 'warm_restart'
+        }
       }
     ]);
 

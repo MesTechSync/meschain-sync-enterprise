@@ -60,6 +60,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   const menuItems = [
     { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
+    { text: '🤖 AI/ML Intelligence', icon: <TrendingUp />, path: '/ai' },
+    { text: '🛡️ Security Framework', icon: <Settings />, path: '/security' },
     { text: 'Pazaryerleri', icon: <Store />, path: '/marketplaces' },
     { text: 'Siparişler', icon: <ShoppingCart />, path: '/orders' },
     { text: 'Ürünler', icon: <Inventory />, path: '/products' },

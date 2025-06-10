@@ -677,11 +677,14 @@ export const MS365StatsCard: React.FC<StatsCardProps> = ({
 // Export all chart colors for external use
 export { MS365ChartColors };
 
-export default {
+// Export all chart components individually
+export const MS365Charts = {
   BarChart: MS365BarChart,
   LineChart: MS365LineChart,
   PieChart: MS365PieChart,
   DoughnutChart: MS365DoughnutChart,
-  StatsCard: MS365StatsCard,
-  Colors: MS365ChartColors
-}; 
+  StatsCard: MS365StatsCard
+};
+
+// Default export
+export default MS365Charts; 

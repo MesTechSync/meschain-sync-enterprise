@@ -644,13 +644,22 @@ const ChartWidget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
       </div>
       
       {data.series.length > 0 ? (
-        <MS365Charts
-          type={widget.config.chartType || 'line'}
-          data={data.series}
-          categories={data.categories}
-          height={200}
-          colors={widget.config.colors}
-        />
+        widget.config.chartType === 'bar' ? (
+          <MS365Charts.BarChart
+            data={data.series}
+            height={200}
+          />
+        ) : widget.config.chartType === 'pie' ? (
+          <MS365Charts.PieChart
+            data={data.series}
+            height={200}
+          />
+        ) : (
+          <MS365Charts.LineChart
+            data={data.series}
+            height={200}
+          />
+        )
       ) : (
         <div style={{
           display: 'flex',
