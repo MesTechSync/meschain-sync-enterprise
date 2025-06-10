@@ -407,17 +407,29 @@ const SystemHealthOverview: React.FC<{ metrics: Map<string, SystemHealthMetric> 
 
               {/* Mini Chart */}
               <div style={{ height: '60px' }}>
-                <MS365Charts
-                  type="line"
-                  data={[{
-                    name: metric.name,
-                    data: metric.history.map(h => h.value)
-                  }]}
-                  categories={metric.history.map(h => new Date(h.timestamp).toLocaleTimeString())}
+                <MS365Charts.LineChart
+                  data={{
+                    labels: metric.history.map(h => new Date(h.timestamp).toLocaleTimeString()),
+                    datasets: [{
+                      label: metric.name,
+                      data: metric.history.map(h => h.value),
+                      borderColor: getStatusColor(metric.status),
+                      backgroundColor: getStatusColor(metric.status) + '20',
+                      tension: 0.4
+                    }]
+                  }}
                   height={60}
-                  colors={[getStatusColor(metric.status)]}
-                  showGrid={false}
-                  showLegend={false}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: { display: false }
+                    },
+                    scales: {
+                      x: { display: false },
+                      y: { display: false }
+                    }
+                  }}
                 />
               </div>
             </div>

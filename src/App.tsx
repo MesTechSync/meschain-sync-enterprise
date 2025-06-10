@@ -1,13 +1,31 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline, CircularProgress, Box } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
+import { Toaster } from 'react-hot-toast';
+import { I18nextProvider } from 'react-i18next';
 
 import { theme } from './theme/theme';
 import { GlobalErrorFallback } from './components/ErrorBoundary/GlobalErrorFallback';
 import AppLayout from './components/Layout/AppLayout';
 import MainDashboard from './components/Dashboard/MainDashboard';
+import TrendyolModule from './modules/TrendyolModule';
+import N11Module from './modules/N11Module';
+import AmazonModule from './modules/AmazonModule';
+import HepsiburadaModule from './modules/HepsiburadaModule';
+import EbayModule from './modules/EbayModule';
+import OzonModule from './modules/OzonModule';
+import ProductModule from './modules/ProductModule';
+import OrderModule from './modules/OrderModule';
+import InventoryModule from './modules/InventoryModule';
+import ReportModule from './modules/ReportModule';
+import SettingsModule from './modules/SettingsModule';
+import i18n from './i18n';
+// AI/ML Integration - Priority 2
+import AdvancedAIIntegration from './ai/AdvancedAIIntegration';
+// Security Framework - Priority 3
+import AdvancedSecurityFramework from './security/AdvancedSecurityFramework';
 
 // Marketplace Pages
 import TrendyolPage from './components/Marketplace/TrendyolPage';
@@ -33,40 +51,50 @@ const LoadingFallback = () => (
   </Box>
 );
 
-function App() {
+const App: React.FC = () => {
   return (
     <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Router>
-          <AppLayout>
-            <Suspense fallback={<LoadingFallback />}>
-              <Routes>
-                <Route path="/" element={<MainDashboard />} />
-                <Route path="/dashboard" element={<MainDashboard />} />
+        <I18nextProvider i18n={i18n}>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<AppLayout />}>
+                <Route index element={<MainDashboard />} />
+                <Route path="dashboard" element={<MainDashboard />} />
+                
+                {/* AI/ML Integration Routes - Priority 2 Enhancement */}
+                <Route path="ai" element={<AdvancedAIIntegration />} />
+                <Route path="ai/integration" element={<AdvancedAIIntegration />} />
+                <Route path="ai/ml-pipeline" element={<AdvancedAIIntegration />} />
+                
+                {/* Security Framework Routes - Priority 3 Enhancement */}
+                <Route path="security" element={<AdvancedSecurityFramework />} />
+                <Route path="security/framework" element={<AdvancedSecurityFramework />} />
+                <Route path="security/threats" element={<AdvancedSecurityFramework />} />
                 
                 {/* Marketplace Routes */}
-                <Route path="/marketplace/trendyol" element={<TrendyolPage />} />
-                <Route path="/marketplace/n11" element={<N11Page />} />
-                <Route path="/marketplace/amazon" element={<AmazonPage />} />
-                <Route path="/marketplace/hepsiburada" element={<HepsiburadaPage />} />
-                <Route path="/marketplace/ebay" element={<EbayPage />} />
-                <Route path="/marketplace/ozon" element={<OzonPage />} />
+                <Route path="marketplace/trendyol" element={<TrendyolModule />} />
+                <Route path="marketplace/n11" element={<N11Module />} />
+                <Route path="marketplace/amazon" element={<AmazonModule />} />
+                <Route path="marketplace/hepsiburada" element={<HepsiburadaModule />} />
+                <Route path="marketplace/ebay" element={<EbayModule />} />
+                <Route path="marketplace/ozon" element={<OzonModule />} />
                 
-                {/* Other Routes */}
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/orders" element={<OrdersPage />} />
-                <Route path="/inventory" element={<InventoryPage />} />
-                <Route path="/reports" element={<ReportsPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/support" element={<SupportPage />} />
-              </Routes>
-            </Suspense>
-          </AppLayout>
-        </Router>
+                {/* Module Routes */}
+                <Route path="products" element={<ProductModule />} />
+                <Route path="orders" element={<OrderModule />} />
+                <Route path="inventory" element={<InventoryModule />} />
+                <Route path="reports" element={<ReportModule />} />
+                <Route path="settings" element={<SettingsModule />} />
+              </Route>
+            </Routes>
+            <Toaster position="top-right" />
+          </div>
+        </I18nextProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
-}
+};
 
 export default App; 
