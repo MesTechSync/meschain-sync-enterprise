@@ -1,38 +1,119 @@
 <?php
 /**
- * N11 Webhooks Controller
- * N11 webhook yönetimi için controller
+ * MesChain-Sync N11 Webhook Controller
+ * N11 Marketplace Webhook Management
+ * 
+ * @author MesChain Team
+ * @version 2.0
+ * @date 2025-06-10
+ * @license Commercial License
  */
+
 class ControllerExtensionModuleN11Webhooks extends Controller {
+    
     private $error = array();
     
+    /**
+     * N11 Webhook management index page
+     */
     public function index() {
         $this->load->language('extension/module/n11');
-        $this->load->model('extension/module/n11');
         
-        $this->document->setTitle($this->language->get('heading_title') . ' - Webhooks');
+        $this->document->setTitle($this->language->get('heading_title') . ' - N11 Webhooks');
         
+        $this->load->model('extension/module/n11_webhook');
+        
+        // Get webhook list
+        $data['webhooks'] = $this->model_extension_module_n11_webhook->getWebhooks();
+        
+        // Get notifications
+        $data['notifications'] = $this->model_extension_module_n11_webhook->getNotifications(array(
+            'start' => 0,
+            'limit' => 10,
+            'order' => 'DESC',
+            'sort' => 'date_added'
+        ));
+        
+        // Create new webhook
+        if (isset($this->request->post['event_type']) && isset($this->request->post['url'])) {
+            $webhook_data = array(
+                'event_type' => $this->request->post['event_type'],
+                'url' => $this->request->post['url'],
+                'status' => isset($this->request->post['status']) ? (int)$this->request->post['status'] : 1,
+                'secret_key' => $this->generateSecretKey()
+            );
+            
+            $webhook_id = $this->model_extension_module_n11_webhook->addWebhook($webhook_data);
+            
+            if ($webhook_id) {
+                // Register webhook with N11
+                $this->registerWebhookWithN11($webhook_data);
+                
+                $this->session->data['success'] = 'N11 Webhook başarıyla oluşturuldu';
+            } else {
+                $this->session->data['error'] = 'Webhook oluşturulurken hata oluştu';
+            }
+            
+            $this->response->redirect($this->url->link('extension/module/n11_webhooks', 'user_token=' . $this->session->data['user_token'], true));
+        }
+        
+        // N11 webhook event types
+        $data['event_types'] = array(
+            'order-created' => 'Sipariş Oluşturuldu',
+            'order-updated' => 'Sipariş Güncellendi',
+            'order-cancelled' => 'Sipariş İptal Edildi',
+            'product-created' => 'Ürün Oluşturuldu',
+            'product-updated' => 'Ürün Güncellendi',
+            'product-deleted' => 'Ürün Silindi',
+            'stock-updated' => 'Stok Güncellendi',
+            'price-updated' => 'Fiyat Güncellendi',
+            'commission-updated' => 'Komisyon Güncellendi'
+        );
+        
+        // Store webhook URL
+        $data['store_webhook_url'] = HTTPS_CATALOG . 'index.php?route=extension/module/n11_webhook_receiver';
+        
+        // Breadcrumbs
         $data['breadcrumbs'] = array();
+        
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('text_home'),
             'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
         );
         
         $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('heading_title'),
+            'text' => 'N11 Modülü',
+            'href' => $this->url->link('extension/module/n11', 'user_token=' . $this->session->data['user_token'], true)
+        );
+        
+        $data['breadcrumbs'][] = array(
+            'text' => 'N11 Webhooks',
             'href' => $this->url->link('extension/module/n11_webhooks', 'user_token=' . $this->session->data['user_token'], true)
         );
         
-        // Webhook listesi
-        $data['webhooks'] = $this->model_extension_module_n11->getWebhooks();
+        // URLs
+        $data['add_webhook_url'] = $this->url->link('extension/module/n11_webhooks', 'user_token=' . $this->session->data['user_token'], true);
+        $data['back_url'] = $this->url->link('extension/module/n11', 'user_token=' . $this->session->data['user_token'], true);
         
-        // Webhook URL'leri
-        $data['webhook_urls'] = [
-            'orders' => HTTPS_CATALOG . 'index.php?route=extension/module/n11_webhook/orders',
-            'products' => HTTPS_CATALOG . 'index.php?route=extension/module/n11_webhook/products',
-            'inventory' => HTTPS_CATALOG . 'index.php?route=extension/module/n11_webhook/inventory'
-        ];
+        // Messages
+        if (isset($this->session->data['success'])) {
+            $data['success'] = $this->session->data['success'];
+            unset($this->session->data['success']);
+        } else {
+            $data['success'] = '';
+        }
         
+        if (isset($this->session->data['error'])) {
+            $data['error_warning'] = $this->session->data['error'];
+            unset($this->session->data['error']);
+        } else {
+            $data['error_warning'] = '';
+        }
+        
+        // Webhook statistics
+        $data['webhook_stats'] = $this->model_extension_module_n11_webhook->getWebhookStatistics();
+        
+        // Load view
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
@@ -41,255 +122,242 @@ class ControllerExtensionModuleN11Webhooks extends Controller {
     }
     
     /**
-     * Webhook ayarlarını kaydet
+     * Process incoming webhook from N11
      */
-    public function save() {
-        $this->load->language('extension/module/n11');
-        $this->load->model('extension/module/n11');
+    public function receive() {
+        $this->load->model('extension/module/n11_webhook');
+        $this->load->library('meschain/helper/n11');
         
-        $json = array();
+        $json = array('success' => false, 'message' => '');
         
-        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
-            try {
-                // Webhook ayarlarını kaydet
-                $webhookData = [
-                    'orders_enabled' => isset($this->request->post['orders_enabled']) ? 1 : 0,
-                    'products_enabled' => isset($this->request->post['products_enabled']) ? 1 : 0,
-                    'inventory_enabled' => isset($this->request->post['inventory_enabled']) ? 1 : 0,
-                    'secret_key' => $this->request->post['secret_key'] ?? '',
-                ];
-                
-                $this->model_extension_module_n11->saveWebhookSettings($webhookData);
-                
-                $json['success'] = 'Webhook ayarları başarıyla kaydedildi';
-                
-            } catch (Exception $e) {
-                $json['error'] = 'Webhook ayarları kaydedilirken hata oluştu: ' . $e->getMessage();
-            }
-        }
-        
-        $this->response->addHeader('Content-Type: application/json');
-        $this->response->setOutput(json_encode($json));
-    }
-    
-    /**
-     * Webhook test et
-     */
-    public function test() {
-        $this->load->language('extension/module/n11');
-        $this->load->model('extension/module/n11');
-        
-        $json = array();
-        
-        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
-            try {
-                $webhookType = $this->request->post['webhook_type'] ?? 'orders';
-                
-                // Test verisi oluştur
-                $testData = [
-                    'test' => true,
-                    'timestamp' => time(),
-                    'eventType' => $webhookType . '.test',
-                    'order' => [
-                        'id' => 'TEST-' . time(),
-                        'totalPrice' => 100.00,
-                        'customer' => [
-                            'name' => 'Test Customer',
-                            'email' => 'test@example.com'
-                        ],
-                        'items' => [
-                            [
-                                'sku' => 'TEST-SKU-001',
-                                'quantity' => 1,
-                                'price' => 100.00
-                            ]
-                        ]
-                    ]
-                ];
-                
-                // Load webhook processor
-                require_once(DIR_SYSTEM . 'library/meschain/webhook/n11_webhook.php');
-                
-                $config = [
-                    'n11_webhook_enabled' => true,
-                    'n11_webhook_secret' => $this->config->get('module_n11_webhook_secret') ?: 'test-secret'
-                ];
-                
-                $webhook = new N11Webhook($this->registry, $config);
-                
-                // Generate test signature
-                $payload = json_encode($testData);
-                $signature = hash_hmac('sha256', $payload, $config['n11_webhook_secret']);
-                
-                $headers = [
-                    'X-N11-Signature' => $signature,
-                    'X-N11-Timestamp' => time(),
-                    'Content-Type' => 'application/json'
-                ];
-                
-                // Process webhook
-                $result = $webhook->processWebhook($headers, $payload);
-                
-                if ($result['success']) {
-                    $json['success'] = 'Webhook testi başarılı: ' . $result['message'];
-                    $json['details'] = $result;
-                } else {
-                    $json['error'] = 'Webhook testi başarısız: ' . $result['error'];
-                    $json['details'] = $result;
-                }
-                
-            } catch (Exception $e) {
-                $json['error'] = 'Webhook testi sırasında hata: ' . $e->getMessage();
-            }
-        }
-        
-        $this->response->addHeader('Content-Type: application/json');
-        $this->response->setOutput(json_encode($json));
-    }
-    
-    /**
-     * Webhook endpoint handler
-     */
-    public function webhook() {
         try {
-            // Get headers
-            $headers = getallheaders() ?: [];
+            // Get raw POST data
+            $raw_data = file_get_contents('php://input');
+            $webhook_data = json_decode($raw_data, true);
             
-            // Get raw payload
-            $payload = file_get_contents('php://input');
-            
-            if (empty($payload)) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Empty payload']);
-                return;
+            if (!$webhook_data) {
+                throw new Exception('Invalid webhook data received');
             }
             
-            // Load webhook processor
-            require_once(DIR_SYSTEM . 'library/meschain/webhook/n11_webhook.php');
+            // Validate webhook signature
+            $signature = $_SERVER['HTTP_X_N11_SIGNATURE'] ?? '';
+            if (!$this->validateWebhookSignature($raw_data, $signature)) {
+                throw new Exception('Invalid webhook signature');
+            }
             
-            $config = [
-                'n11_webhook_enabled' => (bool)$this->config->get('module_n11_webhook_enabled'),
-                'n11_webhook_secret' => $this->config->get('module_n11_webhook_secret') ?: ''
-            ];
+            // Log incoming webhook
+            $this->model_extension_module_n11_webhook->logNotification(array(
+                'event_type' => $webhook_data['eventType'] ?? 'unknown',
+                'data' => json_encode($webhook_data),
+                'status' => 'received',
+                'ip_address' => $this->request->server['REMOTE_ADDR']
+            ));
             
-            $webhook = new N11Webhook($this->registry, $config);
+            // Process webhook based on event type
+            $result = $this->processWebhookByType($webhook_data);
             
-            // Process webhook
-            $result = $webhook->processWebhook($headers, $payload);
-            
-            // Set response code
-            http_response_code($result['http_code'] ?? 200);
-            
-            // Return response
-            echo json_encode([
-                'success' => $result['success'],
-                'message' => $result['message'] ?? $result['error'] ?? 'Processed'
-            ]);
+            if ($result['success']) {
+                $json['success'] = true;
+                $json['message'] = 'Webhook processed successfully';
+                
+                // Update notification status
+                $this->model_extension_module_n11_webhook->updateLastNotificationStatus('processed');
+            } else {
+                throw new Exception($result['error']);
+            }
             
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'Internal server error']);
+            $json['success'] = false;
+            $json['message'] = $e->getMessage();
             
             // Log error
-            error_log('N11 Webhook Error: ' . $e->getMessage());
+            $this->log->write('N11 Webhook Error: ' . $e->getMessage());
+            
+            // Update notification status
+            if (isset($webhook_data)) {
+                $this->model_extension_module_n11_webhook->updateLastNotificationStatus('failed');
+            }
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+    
+    /**
+     * Process webhook based on event type
+     * 
+     * @param array $webhook_data Webhook data
+     * @return array
+     */
+    private function processWebhookByType($webhook_data) {
+        $event_type = $webhook_data['eventType'] ?? '';
+        
+        switch ($event_type) {
+            case 'order-created':
+                return $this->processOrderCreated($webhook_data);
+                
+            case 'order-updated':
+                return $this->processOrderUpdated($webhook_data);
+                
+            case 'order-cancelled':
+                return $this->processOrderCancelled($webhook_data);
+                
+            case 'product-updated':
+                return $this->processProductUpdated($webhook_data);
+                
+            case 'stock-updated':
+                return $this->processStockUpdated($webhook_data);
+                
+            case 'price-updated':
+                return $this->processPriceUpdated($webhook_data);
+                
+            default:
+                return array('success' => true, 'message' => 'Event type not handled: ' . $event_type);
         }
     }
     
     /**
-     * Webhook istatistikleri
+     * Process order created webhook
+     * 
+     * @param array $webhook_data Webhook data
+     * @return array
      */
-    public function stats() {
-        $this->load->model('extension/module/n11');
-        
-        $data = [];
-        
-        // Son 24 saatteki webhook çağrıları
-        $data['recent_webhooks'] = $this->getRecentWebhookStats(24);
-        
-        // Webhook türlerine göre istatistikler
-        $data['webhook_types'] = $this->getWebhookTypeStats();
-        
-        // Başarı oranları
-        $data['success_rates'] = $this->getWebhookSuccessRates();
-        
-        $this->response->addHeader('Content-Type: application/json');
-        $this->response->setOutput(json_encode($data));
+    private function processOrderCreated($webhook_data) {
+        try {
+            $this->load->model('extension/module/n11');
+            
+            $order_data = $webhook_data['data'] ?? array();
+            $n11_order_id = $order_data['orderId'] ?? '';
+            
+            if (empty($n11_order_id)) {
+                throw new Exception('Order ID missing in webhook data');
+            }
+            
+            // Import order from N11
+            $result = $this->model_extension_module_n11->importOrder($n11_order_id);
+            
+            if ($result['success']) {
+                return array('success' => true, 'message' => 'Order imported successfully');
+            } else {
+                throw new Exception($result['error']);
+            }
+            
+        } catch (Exception $e) {
+            return array('success' => false, 'error' => $e->getMessage());
+        }
     }
     
     /**
-     * Son webhook istatistiklerini getir
+     * Process order updated webhook
+     * 
+     * @param array $webhook_data Webhook data
+     * @return array
      */
-    private function getRecentWebhookStats($hours = 24) {
-        $query = $this->db->query("
-            SELECT 
-                DATE_FORMAT(date_added, '%H:00') as hour,
-                COUNT(*) as count,
-                SUM(CASE WHEN level = 'info' THEN 1 ELSE 0 END) as success_count,
-                SUM(CASE WHEN level = 'error' THEN 1 ELSE 0 END) as error_count
-            FROM " . DB_PREFIX . "meschain_marketplace_logs 
-            WHERE marketplace = 'n11' 
-            AND category = 'webhook'
-            AND date_added >= DATE_SUB(NOW(), INTERVAL " . (int)$hours . " HOUR)
-            GROUP BY DATE_FORMAT(date_added, '%H:00')
-            ORDER BY hour
-        ");
-        
-        return $query->rows;
+    private function processOrderUpdated($webhook_data) {
+        try {
+            $this->load->model('extension/module/n11');
+            
+            $order_data = $webhook_data['data'] ?? array();
+            $n11_order_id = $order_data['orderId'] ?? '';
+            
+            if (empty($n11_order_id)) {
+                throw new Exception('Order ID missing in webhook data');
+            }
+            
+            // Update order from N11
+            $result = $this->model_extension_module_n11->updateOrderFromN11($n11_order_id);
+            
+            if ($result['success']) {
+                return array('success' => true, 'message' => 'Order updated successfully');
+            } else {
+                throw new Exception($result['error']);
+            }
+            
+        } catch (Exception $e) {
+            return array('success' => false, 'error' => $e->getMessage());
+        }
     }
     
     /**
-     * Webhook türlerine göre istatistikler
+     * Register webhook with N11
+     * 
+     * @param array $webhook_data Webhook configuration
+     * @return bool
      */
-    private function getWebhookTypeStats() {
-        $query = $this->db->query("
-            SELECT 
-                JSON_EXTRACT(context, '$.event_type') as event_type,
-                COUNT(*) as count,
-                SUM(CASE WHEN level = 'info' THEN 1 ELSE 0 END) as success_count
-            FROM " . DB_PREFIX . "meschain_marketplace_logs 
-            WHERE marketplace = 'n11' 
-            AND category = 'webhook'
-            AND date_added >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            GROUP BY JSON_EXTRACT(context, '$.event_type')
-            ORDER BY count DESC
-        ");
-        
-        return $query->rows;
+    private function registerWebhookWithN11($webhook_data) {
+        try {
+            $this->load->library('meschain/helper/n11');
+            
+            $n11_webhook_data = array(
+                'url' => $webhook_data['url'],
+                'events' => array($webhook_data['event_type']),
+                'active' => true
+            );
+            
+            $result = $this->n11->registerWebhook($n11_webhook_data);
+            
+            if ($result['success']) {
+                // Save N11 webhook ID
+                $this->model_extension_module_n11_webhook->updateWebhookN11Id(
+                    $webhook_data['id'], 
+                    $result['webhook_id']
+                );
+                return true;
+            }
+            
+            return false;
+            
+        } catch (Exception $e) {
+            $this->log->write('N11 Webhook Registration Error: ' . $e->getMessage());
+            return false;
+        }
     }
     
     /**
-     * Webhook başarı oranları
+     * Validate webhook signature
+     * 
+     * @param string $raw_data Raw webhook data
+     * @param string $signature Received signature
+     * @return bool
      */
-    private function getWebhookSuccessRates() {
-        $query = $this->db->query("
-            SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN level = 'info' THEN 1 ELSE 0 END) as success,
-                SUM(CASE WHEN level = 'error' THEN 1 ELSE 0 END) as errors,
-                ROUND((SUM(CASE WHEN level = 'info' THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as success_rate
-            FROM " . DB_PREFIX . "meschain_marketplace_logs 
-            WHERE marketplace = 'n11' 
-            AND category = 'webhook'
-            AND date_added >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-        ");
+    private function validateWebhookSignature($raw_data, $signature) {
+        if (empty($signature)) {
+            return false;
+        }
         
-        return $query->num_rows ? $query->row : [
-            'total' => 0,
-            'success' => 0,
-            'errors' => 0,
-            'success_rate' => 0
-        ];
+        // Get webhook secret from settings
+        $secret = $this->config->get('module_n11_webhook_secret');
+        if (empty($secret)) {
+            return false;
+        }
+        
+        $expected_signature = hash_hmac('sha256', $raw_data, $secret);
+        
+        return hash_equals($expected_signature, $signature);
     }
     
     /**
-     * Webhook loglarını görüntüle
+     * Generate secret key for webhook security
+     * 
+     * @return string
      */
-    public function logs() {
-        $this->load->language('extension/module/n11');
-        $this->load->model('extension/module/n11');
-        
-        $data['logs'] = $this->model_extension_module_n11->getWebhookLogs();
-        
-        $this->response->setOutput($this->load->view('extension/module/n11_webhook_logs', $data));
+    private function generateSecretKey() {
+        return bin2hex(random_bytes(32));
     }
-} 
+    
+    /**
+     * Install webhook tables
+     */
+    public function install() {
+        $this->load->model('extension/module/n11_webhook');
+        $this->model_extension_module_n11_webhook->install();
+    }
+    
+    /**
+     * Uninstall webhook tables
+     */
+    public function uninstall() {
+        $this->load->model('extension/module/n11_webhook');
+        $this->model_extension_module_n11_webhook->uninstall();
+    }
+}

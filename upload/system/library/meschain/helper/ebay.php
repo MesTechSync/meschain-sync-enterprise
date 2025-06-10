@@ -1,866 +1,632 @@
 <?php
 /**
- * MeschainEbayHelper - Modern eBay API Entegrasyonu
+ * MesChain-Sync eBay API Helper
+ * eBay Marketplace Integration Helper Library
  * 
- * Event-driven architecture, health monitoring ve webhook desteği ile
- * gelişmiş eBay marketplace entegrasyonu
- * 
- * @author MesChain Development Team
- * @version 2.0.0
- * @since 2024-01-21
+ * @author MesChain Team
+ * @version 2.0
+ * @date 2025-06-10
+ * @license Commercial License
  */
 
-class MeschainEbayHelper {
+class MesChainEbayHelper {
     
     private $registry;
     private $db;
-    private $log;
-    private $configHelper;
-    private $eventHelper;
-    private $monitoringHelper;
+    private $config;
+    private $logger;
+    private $cache;
     
-    // API URLs
-    private $apiUrl = 'https://api.ebay.com';
-    private $sandboxUrl = 'https://api.sandbox.ebay.com';
+    // eBay API Configuration
+    private $api_settings = array();
+    private $rate_limiter = array();
     
-    // API endpoints
-    private $endpoints = [
-        'oauth' => '/identity/v1/oauth2/token',
-        'inventory' => '/sell/inventory/v1',
-        'account' => '/sell/account/v1',
-        'fulfillment' => '/sell/fulfillment/v1',
-        'finances' => '/sell/finances/v1',
-        'analytics' => '/sell/analytics/v1',
-        'browse' => '/buy/browse/v1',
-        'taxonomy' => '/commerce/taxonomy/v1',
-        'catalog' => '/commerce/catalog/v1'
-    ];
+    // eBay API Endpoints
+    private $api_endpoints = array(
+        'sandbox' => 'https://api.sandbox.ebay.com',
+        'production' => 'https://api.ebay.com'
+    );
     
-    // Global Site IDs
-    private $globalSiteIds = [
-        'US' => 0,    // United States
-        'UK' => 3,    // United Kingdom
-        'DE' => 77,   // Germany
-        'FR' => 71,   // France
-        'IT' => 101,  // Italy
-        'ES' => 186,  // Spain
-        'AU' => 15,   // Australia
-        'CA' => 2,    // Canada
-        'IN' => 203,  // India
-        'JP' => 0     // Japan (not available yet)
-    ];
-    
-    // Rate limiting
-    private $rateLimits = [
-        'default' => ['requests' => 5000, 'period' => 3600], // 5000 req/hour
-        'inventory' => ['requests' => 2000, 'period' => 3600], // 2000 req/hour
-        'orders' => ['requests' => 5000, 'period' => 3600]     // 5000 req/hour
-    ];
-    
+    /**
+     * Constructor
+     * 
+     * @param object $registry OpenCart registry object
+     */
     public function __construct($registry) {
         $this->registry = $registry;
         $this->db = $registry->get('db');
-        $this->log = new Log('meschain_ebay.log');
+        $this->config = $registry->get('config');
+        $this->logger = $registry->get('log');
+        $this->cache = $registry->get('cache');
         
-        // Helper'ları yükle
-        require_once(DIR_SYSTEM . 'library/meschain/helper/config.php');
-        require_once(DIR_SYSTEM . 'library/meschain/helper/event.php');
-        require_once(DIR_SYSTEM . 'library/meschain/helper/monitoring.php');
-        
-        $this->configHelper = new MeschainConfigHelper($registry);
-        $this->eventHelper = new MeschainEventHelper($registry);
-        $this->monitoringHelper = new MeschainMonitoringHelper($registry);
-        
-        $this->createEbayTables();
-        $this->loadDefaultConfigs();
+        $this->loadApiSettings();
+        $this->initializeRateLimiter();
     }
     
     /**
-     * eBay tablolarını oluştur
+     * Load eBay API settings from configuration
+     * 
+     * @return void
      */
-    private function createEbayTables() {
-        // eBay products mapping
-        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "ebay_products` (
-            `mapping_id` int(11) NOT NULL AUTO_INCREMENT,
-            `opencart_product_id` int(11) NOT NULL,
-            `ebay_item_id` varchar(100),
-            `sku` varchar(100) NOT NULL,
-            `offer_id` varchar(100),
-            `listing_id` varchar(100),
-            `epid` varchar(100),
-            `gtin` varchar(100),
-            `brand` varchar(100),
-            `mpn` varchar(100),
-            `condition` varchar(50) DEFAULT 'NEW',
-            `listing_status` varchar(50) DEFAULT 'DRAFT',
-            `marketplace_id` varchar(50) NOT NULL,
-            `format` enum('FIXED_PRICE','AUCTION') DEFAULT 'FIXED_PRICE',
-            `duration` varchar(50) DEFAULT 'GTC',
-            `category_id` varchar(100),
-            `price` decimal(15,4),
-            `quantity` int(11) DEFAULT 0,
-            `last_sync` datetime DEFAULT NULL,
-            `sync_status` enum('synced','pending','error') DEFAULT 'pending',
-            `error_message` text,
-            `tenant_id` int(11) DEFAULT NULL,
-            `created_at` datetime NOT NULL,
-            `updated_at` datetime NOT NULL,
-            PRIMARY KEY (`mapping_id`),
-            UNIQUE KEY `sku_marketplace_unique` (`sku`, `marketplace_id`),
-            KEY `opencart_product_id` (`opencart_product_id`),
-            KEY `ebay_item_id` (`ebay_item_id`),
-            KEY `tenant_id` (`tenant_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-        
-        // eBay orders
-        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "ebay_orders` (
-            `ebay_order_id` int(11) NOT NULL AUTO_INCREMENT,
-            `opencart_order_id` int(11) DEFAULT NULL,
-            `order_id` varchar(100) NOT NULL,
-            `legacy_order_id` varchar(100),
-            `order_fulfillment_status` varchar(50) NOT NULL,
-            `order_payment_status` varchar(50) NOT NULL,
-            `sales_record_reference` varchar(100),
-            `total_fee_basis_amount` decimal(15,4) DEFAULT 0,
-            `total_marketplace_fee` decimal(15,4) DEFAULT 0,
-            `buyer` json,
-            `pricing_summary` json,
-            `cancel_status` json,
-            `payment_summary` json,
-            `fulfillment_start_instructions` json,
-            `line_items` json,
-            `creation_date` datetime NOT NULL,
-            `last_modified_date` datetime,
-            `order_fulfillment_instructions` json,
-            `sync_status` enum('pending','synced','error') DEFAULT 'pending',
-            `error_message` text,
-            `tenant_id` int(11) DEFAULT NULL,
-            `created_at` datetime NOT NULL,
-            `updated_at` datetime NOT NULL,
-            PRIMARY KEY (`ebay_order_id`),
-            UNIQUE KEY `order_id_unique` (`order_id`),
-            KEY `opencart_order_id` (`opencart_order_id`),
-            KEY `order_fulfillment_status` (`order_fulfillment_status`),
-            KEY `tenant_id` (`tenant_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-        
-        // eBay API logs
-        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "ebay_api_logs` (
-            `log_id` int(11) NOT NULL AUTO_INCREMENT,
-            `endpoint` varchar(255) NOT NULL,
-            `method` varchar(10) NOT NULL,
-            `marketplace_id` varchar(50),
-            `request_data` json,
-            `response_data` json,
-            `http_status` int(11),
-            `response_time` decimal(10,4),
-            `success` tinyint(1) DEFAULT 0,
-            `error_message` text,
-            `tenant_id` int(11) DEFAULT NULL,
-            `created_at` datetime NOT NULL,
-            PRIMARY KEY (`log_id`),
-            KEY `endpoint` (`endpoint`),
-            KEY `success` (`success`),
-            KEY `created_at` (`created_at`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-        
-        // eBay categories cache
-        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "ebay_categories` (
-            `category_id` varchar(100) NOT NULL,
-            `marketplace_id` varchar(50) NOT NULL,
-            `parent_id` varchar(100) DEFAULT NULL,
-            `category_name` varchar(255) NOT NULL,
-            `category_level` int(11) DEFAULT 0,
-            `leaf_category` tinyint(1) DEFAULT 0,
-            `auto_pay_enabled` tinyint(1) DEFAULT 0,
-            `b2b_vat_enabled` tinyint(1) DEFAULT 0,
-            `catalog_enabled` tinyint(1) DEFAULT 0,
-            `last_updated` datetime NOT NULL,
-            PRIMARY KEY (`category_id`, `marketplace_id`),
-            KEY `parent_id` (`parent_id`),
-            KEY `marketplace_id` (`marketplace_id`),
-            KEY `leaf_category` (`leaf_category`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-        
-        $this->log->write('eBay tabloları oluşturuldu/kontrol edildi');
-    }
-    
-    /**
-     * Varsayılan konfigürasyonları yükle
-     */
-    private function loadDefaultConfigs() {
-        $defaults = [
-            'ebay.api_url' => $this->apiUrl,
-            'ebay.sandbox_url' => $this->sandboxUrl,
-            'ebay.default_marketplace' => 'US',
-            'ebay.timeout' => 30,
-            'ebay.retry_attempts' => 3,
-            'ebay.rate_limit_enabled' => true,
-            'ebay.auto_sync_products' => true,
-            'ebay.auto_sync_orders' => true,
-            'ebay.auto_sync_interval' => 900, // 15 dakika
-            'ebay.default_condition' => 'NEW',
-            'ebay.default_format' => 'FIXED_PRICE',
-            'ebay.default_duration' => 'GTC',
-            'ebay.sandbox_mode' => false,
-            'ebay.auto_relist' => false
-        ];
-        
-        foreach ($defaults as $key => $value) {
-            $existing = $this->configHelper->get($key);
-            if ($existing === null) {
-                $this->configHelper->set($key, $value, [
-                    'type' => 'marketplace',
-                    'description' => 'eBay marketplace configuration'
-                ]);
+    private function loadApiSettings() {
+        try {
+            $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "setting` WHERE `code` = 'module_ebay'");
+            
+            foreach ($query->rows as $setting) {
+                $key = str_replace('module_ebay_', '', $setting['key']);
+                $this->api_settings[$key] = $setting['value'];
             }
+            
+            // Set default values if not configured
+            $this->api_settings = array_merge(array(
+                'app_id' => '',
+                'dev_id' => '',
+                'cert_id' => '',
+                'user_token' => '',
+                'environment' => 'sandbox',
+                'site_id' => 0, // 0 = US, 3 = UK, 71 = France, 77 = Germany
+                'version' => '1193',
+                'timeout' => 30,
+                'rate_limit' => 5000
+            ), $this->api_settings);
+            
+        } catch (Exception $e) {
+            $this->logger->write('eBay Helper - Settings load error: ' . $e->getMessage());
         }
     }
     
     /**
-     * API kimlik bilgilerini al
+     * Initialize rate limiter for eBay API calls
+     * 
+     * @return void
      */
-    private function getApiCredentials($tenantId = null) {
-        $config = $this->configHelper->getMarketplaceConfig('ebay', $tenantId);
-        
-        return [
-            'client_id' => $config['ebay.client_id'] ?? null,
-            'client_secret' => $config['ebay.client_secret'] ?? null,
-            'refresh_token' => $config['ebay.refresh_token'] ?? null,
-            'redirect_uri' => $config['ebay.redirect_uri'] ?? null,
-            'marketplace_id' => $config['ebay.marketplace_id'] ?? 'EBAY_US',
-            'sandbox_mode' => $config['ebay.sandbox_mode'] ?? false
-        ];
+    private function initializeRateLimiter() {
+        $this->rate_limiter = array(
+            'requests_per_second' => 10,
+            'requests_per_hour' => $this->api_settings['rate_limit'] ?? 5000,
+            'current_requests' => 0,
+            'last_request_time' => 0
+        );
     }
     
     /**
-     * Access token al
+     * Make authenticated API request to eBay Trading API
+     * 
+     * @param string $call_name eBay API call name
+     * @param array $params Request parameters
+     * @return array|false
      */
-    private function getAccessToken($tenantId = null) {
-        $credentials = $this->getApiCredentials($tenantId);
-        
-        if (!$credentials['client_id'] || !$credentials['client_secret']) {
-            throw new Exception('eBay API kimlik bilgileri eksik');
+    public function makeApiRequest($call_name, $params = array()) {
+        try {
+            // Rate limiting check
+            $this->enforceRateLimit();
+            
+            // Prepare request
+            $xml_request = $this->buildXmlRequest($call_name, $params);
+            $headers = $this->buildHeaders($call_name);
+            
+            // Make HTTP request
+            $response = $this->executeHttpRequest($xml_request, $headers);
+            
+            // Parse and validate response
+            $parsed_response = $this->parseApiResponse($response);
+            
+            // Log successful request
+            $this->logger->write('eBay API Request: ' . $call_name . ' - Success');
+            
+            return $parsed_response;
+            
+        } catch (Exception $e) {
+            $this->logger->write('eBay API Request Error: ' . $e->getMessage());
+            return false;
         }
-        
-        // Cache'den kontrol et
-        $cacheKey = "ebay_access_token_{$tenantId}";
-        $cache = $this->registry->get('cache');
-        
-        if ($cache) {
-            $cachedToken = $cache->get($cacheKey);
-            if ($cachedToken) {
-                return $cachedToken;
+    }
+    
+    /**
+     * Get item information from eBay
+     * 
+     * @param string $item_id eBay item ID
+     * @return array|false
+     */
+    public function getItem($item_id) {
+        try {
+            $params = array(
+                'ItemID' => $item_id,
+                'DetailLevel' => 'ReturnAll'
+            );
+            
+            $response = $this->makeApiRequest('GetItem', $params);
+            
+            if ($response && isset($response['Item'])) {
+                return $this->formatItemData($response['Item']);
             }
+            
+            return false;
+            
+        } catch (Exception $e) {
+            $this->logger->write('eBay Get Item Error: ' . $e->getMessage());
+            return false;
         }
+    }
+    
+    /**
+     * Add or verify item on eBay
+     * 
+     * @param array $product_data OpenCart product data
+     * @param string $listing_type FixedPriceItem or Auction
+     * @return array|false
+     */
+    public function addOrVerifyItem($product_data, $listing_type = 'FixedPriceItem') {
+        try {
+            // Validate required product data
+            if (!$this->validateProductData($product_data)) {
+                throw new Exception('Invalid product data provided');
+            }
+            
+            // Format product for eBay
+            $ebay_item = $this->formatProductForEbay($product_data, $listing_type);
+            
+            // Check if item exists
+            $existing_item = $this->findExistingItem($product_data);
+            
+            if ($existing_item) {
+                return $this->reviseItem($existing_item['item_id'], $ebay_item);
+            } else {
+                return $this->addFixedPriceItem($ebay_item);
+            }
+            
+        } catch (Exception $e) {
+            $this->logger->write('eBay Add/Verify Item Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Update item inventory on eBay
+     * 
+     * @param string $item_id eBay item ID
+     * @param int $quantity New quantity
+     * @return bool
+     */
+    public function updateInventory($item_id, $quantity) {
+        try {
+            $params = array(
+                'Item' => array(
+                    'ItemID' => $item_id,
+                    'Quantity' => $quantity
+                )
+            );
+            
+            $response = $this->makeApiRequest('ReviseInventoryStatus', $params);
+            
+            return $response && isset($response['Ack']) && $response['Ack'] === 'Success';
+            
+        } catch (Exception $e) {
+            $this->logger->write('eBay Update Inventory Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get orders from eBay
+     * 
+     * @param string $start_date Start date for order retrieval
+     * @param string $end_date End date for order retrieval
+     * @return array|false
+     */
+    public function getOrders($start_date = null, $end_date = null) {
+        try {
+            $start_date = $start_date ?: date('Y-m-d\TH:i:s.000\Z', strtotime('-7 days'));
+            $end_date = $end_date ?: date('Y-m-d\TH:i:s.000\Z');
+            
+            $params = array(
+                'CreateTimeFrom' => $start_date,
+                'CreateTimeTo' => $end_date,
+                'OrderRole' => 'Seller',
+                'OrderStatus' => 'All',
+                'Pagination' => array(
+                    'EntriesPerPage' => 200,
+                    'PageNumber' => 1
+                )
+            );
+            
+            $response = $this->makeApiRequest('GetOrders', $params);
+            
+            if ($response && isset($response['OrderArray']['Order'])) {
+                return $this->formatOrdersData($response['OrderArray']['Order']);
+            }
+            
+            return array();
+            
+        } catch (Exception $e) {
+            $this->logger->write('eBay Get Orders Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Update order shipping status
+     * 
+     * @param string $order_id eBay order ID
+     * @param array $shipping_data Shipping information
+     * @return bool
+     */
+    public function updateOrderShipping($order_id, $shipping_data) {
+        try {
+            $params = array(
+                'OrderID' => $order_id,
+                'Shipped' => true,
+                'Shipment' => array(
+                    'ShipmentTrackingNumber' => $shipping_data['tracking_number'] ?? '',
+                    'ShippingCarrierUsed' => $shipping_data['carrier'] ?? 'Other'
+                )
+            );
+            
+            $response = $this->makeApiRequest('CompleteSale', $params);
+            
+            return $response && isset($response['Ack']) && $response['Ack'] === 'Success';
+            
+        } catch (Exception $e) {
+            $this->logger->write('eBay Update Shipping Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get eBay categories
+     * 
+     * @param string $category_site_id Site ID for categories
+     * @return array|false
+     */
+    public function getCategories($category_site_id = null) {
+        try {
+            $site_id = $category_site_id ?: $this->api_settings['site_id'];
+            
+            $params = array(
+                'CategorySiteID' => $site_id,
+                'LevelLimit' => 3,
+                'ViewAllNodes' => true
+            );
+            
+            $response = $this->makeApiRequest('GetCategories', $params);
+            
+            if ($response && isset($response['CategoryArray']['Category'])) {
+                return $this->formatCategoriesData($response['CategoryArray']['Category']);
+            }
+            
+            return array();
+            
+        } catch (Exception $e) {
+            $this->logger->write('eBay Get Categories Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Build XML request for eBay API
+     * 
+     * @param string $call_name API call name
+     * @param array $params Request parameters
+     * @return string
+     */
+    private function buildXmlRequest($call_name, $params) {
+        $xml = '<?xml version="1.0" encoding="utf-8"?>';
+        $xml .= '<' . $call_name . 'Request xmlns="urn:ebay:apis:eBLBaseComponents">';
+        $xml .= '<RequesterCredentials>';
+        $xml .= '<eBayAuthToken>' . $this->api_settings['user_token'] . '</eBayAuthToken>';
+        $xml .= '</RequesterCredentials>';
         
-        // OAuth token endpoint
-        $baseUrl = $credentials['sandbox_mode'] ? $this->sandboxUrl : $this->apiUrl;
-        $tokenUrl = $baseUrl . $this->endpoints['oauth'];
+        // Add parameters
+        $xml .= $this->arrayToXml($params);
         
-        $headers = [
-            'Authorization: Basic ' . base64_encode($credentials['client_id'] . ':' . $credentials['client_secret']),
-            'Content-Type: application/x-www-form-urlencoded'
-        ];
+        $xml .= '</' . $call_name . 'Request>';
         
-        $postData = 'grant_type=refresh_token&refresh_token=' . urlencode($credentials['refresh_token']);
+        return $xml;
+    }
+    
+    /**
+     * Build headers for eBay API request
+     * 
+     * @param string $call_name API call name
+     * @return array
+     */
+    private function buildHeaders($call_name) {
+        return array(
+            'X-EBAY-API-COMPATIBILITY-LEVEL: ' . $this->api_settings['version'],
+            'X-EBAY-API-DEV-NAME: ' . $this->api_settings['dev_id'],
+            'X-EBAY-API-APP-NAME: ' . $this->api_settings['app_id'],
+            'X-EBAY-API-CERT-NAME: ' . $this->api_settings['cert_id'],
+            'X-EBAY-API-CALL-NAME: ' . $call_name,
+            'X-EBAY-API-SITEID: ' . $this->api_settings['site_id'],
+            'Content-Type: text/xml; charset=utf-8'
+        );
+    }
+    
+    /**
+     * Execute HTTP request with proper error handling
+     * 
+     * @param string $xml_request XML request body
+     * @param array $headers Request headers
+     * @return string
+     */
+    private function executeHttpRequest($xml_request, $headers) {
+        $url = $this->api_endpoints[$this->api_settings['environment']] . '/ws/api.dll';
         
         $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $tokenUrl,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $postData,
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_TIMEOUT => 30
-        ]);
         
-        $response = curl_exec($ch);
-        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        if ($httpStatus !== 200) {
-            throw new Exception("Access token alınamadı: HTTP {$httpStatus}");
-        }
-        
-        $tokenData = json_decode($response, true);
-        
-        if (!isset($tokenData['access_token'])) {
-            throw new Exception("Access token response'unda hata: " . ($tokenData['error_description'] ?? 'Bilinmeyen hata'));
-        }
-        
-        // Cache'le (expires_in - 60 saniye güvenlik)
-        if ($cache && isset($tokenData['expires_in'])) {
-            $cache->set($cacheKey, $tokenData['access_token'], $tokenData['expires_in'] - 60);
-        }
-        
-        return $tokenData['access_token'];
-    }
-    
-    /**
-     * API isteği yap
-     */
-    private function makeApiRequest($endpoint, $method = 'GET', $data = null, $tenantId = null, $apiType = 'sell') {
-        $startTime = microtime(true);
-        $credentials = $this->getApiCredentials($tenantId);
-        
-        // Access token al
-        $accessToken = $this->getAccessToken($tenantId);
-        
-        // Rate limiting kontrolü
-        $this->checkRateLimit($endpoint);
-        
-        // Base URL belirle
-        $baseUrl = $credentials['sandbox_mode'] ? $this->sandboxUrl : $this->apiUrl;
-        
-        // Full endpoint URL oluştur
-        if (strpos($endpoint, 'http') === 0) {
-            $url = $endpoint;
-        } else {
-            $url = $baseUrl . $endpoint;
-        }
-        
-        // Headers
-        $headers = [
-            'Authorization: Bearer ' . $accessToken,
-            'Content-Type: application/json',
-            'User-Agent: MesChain-Sync/2.0',
-            'Accept: application/json'
-        ];
-        
-        // Marketplace ID gerekiyorsa ekle
-        if (in_array($apiType, ['sell', 'buy'])) {
-            $headers[] = 'X-EBAY-C-MARKETPLACE-ID: ' . $credentials['marketplace_id'];
-        }
-        
-        // cURL isteği
-        $ch = curl_init();
-        curl_setopt_array($ch, [
+        curl_setopt_array($ch, array(
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => $this->configHelper->get('ebay.timeout', 30),
+            CURLOPT_TIMEOUT => $this->api_settings['timeout'],
             CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $xml_request,
+            CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_FOLLOWLOCATION => true
-        ]);
-        
-        // Method'a göre ayarlar
-        switch (strtoupper($method)) {
-            case 'POST':
-                curl_setopt($ch, CURLOPT_POST, true);
-                if ($data) {
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-                }
-                break;
-            case 'PUT':
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-                if ($data) {
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-                }
-                break;
-            case 'DELETE':
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-                break;
-            case 'GET':
-                if ($data) {
-                    $url .= '?' . http_build_query($data);
-                    curl_setopt($ch, CURLOPT_URL, $url);
-                }
-                break;
-        }
+        ));
         
         $response = curl_exec($ch);
-        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $responseTime = microtime(true) - $startTime;
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
+        
         curl_close($ch);
         
-        // Performans metriği kaydet
-        $this->monitoringHelper->recordMetric('ebay_api_response_time', $responseTime, 'seconds', [
-            'endpoint' => $endpoint,
-            'method' => $method,
-            'marketplace_id' => $credentials['marketplace_id']
-        ]);
-        
-        // API log kaydet
-        $this->logApiRequest($endpoint, $method, $data, $response, $httpStatus, $responseTime, $error, $tenantId, $credentials['marketplace_id']);
-        
         if ($error) {
-            throw new Exception("cURL hatası: {$error}");
+            throw new Exception('CURL Error: ' . $error);
         }
         
-        if ($httpStatus >= 400) {
-            $errorData = json_decode($response, true);
-            $errorMessage = $errorData['errors'][0]['message'] ?? "HTTP {$httpStatus} hatası";
-            throw new Exception("eBay API hatası: {$errorMessage}");
-        }
-        
-        $result = json_decode($response, true);
-        
-        // Rate limit bilgisini güncelle
-        $this->updateRateLimit($endpoint);
-        
-        return $result;
-    }
-    
-    /**
-     * Rate limit kontrolü
-     */
-    private function checkRateLimit($endpoint) {
-        if (!$this->configHelper->get('ebay.rate_limit_enabled', true)) {
-            return;
-        }
-        
-        $endpointType = $this->getEndpointType($endpoint);
-        $limits = $this->rateLimits[$endpointType] ?? $this->rateLimits['default'];
-        
-        $cacheKey = "ebay_rate_limit_{$endpointType}";
-        $cache = $this->registry->get('cache');
-        
-        if ($cache) {
-            $currentCount = $cache->get($cacheKey) ?? 0;
-            
-            if ($currentCount >= $limits['requests']) {
-                $this->eventHelper->trigger('api.rate_limit_exceeded', [
-                    'marketplace' => 'ebay',
-                    'endpoint' => $endpoint,
-                    'limit' => $limits['requests']
-                ]);
-                
-                throw new Exception('Rate limit aşıldı. Lütfen bekleyin.');
-            }
-        }
-    }
-    
-    /**
-     * Rate limit sayacını güncelle
-     */
-    private function updateRateLimit($endpoint) {
-        $endpointType = $this->getEndpointType($endpoint);
-        $limits = $this->rateLimits[$endpointType] ?? $this->rateLimits['default'];
-        
-        $cacheKey = "ebay_rate_limit_{$endpointType}";
-        $cache = $this->registry->get('cache');
-        
-        if ($cache) {
-            $currentCount = $cache->get($cacheKey) ?? 0;
-            $cache->set($cacheKey, $currentCount + 1, $limits['period']);
-        }
-    }
-    
-    /**
-     * Endpoint tipini belirle
-     */
-    private function getEndpointType($endpoint) {
-        if (strpos($endpoint, '/inventory/') !== false) {
-            return 'inventory';
-        } elseif (strpos($endpoint, '/fulfillment/') !== false) {
-            return 'orders';
-        }
-        return 'default';
-    }
-    
-    /**
-     * API log kaydet
-     */
-    private function logApiRequest($endpoint, $method, $requestData, $responseData, $httpStatus, $responseTime, $error, $tenantId, $marketplaceId) {
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "ebay_api_logs` SET
-            endpoint = '" . $this->db->escape($endpoint) . "',
-            method = '" . $this->db->escape($method) . "',
-            marketplace_id = '" . $this->db->escape($marketplaceId) . "',
-            request_data = '" . $this->db->escape(json_encode($requestData)) . "',
-            response_data = '" . $this->db->escape(substr($responseData, 0, 65535)) . "',
-            http_status = " . (int)$httpStatus . ",
-            response_time = " . (float)$responseTime . ",
-            success = " . ($httpStatus >= 200 && $httpStatus < 300 ? 1 : 0) . ",
-            error_message = " . ($error ? "'" . $this->db->escape($error) . "'" : "NULL") . ",
-            tenant_id = " . ($tenantId ? (int)$tenantId : "NULL") . ",
-            created_at = NOW()
-        ");
-    }
-    
-    /**
-     * Health check
-     */
-    public function healthCheck() {
-        $startTime = microtime(true);
-        
-        try {
-            $credentials = $this->getApiCredentials();
-            
-            if (!$credentials['client_id'] || !$credentials['client_secret'] || !$credentials['refresh_token']) {
-                return [
-                    'status' => 'error',
-                    'message' => 'API kimlik bilgileri eksik',
-                    'response_time' => microtime(true) - $startTime
-                ];
-            }
-            
-            // Basit API testi - inventory location al
-            $response = $this->makeApiRequest($this->endpoints['inventory'] . '/location', 'GET', null, null, 'sell');
-            
-            if (isset($response['locations'])) {
-                return [
-                    'status' => 'healthy',
-                    'message' => 'API bağlantısı başarılı',
-                    'response_time' => microtime(true) - $startTime,
-                    'location_count' => count($response['locations'])
-                ];
-            } else {
-                return [
-                    'status' => 'error',
-                    'message' => 'API response beklenen formatta değil',
-                    'response_time' => microtime(true) - $startTime
-                ];
-            }
-            
-        } catch (Exception $e) {
-            return [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'response_time' => microtime(true) - $startTime
-            ];
-        }
-    }
-    
-    /**
-     * Kategorileri senkronize et
-     */
-    public function syncCategories($tenantId = null, $marketplaceId = null) {
-        $this->log->write("eBay kategori senkronizasyonu başlatıldı");
-        
-        try {
-            $credentials = $this->getApiCredentials($tenantId);
-            $targetMarketplace = $marketplaceId ?: $credentials['marketplace_id'];
-            
-            $response = $this->makeApiRequest($this->endpoints['taxonomy'] . '/category_tree', 'GET', [
-                'marketplace_id' => $targetMarketplace
-            ], $tenantId, 'taxonomy');
-            
-            if (isset($response['categoryTrees']) && is_array($response['categoryTrees'])) {
-                foreach ($response['categoryTrees'] as $tree) {
-                    if (isset($tree['rootCategoryNode'])) {
-                        $this->processCategoryTree($tree['rootCategoryNode'], null, $targetMarketplace);
-                    }
-                }
-                
-                $this->log->write("eBay kategori senkronizasyonu tamamlandı");
-                
-                return [
-                    'success' => true,
-                    'message' => 'Kategoriler başarıyla senkronize edildi'
-                ];
-            } else {
-                throw new Exception('Kategori verisi alınamadı');
-            }
-            
-        } catch (Exception $e) {
-            $this->log->write("eBay kategori senkronizasyonu hatası: " . $e->getMessage());
-            throw $e;
-        }
-    }
-    
-    /**
-     * Kategori ağacını işle
-     */
-    private function processCategoryTree($node, $parentId = null, $marketplaceId = 'EBAY_US', $level = 0) {
-        // Kategoriyi kaydet
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "ebay_categories` SET
-            category_id = '" . $this->db->escape($node['category']['categoryId']) . "',
-            marketplace_id = '" . $this->db->escape($marketplaceId) . "',
-            parent_id = " . ($parentId ? "'" . $this->db->escape($parentId) . "'" : "NULL") . ",
-            category_name = '" . $this->db->escape($node['category']['categoryName']) . "',
-            category_level = " . (int)$level . ",
-            leaf_category = " . (int)($node['leafCategoryTreeNode'] ?? 0) . ",
-            auto_pay_enabled = " . (int)($node['category']['autoPayEnabled'] ?? 0) . ",
-            b2b_vat_enabled = " . (int)($node['category']['b2bVATEnabled'] ?? 0) . ",
-            catalog_enabled = " . (int)($node['category']['catalogEnabled'] ?? 0) . ",
-            last_updated = NOW()
-            ON DUPLICATE KEY UPDATE
-            category_name = '" . $this->db->escape($node['category']['categoryName']) . "',
-            category_level = " . (int)$level . ",
-            leaf_category = " . (int)($node['leafCategoryTreeNode'] ?? 0) . ",
-            auto_pay_enabled = " . (int)($node['category']['autoPayEnabled'] ?? 0) . ",
-            b2b_vat_enabled = " . (int)($node['category']['b2bVATEnabled'] ?? 0) . ",
-            catalog_enabled = " . (int)($node['category']['catalogEnabled'] ?? 0) . ",
-            last_updated = NOW()
-        ");
-        
-        // Alt kategorileri işle
-        if (isset($node['childCategoryTreeNodes']) && !empty($node['childCategoryTreeNodes'])) {
-            foreach ($node['childCategoryTreeNodes'] as $child) {
-                $this->processCategoryTree($child, $node['category']['categoryId'], $marketplaceId, $level + 1);
-            }
-        }
-    }
-    
-    /**
-     * Ürün senkronizasyonu
-     */
-    public function syncProducts($productIds = [], $tenantId = null) {
-        $this->log->write("eBay ürün senkronizasyonu başlatıldı");
-        
-        try {
-            $syncedCount = 0;
-            $errorCount = 0;
-            $errors = [];
-            
-            // Tüm ürünler için veya belirli ürünler için
-            $sql = "SELECT p.* FROM `" . DB_PREFIX . "product` p WHERE p.status = 1";
-            
-            if (!empty($productIds)) {
-                $sql .= " AND p.product_id IN (" . implode(',', array_map('intval', $productIds)) . ")";
-            }
-            
-            $query = $this->db->query($sql);
-            
-            foreach ($query->rows as $product) {
-                try {
-                    $this->syncSingleProduct($product, $tenantId);
-                    $syncedCount++;
-                    
-                    // Event tetikle
-                    $this->eventHelper->trigger('product.synced', [
-                        'marketplace' => 'ebay',
-                        'product_id' => $product['product_id'],
-                        'product_name' => $product['name']
-                    ], ['type' => 'async']);
-                    
-                } catch (Exception $e) {
-                    $errorCount++;
-                    $errors[] = "Ürün {$product['product_id']}: " . $e->getMessage();
-                    $this->log->write("Ürün sync hatası: " . $e->getMessage());
-                }
-            }
-            
-            $this->log->write("Ürün senkronizasyonu tamamlandı. Başarılı: {$syncedCount}, Hatalı: {$errorCount}");
-            
-            return [
-                'success' => true,
-                'synced_count' => $syncedCount,
-                'error_count' => $errorCount,
-                'errors' => $errors
-            ];
-            
-        } catch (Exception $e) {
-            $this->log->write("Ürün senkronizasyonu genel hatası: " . $e->getMessage());
-            throw $e;
-        }
-    }
-    
-    /**
-     * Tek ürün senkronizasyonu
-     */
-    private function syncSingleProduct($product, $tenantId = null) {
-        // Mevcut mapping kontrol et
-        $existing = $this->db->query("SELECT * FROM `" . DB_PREFIX . "ebay_products` 
-            WHERE opencart_product_id = " . (int)$product['product_id'] . "
-            AND tenant_id = " . ($tenantId ? (int)$tenantId : "NULL"));
-        
-        // eBay ürün verisi hazırla
-        $ebayProduct = $this->prepareProductData($product);
-        
-        if ($existing->num_rows) {
-            // Güncelle - Inventory Item API kullan
-            $mapping = $existing->row;
-            $response = $this->makeApiRequest(
-                $this->endpoints['inventory'] . '/inventory_item/' . $mapping['sku'],
-                'PUT',
-                $ebayProduct,
-                $tenantId,
-                'sell'
-            );
-            
-        } else {
-            // Yeni ürün ekle - Inventory Item API kullan
-            $sku = $this->generateSku($product);
-            
-            $response = $this->makeApiRequest(
-                $this->endpoints['inventory'] . '/inventory_item/' . $sku,
-                'PUT',
-                $ebayProduct,
-                $tenantId,
-                'sell'
-            );
-            
-            // Mapping kaydet
-            if ($response === null || !isset($response['errors'])) { // 204 No Content success response
-                $this->db->query("INSERT INTO `" . DB_PREFIX . "ebay_products` SET
-                    opencart_product_id = " . (int)$product['product_id'] . ",
-                    sku = '" . $this->db->escape($sku) . "',
-                    marketplace_id = '" . $this->db->escape($this->getApiCredentials($tenantId)['marketplace_id']) . "',
-                    last_sync = NOW(),
-                    sync_status = 'synced',
-                    tenant_id = " . ($tenantId ? (int)$tenantId : "NULL") . ",
-                    created_at = NOW(),
-                    updated_at = NOW()
-                ");
-            }
+        if ($http_code >= 400) {
+            throw new Exception('HTTP Error: ' . $http_code . ' - ' . $response);
         }
         
         return $response;
     }
     
     /**
-     * Ürün verisini eBay formatına çevir
+     * Parse eBay API response
+     * 
+     * @param string $response Raw API response
+     * @return array
      */
-    private function prepareProductData($product) {
-        // SKU oluştur
-        $sku = $this->generateSku($product);
+    private function parseApiResponse($response) {
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($response);
         
-        // Kategori mapping
-        $categoryId = $this->mapCategory($product['category_id']);
-        
-        // Fiyat hesapla
-        $finalPrice = $this->calculateFinalPrice($product['price']);
-        
-        // Resimler hazırla
-        $images = $this->prepareImages($product['product_id']);
-        
-        // Özellikler hazırla
-        $aspects = $this->prepareAspects($product['product_id']);
-        
-        return [
-            'availability' => [
-                'shipToLocationAvailability' => [
-                    'quantity' => max(0, (int)$product['quantity'])
-                ]
-            ],
-            'condition' => $this->configHelper->get('ebay.default_condition', 'NEW'),
-            'product' => [
-                'title' => $this->sanitizeTitle($product['name']),
-                'description' => $this->sanitizeDescription($product['description']),
-                'imageUrls' => $images,
-                'aspects' => $aspects
-            ],
-            'locale' => 'en_US',
-            'packageWeightAndSize' => [
-                'dimensions' => [
-                    'height' => 10,
-                    'length' => 10,
-                    'width' => 10,
-                    'unit' => 'INCH'
-                ],
-                'weight' => [
-                    'value' => 1.0,
-                    'unit' => 'POUND'
-                ]
-            ]
-        ];
-    }
-    
-    /**
-     * Sipariş senkronizasyonu
-     */
-    public function syncOrders($tenantId = null, $creationDateFrom = null, $creationDateTo = null) {
-        $this->log->write("eBay sipariş senkronizasyonu başlatıldı");
-        
-        try {
-            $filter = [];
-            
-            if ($creationDateFrom) {
-                $filter['creationdate'] = '[' . $creationDateFrom . '..' . ($creationDateTo ?: date('c')) . ']';
-            }
-            
-            $response = $this->makeApiRequest($this->endpoints['fulfillment'] . '/order', 'GET', $filter, $tenantId, 'sell');
-            
-            $syncedCount = 0;
-            $errorCount = 0;
-            
-            if (isset($response['orders']) && is_array($response['orders'])) {
-                foreach ($response['orders'] as $ebayOrder) {
-                    try {
-                        $this->processEbayOrder($ebayOrder, $tenantId);
-                        $syncedCount++;
-                        
-                        // Event tetikle
-                        $this->eventHelper->trigger('order.synced', [
-                            'marketplace' => 'ebay',
-                            'order_id' => $ebayOrder['orderId'],
-                            'amount' => $ebayOrder['pricingSummary']['total']['value'] ?? 0
-                        ], ['type' => 'async']);
-                        
-                    } catch (Exception $e) {
-                        $errorCount++;
-                        $this->log->write("Sipariş sync hatası: " . $e->getMessage());
-                    }
-                }
-            }
-            
-            $this->log->write("Sipariş senkronizasyonu tamamlandı. Başarılı: {$syncedCount}, Hatalı: {$errorCount}");
-            
-            return [
-                'success' => true,
-                'synced_count' => $syncedCount,
-                'error_count' => $errorCount
-            ];
-            
-        } catch (Exception $e) {
-            $this->log->write("Sipariş senkronizasyonu genel hatası: " . $e->getMessage());
-            throw $e;
+        if ($xml === false) {
+            $errors = libxml_get_errors();
+            throw new Exception('XML Parse Error: ' . print_r($errors, true));
         }
-    }
-    
-    /**
-     * eBay siparişini işle
-     */
-    private function processEbayOrder($ebayOrder, $tenantId = null) {
-        // Mevcut sipariş kontrolü
-        $existing = $this->db->query("SELECT * FROM `" . DB_PREFIX . "ebay_orders` 
-            WHERE order_id = '" . $this->db->escape($ebayOrder['orderId']) . "'");
         
-        if ($existing->num_rows) {
-            // Güncelle
-            $this->updateEbayOrder($existing->row, $ebayOrder);
-        } else {
-            // Yeni sipariş oluştur
-            $this->createEbayOrder($ebayOrder, $tenantId);
-        }
+        return json_decode(json_encode($xml), true);
     }
     
     /**
-     * Helper metodlar
+     * Convert array to XML string
+     * 
+     * @param array $array Array to convert
+     * @param string $parent_key Parent key name
+     * @return string
      */
-    private function generateSku($product) {
-        return 'EB-' . str_pad($product['product_id'], 8, '0', STR_PAD_LEFT);
+    private function arrayToXml($array, $parent_key = '') {
+        $xml = '';
+        
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $xml .= '<' . $key . '>' . $this->arrayToXml($value, $key) . '</' . $key . '>';
+            } else {
+                $xml .= '<' . $key . '>' . htmlspecialchars($value) . '</' . $key . '>';
+            }
+        }
+        
+        return $xml;
     }
     
-    private function sanitizeTitle($title) {
-        return substr(strip_tags($title), 0, 80);
+    /**
+     * Enforce rate limiting for API requests
+     * 
+     * @return void
+     */
+    private function enforceRateLimit() {
+        $current_time = microtime(true);
+        $time_diff = $current_time - $this->rate_limiter['last_request_time'];
+        
+        if ($time_diff < (1 / $this->rate_limiter['requests_per_second'])) {
+            $sleep_time = (1 / $this->rate_limiter['requests_per_second']) - $time_diff;
+            usleep($sleep_time * 1000000);
+        }
+        
+        $this->rate_limiter['last_request_time'] = microtime(true);
+        $this->rate_limiter['current_requests']++;
     }
     
-    private function sanitizeDescription($description) {
-        return substr(strip_tags($description), 0, 4000);
+    /**
+     * Validate product data before sending to eBay
+     * 
+     * @param array $product_data Product data
+     * @return bool
+     */
+    private function validateProductData($product_data) {
+        $required_fields = array('name', 'description', 'price', 'quantity', 'sku', 'category_id');
+        
+        foreach ($required_fields as $field) {
+            if (empty($product_data[$field])) {
+                return false;
+            }
+        }
+        
+        return true;
     }
     
-    private function calculateFinalPrice($price) {
-        // eBay fee dahil değil, listing'de belirtilir
-        return round($price, 2);
+    /**
+     * Format product data for eBay API
+     * 
+     * @param array $product_data OpenCart product data
+     * @param string $listing_type Listing type
+     * @return array
+     */
+    private function formatProductForEbay($product_data, $listing_type) {
+        return array(
+            'Title' => substr($product_data['name'], 0, 80), // eBay title limit
+            'Description' => $this->formatDescription($product_data['description']),
+            'PrimaryCategory' => array(
+                'CategoryID' => $this->mapToEbayCategory($product_data['category_id'])
+            ),
+            'StartPrice' => $product_data['price'],
+            'Quantity' => $product_data['quantity'],
+            'SKU' => $product_data['sku'],
+            'Country' => 'US',
+            'Currency' => 'USD',
+            'DispatchTimeMax' => 3,
+            'ListingDuration' => 'GTC', // Good Till Cancelled
+            'ListingType' => $listing_type,
+            'PaymentMethods' => array('PayPal', 'VisaMC'),
+            'PictureDetails' => $this->formatPictureDetails($product_data),
+            'ReturnPolicy' => $this->getDefaultReturnPolicy(),
+            'ShippingDetails' => $this->getDefaultShippingDetails()
+        );
     }
     
-    private function mapCategory($categoryId) {
-        // Kategori mapping logic burada
-        return '177'; // Computers/Tablets & Networking
+    /**
+     * Format orders data from eBay
+     * 
+     * @param array $ebay_orders Raw eBay orders data
+     * @return array
+     */
+    private function formatOrdersData($ebay_orders) {
+        $formatted_orders = array();
+        
+        // Ensure we have an array of orders
+        if (!isset($ebay_orders[0])) {
+            $ebay_orders = array($ebay_orders);
+        }
+        
+        foreach ($ebay_orders as $order) {
+            $formatted_orders[] = array(
+                'ebay_order_id' => $order['OrderID'],
+                'created_date' => $order['CreatedTime'],
+                'order_status' => $order['OrderStatus'],
+                'total_amount' => $order['Total']['_'],
+                'currency' => $order['Total']['@attributes']['currencyID'],
+                'buyer_id' => $order['BuyerUserID'],
+                'buyer_email' => $order['TransactionArray']['Transaction']['Buyer']['Email'] ?? '',
+                'shipping_address' => $this->formatShippingAddress($order['ShippingAddress'] ?? array())
+            );
+        }
+        
+        return $formatted_orders;
     }
     
-    private function prepareImages($productId) {
-        // Ürün resimlerini hazırla
-        return []; // Placeholder
+    /**
+     * Format shipping address from eBay order
+     * 
+     * @param array $address eBay address data
+     * @return array
+     */
+    private function formatShippingAddress($address) {
+        return array(
+            'name' => $address['Name'] ?? '',
+            'street1' => $address['Street1'] ?? '',
+            'street2' => $address['Street2'] ?? '',
+            'city' => $address['CityName'] ?? '',
+            'state' => $address['StateOrProvince'] ?? '',
+            'postal_code' => $address['PostalCode'] ?? '',
+            'country' => $address['CountryName'] ?? ''
+        );
     }
     
-    private function prepareAspects($productId) {
-        // Ürün özelliklerini hazırla
-        return []; // Placeholder
+    /**
+     * Format categories data from eBay
+     * 
+     * @param array $categories eBay categories data
+     * @return array
+     */
+    private function formatCategoriesData($categories) {
+        $formatted_categories = array();
+        
+        if (!isset($categories[0])) {
+            $categories = array($categories);
+        }
+        
+        foreach ($categories as $category) {
+            $formatted_categories[] = array(
+                'category_id' => $category['CategoryID'],
+                'category_name' => $category['CategoryName'],
+                'category_level' => $category['CategoryLevel'],
+                'parent_id' => $category['CategoryParentID'] ?? 0,
+                'leaf_category' => isset($category['LeafCategory']) ? $category['LeafCategory'] === 'true' : false
+            );
+        }
+        
+        return $formatted_categories;
     }
     
-    private function createEbayOrder($ebayOrder, $tenantId = null) {
-        // Yeni eBay siparişi oluştur
-        // Implementation burada
+    /**
+     * Additional helper methods for eBay-specific functionality
+     */
+    
+    private function formatDescription($description) {
+        return strip_tags($description, '<p><br><strong><b><i><em><ul><ol><li>');
     }
     
-    private function updateEbayOrder($existing, $ebayOrder) {
-        // Mevcut siparişi güncelle
-        // Implementation burada
+    private function mapToEbayCategory($opencart_category_id) {
+        // This would map OpenCart categories to eBay categories
+        // For now, return a default category
+        return '888'; // Other category
+    }
+    
+    private function formatPictureDetails($product_data) {
+        if (!empty($product_data['image'])) {
+            return array(
+                'PictureURL' => array($product_data['image'])
+            );
+        }
+        return array();
+    }
+    
+    private function getDefaultReturnPolicy() {
+        return array(
+            'ReturnsAcceptedOption' => 'ReturnsAccepted',
+            'RefundOption' => 'MoneyBack',
+            'ReturnsWithinOption' => 'Days_30'
+        );
+    }
+    
+    private function getDefaultShippingDetails() {
+        return array(
+            'ShippingType' => 'Flat',
+            'ShippingServiceOptions' => array(
+                'ShippingServicePriority' => 1,
+                'ShippingService' => 'USPSMedia',
+                'ShippingServiceCost' => '2.50'
+            )
+        );
+    }
+    
+    private function formatItemData($item) {
+        return array(
+            'item_id' => $item['ItemID'],
+            'title' => $item['Title'],
+            'current_price' => $item['SellingStatus']['CurrentPrice']['_'] ?? 0,
+            'currency' => $item['SellingStatus']['CurrentPrice']['@attributes']['currencyID'] ?? 'USD',
+            'quantity' => $item['Quantity'] ?? 0,
+            'sku' => $item['SKU'] ?? '',
+            'listing_type' => $item['ListingType'] ?? '',
+            'time_left' => $item['SellingStatus']['TimeLeft'] ?? ''
+        );
+    }
+    
+    private function findExistingItem($product_data) {
+        // Search for existing item by SKU or other identifier
+        return false; // Placeholder
+    }
+    
+    private function reviseItem($item_id, $item_data) {
+        $params = array('Item' => array_merge(array('ItemID' => $item_id), $item_data));
+        return $this->makeApiRequest('ReviseFixedPriceItem', $params);
+    }
+    
+    private function addFixedPriceItem($item_data) {
+        $params = array('Item' => $item_data);
+        return $this->makeApiRequest('AddFixedPriceItem', $params);
     }
 }
-?> 
