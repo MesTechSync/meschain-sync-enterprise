@@ -2,93 +2,15 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Safe Save (VSCode Team)",
-            "type": "shell",
-            "command": "./enhanced_file_conflict_prevention_system.sh",
             "args": [
-                "save",
-                "vscode",
-                "${file}"
+                "advanced_marketplace_engine_vscode.js"
             ],
+            "command": "node",
             "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            }
-        },
-        {
-            "label": "Check File Locks",
-            "type": "shell",
-            "command": "./enhanced_file_conflict_prevention_system.sh",
-            "args": [
-                "locks"
-            ],
-            "group": "build"
-        },
-        {
-            "label": "Release All Locks",
-            "type": "shell",
-            "command": "./enhanced_file_conflict_prevention_system.sh",
-            "args": [
-                "release-all"
-            ],
-            "group": "build"
-        },
-        {
-            "type": "func",
-            "label": "func: host start",
-            "command": "host start",
-            "problemMatcher": "$func-node-watch",
             "isBackground": true,
-            "dependsOn": "npm watch (functions)",
-            "options": {
-                "cwd": "${workspaceFolder}/azure-functions"
-            }
-        },
-        {
-            "type": "shell",
-            "label": "npm build (functions)",
-            "command": "npm run build",
-            "dependsOn": "npm install (functions)",
-            "problemMatcher": "$tsc",
-            "options": {
-                "cwd": "${workspaceFolder}/azure-functions"
-            }
-        },
-        {
-            "type": "shell",
-            "label": "npm watch (functions)",
-            "command": "npm run watch",
-            "dependsOn": "npm install (functions)",
-            "problemMatcher": "$tsc-watch",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "isBackground": true,
-            "options": {
-                "cwd": "${workspaceFolder}/azure-functions"
-            }
-        },
-        {
-            "type": "shell",
-            "label": "npm install (functions)",
-            "command": "npm install",
-            "options": {
-                "cwd": "${workspaceFolder}/azure-functions"
-            }
-        },
-        {
-            "type": "shell",
-            "label": "npm prune (functions)",
-            "command": "npm prune --production",
-            "dependsOn": "npm build (functions)",
+            "label": "Restart Marketplace Engine",
             "problemMatcher": [],
-            "options": {
-                "cwd": "${workspaceFolder}/azure-functions"
-            }
+            "type": "shell"
         }
     ]
 }
