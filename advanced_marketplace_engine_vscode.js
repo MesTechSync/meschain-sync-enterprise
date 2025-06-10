@@ -150,6 +150,36 @@ class AdvancedMarketplaceEngine {
             }
         });
 
+        // OpenCart Enterprise Integration - NEW!
+        this.marketplaces.set('opencart', {
+            name: 'OpenCart Enterprise',
+            apiEndpoint: 'http://localhost:3008/api',
+            type: 'internal_system',
+            features: {
+                productManagement: true,
+                orderProcessing: true,
+                inventorySync: true,
+                barcodeScanning: true,
+                aiPoweredAnalytics: true,
+                realTimeUpdates: true,
+                multiStoreSupport: true,
+                customerBehaviorAnalysis: true,
+                salesForecasting: true,
+                inventoryOptimization: true
+            },
+            performance: {
+                responseTime: 85,
+                uptime: 99.95,
+                errorRate: 0.05,
+                throughput: 5000
+            },
+            aiMetrics: {
+                behaviorAnalysisAccuracy: 94.7,
+                salesForecastAccuracy: 91.3,
+                productRecommendationAccuracy: 88.9
+            }
+        });
+        
         console.log(`✅ ${this.marketplaces.size} marketplace connectors initialized`);
     }
 

@@ -16,7 +16,15 @@
     "deploy:dropshipping": "node -r ts-node/register src/deployment/DropshippingOptimizationDeployer.ts",
     "test:performance": "node -r ts-node/register src/testing/DropshippingPerformanceTestSuite.ts",
     "monitor:dashboard": "node -r ts-node/register src/monitoring/PerformanceDashboard.ts",
-    "optimize:dropshipping": "npm run deploy:dropshipping && npm run test:performance"
+    "optimize:dropshipping": "npm run deploy:dropshipping && npm run test:performance",
+    "opencart:start": "node start_opencart_integration.js",
+    "opencart:dev": "NODE_ENV=development node start_opencart_integration.js",
+    "opencart:test": "NODE_ENV=test node start_opencart_integration.js",
+    "marketplace:start": "node advanced_marketplace_engine_vscode.js",
+    "marketplace:restart": "pkill -f advanced_marketplace_engine_vscode.js; node advanced_marketplace_engine_vscode.js",
+    "start:all": "concurrently \"npm run marketplace:start\" \"npm run opencart:start\" \"npm start\"",
+    "start:backend": "concurrently \"npm run marketplace:start\" \"npm run opencart:start\"",
+    "kill:all": "pkill -f 'node.*marketplace'; pkill -f 'node.*opencart'; pkill -f 'react-scripts'"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
@@ -38,9 +46,11 @@
     "chart.js": "^4.4.9",
     "chartjs-adapter-date-fns": "^3.0.0",
     "compression": "^1.8.0",
+    "concurrently": "^9.1.2",
     "cors": "^2.8.5",
     "d3": "^7.8.5",
     "date-fns": "^2.29.3",
+    "dotenv": "^16.5.0",
     "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "express-rate-limit": "^7.5.0",
@@ -98,6 +108,8 @@
     "socket.io-client": "^4.6.1",
     "styled-components": "^6.1.0",
     "uuid": "^9.0.0",
+    "winston": "^3.17.0",
+    "ws": "^8.18.2",
     "xlsx": "^0.18.5",
     "zustand": "^4.3.6"
   },
