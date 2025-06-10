@@ -1,0 +1,412 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" class="btn btn-primary" onclick="runCron()">
+          <i class="fa fa-play"></i> Manuel Cron Çalıştır
+        </button>
+        <button type="button" class="btn btn-info" onclick="processQueue()">
+          <i class="fa fa-cogs"></i> Queue İşle
+        </button>
+        <button type="button" class="btn btn-warning" onclick="cleanupQueue()">
+          <i class="fa fa-trash"></i> Queue Temizle
+        </button>
+      </div>
+      <h1>Cron Job ve Queue Yönetimi</h1>
+      <ul class="breadcrumb">
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Sistem Durumu -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-clock-o fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="cronJobsCount">{{ cron_jobs|length }}</div>
+                <div>Cron Jobs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-list fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="queuePending">
+                  {{ queue_stats.pending ?? 0 }}
+                </div>
+                <div>Bekleyen Jobs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-spinner fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="queueProcessing">
+                  {{ queue_stats.processing ?? 0 }}
+                </div>
+                <div>İşlenen Jobs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-exclamation-triangle fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="queueFailed">
+                  {{ queue_stats.failed ?? 0 }}
+                </div>
+                <div>Başarısız Jobs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Cron Jobs Tablosu -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-clock-o"></i> Cron Jobs
+          <button type="button" class="btn btn-sm btn-success pull-right" onclick="showAddJobModal()">
+            <i class="fa fa-plus"></i> Yeni Job Ekle
+          </button>
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Ad</th>
+                <th>Tip</th>
+                <th>Marketplace</th>
+                <th>Sıklık</th>
+                <th>Durum</th>
+                <th>Son Çalışma</th>
+                <th>Sonraki Çalışma</th>
+                <th>İşlemler</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for job in cron_jobs %}
+              <tr>
+                <td>{{ job.id }}</td>
+                <td>{{ job.name }}</td>
+                <td>
+                  <span class="label label-info">{{ job.job_type }}</span>
+                </td>
+                <td>{{ job.marketplace }}</td>
+                <td>{{ job.frequency }}</td>
+                <td>
+                  {% if job.is_active == 1 %}
+                    {% if job.status == 'completed' %}
+                      <span class="label label-success">Aktif</span>
+                    {% elseif job.status == 'failed' %}
+                      <span class="label label-danger">Başarısız</span>
+                    {% elseif job.status == 'running' %}
+                      <span class="label label-warning">Çalışıyor</span>
+                    {% else %}
+                      <span class="label label-primary">Bekliyor</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="label label-default">Pasif</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if job.last_run %}
+                    {{ job.last_run|date('d.m.Y H:i') }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if job.next_run %}
+                    {{ job.next_run|date('d.m.Y H:i') }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group">
+                    {% if job.is_active == 1 %}
+                      <button class="btn btn-sm btn-warning" onclick="toggleJob({{ job.id }}, 0)">
+                        <i class="fa fa-pause"></i> Durdur
+                      </button>
+                    {% else %}
+                      <button class="btn btn-sm btn-success" onclick="toggleJob({{ job.id }}, 1)">
+                        <i class="fa fa-play"></i> Başlat
+                      </button>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Yeni Job Ekleme Modal -->
+<div class="modal fade" id="addJobModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Yeni Cron Job Ekle</h4>
+      </div>
+      <div class="modal-body">
+        <form id="addJobForm">
+          <div class="form-group">
+            <label>Job Adı</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Job Tipi</label>
+            <select class="form-control" name="job_type" required>
+              <option value="product_sync">Ürün Senkronizasyonu</option>
+              <option value="order_sync">Sipariş Senkronizasyonu</option>
+              <option value="stock_update">Stok Güncelleme</option>
+              <option value="price_update">Fiyat Güncelleme</option>
+              <option value="health_check">Sistem Kontrolü</option>
+              <option value="log_cleanup">Log Temizleme</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Marketplace</label>
+            <select class="form-control" name="marketplace">
+              <option value="">Tümü</option>
+              <option value="trendyol">Trendyol</option>
+              <option value="n11">N11</option>
+              <option value="ozon">Ozon</option>
+              <option value="amazon">Amazon</option>
+              <option value="hepsiburada">Hepsiburada</option>
+              <option value="ebay">eBay</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Sıklık</label>
+            <select class="form-control" name="frequency">
+              <option value="minute">Her Dakika</option>
+              <option value="hourly">Saatlik</option>
+              <option value="daily">Günlük</option>
+              <option value="weekly">Haftalık</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Öncelik</label>
+            <select class="form-control" name="priority">
+              <option value="0">Düşük</option>
+              <option value="1">Normal</option>
+              <option value="2">Yüksek</option>
+              <option value="3">Kritik</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Parametreler (JSON)</label>
+            <textarea class="form-control" name="parameters" rows="3">{}</textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">İptal</button>
+        <button type="button" class="btn btn-primary" onclick="addJob()">Ekle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.huge {
+    font-size: 40px;
+}
+
+.panel-green {
+    border-color: #5cb85c;
+}
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+.panel-red > .panel-heading {
+    border-color: #d9534f;
+    color: white;
+    background-color: #d9534f;
+}
+</style>
+
+<script>
+// Manuel cron çalıştırma
+function runCron() {
+    $.ajax({
+        url: 'index.php?route=extension/module/meschain_cron_manager/runCron&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                alert(json.success);
+                location.reload();
+            } else if (json.error) {
+                alert(json.error);
+            }
+        },
+        error: function() {
+            alert('Bir hata oluştu');
+        }
+    });
+}
+
+// Queue işleme
+function processQueue() {
+    $.ajax({
+        url: 'index.php?route=extension/module/meschain_cron_manager/processQueue&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                alert(json.success);
+                location.reload();
+            } else if (json.error) {
+                alert(json.error);
+            }
+        }
+    });
+}
+
+// Queue temizleme
+function cleanupQueue() {
+    if (confirm('Tamamlanan jobları silmek istediğinizden emin misiniz?')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/meschain_cron_manager/cleanupQueue&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    alert(json.success);
+                    location.reload();
+                } else if (json.error) {
+                    alert(json.error);
+                }
+            }
+        });
+    }
+}
+
+// Job durumunu değiştir
+function toggleJob(jobId, isActive) {
+    $.ajax({
+        url: 'index.php?route=extension/module/meschain_cron_manager/toggleCronJob&user_token={{ user_token }}',
+        type: 'POST',
+        data: {
+            job_id: jobId,
+            is_active: isActive
+        },
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                location.reload();
+            } else if (json.error) {
+                alert(json.error);
+            }
+        }
+    });
+}
+
+// Yeni job modal
+function showAddJobModal() {
+    $('#addJobModal').modal('show');
+}
+
+// Yeni job ekleme
+function addJob() {
+    var formData = $('#addJobForm').serialize();
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/meschain_cron_manager/addCronJob&user_token={{ user_token }}',
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                $('#addJobModal').modal('hide');
+                location.reload();
+            } else if (json.error) {
+                alert(json.error);
+            }
+        }
+    });
+}
+
+// Otomatik yenileme
+setInterval(function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/meschain_cron_manager/systemStatus&user_token={{ user_token }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                // Sayıları güncelle
+                $('#queuePending').text(json.queue.pending || 0);
+                $('#queueProcessing').text(json.queue.processing || 0);
+                $('#queueFailed').text(json.queue.failed || 0);
+            }
+        }
+    });
+}, 30000); // 30 saniyede bir güncelle
+</script>
+
+{{ footer }} 
