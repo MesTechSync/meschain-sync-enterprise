@@ -17,9 +17,11 @@ import HepsiburadaPage from './components/Marketplace/HepsiburadaPage';
 import EbayPage from './components/Marketplace/EbayPage';
 import OzonPage from './components/Marketplace/OzonPage';
 
+// Other Pages
+import OrdersPage from './components/Orders/OrdersPage';
+import ProductsPage from './components/Products/ProductsPage';
+
 // Placeholder components for other pages
-const ProductsPage = () => <div>Ürünler Sayfası</div>;
-const OrdersPage = () => <div>Siparişler Sayfası</div>;
 const InventoryPage = () => <div>Stok Yönetimi Sayfası</div>;
 const ReportsPage = () => <div>Raporlar Sayfası</div>;
 const SettingsPage = () => <div>Ayarlar Sayfası</div>;
