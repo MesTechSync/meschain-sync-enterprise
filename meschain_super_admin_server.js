@@ -113,6 +113,13 @@ app.listen(PORT, () => {
     console.log('✅ Süper Admin Panel başarıyla çalışıyor!');
     console.log('🌐 Tarayıcınızda http://localhost:3000 adresini ziyaret edin');
     console.log('🚀 ═══════════════════════════════════════════════════════════════');
+    console.log('🎛️ Super Admin: localhost:3023');
+    console.log('👥 Team Coord: localhost:3024');
+    console.log('⚡ Performance: localhost:4014');
+    console.log('💡 Innovation: localhost:4015');
+    console.log('🛒 Amazon: localhost:4016');
+    console.log('🇹🇷 N11: localhost:4017');
+    console.log('🛍️ Hepsiburada: localhost:4018');
 });
 
 // Graceful shutdown
