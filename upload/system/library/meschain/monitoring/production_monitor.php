@@ -52,6 +52,9 @@ class MesChainProductionMonitor {
         // Cache'e kaydet
         $this->cache->set('meschain_system_health', $health, 300); // 5 dakika
         
+        // Alert kontrolü yap
+        $this->triggerAlertCheck($health);
+        
         return $health;
     }
     
@@ -334,6 +337,19 @@ class MesChainProductionMonitor {
             return 'degraded';
         } else {
             return 'unhealthy';
+        }
+    }
+    
+    /**
+     * Alert kontrolü tetikle
+     */
+    private function triggerAlertCheck($health) {
+        try {
+            require_once(DIR_SYSTEM . 'library/meschain/alert/alert_manager.php');
+            $alert_manager = new MesChainAlertManager($this->db, $this->logger, $this->config);
+            $alert_manager->checkAndTriggerAlerts($health);
+        } catch (Exception $e) {
+            $this->logger->error('Alert kontrol hatası: ' . $e->getMessage());
         }
     }
     
