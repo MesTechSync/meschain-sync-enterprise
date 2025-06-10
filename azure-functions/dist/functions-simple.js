@@ -34,4 +34,3 @@ functions_1.app.http('test', {
     authLevel: 'anonymous',
     handler: test
 });
-//# sourceMappingURL=functions-simple.js.map

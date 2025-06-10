@@ -355,7 +355,7 @@ export class DataImporter {
           
           resolve(jsonData);
         } catch (error) {
-          reject(new Error(`Excel import failed: ${error.message}`));
+          reject(new Error(`Excel import failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
         }
       };
       
@@ -387,7 +387,7 @@ export class DataImporter {
             
             resolve(data);
           } catch (error) {
-            reject(new Error(`CSV import failed: ${error.message}`));
+            reject(new Error(`CSV import failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
           }
         },
         error: (error) => reject(new Error(`CSV parsing failed: ${error.message}`))
@@ -423,7 +423,7 @@ export class DataImporter {
           
           resolve(data);
         } catch (error) {
-          reject(new Error(`JSON import failed: ${error.message}`));
+          reject(new Error(`JSON import failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
         }
       };
       

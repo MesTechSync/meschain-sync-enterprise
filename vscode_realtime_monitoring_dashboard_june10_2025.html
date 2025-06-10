@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSCode Team - Real-time Backend Monitoring Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        .card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .status-online {
+            color: #28a745;
+            animation: pulse 2s infinite;
+        }
+        .status-offline {
+            color: #dc3545;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+            color: white;
+        }
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .activity-log {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .activity-item {
+            color: white;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .notification-area {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .notification {
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        .connected {
+            background: rgba(40, 167, 69, 0.9);
+        }
+        .disconnected {
+            background: rgba(220, 53, 69, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h2 class="text-white mb-0">
+                                    <i class="bi bi-speedometer2"></i>
+                                    VSCode Team - Real-time Backend Monitoring
+                                </h2>
+                                <small class="text-white-50">10 Haziran 2025 - Live System Status</small>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-outline-light btn-sm" onclick="testAllServices()">
+                                    <i class="bi bi-arrow-clockwise"></i> Test All Services
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Status Cards -->
+        <div class="row mb-4">
+            <div class="col-md-2">
+                <div class="metric-card" id="service-dropshipping">
+                    <div class="metric-value">
+                        <i class="bi bi-truck status-offline" id="status-3035"></i>
+                    </div>
+                    <div class="metric-label">Dropshipping<br>Port 3035</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card" id="service-usermgmt">
+                    <div class="metric-value">
+                        <i class="bi bi-shield-check status-offline" id="status-3036"></i>
+                    </div>
+                    <div class="metric-label">User Mgmt<br>Port 3036</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card" id="service-realtime">
+                    <div class="metric-value">
+                        <i class="bi bi-broadcast status-offline" id="status-3039"></i>
+                    </div>
+                    <div class="metric-label">Real-time<br>Port 3039</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card" id="service-marketplace">
+                    <div class="metric-value">
+                        <i class="bi bi-shop status-offline" id="status-3040"></i>
+                    </div>
+                    <div class="metric-label">Marketplace<br>Port 3040</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card" id="service-azure">
+                    <div class="metric-value">
+                        <i class="bi bi-cloud status-offline" id="status-7071"></i>
+                    </div>
+                    <div class="metric-label">Azure Functions<br>Port 7071</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <div class="metric-value text-success" id="total-services">0/5</div>
+                    <div class="metric-label">Services Online</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value text-info" id="websocket-connections">0</div>
+                    <div class="metric-label">WebSocket Connections</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value text-warning" id="active-users">0</div>
+                    <div class="metric-label">Active Users</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value text-success" id="response-time">--</div>
+                    <div class="metric-label">Avg Response Time (ms)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value text-danger" id="error-count">0</div>
+                    <div class="metric-label">Errors (Last Hour)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Activity -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="text-white mb-0">
+                            <i class="bi bi-graph-up"></i> Real-time Performance Metrics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="performanceChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="text-white mb-0">
+                            <i class="bi bi-activity"></i> Live Activity Log
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-log" id="activity-log">
+                            <div class="activity-item">System monitoring started...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WebSocket Test Area -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="text-white mb-0">
+                            <i class="bi bi-wifi"></i> WebSocket Connection Test
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <button class="btn btn-success me-2" onclick="connectWebSocket()">
+                                <i class="bi bi-plug"></i> Connect WebSocket
+                            </button>
+                            <button class="btn btn-danger me-2" onclick="disconnectWebSocket()">
+                                <i class="bi bi-plug-fill"></i> Disconnect
+                            </button>
+                            <button class="btn btn-info" onclick="sendTestMessage()">
+                                <i class="bi bi-send"></i> Send Test Message
+                            </button>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="text-white">Test Message:</label>
+                            <input type="text" class="form-control" id="test-message" value="Hello from VSCode Team Dashboard!">
+                        </div>
+                        <div class="form-group">
+                            <label class="text-white">WebSocket Messages:</label>
+                            <div id="websocket-messages" class="activity-log" style="height: 200px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="text-white mb-0">
+                            <i class="bi bi-tools"></i> API Test Center
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="text-white">Select Service:</label>
+                            <select class="form-select" id="api-service">
+                                <option value="3035">Dropshipping Backend</option>
+                                <option value="3036">User Management</option>
+                                <option value="3039">Real-time Features</option>
+                                <option value="3040">Advanced Marketplace</option>
+                                <option value="7071">Azure Functions</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <button class="btn btn-primary me-2" onclick="testHealth()">
+                                <i class="bi bi-heart-pulse"></i> Health Check
+                            </button>
+                            <button class="btn btn-secondary" onclick="testPerformance()">
+                                <i class="bi bi-speedometer"></i> Performance Test
+                            </button>
+                        </div>
+                        <div>
+                            <label class="text-white">API Response:</label>
+                            <pre id="api-response" class="activity-log" style="height: 200px; font-size: 0.8rem;"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Area -->
+    <div class="notification-area" id="notifications"></div>
+
+    <!-- Connection Status -->
+    <div class="connection-status disconnected" id="connection-status">
+        <i class="bi bi-wifi-off"></i> Disconnected
+    </div>
+
+    <script>
+        // Global variables
+        let socket = null;
+        let performanceChart = null;
+        let serviceStatus = {};
+        let performanceData = {
+            labels: [],
+            datasets: [{
+                label: 'Response Time (ms)',
+                data: [],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }]
+        };
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChart();
+            testAllServices();
+            setInterval(testAllServices, 30000); // Test every 30 seconds
+            setInterval(updatePerformanceChart, 5000); // Update chart every 5 seconds
+        });
+
+        // Initialize performance chart
+        function initializeChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: performanceData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Test all services
+        async function testAllServices() {
+            const services = [
+                { port: 3035, endpoint: 'api/dropshipping/health' },
+                { port: 3036, endpoint: 'api/user-mgmt/health' },
+                { port: 3039, endpoint: 'api/realtime/health' },
+                { port: 3040, endpoint: 'api/advanced-marketplace/health' },
+                { port: 7071, endpoint: 'api/health' }
+            ];
+
+            let onlineCount = 0;
+            
+            for (let service of services) {
+                try {
+                    const startTime = Date.now();
+                    const response = await fetch(`http://localhost:${service.port}/${service.endpoint}`);
+                    const responseTime = Date.now() - startTime;
+                    
+                    if (response.ok) {
+                        serviceStatus[service.port] = { status: 'online', responseTime };
+                        document.getElementById(`status-${service.port}`).className = 'bi bi-check-circle status-online';
+                        onlineCount++;
+                        logActivity(`✅ Port ${service.port}: Service healthy (${responseTime}ms)`);
+                    } else {
+                        serviceStatus[service.port] = { status: 'error', responseTime };
+                        document.getElementById(`status-${service.port}`).className = 'bi bi-exclamation-triangle status-offline';
+                        logActivity(`⚠️ Port ${service.port}: Service error (HTTP ${response.status})`);
+                    }
+                } catch (error) {
+                    serviceStatus[service.port] = { status: 'offline', responseTime: 0 };
+                    document.getElementById(`status-${service.port}`).className = 'bi bi-x-circle status-offline';
+                    logActivity(`❌ Port ${service.port}: Service offline`);
+                }
+            }
+
+            document.getElementById('total-services').textContent = `${onlineCount}/5`;
+            
+            // Update average response time
+            const responseTimes = Object.values(serviceStatus).map(s => s.responseTime).filter(t => t > 0);
+            const avgResponseTime = responseTimes.length > 0 ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length) : 0;
+            document.getElementById('response-time').textContent = avgResponseTime > 0 ? `${avgResponseTime}ms` : '--';
+        }
+
+        // WebSocket connection functions
+        function connectWebSocket() {
+            if (socket && socket.connected) {
+                showNotification('WebSocket already connected!', 'warning');
+                return;
+            }
+
+            socket = io('http://localhost:3039');
+
+            socket.on('connect', () => {
+                document.getElementById('connection-status').className = 'connection-status connected';
+                document.getElementById('connection-status').innerHTML = '<i class="bi bi-wifi"></i> Connected';
+                showNotification('WebSocket connected successfully!', 'success');
+                logWebSocketMessage('Connected to WebSocket server');
+                
+                // Authenticate
+                socket.emit('authenticate', {
+                    userId: 'dashboard-user',
+                    token: 'dashboard-token'
+                });
+            });
+
+            socket.on('disconnect', () => {
+                document.getElementById('connection-status').className = 'connection-status disconnected';
+                document.getElementById('connection-status').innerHTML = '<i class="bi bi-wifi-off"></i> Disconnected';
+                showNotification('WebSocket disconnected', 'danger');
+                logWebSocketMessage('Disconnected from WebSocket server');
+            });
+
+            socket.on('authenticated', (data) => {
+                logWebSocketMessage(`Authenticated: ${JSON.stringify(data)}`);
+            });
+
+            socket.on('notification', (data) => {
+                logWebSocketMessage(`Notification: ${data.title} - ${data.message}`);
+                showNotification(`${data.title}: ${data.message}`, 'info');
+            });
+
+            socket.on('system_status', (data) => {
+                document.getElementById('websocket-connections').textContent = data.connections;
+                document.getElementById('active-users').textContent = data.userSessions;
+                logWebSocketMessage(`System status update: ${data.connections} connections`);
+            });
+
+            socket.on('message_received', (data) => {
+                logWebSocketMessage(`Message received: ${JSON.stringify(data)}`);
+            });
+        }
+
+        function disconnectWebSocket() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+        }
+
+        function sendTestMessage() {
+            if (!socket || !socket.connected) {
+                showNotification('WebSocket not connected!', 'danger');
+                return;
+            }
+
+            const message = document.getElementById('test-message').value;
+            socket.emit('message', {
+                text: message,
+                timestamp: new Date().toISOString(),
+                from: 'dashboard'
+            });
+            logWebSocketMessage(`Sent: ${message}`);
+        }
+
+        // API testing functions
+        async function testHealth() {
+            const port = document.getElementById('api-service').value;
+            const endpoints = {
+                '3035': 'api/dropshipping/health',
+                '3036': 'api/user-mgmt/health',
+                '3039': 'api/realtime/health',
+                '3040': 'api/advanced-marketplace/health',
+                '7071': 'api/health'
+            };
+
+            try {
+                const response = await fetch(`http://localhost:${port}/${endpoints[port]}`);
+                const data = await response.json();
+                document.getElementById('api-response').textContent = JSON.stringify(data, null, 2);
+                logActivity(`API Test (${port}): Health check successful`);
+            } catch (error) {
+                document.getElementById('api-response').textContent = `Error: ${error.message}`;
+                logActivity(`API Test (${port}): Health check failed`);
+            }
+        }
+
+        async function testPerformance() {
+            const port = document.getElementById('api-service').value;
+            const endpoints = {
+                '3035': 'api/dropshipping/analytics/dashboard',
+                '3036': 'api/security/dashboard',
+                '3039': 'api/realtime/dashboard',
+                '3040': 'api/advanced-marketplace/analytics/dashboard',
+                '7071': 'api/health'
+            };
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`http://localhost:${port}/${endpoints[port]}`);
+                const responseTime = Date.now() - startTime;
+                const data = await response.json();
+                
+                document.getElementById('api-response').textContent = 
+                    `Response Time: ${responseTime}ms\n\n` + JSON.stringify(data, null, 2);
+                logActivity(`Performance Test (${port}): ${responseTime}ms response time`);
+            } catch (error) {
+                document.getElementById('api-response').textContent = `Error: ${error.message}`;
+                logActivity(`Performance Test (${port}): Test failed`);
+            }
+        }
+
+        // Utility functions
+        function logActivity(message) {
+            const log = document.getElementById('activity-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+            item.textContent = `${timestamp} - ${message}`;
+            log.insertBefore(item, log.firstChild);
+            
+            // Keep only last 50 entries
+            while (log.children.length > 50) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function logWebSocketMessage(message) {
+            const log = document.getElementById('websocket-messages');
+            const timestamp = new Date().toLocaleTimeString();
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+            item.textContent = `${timestamp} - ${message}`;
+            log.insertBefore(item, log.firstChild);
+            
+            // Keep only last 30 entries
+            while (log.children.length > 30) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notifications = document.getElementById('notifications');
+            const notification = document.createElement('div');
+            notification.className = `notification alert alert-${type}`;
+            notification.textContent = message;
+            notifications.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        function updatePerformanceChart() {
+            const now = new Date();
+            const timeLabel = now.toLocaleTimeString();
+            
+            // Calculate average response time from current service status
+            const responseTimes = Object.values(serviceStatus).map(s => s.responseTime).filter(t => t > 0);
+            const avgResponseTime = responseTimes.length > 0 ? 
+                Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length) : 0;
+
+            performanceData.labels.push(timeLabel);
+            performanceData.datasets[0].data.push(avgResponseTime);
+
+            // Keep only last 20 data points
+            if (performanceData.labels.length > 20) {
+                performanceData.labels.shift();
+                performanceData.datasets[0].data.shift();
+            }
+
+            performanceChart.update('none');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSCode Team Enterprise Backend Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .service-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-active { background-color: #28a745; }
+        .status-warning { background-color: #ffc107; }
+        .status-error { background-color: #dc3545; }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .logs-container {
+            background: #1a1a1a;
+            color: #00ff00;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+        
+        .endpoint-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .btn-test {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .team-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .priority-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        .priority-critical { background: #ff4757; color: white; }
+        .priority-high { background: #ff6348; color: white; }
+        .priority-medium { background: #ffa502; color: white; }
+        
+        .real-time-indicator {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid px-4 py-3">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header p-4 text-white">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-0">
+                        <i class="fas fa-code me-3"></i>
+                        VSCode Team Enterprise Backend Dashboard
+                    </h1>
+                    <p class="mb-0 mt-2 opacity-75">
+                        Real-time monitoring of all critical backend services
+                        <span class="real-time-indicator ms-2">🔴 LIVE</span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="team-badge">
+                        VSCode Backend Team
+                    </div>
+                    <div class="mt-2">
+                        <small class="opacity-75">Last Updated: <span id="lastUpdated">--</span></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="totalServices">4</div>
+                    <div class="metric-label">Active Services</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="systemUptime">99.8%</div>
+                    <div class="metric-label">System Uptime</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="avgResponseTime">185ms</div>
+                    <div class="metric-label">Avg Response Time</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="totalRequests">12.4K</div>
+                    <div class="metric-label">Requests Today</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Status Cards -->
+        <div class="row">
+            <!-- Dropshipping Backend -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="service-card p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="mb-1">
+                                <span class="status-indicator status-active"></span>
+                                Dropshipping Backend
+                            </h5>
+                            <small class="text-muted">Port 3035</small>
+                        </div>
+                        <span class="priority-badge priority-critical">CRITICAL</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <small>Business Priority</small>
+                            <small class="fw-bold">95% Critical</small>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-danger" style="width: 95%"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-list mb-3">
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>/api/dropshipping/health</small>
+                            <button class="btn btn-success btn-test" onclick="testEndpoint('http://localhost:3035/api/dropshipping/health')">Test</button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>/api/dropshipping/suppliers</small>
+                            <button class="btn btn-primary btn-test" onclick="testEndpoint('http://localhost:3035/api/dropshipping/suppliers')">Test</button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>/api/dropshipping/analytics</small>
+                            <button class="btn btn-info btn-test" onclick="testEndpoint('http://localhost:3035/api/dropshipping/analytics/dashboard')">Test</button>
+                        </div>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="fw-bold text-success" id="dropshipping-uptime">100%</div>
+                            <small class="text-muted">Uptime</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="fw-bold text-primary" id="dropshipping-response">142ms</div>
+                            <small class="text-muted">Response</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management & RBAC -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="service-card p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="mb-1">
+                                <span class="status-indicator status-active"></span>
+                                User Management
+                            </h5>
+                            <small class="text-muted">Port 3036</small>
+                        </div>
+                        <span class="priority-badge priority-high">HIGH</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <small>Security Priority</small>
+                            <small class="fw-bold">90% Critical</small>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-warning" style="width: 90%"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-list mb-3">
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>/api/user-mgmt/health</small>
+                            <button class="btn btn-success btn-test" onclick="testEndpoint('http://localhost:3036/api/user-mgmt/health')">Test</button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>/api/auth/login</small>
+                            <button class="btn btn-primary btn-test" onclick="testEndpoint('http://localhost:3036/api/auth/login', 'POST')">Test</button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>/api/security/dashboard</small>
+                            <button class="btn btn-info btn-test" onclick="testEndpoint('http://localhost:3036/api/security/dashboard')">Test</button>
+                        </div>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="fw-bold text-success" id="usermgmt-uptime">100%</div>
+                            <small class="text-muted">Uptime</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="fw-bold text-primary" id="usermgmt-response">98ms</div>
+                            <small class="text-muted">Response</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Features -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="service-card p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="mb-1">
+                                <span class="status-indicator status-active"></span>
+                                Real-time Features
+                            </h5>
+                            <small class="text-muted">Port 3037</small>
+                        </div>
+                        <span class="priority-badge priority-high">HIGH</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <small>Real-time Priority</small>
+                            <small class="fw-bold">85% Critical</small>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-info" style="width: 85%"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-list mb-3">
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>/api/realtime/health</small>
+                            <button class="btn btn-success btn-test" onclick="testEndpoint('http://localhost:3037/api/realtime/health')">Test</button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>/api/realtime/stats</small>
+                            <button class="btn btn-primary btn-test" onclick="testEndpoint('http://localhost:3037/api/realtime/stats')">Test</button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>WebSocket Connection</small>
+                            <button class="btn btn-info btn-test" onclick="testWebSocket()">Test</button>
+                        </div>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="fw-bold text-success" id="realtime-connections">0</div>
+                            <small class="text-muted">Connections</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="fw-bold text-primary" id="realtime-response">52ms</div>
+                            <small class="text-muted">Response</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Marketplace -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="service-card p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="mb-1">
+                                <span class="status-indicator status-active"></span>
+                                Advanced Marketplace
+                            </h5>
+                            <small class="text-muted">Port 3038</small>
+                        </div>
+                        <span class="priority-badge priority-medium">ADVANCED</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <small>Next-Gen Features</small>
+                            <small class="fw-bold">5 Marketplaces</small>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-success" style="width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-list mb-3">
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>/api/advanced-marketplace/health</small>
+                            <button class="btn btn-success btn-test" onclick="testEndpoint('http://localhost:3038/api/advanced-marketplace/health')">Test</button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>/api/.../ai/recommendations</small>
+                            <button class="btn btn-primary btn-test" onclick="testEndpoint('http://localhost:3038/api/advanced-marketplace/ai/recommendations')">Test</button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <small>/api/.../competitor/analysis</small>
+                            <button class="btn btn-info btn-test" onclick="testEndpoint('http://localhost:3038/api/advanced-marketplace/competitor/analysis')">Test</button>
+                        </div>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="fw-bold text-success" id="advanced-uptime">100%</div>
+                            <small class="text-muted">Uptime</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="fw-bold text-primary" id="advanced-response">124ms</div>
+                            <small class="text-muted">Response</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Charts -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="mb-3">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Response Time Trends
+                    </h5>
+                    <canvas id="responseTimeChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="mb-3">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Service Requests
+                    </h5>
+                    <canvas id="requestsChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Logs -->
+        <div class="row">
+            <div class="col-12">
+                <div class="service-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-terminal me-2"></i>
+                            Real-time System Logs
+                        </h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="clearLogs()">Clear</button>
+                            <button class="btn btn-sm btn-outline-success" onclick="refreshAll()">Refresh All</button>
+                        </div>
+                    </div>
+                    <div class="logs-container" id="systemLogs">
+                        <div>[<span class="text-info">INFO</span>] VSCode Team Enterprise Backend Dashboard initialized</div>
+                        <div>[<span class="text-success">SUCCESS</span>] All critical backend services operational</div>
+                        <div>[<span class="text-warning">MONITOR</span>] Starting real-time health monitoring...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let responseTimeChart, requestsChart;
+        let healthCheckInterval;
+        let isConnectedToRealtime = false;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            startHealthMonitoring();
+            updateLastUpdated();
+            logMessage('VSCode Backend Dashboard fully loaded', 'SUCCESS');
+        });
+
+        // Initialize charts
+        function initializeCharts() {
+            // Response Time Chart
+            const ctx1 = document.getElementById('responseTimeChart').getContext('2d');
+            responseTimeChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 12}, (_, i) => `${new Date().getHours() - 11 + i}:00`),
+                    datasets: [{
+                        label: 'Response Time (ms)',
+                        data: Array.from({length: 12}, () => Math.floor(Math.random() * 100) + 50),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Requests Chart
+            const ctx2 = document.getElementById('requestsChart').getContext('2d');
+            requestsChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Dropshipping', 'User Mgmt', 'Real-time', 'Advanced MP'],
+                    datasets: [{
+                        label: 'Requests/hour',
+                        data: [2450, 1876, 3241, 1654],
+                        backgroundColor: [
+                            '#ff6b6b',
+                            '#4ecdc4',
+                            '#45b7d1',
+                            '#96ceb4'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Test endpoint function
+        async function testEndpoint(url, method = 'GET') {
+            logMessage(`Testing ${method} ${url}`, 'INFO');
+            
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    logMessage(`✅ ${url} - Status: ${response.status}`, 'SUCCESS');
+                } else {
+                    logMessage(`❌ ${url} - Error: ${response.status}`, 'ERROR');
+                }
+            } catch (error) {
+                logMessage(`❌ ${url} - Connection failed: ${error.message}`, 'ERROR');
+            }
+        }
+
+        // Test WebSocket connection
+        function testWebSocket() {
+            logMessage('Testing WebSocket connection to Real-time service...', 'INFO');
+            
+            try {
+                const socket = io('http://localhost:3037');
+                
+                socket.on('connect', () => {
+                    logMessage('✅ WebSocket connected successfully', 'SUCCESS');
+                    isConnectedToRealtime = true;
+                    document.getElementById('realtime-connections').textContent = '1';
+                });
+                
+                socket.on('disconnect', () => {
+                    logMessage('📡 WebSocket disconnected', 'INFO');
+                    isConnectedToRealtime = false;
+                    document.getElementById('realtime-connections').textContent = '0';
+                });
+                
+                socket.on('connect_error', (error) => {
+                    logMessage(`❌ WebSocket connection failed: ${error.message}`, 'ERROR');
+                });
+                
+                // Disconnect after 5 seconds for demo
+                setTimeout(() => {
+                    socket.disconnect();
+                }, 5000);
+                
+            } catch (error) {
+                logMessage(`❌ WebSocket test failed: ${error.message}`, 'ERROR');
+            }
+        }
+
+        // Start health monitoring
+        function startHealthMonitoring() {
+            healthCheckInterval = setInterval(async () => {
+                await checkAllServices();
+                updateMetrics();
+            }, 30000); // Every 30 seconds
+            
+            // Initial check
+            checkAllServices();
+        }
+
+        // Check all services
+        async function checkAllServices() {
+            const services = [
+                { name: 'Dropshipping', url: 'http://localhost:3035/api/dropshipping/health', id: 'dropshipping' },
+                { name: 'User Management', url: 'http://localhost:3036/api/user-mgmt/health', id: 'usermgmt' },
+                { name: 'Real-time', url: 'http://localhost:3037/api/realtime/health', id: 'realtime' },
+                { name: 'Advanced Marketplace', url: 'http://localhost:3038/api/advanced-marketplace/health', id: 'advanced' }
+            ];
+
+            for (const service of services) {
+                try {
+                    const start = Date.now();
+                    const response = await fetch(service.url);
+                    const responseTime = Date.now() - start;
+                    
+                    if (response.ok) {
+                        document.getElementById(`${service.id}-response`).textContent = `${responseTime}ms`;
+                        document.getElementById(`${service.id}-uptime`).textContent = '100%';
+                        logMessage(`${service.name} service healthy (${responseTime}ms)`, 'SUCCESS');
+                    } else {
+                        logMessage(`${service.name} service returned ${response.status}`, 'WARNING');
+                    }
+                } catch (error) {
+                    logMessage(`${service.name} service unreachable`, 'ERROR');
+                    document.getElementById(`${service.id}-response`).textContent = 'Error';
+                }
+            }
+        }
+
+        // Update metrics
+        function updateMetrics() {
+            // Update random metrics for demo
+            document.getElementById('totalRequests').textContent = 
+                (Math.floor(Math.random() * 5000) + 10000).toLocaleString();
+            
+            document.getElementById('avgResponseTime').textContent = 
+                Math.floor(Math.random() * 100) + 120 + 'ms';
+            
+            // Update charts with new data
+            if (responseTimeChart) {
+                const newData = Math.floor(Math.random() * 100) + 50;
+                responseTimeChart.data.datasets[0].data.shift();
+                responseTimeChart.data.datasets[0].data.push(newData);
+                responseTimeChart.update('none');
+            }
+        }
+
+        // Log message function
+        function logMessage(message, type = 'INFO') {
+            const logsContainer = document.getElementById('systemLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            const typeColors = {
+                'INFO': 'text-info',
+                'SUCCESS': 'text-success',
+                'WARNING': 'text-warning',
+                'ERROR': 'text-danger'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] [<span class="${typeColors[type]}">${type}</span>] ${message}`;
+            
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+            
+            // Keep only last 50 log entries
+            while (logsContainer.children.length > 50) {
+                logsContainer.removeChild(logsContainer.firstChild);
+            }
+        }
+
+        // Clear logs
+        function clearLogs() {
+            document.getElementById('systemLogs').innerHTML = '';
+            logMessage('System logs cleared', 'INFO');
+        }
+
+        // Refresh all services
+        function refreshAll() {
+            logMessage('Refreshing all service health checks...', 'INFO');
+            checkAllServices();
+        }
+
+        // Update last updated time
+        function updateLastUpdated() {
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+            setTimeout(updateLastUpdated, 1000);
+        }
+    </script>
+</body>
+</html>

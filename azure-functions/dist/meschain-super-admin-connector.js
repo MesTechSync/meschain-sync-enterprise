@@ -230,7 +230,7 @@ class SuperAdminConnector {
         catch (error) {
             return {
                 success: false,
-                error: error.message
+                error: error?.message || 'Unknown error occurred'
             };
         }
     }
@@ -288,7 +288,7 @@ class SuperAdminConnector {
         catch (error) {
             return {
                 success: false,
-                error: error.message,
+                error: error?.message || 'Azure connectivity test failed',
                 timestamp: new Date().toISOString()
             };
         }
@@ -298,4 +298,3 @@ exports.SuperAdminConnector = SuperAdminConnector;
 // Initialize global connector
 exports.superAdminConnector = new SuperAdminConnector();
 exports.default = exports.superAdminConnector;
-//# sourceMappingURL=meschain-super-admin-connector.js.map
