@@ -1,0 +1,571 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <div class="btn-group">
+          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-calendar"></i> Period <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a href="#" onclick="changePeriod('daily')">Günlük</a></li>
+            <li><a href="#" onclick="changePeriod('weekly')">Haftalık</a></li>
+            <li><a href="#" onclick="changePeriod('monthly')">Aylık</a></li>
+            <li><a href="#" onclick="changePeriod('yearly')">Yıllık</a></li>
+          </ul>
+        </div>
+        <button type="button" class="btn btn-info" onclick="refreshData()">
+          <i class="fa fa-refresh"></i> Yenile
+        </button>
+        <button type="button" class="btn btn-success" onclick="exportData()">
+          <i class="fa fa-download"></i> Dışa Aktar
+        </button>
+      </div>
+      <h1><i class="fa fa-bar-chart"></i> Analytics Dashboard</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid" id="analytics-dashboard">
+    <!-- Loading -->
+    <div id="loading-overlay" style="display: none;">
+      <div class="text-center">
+        <i class="fa fa-spinner fa-spin fa-3x"></i>
+        <h4>Veriler yükleniyor...</h4>
+      </div>
+    </div>
+    
+    <!-- Özet Kartlar -->
+    <div class="row" id="summary-cards">
+      {% if summary %}
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ summary.total_orders }}</div>
+                <div>Toplam Sipariş</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-money fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ summary.total_revenue|number_format(0) }}₺</div>
+                <div>Toplam Gelir</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cubes fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ summary.total_products }}</div>
+                <div>Aktif Ürün</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-line-chart fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">
+                  {% if performance_metrics %}
+                    {{ performance_metrics.api_success_rate }}%
+                  {% else %}
+                    N/A
+                  {% endif %}
+                </div>
+                <div>API Başarı</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    
+    <!-- Grafikler -->
+    <div class="row">
+      <!-- Satış Grafiği -->
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-line-chart"></i> Satış Trendi
+            </h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="salesChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Marketplace Dağılımı -->
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-pie-chart"></i> Marketplace Dağılımı
+            </h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="marketplaceChart" width="300" height="300"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Marketplace Karşılaştırması -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-shopping-bag"></i> Marketplace Performansı
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Marketplace</th>
+                    <th>Sipariş</th>
+                    <th>Gelir</th>
+                    <th>Ortalama</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if marketplace_comparison %}
+                    {% for marketplace in marketplace_comparison %}
+                    <tr>
+                      <td>{{ marketplace.marketplace|title }}</td>
+                      <td>{{ marketplace.order_count }}</td>
+                      <td>{{ marketplace.revenue|number_format(0) }}₺</td>
+                      <td>{{ marketplace.avg_order_value|number_format(0) }}₺</td>
+                    </tr>
+                    {% endfor %}
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- En Çok Satan Ürünler -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-star"></i> En Çok Satan Ürünler
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th>Marketplace</th>
+                    <th>Satış</th>
+                    <th>Gelir</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if top_products %}
+                    {% for product in top_products %}
+                    <tr>
+                      <td>{{ product.name|slice(0, 25) }}...</td>
+                      <td>{{ product.marketplace }}</td>
+                      <td>{{ product.order_count }}</td>
+                      <td>{{ product.revenue|number_format(0) }}₺</td>
+                    </tr>
+                    {% endfor %}
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Performans Metrikleri -->
+    {% if performance_metrics %}
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-tachometer"></i> Sistem Performans Metrikleri
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="metric-box">
+                  <h4>API Başarı Oranı</h4>
+                  <div class="metric-value success">{{ performance_metrics.api_success_rate }}%</div>
+                  <small>{{ performance_metrics.total_api_calls }} toplam çağrı</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-box">
+                  <h4>Sistem Durumu</h4>
+                  <div class="metric-value healthy">
+                    <i class="fa fa-check-circle"></i> Sağlıklı
+                  </div>
+                  <small>Tüm sistemler çalışıyor</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-box">
+                  <h4>Son Güncelleme</h4>
+                  <div class="metric-value info">{{ generated_at|date('H:i') }}</div>
+                  <small>{{ generated_at|date('d.m.Y') }}</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-box">
+                  <h4>Veri Durumu</h4>
+                  <div class="metric-value warning">Real-time</div>
+                  <small>Anlık veri akışı</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+.huge {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.panel-green {
+    border-color: #5cb85c;
+}
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+.panel-red > .panel-heading {
+    border-color: #d9534f;
+    color: white;
+    background-color: #d9534f;
+}
+
+.metric-box {
+    text-align: center;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.metric-value.success { color: #5cb85c; }
+.metric-value.healthy { color: #5cb85c; }
+.metric-value.info { color: #5bc0de; }
+.metric-value.warning { color: #f0ad4e; }
+
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255,255,255,0.8);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let currentPeriod = '{{ selected_period ?? "monthly" }}';
+let salesChart, marketplaceChart;
+
+function changePeriod(period) {
+    currentPeriod = period;
+    refreshData();
+}
+
+function refreshData() {
+    showLoading();
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/meschain_analytics/getAnalyticsData&user_token={{ user_token }}',
+        type: 'POST',
+        data: { period: currentPeriod },
+        dataType: 'json',
+        success: function(data) {
+            updateDashboard(data);
+            hideLoading();
+        },
+        error: function() {
+            alert('Veri yüklenirken hata oluştu');
+            hideLoading();
+        }
+    });
+}
+
+function updateDashboard(data) {
+    if (data.error) {
+        alert(data.error);
+        return;
+    }
+    
+    // Özet kartları güncelle
+    updateSummaryCards(data.summary);
+    
+    // Grafikleri güncelle
+    updateCharts(data);
+    
+    // Tabloları güncelle
+    updateTables(data);
+}
+
+function updateSummaryCards(summary) {
+    // Bu fonksiyon özet kartlarını dinamik olarak güncelleyecek
+    console.log('Summary updated:', summary);
+}
+
+function updateCharts(data) {
+    // Satış grafiği
+    if (data.sales_chart) {
+        updateSalesChart(data.sales_chart);
+    }
+    
+    // Marketplace grafiği
+    if (data.marketplace_comparison) {
+        updateMarketplaceChart(data.marketplace_comparison);
+    }
+}
+
+function updateSalesChart(salesData) {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    if (salesChart) {
+        salesChart.destroy();
+    }
+    
+    // Veriyi işle
+    const labels = [];
+    const revenues = [];
+    
+    salesData.forEach(item => {
+        if (labels.indexOf(item.period_label) === -1) {
+            labels.push(item.period_label);
+        }
+        revenues.push(parseFloat(item.revenue) || 0);
+    });
+    
+    salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Gelir (₺)',
+                data: revenues,
+                borderColor: '#337ab7',
+                backgroundColor: 'rgba(51, 122, 183, 0.1)',
+                borderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('tr-TR') + '₺';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateMarketplaceChart(marketplaceData) {
+    const ctx = document.getElementById('marketplaceChart').getContext('2d');
+    
+    if (marketplaceChart) {
+        marketplaceChart.destroy();
+    }
+    
+    const labels = [];
+    const revenues = [];
+    const colors = [];
+    
+    const colorMap = {
+        'trendyol': '#f27a1a',
+        'n11': '#6b2c91',
+        'ozon': '#005baa',
+        'amazon': '#ff9900',
+        'hepsiburada': '#ff6000',
+        'ebay': '#0064d2'
+    };
+    
+    marketplaceData.forEach(item => {
+        labels.push(item.marketplace.charAt(0).toUpperCase() + item.marketplace.slice(1));
+        revenues.push(parseFloat(item.revenue) || 0);
+        colors.push(colorMap[item.marketplace] || '#999999');
+    });
+    
+    marketplaceChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: revenues,
+                backgroundColor: colors
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function updateTables(data) {
+    // Marketplace tablosu
+    if (data.marketplace_comparison) {
+        updateMarketplaceTable(data.marketplace_comparison);
+    }
+    
+    // En çok satan ürünler tablosu
+    if (data.top_products) {
+        updateTopProductsTable(data.top_products);
+    }
+}
+
+function updateMarketplaceTable(marketplaces) {
+    const tbody = document.getElementById('marketplace-table');
+    tbody.innerHTML = '';
+    
+    marketplaces.forEach(marketplace => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td><span class="marketplace-badge marketplace-${marketplace.marketplace}">${marketplace.marketplace.charAt(0).toUpperCase() + marketplace.marketplace.slice(1)}</span></td>
+            <td>${marketplace.order_count}</td>
+            <td>${parseFloat(marketplace.revenue).toLocaleString('tr-TR', {minimumFractionDigits: 2})}₺</td>
+            <td>${parseFloat(marketplace.avg_order_value).toLocaleString('tr-TR', {minimumFractionDigits: 2})}₺</td>
+        `;
+    });
+}
+
+function updateTopProductsTable(products) {
+    const tbody = document.getElementById('top-products-table');
+    tbody.innerHTML = '';
+    
+    products.forEach(product => {
+        const row = tbody.insertRow();
+        const productName = product.name ? product.name.substring(0, 25) + '...' : 'N/A';
+        row.innerHTML = `
+            <td>${productName}</td>
+            <td><span class="marketplace-badge marketplace-${product.marketplace}">${product.marketplace}</span></td>
+            <td>${product.order_count}</td>
+            <td>${parseFloat(product.revenue).toLocaleString('tr-TR', {minimumFractionDigits: 2})}₺</td>
+        `;
+    });
+}
+
+function exportData() {
+    window.open('index.php?route=extension/module/meschain_analytics/exportData&period=' + currentPeriod + '&user_token={{ user_token }}');
+}
+
+function showLoading() {
+    document.getElementById('loading-overlay').style.display = 'flex';
+}
+
+function hideLoading() {
+    document.getElementById('loading-overlay').style.display = 'none';
+}
+
+$(document).ready(function() {
+    // İlk grafikleri oluştur
+    {% if sales_chart %}
+    updateSalesChart({{ sales_chart|json_encode|raw }});
+    {% endif %}
+    
+    {% if marketplace_comparison %}
+    updateMarketplaceChart({{ marketplace_comparison|json_encode|raw }});
+    {% endif %}
+    
+    // Otomatik yenileme (5 dakikada bir)
+    setInterval(refreshData, 300000);
+});
+</script>
+
+{{ footer }} 
