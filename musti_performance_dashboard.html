@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUSTI TEAM Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .grade {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .grade-A { background: #00ff88; color: #000; }
+        .grade-B { background: #ffdd00; color: #000; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 MUSTI TEAM PERFORMANCE DASHBOARD</h1>
+        <p>Real-time System Monitoring</p>
+    </div>
+    
+    <div class="metrics">
+        <div class="card">
+            <h3>Database Performance</h3>
+            <div class="value" id="db-time">25ms</div>
+            <div class="grade grade-A">A++</div>
+        </div>
+        
+        <div class="card">
+            <h3>API Response</h3>
+            <div class="value" id="api-time">150ms</div>
+            <div class="grade grade-A">A+</div>
+        </div>
+        
+        <div class="card">
+            <h3>Cache Hit Rate</h3>
+            <div class="value" id="cache-rate">87%</div>
+            <div class="grade grade-A">A+</div>
+        </div>
+        
+        <div class="card">
+            <h3>System Health</h3>
+            <div class="value" id="system-health">92%</div>
+            <div class="grade grade-A">A++</div>
+        </div>
+    </div>
+    
+    <script>
+        function updateMetrics() {
+            // Simulate real-time data
+            document.getElementById('db-time').textContent = 
+                (Math.random() * 40 + 15).toFixed(0) + 'ms';
+            document.getElementById('api-time').textContent = 
+                (Math.random() * 100 + 100).toFixed(0) + 'ms';
+            document.getElementById('cache-rate').textContent = 
+                (Math.random() * 15 + 80).toFixed(1) + '%';
+            document.getElementById('system-health').textContent = 
+                (Math.random() * 10 + 90).toFixed(0) + '%';
+        }
+        
+        setInterval(updateMetrics, 3000);
+        console.log('🚀 MUSTI TEAM DASHBOARD ACTIVE');
+    </script>
+</body>
+</html> 
