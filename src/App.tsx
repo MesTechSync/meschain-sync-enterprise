@@ -20,11 +20,11 @@ import OzonPage from './components/Marketplace/OzonPage';
 // Other Pages
 import OrdersPage from './components/Orders/OrdersPage';
 import ProductsPage from './components/Products/ProductsPage';
+import ReportsPage from './components/Reports/ReportsPage';
+import InventoryPage from './components/Inventory/InventoryPage';
+import SettingsPage from './components/Settings/SettingsPage';
 
 // Placeholder components for other pages
-const InventoryPage = () => <div>Stok Yönetimi Sayfası</div>;
-const ReportsPage = () => <div>Raporlar Sayfası</div>;
-const SettingsPage = () => <div>Ayarlar Sayfası</div>;
 const SupportPage = () => <div>Destek Sayfası</div>;
 
 const LoadingFallback = () => (
