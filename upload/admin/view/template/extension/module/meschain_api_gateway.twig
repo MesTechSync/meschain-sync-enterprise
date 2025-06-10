@@ -1,0 +1,488 @@
+{{ header }}{{ column_left }}
+
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" class="btn btn-primary" onclick="generateApiKey()">
+          <i class="fa fa-key"></i> Generate API Key
+        </button>
+        <button type="button" class="btn btn-warning" onclick="resetAllCircuitBreakers()">
+          <i class="fa fa-refresh"></i> Reset Circuit Breakers
+        </button>
+      </div>
+      <h1>API Gateway Management</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- API Gateway Statistics -->
+    <div class="row">
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-primary">
+          <div class="icon"><i class="fa fa-exchange"></i></div>
+          <div class="num" id="total-requests">0</div>
+          <h3>Total Requests</h3>
+          <p>Last 24 hours</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-green">
+          <div class="icon"><i class="fa fa-check-circle"></i></div>
+          <div class="num" id="success-rate">0%</div>
+          <h3>Success Rate</h3>
+          <p>API calls success rate</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-orange">
+          <div class="icon"><i class="fa fa-clock-o"></i></div>
+          <div class="num" id="avg-response-time">0ms</div>
+          <h3>Avg Response Time</h3>
+          <p>Request processing time</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-red">
+          <div class="icon"><i class="fa fa-key"></i></div>
+          <div class="num" id="active-api-keys">{{ api_keys|length }}</div>
+          <h3>Active API Keys</h3>
+          <p>Registered clients</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rate Limiting Configuration -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-tachometer"></i> Rate Limiting Configuration
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Plan</th>
+                    <th>Per Minute</th>
+                    <th>Per Hour</th>
+                    <th>Per Day</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for plan, limits in rate_limits %}
+                  <tr>
+                    <td><span class="label label-info">{{ plan|title }}</span></td>
+                    <td>{{ limits.requests_per_minute }}</td>
+                    <td>{{ limits.requests_per_hour }}</td>
+                    <td>{{ limits.requests_per_day }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-shield"></i> Circuit Breaker Status
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div id="circuit-breaker-status">
+              {% for service, config in circuit_breaker_config %}
+              <div class="circuit-breaker-item" data-service="{{ service }}">
+                <div class="row">
+                  <div class="col-md-6">
+                    <strong>{{ service|title }}</strong>
+                    <span class="circuit-status closed">CLOSED</span>
+                  </div>
+                  <div class="col-md-6 text-right">
+                    <button class="btn btn-sm btn-info" onclick="testConnection('{{ service }}')">
+                      <i class="fa fa-plug"></i> Test
+                    </button>
+                    <button class="btn btn-sm btn-warning" onclick="resetCircuitBreaker('{{ service }}')">
+                      <i class="fa fa-refresh"></i> Reset
+                    </button>
+                  </div>
+                </div>
+                <div class="progress progress-sm">
+                  <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent API Requests -->
+    <div class="row">
+      <div class="col-md-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-list"></i> Recent API Requests
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped" id="recent-requests-table">
+                <thead>
+                  <tr>
+                    <th>Request ID</th>
+                    <th>Service</th>
+                    <th>Processing Time</th>
+                    <th>Status</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for request in recent_requests %}
+                  <tr>
+                    <td><code>{{ request.request_id }}</code></td>
+                    <td>
+                      <span class="label label-primary">{{ request.service }}</span>
+                    </td>
+                    <td>{{ (request.processing_time * 1000)|round(2) }}ms</td>
+                    <td>
+                      {% if request.success %}
+                        <span class="label label-success">Success</span>
+                      {% else %}
+                        <span class="label label-danger">Failed</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ request.created_at }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-key"></i> API Keys
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div id="api-keys-list">
+              {% for api_key in api_keys %}
+              <div class="api-key-item">
+                <div class="api-key-header">
+                  <strong>{{ api_key.company_name ?: 'Unnamed Client' }}</strong>
+                  <span class="label label-{{ api_key.plan_type == 'enterprise' ? 'warning' : (api_key.plan_type == 'premium' ? 'info' : 'default') }}">
+                    {{ api_key.plan_type|title }}
+                  </span>
+                </div>
+                <div class="api-key-code">
+                  <code>{{ api_key.api_key|slice(0, 16) }}...</code>
+                </div>
+                <div class="api-key-meta">
+                  <small class="text-muted">Expires: {{ api_key.expires_at }}</small>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Performance Chart -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-line-chart"></i> Service Performance Overview
+            </h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="performance-chart" width="400" height="100"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- API Key Generation Modal -->
+<div class="modal fade" id="api-key-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Generate New API Key</h4>
+      </div>
+      <div class="modal-body">
+        <form id="api-key-form">
+          <div class="form-group">
+            <label for="client-name">Client Name</label>
+            <input type="text" class="form-control" id="client-name" name="client_name" required>
+          </div>
+          <div class="form-group">
+            <label for="plan-type">Plan Type</label>
+            <select class="form-control" id="plan-type" name="plan_type">
+              <option value="default">Default</option>
+              <option value="premium">Premium</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="submitApiKeyForm()">Generate</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.tile-stats {
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tile-stats .icon {
+  float: left;
+  margin-right: 15px;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.tile-stats .num {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.tile-stats h3 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.tile-stats p {
+  margin: 0;
+  color: #999;
+  font-size: 12px;
+}
+
+.tile-primary { border-left: 3px solid #3498db; }
+.tile-green { border-left: 3px solid #2ecc71; }
+.tile-orange { border-left: 3px solid #f39c12; }
+.tile-red { border-left: 3px solid #e74c3c; }
+
+.circuit-breaker-item {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+.circuit-status {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.circuit-status.closed {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.circuit-status.open {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.circuit-status.half-open {
+  background-color: #f39c12;
+  color: white;
+}
+
+.api-key-item {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 3px;
+}
+
+.api-key-header {
+  margin-bottom: 5px;
+}
+
+.api-key-code {
+  margin-bottom: 5px;
+}
+
+.progress-sm {
+  height: 5px;
+}
+</style>
+
+<script>
+// API Gateway Management Functions
+function generateApiKey() {
+    $('#api-key-modal').modal('show');
+}
+
+function submitApiKeyForm() {
+    var formData = $('#api-key-form').serialize();
+    
+    $.ajax({
+        url: '{{ action_generate_api_key }}',
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                alert('API Key generated: ' + response.api_key);
+                location.reload();
+            } else {
+                alert('Error: ' + response.error);
+            }
+        },
+        error: function() {
+            alert('Request failed');
+        }
+    });
+}
+
+function testConnection(service) {
+    $.ajax({
+        url: '{{ action_test_api }}',
+        type: 'POST',
+        data: { service: service },
+        success: function(response) {
+            if (response.success) {
+                alert('Connection test successful for ' + service);
+            } else {
+                alert('Connection failed: ' + response.error);
+            }
+        }
+    });
+}
+
+function resetCircuitBreaker(service) {
+    if (confirm('Reset circuit breaker for ' + service + '?')) {
+        $.ajax({
+            url: '{{ action_reset_circuit_breaker }}',
+            type: 'POST',
+            data: { service: service },
+            success: function(response) {
+                if (response.success) {
+                    alert('Circuit breaker reset for ' + service);
+                    updateDashboard();
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            }
+        });
+    }
+}
+
+function resetAllCircuitBreakers() {
+    if (confirm('Reset all circuit breakers?')) {
+        var services = ['trendyol', 'n11', 'amazon', 'ebay', 'hepsiburada', 'ozon'];
+        services.forEach(function(service) {
+            resetCircuitBreaker(service);
+        });
+    }
+}
+
+function updateDashboard() {
+    $.ajax({
+        url: '{{ action_get_dashboard_data }}',
+        type: 'GET',
+        success: function(data) {
+            // Update statistics
+            if (data.statistics) {
+                updateStatistics(data.statistics);
+            }
+            
+            // Update recent requests
+            if (data.recent_requests) {
+                updateRecentRequests(data.recent_requests);
+            }
+        }
+    });
+}
+
+function updateStatistics(stats) {
+    // Calculate totals
+    var totalRequests = 0;
+    var successfulRequests = 0;
+    var totalTime = 0;
+    
+    if (stats.request_stats) {
+        stats.request_stats.forEach(function(stat) {
+            totalRequests += parseInt(stat.total_requests);
+            successfulRequests += parseInt(stat.successful_requests);
+            totalTime += parseFloat(stat.avg_processing_time);
+        });
+    }
+    
+    var successRate = totalRequests > 0 ? Math.round((successfulRequests / totalRequests) * 100) : 0;
+    var avgTime = totalRequests > 0 ? Math.round((totalTime / stats.request_stats.length) * 1000) : 0;
+    
+    $('#total-requests').text(totalRequests);
+    $('#success-rate').text(successRate + '%');
+    $('#avg-response-time').text(avgTime + 'ms');
+}
+
+function updateRecentRequests(requests) {
+    var tbody = $('#recent-requests-table tbody');
+    tbody.empty();
+    
+    requests.forEach(function(request) {
+        var statusClass = request.success ? 'success' : 'danger';
+        var statusText = request.success ? 'Success' : 'Failed';
+        var processingTime = Math.round(request.processing_time * 1000);
+        
+        var row = '<tr>' +
+            '<td><code>' + request.request_id + '</code></td>' +
+            '<td><span class="label label-primary">' + request.service + '</span></td>' +
+            '<td>' + processingTime + 'ms</td>' +
+            '<td><span class="label label-' + statusClass + '">' + statusText + '</span></td>' +
+            '<td>' + request.created_at + '</td>' +
+            '</tr>';
+        
+        tbody.append(row);
+    });
+}
+
+// Auto refresh dashboard every 30 seconds
+setInterval(updateDashboard, 30000);
+
+// Initialize dashboard
+$(document).ready(function() {
+    updateDashboard();
+});
+</script>
+
+{{ footer }} 

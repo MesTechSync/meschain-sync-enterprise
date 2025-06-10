@@ -1,0 +1,277 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" class="btn btn-primary" onclick="testConnection()">
+          <i class="fa fa-plug"></i> Test
+        </button>
+        <button type="button" class="btn btn-success" onclick="syncOrders()">
+          <i class="fa fa-refresh"></i> Sync
+        </button>
+      </div>
+      <h1><i class="fa fa-gavel"></i> eBay Yönetimi</h1>
+    </div>
+  </div>
+  
+  <div class="container-fluid">    
+    <!-- İstatistikler -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cubes fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ stats.active_products }}</div>
+                <div>Aktif Ürünler</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ stats.today_orders }}</div>
+                <div>Bugün</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-money fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">${{ stats.month_revenue|number_format(2) }}</div>
+                <div>Aylık</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-list fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ stats.total_orders }}</div>
+                <div>Toplam</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Ana Panel -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-{{ api_status.status == 'success' ? 'check' : 'times' }}"></i> 
+              eBay API Durumu
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="alert alert-{{ api_status.status == 'success' ? 'success' : 'danger' }}">
+              {{ api_status.message }}
+            </div>
+            
+            <form id="listProductForm">
+              <div class="form-group">
+                <label>Ürün ID:</label>
+                <input type="number" name="product_id" class="form-control" required>
+              </div>
+              
+              <button type="submit" class="btn btn-primary">
+                <i class="fa fa-upload"></i> eBay'e Listele
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-bolt"></i> Hızlı İşlemler
+            </h3>
+          </div>
+          <div class="panel-body">
+            <button class="btn btn-info btn-block" onclick="testConnection()">
+              <i class="fa fa-plug"></i> API Test
+            </button>
+            
+            <button class="btn btn-success btn-block" onclick="syncOrders()">
+              <i class="fa fa-refresh"></i> Sipariş Sync
+            </button>
+            
+            <button class="btn btn-warning btn-block" onclick="syncProducts()">
+              <i class="fa fa-cubes"></i> Ürün Sync
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Aktiviteler -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-history"></i> Son Aktiviteler
+            </h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Tip</th>
+                  <th>ID</th>
+                  <th>Mesaj</th>
+                  <th>Tarih</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if recent_activities %}
+                  {% for activity in recent_activities %}
+                  <tr>
+                    <td>
+                      <span class="label label-{{ activity.type == 'order' ? 'success' : 'info' }}">
+                        {{ activity.type == 'order' ? 'Sipariş' : 'Ürün' }}
+                      </span>
+                    </td>
+                    <td>#{{ activity.id }}</td>
+                    <td>{{ activity.message }}</td>
+                    <td>{{ activity.date_added|date('d.m H:i') }}</td>
+                  </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="4" class="text-center">Aktivite yok</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.huge {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.panel-green {
+    border-color: #5cb85c;
+}
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+.panel-red > .panel-heading {
+    border-color: #d9534f;
+    color: white;
+    background-color: #d9534f;
+}
+</style>
+
+<script>
+function testConnection() {
+    $.ajax({
+        url: 'index.php?route=extension/module/meschain_ebay/testConnection&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                alert('✅ ' + json.success);
+            } else if (json.error) {
+                alert('❌ ' + json.error);
+            }
+        }
+    });
+}
+
+function syncOrders() {
+    if (confirm('Siparişler senkronize edilecek. Devam?')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/meschain_ebay/syncOrders&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    alert('✅ ' + json.success);
+                    location.reload();
+                } else if (json.error) {
+                    alert('❌ ' + json.error);
+                }
+            }
+        });
+    }
+}
+
+$('#listProductForm').on('submit', function(e) {
+    e.preventDefault();
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/meschain_ebay/listProduct&user_token={{ user_token }}',
+        type: 'POST',
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                alert('✅ ' + json.success);
+                location.reload();
+            } else if (json.error) {
+                alert('❌ ' + json.error);
+            }
+        }
+    });
+});
+
+function syncProducts() {
+    alert('Ürün sync özelliği yakında');
+}
+</script>
+
+{{ footer }} 

@@ -1,0 +1,629 @@
+{{ header }}{{ column_left }}
+
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" class="btn btn-success" onclick="initializeSecurity()">
+          <i class="fa fa-shield"></i> Initialize Security
+        </button>
+        <button type="button" class="btn btn-primary" onclick="createOAuthClient()">
+          <i class="fa fa-plus"></i> Create OAuth Client
+        </button>
+        <button type="button" class="btn btn-info" onclick="createRole()">
+          <i class="fa fa-users"></i> Create Role
+        </button>
+        <button type="button" class="btn btn-warning" onclick="generateAuditReport()">
+          <i class="fa fa-file-text"></i> Audit Report
+        </button>
+      </div>
+      <h1>Security & OAuth Management</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Security Statistics -->
+    <div class="row">
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-primary">
+          <div class="icon"><i class="fa fa-key"></i></div>
+          <div class="num" id="active-tokens">{{ oauth_stats.active_tokens ?? 0 }}</div>
+          <h3>Active Tokens</h3>
+          <p>OAuth refresh tokens</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-green">
+          <div class="icon"><i class="fa fa-sign-in"></i></div>
+          <div class="num" id="today-auths">{{ oauth_stats.today_authentications ?? 0 }}</div>
+          <h3>Today's Auth</h3>
+          <p>Successful authentications</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-orange">
+          <div class="icon"><i class="fa fa-users"></i></div>
+          <div class="num" id="total-roles">{{ rbac_stats.total_roles ?? 0 }}</div>
+          <h3>Total Roles</h3>
+          <p>RBAC roles defined</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-red">
+          <div class="icon"><i class="fa fa-lock"></i></div>
+          <div class="num" id="total-permissions">{{ rbac_stats.total_permissions ?? 0 }}</div>
+          <h3>Permissions</h3>
+          <p>Available permissions</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- OAuth Clients Management -->
+    <div class="row">
+      <div class="col-md-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-cogs"></i> OAuth Clients
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped" id="oauth-clients-table">
+                <thead>
+                  <tr>
+                    <th>Client Name</th>
+                    <th>Client ID</th>
+                    <th>Redirect URI</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for client in oauth_clients %}
+                  <tr>
+                    <td><strong>{{ client.client_name }}</strong></td>
+                    <td><code>{{ client.client_id }}</code></td>
+                    <td><small>{{ client.redirect_uri }}</small></td>
+                    <td>
+                      {% if client.status == 1 %}
+                        <span class="label label-success">Active</span>
+                      {% else %}
+                        <span class="label label-danger">Inactive</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ client.created_at }}</td>
+                    <td>
+                      <button class="btn btn-xs btn-info" onclick="viewClientDetails('{{ client.client_id }}')">
+                        <i class="fa fa-eye"></i>
+                      </button>
+                      <button class="btn btn-xs btn-warning" onclick="regenerateSecret('{{ client.client_id }}')">
+                        <i class="fa fa-refresh"></i>
+                      </button>
+                      <button class="btn btn-xs btn-danger" onclick="revokeClient('{{ client.client_id }}')">
+                        <i class="fa fa-ban"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-shield"></i> Security Events
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div id="security-events" style="max-height: 400px; overflow-y: auto;">
+              {% for event in security_events %}
+              <div class="security-event-item">
+                <div class="event-header">
+                  <span class="label label-{{ event.type == 'oauth' ? 'primary' : 'info' }}">
+                    {{ event.type|upper }}
+                  </span>
+                  <strong>{{ event.event|replace({'_': ' '})|title }}</strong>
+                </div>
+                <div class="event-details">
+                  <small class="text-muted">
+                    ID: {{ event.identifier }} | {{ event.created_at }}
+                  </small>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roles and Permissions Management -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-users"></i> Roles Management
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Role Name</th>
+                    <th>Description</th>
+                    <th>Permissions</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for role in roles %}
+                  <tr>
+                    <td><strong>{{ role.role_name }}</strong></td>
+                    <td>{{ role.description|slice(0, 50) }}{% if role.description|length > 50 %}...{% endif %}</td>
+                    <td>
+                      <button class="btn btn-xs btn-info" onclick="viewRolePermissions({{ role.role_id }})">
+                        <i class="fa fa-list"></i> View
+                      </button>
+                    </td>
+                    <td>
+                      <button class="btn btn-xs btn-primary" onclick="assignRoleToUser({{ role.role_id }})">
+                        <i class="fa fa-user-plus"></i>
+                      </button>
+                      <button class="btn btn-xs btn-warning" onclick="editRole({{ role.role_id }})">
+                        <i class="fa fa-edit"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-lock"></i> Permissions Management
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Permission</th>
+                    <th>Description</th>
+                    <th>Resource Type</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for permission in permissions %}
+                  <tr>
+                    <td><code>{{ permission.permission_name }}</code></td>
+                    <td>{{ permission.description|slice(0, 40) }}{% if permission.description|length > 40 %}...{% endif %}</td>
+                    <td>
+                      {% if permission.resource_type %}
+                        <span class="label label-default">{{ permission.resource_type }}</span>
+                      {% else %}
+                        <span class="text-muted">Global</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <button class="btn btn-xs btn-info" onclick="testPermission('{{ permission.permission_name }}')">
+                        <i class="fa fa-flask"></i> Test
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Audit Dashboard -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-shield"></i> Security Audit Dashboard
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="row" id="audit-metrics">
+              <div class="col-md-3">
+                <div class="metric-box">
+                  <div class="metric-value" id="failed-auths">-</div>
+                  <div class="metric-label">Failed Auths (24h)</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-box">
+                  <div class="metric-value" id="users-without-roles">-</div>
+                  <div class="metric-label">Users Without Roles</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-box">
+                  <div class="metric-value" id="expired-tokens">-</div>
+                  <div class="metric-label">Expired Tokens</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-box">
+                  <div class="metric-value" id="security-score">-</div>
+                  <div class="metric-label">Security Score</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OAuth Client Creation Modal -->
+<div class="modal fade" id="oauth-client-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Create OAuth Client</h4>
+      </div>
+      <div class="modal-body">
+        <form id="oauth-client-form">
+          <div class="form-group">
+            <label for="client-name">Client Name</label>
+            <input type="text" class="form-control" id="client-name" name="client_name" required>
+          </div>
+          <div class="form-group">
+            <label for="redirect-uri">Redirect URI</label>
+            <input type="url" class="form-control" id="redirect-uri" name="redirect_uri" required>
+            <small class="help-block">The callback URL for OAuth authorization</small>
+          </div>
+          <div class="form-group">
+            <label for="scopes">Scopes</label>
+            <select multiple class="form-control" id="scopes" name="scopes[]">
+              <option value="marketplace.read">Marketplace Read</option>
+              <option value="marketplace.write">Marketplace Write</option>
+              <option value="analytics.view">Analytics View</option>
+              <option value="api.access">API Access</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="submitOAuthClientForm()">Create Client</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Role Creation Modal -->
+<div class="modal fade" id="role-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Create Role</h4>
+      </div>
+      <div class="modal-body">
+        <form id="role-form">
+          <div class="form-group">
+            <label for="role-name">Role Name</label>
+            <input type="text" class="form-control" id="role-name" name="role_name" required>
+          </div>
+          <div class="form-group">
+            <label for="role-description">Description</label>
+            <textarea class="form-control" id="role-description" name="description" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="role-permissions">Permissions</label>
+            <select multiple class="form-control" id="role-permissions" name="permissions[]" size="6">
+              {% for permission in permissions %}
+              <option value="{{ permission.permission_id }}">{{ permission.permission_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="submitRoleForm()">Create Role</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Permission Test Modal -->
+<div class="modal fade" id="permission-test-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Test Permission</h4>
+      </div>
+      <div class="modal-body">
+        <form id="permission-test-form">
+          <div class="form-group">
+            <label for="test-user-id">User ID</label>
+            <input type="number" class="form-control" id="test-user-id" name="user_id" required>
+          </div>
+          <div class="form-group">
+            <label for="test-permission">Permission</label>
+            <input type="text" class="form-control" id="test-permission" name="permission" readonly>
+          </div>
+        </form>
+        <div id="permission-test-result" class="alert" style="display: none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-info" onclick="runPermissionTest()">Test Permission</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.tile-stats {
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tile-stats .icon {
+  float: left;
+  margin-right: 15px;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.tile-stats .num {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.tile-stats h3 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.tile-stats p {
+  margin: 0;
+  color: #999;
+  font-size: 12px;
+}
+
+.tile-primary { border-left: 3px solid #3498db; }
+.tile-green { border-left: 3px solid #2ecc71; }
+.tile-orange { border-left: 3px solid #f39c12; }
+.tile-red { border-left: 3px solid #e74c3c; }
+
+.security-event-item {
+  margin-bottom: 10px;
+  padding: 8px;
+  border-left: 3px solid #ddd;
+  background: #f9f9f9;
+}
+
+.event-header {
+  margin-bottom: 3px;
+}
+
+.metric-box {
+  text-align: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 5px;
+  border: 1px solid #e9ecef;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #495057;
+  margin-bottom: 5px;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #6c757d;
+  text-transform: uppercase;
+}
+</style>
+
+<script>
+// Security Management Functions
+function createOAuthClient() {
+    $('#oauth-client-modal').modal('show');
+}
+
+function submitOAuthClientForm() {
+    var formData = $('#oauth-client-form').serialize();
+    
+    $.ajax({
+        url: '{{ action_create_oauth_client }}',
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                alert('OAuth Client Created!\n\nClient ID: ' + response.client_data.client_id + '\nClient Secret: ' + response.client_data.client_secret);
+                location.reload();
+            } else {
+                alert('Error: ' + response.error);
+            }
+        },
+        error: function() {
+            alert('Request failed');
+        }
+    });
+}
+
+function createRole() {
+    $('#role-modal').modal('show');
+}
+
+function submitRoleForm() {
+    var formData = $('#role-form').serialize();
+    
+    $.ajax({
+        url: '{{ action_create_role }}',
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                alert('Role created successfully!');
+                location.reload();
+            } else {
+                alert('Error: ' + response.error);
+            }
+        }
+    });
+}
+
+function testPermission(permission) {
+    $('#test-permission').val(permission);
+    $('#permission-test-modal').modal('show');
+}
+
+function runPermissionTest() {
+    var formData = $('#permission-test-form').serialize();
+    
+    $.ajax({
+        url: '{{ action_test_permission }}',
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            var resultDiv = $('#permission-test-result');
+            
+            if (response.success) {
+                resultDiv.removeClass('alert-danger').addClass('alert-success');
+                resultDiv.html('<strong>' + response.message + '</strong>');
+            } else {
+                resultDiv.removeClass('alert-success').addClass('alert-danger');
+                resultDiv.html('<strong>Error:</strong> ' + response.error);
+            }
+            
+            resultDiv.show();
+        }
+    });
+}
+
+function assignRoleToUser(roleId) {
+    var userId = prompt('Enter User ID:');
+    if (userId) {
+        $.ajax({
+            url: '{{ action_assign_role }}',
+            type: 'POST',
+            data: { user_id: userId, role_id: roleId },
+            success: function(response) {
+                if (response.success) {
+                    alert('Role assigned successfully!');
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            }
+        });
+    }
+}
+
+function initializeSecurity() {
+    if (confirm('Initialize default security settings? This will create default roles and permissions.')) {
+        $.ajax({
+            url: '{{ url('extension/module/meschain_security/initializeSecurity') }}',
+            type: 'POST',
+            success: function(response) {
+                if (response.success) {
+                    alert('Security system initialized successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            }
+        });
+    }
+}
+
+function generateAuditReport() {
+    $.ajax({
+        url: '{{ url('extension/module/meschain_security/auditReport') }}',
+        type: 'GET',
+        success: function(response) {
+            updateAuditMetrics(response.audit_data);
+        }
+    });
+}
+
+function updateAuditMetrics(data) {
+    $('#failed-auths').text(data.failed_auths || 0);
+    $('#users-without-roles').text(data.users_without_roles || 0);
+    $('#expired-tokens').text(data.expired_tokens || 0);
+    
+    // Calculate security score
+    var score = 100;
+    if (data.failed_auths > 10) score -= 20;
+    if (data.users_without_roles > 0) score -= 15;
+    if (data.expired_tokens > 50) score -= 10;
+    
+    $('#security-score').text(score + '%');
+    
+    var scoreElement = $('#security-score').parent();
+    scoreElement.removeClass('text-success text-warning text-danger');
+    if (score >= 80) scoreElement.addClass('text-success');
+    else if (score >= 60) scoreElement.addClass('text-warning');
+    else scoreElement.addClass('text-danger');
+}
+
+function updateSecurityDashboard() {
+    $.ajax({
+        url: '{{ url('extension/module/meschain_security/getDashboardData') }}',
+        type: 'GET',
+        success: function(data) {
+            // Update statistics
+            $('#active-tokens').text(data.oauth_stats.active_tokens || 0);
+            $('#today-auths').text(data.oauth_stats.today_authentications || 0);
+            $('#total-roles').text(data.rbac_stats.total_roles || 0);
+            $('#total-permissions').text(data.rbac_stats.total_permissions || 0);
+        }
+    });
+}
+
+// Auto refresh dashboard every 60 seconds
+setInterval(updateSecurityDashboard, 60000);
+
+// Initialize audit report on page load
+$(document).ready(function() {
+    generateAuditReport();
+});
+</script>
+
+{{ footer }} 
