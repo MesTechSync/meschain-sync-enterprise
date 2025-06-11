@@ -392,3 +392,13 @@ jobs:
         echo "🧹 Cleaning up old build artifacts..."
         # GitHub automatically handles artifact retention
         echo "Artifact cleanup completed" 
+    # ✅ Cache optimization for faster builds
+    - name: Cache Node.js modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          node_modules
+          ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
