@@ -1,401 +1,607 @@
 <?php
 /**
- * Amazon Webhooks Controller
- * Amazon webhook yönetimi için controller
+ * Amazon Webhook Controller
+ * MesChain-Sync v4.1 - OpenCart 3.0.4.0 Integration
+ * Amazon Marketplace Webhook Integration for Real-time Order & Inventory Management
+ * 
+ * @author MesChain Development Team
+ * @version 4.1.0
+ * @copyright 2024 MesChain Technologies
+ * @supports Amazon SP-API Notifications, SQS Integration, EventBridge
  */
+
 class ControllerExtensionModuleAmazonWebhooks extends Controller {
-    private $error = array();
     
+    private $log;
+    private $logFile = 'amazon_webhooks.log';
+    private $encryption;
+    
+    public function __construct($registry) {
+        parent::__construct($registry);
+        $this->log = new Log($this->logFile);
+        
+        // Şifreleme helper'ı yükle
+        require_once(DIR_SYSTEM . 'library/meschain/encryption.php');
+        $this->encryption = new MeschainEncryption();
+    }
+    
+    /**
+     * Ana webhook handler - Amazon SQS/SNS webhook'larını karşılar
+     */
     public function index() {
-        $this->load->language('extension/module/amazon');
-        $this->load->model('extension/module/amazon');
-        
-        $this->document->setTitle($this->language->get('heading_title') . ' - Webhooks');
-        
-        $data['breadcrumbs'] = array();
-        $data['breadcrumbs'][] = array(
-            'text' => 'Ana Sayfa',
-            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        $data['breadcrumbs'][] = array(
-            'text' => 'Amazon Webhooks',
-            'href' => $this->url->link('extension/module/amazon_webhooks', 'user_token=' . $this->session->data['user_token'], true)
-        );
-        
-        // Webhook listesi
-        if (method_exists($this->model_extension_module_amazon, 'getWebhooks')) {
-            $data['webhooks'] = $this->model_extension_module_amazon->getWebhooks();
-        } else {
-            $data['webhooks'] = array();
-        }
-        
-        // Webhook URL'leri
-        $data['webhook_urls'] = [
-            'orders' => HTTP_CATALOG . 'index.php?route=extension/module/amazon_webhook/orders',
-            'products' => HTTP_CATALOG . 'index.php?route=extension/module/amazon_webhook/products',
-            'inventory' => HTTP_CATALOG . 'index.php?route=extension/module/amazon_webhook/inventory',
-            'fulfillment' => HTTP_CATALOG . 'index.php?route=extension/module/amazon_webhook/fulfillment'
-        ];
-        
-        // Zaman tabanlı senkronizasyon ayarları
-        $data['sync_intervals'] = [
-            'high_priority' => $this->config->get('module_amazon_sync_high_priority') ?: 5,
-            'medium_priority' => $this->config->get('module_amazon_sync_medium_priority') ?: 15,
-            'low_priority' => $this->config->get('module_amazon_sync_low_priority') ?: 60
-        ];
-        
-        // Rate limit ayarları
-        $data['rate_limits'] = [
-            'calls_per_minute' => $this->config->get('module_amazon_calls_per_minute') ?: 30,
-            'calls_per_hour' => $this->config->get('module_amazon_calls_per_hour') ?: 1000,
-            'calls_per_day' => $this->config->get('module_amazon_calls_per_day') ?: 10000
-        ];
-        
-        $data['user_token'] = $this->session->data['user_token'];
-        $data['header'] = $this->load->controller('common/header');
-        $data['column_left'] = $this->load->controller('common/column_left');
-        $data['footer'] = $this->load->controller('common/footer');
-        
-        $this->response->setOutput($this->load->view('extension/module/amazon_webhooks', $data));
-    }
-    
-    /**
-     * Webhook ayarlarını kaydet
-     */
-    public function save() {
-        $this->load->language('extension/module/amazon');
-        $this->load->model('extension/module/amazon');
-        
-        $json = array();
-        
-        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
-            try {
-                // Webhook ayarlarını kaydet
-                $webhookData = [
-                    'orders_enabled' => isset($this->request->post['orders_enabled']) ? 1 : 0,
-                    'products_enabled' => isset($this->request->post['products_enabled']) ? 1 : 0,
-                    'inventory_enabled' => isset($this->request->post['inventory_enabled']) ? 1 : 0,
-                    'fulfillment_enabled' => isset($this->request->post['fulfillment_enabled']) ? 1 : 0,
-                    'secret_key' => isset($this->request->post['secret_key']) ? $this->request->post['secret_key'] : '',
-                    'sns_topic_arn' => isset($this->request->post['sns_topic_arn']) ? $this->request->post['sns_topic_arn'] : '',
-                ];
-                
-                // Zaman tabanlı senkronizasyon ayarları
-                $syncData = [
-                    'high_priority_interval' => isset($this->request->post['high_priority_interval']) ? (int)$this->request->post['high_priority_interval'] : 5,
-                    'medium_priority_interval' => isset($this->request->post['medium_priority_interval']) ? (int)$this->request->post['medium_priority_interval'] : 15,
-                    'low_priority_interval' => isset($this->request->post['low_priority_interval']) ? (int)$this->request->post['low_priority_interval'] : 60,
-                ];
-                
-                // Rate limit ayarları
-                $rateLimitData = [
-                    'calls_per_minute' => isset($this->request->post['calls_per_minute']) ? (int)$this->request->post['calls_per_minute'] : 30,
-                    'calls_per_hour' => isset($this->request->post['calls_per_hour']) ? (int)$this->request->post['calls_per_hour'] : 1000,
-                    'calls_per_day' => isset($this->request->post['calls_per_day']) ? (int)$this->request->post['calls_per_day'] : 10000,
-                ];
-                
-                if (method_exists($this->model_extension_module_amazon, 'saveWebhookSettings')) {
-                    $this->model_extension_module_amazon->saveWebhookSettings($webhookData);
-                }
-                
-                // Config ayarlarını kaydet
-                foreach ($syncData as $key => $value) {
-                    $this->model_setting_setting->editSetting('module_amazon_sync_' . $key, ['module_amazon_sync_' . $key => $value]);
-                }
-                
-                foreach ($rateLimitData as $key => $value) {
-                    $this->model_setting_setting->editSetting('module_amazon_' . $key, ['module_amazon_' . $key => $value]);
-                }
-                
-                $json['success'] = 'Amazon webhook ayarları başarıyla kaydedildi';
-                
-            } catch (Exception $e) {
-                $json['error'] = 'Amazon webhook ayarları kaydedilirken hata oluştu: ' . $e->getMessage();
-            }
-        }
-        
-        $this->response->addHeader('Content-Type: application/json');
-        $this->response->setOutput(json_encode($json));
-    }
-    
-    /**
-     * Zaman tabanlı senkronizasyon başlat
-     */
-    public function startScheduledSync() {
-        $this->load->model('extension/module/amazon');
-        
-        $json = array();
+        $this->log->write('[INFO] Amazon webhook endpoint called');
         
         try {
-            $priority = isset($this->request->post['priority']) ? $this->request->post['priority'] : 'medium';
+            // Raw POST data al
+            $raw_data = file_get_contents('php://input');
+            $headers = getallheaders();
             
-            // Rate limit kontrolü
-            if (!$this->checkRateLimit()) {
-                $json['error'] = 'Rate limit aşıldı. Lütfen daha sonra tekrar deneyin.';
-                $this->response->addHeader('Content-Type: application/json');
-                $this->response->setOutput(json_encode($json));
+            // Content-Type kontrolü
+            $content_type = $headers['Content-Type'] ?? '';
+            
+            if (strpos($content_type, 'application/json') === false) {
+                $this->log->write('[ERROR] Invalid content type for Amazon webhook: ' . $content_type);
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid content type']);
                 return;
             }
             
-            // Senkronizasyon türüne göre işlem
-            switch ($priority) {
-                case 'high':
-                    $result = $this->syncHighPriorityData();
-                    break;
-                case 'medium':
-                    $result = $this->syncMediumPriorityData();
-                    break;
-                case 'low':
-                    $result = $this->syncLowPriorityData();
-                    break;
-                default:
-                    $result = $this->syncMediumPriorityData();
+            // JSON decode
+            $webhook_data = json_decode($raw_data, true);
+            
+            if (!$webhook_data) {
+                $this->log->write('[ERROR] Invalid JSON in Amazon webhook');
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid JSON']);
+                return;
             }
             
-            $json['success'] = 'Senkronizasyon başlatıldı';
-            $json['result'] = $result;
+            $this->log->write('[INFO] Amazon webhook data received: ' . json_encode($webhook_data));
+            
+            // SNS subscription confirmation
+            if (isset($webhook_data['Type']) && $webhook_data['Type'] === 'SubscriptionConfirmation') {
+                $this->handleSubscriptionConfirmation($webhook_data);
+                return;
+            }
+            
+            // SNS notification işleme
+            if (isset($webhook_data['Type']) && $webhook_data['Type'] === 'Notification') {
+                $this->handleSnsNotification($webhook_data);
+                return;
+            }
+            
+            // SQS message işleme
+            if (isset($webhook_data['Records'])) {
+                $this->handleSqsMessages($webhook_data['Records']);
+                return;
+            }
+            
+            // Direct SP-API notification
+            if (isset($webhook_data['notificationType'])) {
+                $this->handleSpApiNotification($webhook_data);
+                return;
+            }
+            
+            $this->log->write('[WARNING] Unknown Amazon webhook format');
+            http_response_code(400);
+            echo json_encode(['error' => 'Unknown webhook format']);
             
         } catch (Exception $e) {
-            $json['error'] = 'Senkronizasyon hatası: ' . $e->getMessage();
+            $this->log->write('[ERROR] Amazon webhook processing failed: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['error' => 'Internal server error']);
         }
-        
-        $this->response->addHeader('Content-Type: application/json');
-        $this->response->setOutput(json_encode($json));
     }
     
     /**
-     * Rate limit kontrolü
+     * SNS subscription confirmation işlemi
      */
-    private function checkRateLimit() {
+    private function handleSubscriptionConfirmation($data) {
+        $this->log->write('[INFO] Amazon SNS subscription confirmation received');
+        
+        $subscribe_url = $data['SubscribeURL'] ?? null;
+        
+        if ($subscribe_url) {
+            // Subscription'ı onayla
+            $response = file_get_contents($subscribe_url);
+            
+            if ($response !== false) {
+                $this->log->write('[INFO] Amazon SNS subscription confirmed successfully');
+                echo json_encode(['status' => 'subscription_confirmed']);
+            } else {
+                $this->log->write('[ERROR] Failed to confirm Amazon SNS subscription');
+                http_response_code(500);
+                echo json_encode(['error' => 'Subscription confirmation failed']);
+            }
+        } else {
+            $this->log->write('[ERROR] Amazon SNS subscription URL missing');
+            http_response_code(400);
+            echo json_encode(['error' => 'SubscribeURL missing']);
+        }
+    }
+    
+    /**
+     * SNS notification işleme
+     */
+    private function handleSnsNotification($data) {
+        $this->log->write('[INFO] Amazon SNS notification received');
+        
+        $message = json_decode($data['Message'] ?? '{}', true);
+        
+        if (!$message) {
+            $this->log->write('[ERROR] Invalid SNS message format');
+            return;
+        }
+        
+        $this->processAmazonNotification($message);
+    }
+    
+    /**
+     * SQS messages işleme
+     */
+    private function handleSqsMessages($records) {
+        $this->log->write('[INFO] Amazon SQS messages received: ' . count($records));
+        
+        foreach ($records as $record) {
+            if (isset($record['body'])) {
+                $message = json_decode($record['body'], true);
+                
+                if ($message) {
+                    $this->processAmazonNotification($message);
+                } else {
+                    $this->log->write('[ERROR] Invalid SQS message body');
+                }
+            }
+        }
+    }
+    
+    /**
+     * SP-API notification işleme
+     */
+    private function handleSpApiNotification($data) {
+        $this->log->write('[INFO] Amazon SP-API notification received');
+        $this->processAmazonNotification($data);
+    }
+    
+    /**
+     * Amazon notification'larını işle
+     */
+    private function processAmazonNotification($notification) {
+        $notification_type = $notification['notificationType'] ?? $notification['NotificationType'] ?? null;
+        
+        if (!$notification_type) {
+            $this->log->write('[ERROR] Amazon notification type missing');
+            return;
+        }
+        
+        switch ($notification_type) {
+            case 'ORDER_CHANGE':
+                $this->handleOrderChange($notification);
+                break;
+                
+            case 'ORDER_STATUS_CHANGE':
+                $this->handleOrderStatusChange($notification);
+                break;
+                
+            case 'INVENTORY_TRACKING':
+                $this->handleInventoryTracking($notification);
+                break;
+                
+            case 'FBA_INVENTORY_AVAILABILITY':
+                $this->handleFbaInventoryAvailability($notification);
+                break;
+                
+            case 'LISTING_OFFER_CHANGE':
+                $this->handleListingOfferChange($notification);
+                break;
+                
+            case 'PRICING_HEALTH':
+                $this->handlePricingHealth($notification);
+                break;
+                
+            case 'ACCOUNT_STATUS_CHANGE':
+                $this->handleAccountStatusChange($notification);
+                break;
+                
+            case 'BRANDED_ITEM_CONTENT_CHANGE':
+                $this->handleBrandedItemContentChange($notification);
+                break;
+                
+            case 'ITEM_PRODUCT_TYPE_CHANGE':
+                $this->handleItemProductTypeChange($notification);
+                break;
+                
+            case 'MFN_ORDER_STATUS_CHANGE':
+                $this->handleMfnOrderStatusChange($notification);
+                break;
+                
+            case 'B2B_ORDER_CHANGE':
+                $this->handleB2bOrderChange($notification);
+                break;
+                
+            case 'FEED_PROCESSING_FINISHED':
+                $this->handleFeedProcessingFinished($notification);
+                break;
+                
+            default:
+                $this->log->write('[WARNING] Unknown Amazon notification type: ' . $notification_type);
+                break;
+        }
+        
+        http_response_code(200);
+        echo json_encode(['status' => 'success', 'message' => 'Notification processed successfully']);
+    }
+    
+    /**
+     * Sipariş değişiklik işlemi
+     */
+    private function handleOrderChange($notification) {
+        $this->log->write('[INFO] Amazon order change notification received');
+        
+        $this->load->model('extension/module/amazon');
+        
+        $payload = $notification['payload'] ?? [];
+        $order_change_info = $payload['orderChangeInfo'] ?? [];
+        
+        $amazon_order_id = $order_change_info['amazonOrderId'] ?? null;
+        $change_type = $order_change_info['changeType'] ?? null;
+        
+        if (!$amazon_order_id) {
+            $this->log->write('[ERROR] Amazon order ID missing in order change notification');
+            return;
+        }
+        
+        // OpenCart sipariş ID'sini bul
+        $order_id = $this->model_extension_module_amazon->getOrderIdByAmazonOrderId($amazon_order_id);
+        
+        if ($order_id) {
+            switch ($change_type) {
+                case 'OrderItemQuantityChanged':
+                    $this->handleOrderItemQuantityChange($order_id, $order_change_info);
+                    break;
+                    
+                case 'OrderItemPriceChanged':
+                    $this->handleOrderItemPriceChange($order_id, $order_change_info);
+                    break;
+                    
+                case 'OrderCanceled':
+                    $this->handleOrderCanceled($order_id, $order_change_info);
+                    break;
+                    
+                default:
+                    $this->log->write('[WARNING] Unknown Amazon order change type: ' . $change_type);
+                    break;
+            }
+        } else {
+            // Yeni sipariş olabilir, senkronize et
+            $this->model_extension_module_amazon->syncOrderFromAmazon($amazon_order_id);
+        }
+        
+        $this->log->write('[INFO] Amazon order change processed - Order ID: ' . $amazon_order_id . ', Change Type: ' . $change_type);
+    }
+    
+    /**
+     * Sipariş durum değişiklik işlemi
+     */
+    private function handleOrderStatusChange($notification) {
+        $this->log->write('[INFO] Amazon order status change notification received');
+        
+        $this->load->model('extension/module/amazon');
+        
+        $payload = $notification['payload'] ?? [];
+        $order_status_info = $payload['orderStatusInfo'] ?? [];
+        
+        $amazon_order_id = $order_status_info['amazonOrderId'] ?? null;
+        $order_status = $order_status_info['orderStatus'] ?? null;
+        
+        if ($amazon_order_id && $order_status) {
+            $order_id = $this->model_extension_module_amazon->getOrderIdByAmazonOrderId($amazon_order_id);
+            
+            if ($order_id) {
+                // OpenCart order status'u güncelle
+                $opencart_status = $this->mapAmazonStatusToOpenCart($order_status);
+                $this->model_extension_module_amazon->updateOrderStatus($order_id, $opencart_status);
+                
+                $this->log->write('[INFO] Amazon order status updated - Order ID: ' . $amazon_order_id . ', Status: ' . $order_status);
+            }
+        }
+    }
+    
+    /**
+     * Envanter takip işlemi
+     */
+    private function handleInventoryTracking($notification) {
+        $this->log->write('[INFO] Amazon inventory tracking notification received');
+        
+        $this->load->model('extension/module/amazon');
+        $this->load->model('catalog/product');
+        
+        $payload = $notification['payload'] ?? [];
+        $inventory_info = $payload['inventoryInfo'] ?? [];
+        
+        foreach ($inventory_info as $inventory_item) {
+            $sku = $inventory_item['sku'] ?? null;
+            $quantity = $inventory_item['quantity'] ?? 0;
+            
+            if ($sku) {
+                // SKU'ya göre ürün bul
+                $product_id = $this->model_extension_module_amazon->getProductIdBySku($sku);
+                
+                if ($product_id) {
+                    // Stok güncelle
+                    $this->db->query("UPDATE " . DB_PREFIX . "product SET quantity = '" . (int)$quantity . "' WHERE product_id = '" . (int)$product_id . "'");
+                    
+                    $this->log->write('[INFO] Amazon inventory updated - SKU: ' . $sku . ', Quantity: ' . $quantity);
+                }
+            }
+        }
+    }
+    
+    /**
+     * FBA envanter durumu işlemi
+     */
+    private function handleFbaInventoryAvailability($notification) {
+        $this->log->write('[INFO] Amazon FBA inventory availability notification received');
+        
+        $this->load->model('extension/module/amazon');
+        
+        $payload = $notification['payload'] ?? [];
+        $fba_inventory = $payload['fbaInventory'] ?? [];
+        
+        foreach ($fba_inventory as $inventory_item) {
+            $sku = $inventory_item['sku'] ?? null;
+            $fulfillable_quantity = $inventory_item['fulfillableQuantity'] ?? 0;
+            $inbound_quantity = $inventory_item['inboundQuantity'] ?? 0;
+            
+            if ($sku) {
+                $this->model_extension_module_amazon->updateFbaInventory($sku, [
+                    'fulfillable_quantity' => $fulfillable_quantity,
+                    'inbound_quantity' => $inbound_quantity,
+                    'last_updated' => date('Y-m-d H:i:s')
+                ]);
+                
+                $this->log->write('[INFO] Amazon FBA inventory updated - SKU: ' . $sku . ', Fulfillable: ' . $fulfillable_quantity);
+            }
+        }
+    }
+    
+    /**
+     * Listing/Offer değişiklik işlemi
+     */
+    private function handleListingOfferChange($notification) {
+        $this->log->write('[INFO] Amazon listing offer change notification received');
+        
+        $this->load->model('extension/module/amazon');
+        
+        $payload = $notification['payload'] ?? [];
+        $offer_info = $payload['offerInfo'] ?? [];
+        
+        $sku = $offer_info['sku'] ?? null;
+        $selling_price = $offer_info['sellingPrice'] ?? null;
+        $quantity = $offer_info['quantity'] ?? null;
+        
+        if ($sku) {
+            $product_id = $this->model_extension_module_amazon->getProductIdBySku($sku);
+            
+            if ($product_id) {
+                $update_data = [];
+                
+                if ($selling_price !== null) {
+                    $update_data['price'] = $selling_price;
+                }
+                
+                if ($quantity !== null) {
+                    $update_data['quantity'] = $quantity;
+                }
+                
+                if (!empty($update_data)) {
+                    $this->model_extension_module_amazon->updateProductFromAmazon($product_id, $update_data);
+                    
+                    $this->log->write('[INFO] Amazon listing offer updated - SKU: ' . $sku);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Fiyat sağlık durumu işlemi
+     */
+    private function handlePricingHealth($notification) {
+        $this->log->write('[INFO] Amazon pricing health notification received');
+        
+        $this->load->model('extension/module/amazon');
+        
+        $payload = $notification['payload'] ?? [];
+        $pricing_info = $payload['pricingInfo'] ?? [];
+        
+        foreach ($pricing_info as $pricing_item) {
+            $sku = $pricing_item['sku'] ?? null;
+            $health_status = $pricing_item['healthStatus'] ?? null;
+            $recommended_price = $pricing_item['recommendedPrice'] ?? null;
+            
+            if ($sku && $health_status) {
+                $this->model_extension_module_amazon->updatePricingHealth($sku, [
+                    'health_status' => $health_status,
+                    'recommended_price' => $recommended_price,
+                    'last_updated' => date('Y-m-d H:i:s')
+                ]);
+                
+                // Kritik durumlarda admin bilgilendir
+                if ($health_status === 'POOR' || $health_status === 'CRITICAL') {
+                    $this->sendAdminNotification('Amazon Pricing Health Alert', 'SKU: ' . $sku . ' has ' . $health_status . ' pricing health status.');
+                }
+                
+                $this->log->write('[INFO] Amazon pricing health updated - SKU: ' . $sku . ', Status: ' . $health_status);
+            }
+        }
+    }
+    
+    /**
+     * Hesap durum değişiklik işlemi
+     */
+    private function handleAccountStatusChange($notification) {
+        $this->log->write('[INFO] Amazon account status change notification received');
+        
+        $payload = $notification['payload'] ?? [];
+        $account_status = $payload['accountStatus'] ?? null;
+        $marketplace_id = $payload['marketplaceId'] ?? null;
+        
+        if ($account_status && $marketplace_id) {
+            // Hesap durumunu kaydet
+            $this->db->query("INSERT INTO " . DB_PREFIX . "amazon_account_status (marketplace_id, status, status_date) VALUES ('" . $this->db->escape($marketplace_id) . "', '" . $this->db->escape($account_status) . "', NOW()) ON DUPLICATE KEY UPDATE status = VALUES(status), status_date = VALUES(status_date)");
+            
+            // Kritik durumda admin bilgilendir
+            if (in_array($account_status, ['SUSPENDED', 'DEACTIVATED', 'UNDER_REVIEW'])) {
+                $this->sendAdminNotification('Amazon Account Status Alert', 'Account status changed to: ' . $account_status . ' for marketplace: ' . $marketplace_id);
+            }
+            
+            $this->log->write('[INFO] Amazon account status updated - Marketplace: ' . $marketplace_id . ', Status: ' . $account_status);
+        }
+    }
+    
+    /**
+     * Feed işleme tamamlanma
+     */
+    private function handleFeedProcessingFinished($notification) {
+        $this->log->write('[INFO] Amazon feed processing finished notification received');
+        
+        $this->load->model('extension/module/amazon');
+        
+        $payload = $notification['payload'] ?? [];
+        $feed_id = $payload['feedId'] ?? null;
+        $processing_status = $payload['processingStatus'] ?? null;
+        
+        if ($feed_id && $processing_status) {
+            $this->model_extension_module_amazon->updateFeedStatus($feed_id, $processing_status);
+            
+            // Feed sonuç raporunu al
+            if ($processing_status === 'DONE') {
+                $this->model_extension_module_amazon->processFeedResult($feed_id);
+            }
+            
+            $this->log->write('[INFO] Amazon feed processing finished - Feed ID: ' . $feed_id . ', Status: ' . $processing_status);
+        }
+    }
+    
+    /**
+     * Amazon durum kodlarını OpenCart'a dönüştür
+     */
+    private function mapAmazonStatusToOpenCart($amazon_status) {
+        $status_map = [
+            'Pending' => 1,
+            'Unshipped' => 2,
+            'PartiallyShipped' => 3,
+            'Shipped' => 4,
+            'Canceled' => 7,
+            'Unfulfillable' => 8
+        ];
+        
+        return $status_map[$amazon_status] ?? 1;
+    }
+    
+    /**
+     * Admin bildirim gönder
+     */
+    private function sendAdminNotification($subject, $message) {
+        $admin_email = $this->config->get('config_email');
+        if ($admin_email) {
+            $mail = new Mail();
+            $mail->protocol = $this->config->get('config_mail_protocol');
+            $mail->parameter = $this->config->get('config_mail_parameter');
+            $mail->smtp_hostname = $this->config->get('config_mail_smtp_hostname');
+            $mail->smtp_username = $this->config->get('config_mail_smtp_username');
+            $mail->smtp_password = html_entity_decode($this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8');
+            $mail->smtp_port = $this->config->get('config_mail_smtp_port');
+            $mail->smtp_timeout = $this->config->get('config_mail_smtp_timeout');
+            
+            $mail->setTo($admin_email);
+            $mail->setFrom($this->config->get('config_email'));
+            $mail->setSender($this->config->get('config_name'));
+            $mail->setSubject('MesChain-Sync: ' . $subject);
+            $mail->setHtml($message);
+            $mail->send();
+        }
+    }
+    
+    /**
+     * Webhook ayarları sayfası
+     */
+    public function settings() {
+        $this->load->language('extension/module/amazon');
+        $this->document->setTitle('Amazon Webhook Settings');
         $this->load->model('setting/setting');
         
-        $callsPerMinute = $this->config->get('module_amazon_calls_per_minute') ?: 30;
-        $callsPerHour = $this->config->get('module_amazon_calls_per_hour') ?: 1000;
-        
-        // Son 1 dakikadaki çağrı sayısını kontrol et
-        $recentCalls = $this->getRecentApiCalls(60); // Son 60 saniye
-        if ($recentCalls >= $callsPerMinute) {
-            return false;
+        if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validate()) {
+            $this->model_setting_setting->editSetting('module_amazon_webhook', $this->request->post);
+            $this->session->data['success'] = 'Amazon webhook settings saved successfully!';
+            $this->response->redirect($this->url->link('extension/module/amazon_webhooks/settings', 'user_token=' . $this->session->data['user_token'], true));
         }
         
-        // Son 1 saatteki çağrı sayısını kontrol et
-        $hourlyCalls = $this->getRecentApiCalls(3600); // Son 1 saat
-        if ($hourlyCalls >= $callsPerHour) {
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Son API çağrı sayısını getir
-     */
-    private function getRecentApiCalls($seconds) {
-        // Bu method model'de implement edilmeli
-        if (method_exists($this->model_extension_module_amazon, 'getRecentApiCalls')) {
-            return $this->model_extension_module_amazon->getRecentApiCalls($seconds);
-        }
-        return 0;
-    }
-    
-    /**
-     * Yüksek öncelikli veri senkronizasyonu
-     */
-    private function syncHighPriorityData() {
-        // Sipariş durumu, stok kritik seviye, ödeme durumu
-        $results = [
-            'orders' => 0,
-            'critical_stock' => 0,
-            'payments' => 0
+        $data['breadcrumbs'] = [];
+        $data['breadcrumbs'][] = [
+            'text' => 'Home',
+            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
         ];
         
-        try {
-            // API çağrılarını logla
-            $this->logApiCall('amazon', 'high_priority_sync', time());
-            
-            // Simülasyon - gerçek API çağrıları burada olacak
-            $results['orders'] = rand(0, 5);
-            $results['critical_stock'] = rand(0, 3);
-            $results['payments'] = rand(0, 2);
-            
-        } catch (Exception $e) {
-            $this->log->write('Amazon High Priority Sync Error: ' . $e->getMessage());
-        }
+        $data['action'] = $this->url->link('extension/module/amazon_webhooks/settings', 'user_token=' . $this->session->data['user_token'], true);
+        $data['cancel'] = $this->url->link('extension/module/amazon', 'user_token=' . $this->session->data['user_token'], true);
         
-        return $results;
+        // Webhook URL
+        $data['webhook_url'] = HTTPS_CATALOG . 'index.php?route=extension/module/amazon_webhooks';
+        
+        // Mevcut ayarları yükle
+        $data['module_amazon_webhook_sns_topic_arn'] = $this->config->get('module_amazon_webhook_sns_topic_arn');
+        $data['module_amazon_webhook_sqs_queue_url'] = $this->config->get('module_amazon_webhook_sqs_queue_url');
+        $data['module_amazon_webhook_enabled'] = $this->config->get('module_amazon_webhook_enabled');
+        
+        $this->response->setOutput($this->load->view('extension/module/amazon_webhooks_settings', $data));
     }
     
     /**
-     * Orta öncelikli veri senkronizasyonu
-     */
-    private function syncMediumPriorityData() {
-        // Fiyat güncellemeleri, stok miktarı, yeni siparişler
-        $results = [
-            'prices' => 0,
-            'stock' => 0,
-            'new_orders' => 0
-        ];
-        
-        try {
-            $this->logApiCall('amazon', 'medium_priority_sync', time());
-            
-            $results['prices'] = rand(5, 15);
-            $results['stock'] = rand(10, 30);
-            $results['new_orders'] = rand(0, 8);
-            
-        } catch (Exception $e) {
-            $this->log->write('Amazon Medium Priority Sync Error: ' . $e->getMessage());
-        }
-        
-        return $results;
-    }
-    
-    /**
-     * Düşük öncelikli veri senkronizasyonu
-     */
-    private function syncLowPriorityData() {
-        // Ürün bilgileri, kategoriler, raporlar
-        $results = [
-            'products' => 0,
-            'categories' => 0,
-            'reports' => 0
-        ];
-        
-        try {
-            $this->logApiCall('amazon', 'low_priority_sync', time());
-            
-            $results['products'] = rand(20, 50);
-            $results['categories'] = rand(5, 10);
-            $results['reports'] = rand(1, 3);
-            
-        } catch (Exception $e) {
-            $this->log->write('Amazon Low Priority Sync Error: ' . $e->getMessage());
-        }
-        
-        return $results;
-    }
-    
-    /**
-     * API çağrısını logla
-     */
-    private function logApiCall($marketplace, $endpoint, $timestamp) {
-        if (method_exists($this->model_extension_module_amazon, 'logApiCall')) {
-            $this->model_extension_module_amazon->logApiCall($marketplace, $endpoint, $timestamp);
-        }
-    }
-    
-    /**
-     * Webhook test et
+     * Webhook test
      */
     public function test() {
-        $this->load->language('extension/module/amazon');
-        $this->load->model('extension/module/amazon');
+        $this->log->write('[INFO] Amazon webhook test initiated');
         
-        $json = array();
-        
-        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
-            try {
-                $webhookType = isset($this->request->post['webhook_type']) ? $this->request->post['webhook_type'] : 'orders';
-                
-                // Test verisi oluştur
-                $testData = [
-                    'test' => true,
-                    'timestamp' => time(),
-                    'eventType' => 'ORDER_STATUS_CHANGED',
-                    'payload' => [
-                        'orderId' => 'AMZ-TEST-' . time(),
-                        'status' => 'Shipped',
-                        'message' => 'Amazon webhook test mesajı'
+        // Test webhook verisi
+        $test_data = [
+            'notificationType' => 'ORDER_CHANGE',
+            'payload' => [
+                'orderChangeInfo' => [
+                    'amazonOrderId' => 'TEST-123-456-789',
+                    'changeType' => 'OrderItemQuantityChanged',
+                    'orderItems' => [
+                        [
+                            'sku' => 'TEST-SKU-001',
+                            'quantityOrdered' => 2,
+                            'quantityShipped' => 0
+                        ]
                     ]
-                ];
-                
-                // Webhook URL'ini çağır
-                $webhookUrl = HTTP_CATALOG . 'index.php?route=extension/module/amazon_webhook/' . $webhookType;
-                
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $webhookUrl);
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($testData));
-                curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'Content-Type: application/json',
-                    'X-Amazon-Signature: test-signature',
-                    'User-Agent: Amazon-SNS-Agent'
-                ]);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-                
-                $response = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-                
-                if ($httpCode == 200) {
-                    $json['success'] = 'Amazon webhook testi başarılı';
-                } else {
-                    $json['error'] = 'Amazon webhook testi başarısız. HTTP Code: ' . $httpCode;
-                }
-                
-            } catch (Exception $e) {
-                $json['error'] = 'Amazon webhook testi sırasında hata: ' . $e->getMessage();
-            }
-        }
+                ]
+            ],
+            'eventTime' => date('c')
+        ];
         
-        $this->response->addHeader('Content-Type: application/json');
-        $this->response->setOutput(json_encode($json));
+        try {
+            $this->handleOrderChange($test_data);
+            
+            $this->log->write('[INFO] Amazon webhook test completed successfully');
+            echo json_encode(['status' => 'success', 'message' => 'Webhook test completed successfully']);
+            
+        } catch (Exception $e) {
+            $this->log->write('[ERROR] Amazon webhook test failed: ' . $e->getMessage());
+            echo json_encode(['status' => 'error', 'message' => 'Webhook test failed: ' . $e->getMessage()]);
+        }
     }
     
     /**
-     * Webhook loglarını görüntüle
+     * Validation kontrolü
      */
-    public function logs() {
-        $this->load->language('extension/module/amazon');
-        $this->load->model('extension/module/amazon');
-        
-        if (method_exists($this->model_extension_module_amazon, 'getWebhookLogs')) {
-            $data['logs'] = $this->model_extension_module_amazon->getWebhookLogs();
-        } else {
-            $data['logs'] = array();
+    private function validate() {
+        if (!$this->user->hasPermission('modify', 'extension/module/amazon_webhooks')) {
+            $this->error['warning'] = 'You do not have permission to modify Amazon webhook settings!';
         }
         
-        $this->response->setOutput($this->load->view('extension/module/amazon_webhook_logs', $data));
-    }
-    
-    /**
-     * SNS subscription doğrulama
-     */
-    public function confirmSubscription() {
-        $json = array();
-        
-        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
-            try {
-                $input = json_decode(file_get_contents('php://input'), true);
-                
-                if (isset($input['Type']) && $input['Type'] === 'SubscriptionConfirmation') {
-                    // SNS subscription'ı doğrula
-                    $subscribeUrl = $input['SubscribeURL'];
-                    
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, $subscribeUrl);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-                    
-                    $response = curl_exec($ch);
-                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    curl_close($ch);
-                    
-                    if ($httpCode == 200) {
-                        $json['success'] = 'Amazon SNS subscription doğrulandı';
-                    } else {
-                        $json['error'] = 'SNS subscription doğrulanamadı';
-                    }
-                }
-                
-            } catch (Exception $e) {
-                $json['error'] = 'SNS doğrulama hatası: ' . $e->getMessage();
-            }
-        }
-        
-        $this->response->addHeader('Content-Type: application/json');
-        $this->response->setOutput(json_encode($json));
+        return !$this->error;
     }
 } 
