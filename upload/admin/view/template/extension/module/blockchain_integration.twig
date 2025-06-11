@@ -1,0 +1,635 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-blockchain" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fa fa-save"></i>
+        </button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+          <i class="fa fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Blockchain Dashboard Overview -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-link"></i> Connected Networks
+            </h3>
+          </div>
+          <div class="panel-body">
+            <h2 class="text-primary">{{ blockchain_networks|length }}</h2>
+            <p class="text-muted">Active blockchain networks</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-file-code-o"></i> Smart Contracts
+            </h3>
+          </div>
+          <div class="panel-body">
+            <h2 class="text-success">{{ smart_contracts|length }}</h2>
+            <p class="text-muted">Deployed contracts</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-exchange"></i> DeFi Protocols
+            </h3>
+          </div>
+          <div class="panel-body">
+            <h2 class="text-info">{{ defi_protocols|length }}</h2>
+            <p class="text-muted">Integrated protocols</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-picture-o"></i> NFT Collections
+            </h3>
+          </div>
+          <div class="panel-body">
+            <h2 class="text-warning">{{ nft_marketplace.total_collections }}</h2>
+            <p class="text-muted">Active collections</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blockchain Operations Center -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-cogs"></i> Blockchain Operations Center
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-3">
+            <button type="button" id="btn-connect-networks" class="btn btn-primary btn-block btn-lg">
+              <i class="fa fa-link"></i><br>
+              <strong>Connect Networks</strong><br>
+              <small>Establish blockchain connections</small>
+            </button>
+          </div>
+          <div class="col-md-3">
+            <button type="button" id="btn-deploy-contracts" class="btn btn-success btn-block btn-lg">
+              <i class="fa fa-rocket"></i><br>
+              <strong>Deploy Contracts</strong><br>
+              <small>Deploy smart contracts</small>
+            </button>
+          </div>
+          <div class="col-md-3">
+            <button type="button" id="btn-sync-defi" class="btn btn-info btn-block btn-lg">
+              <i class="fa fa-refresh"></i><br>
+              <strong>Sync DeFi</strong><br>
+              <small>Integrate DeFi protocols</small>
+            </button>
+          </div>
+          <div class="col-md-3">
+            <button type="button" id="btn-launch-nft" class="btn btn-warning btn-block btn-lg">
+              <i class="fa fa-star"></i><br>
+              <strong>Launch NFT</strong><br>
+              <small>Deploy NFT marketplace</small>
+            </button>
+          </div>
+        </div>
+        <div class="row" style="margin-top: 15px;">
+          <div class="col-md-6">
+            <button type="button" id="btn-optimize-blockchain" class="btn btn-danger btn-block btn-lg">
+              <i class="fa fa-tachometer"></i><br>
+              <strong>Optimize Blockchain</strong><br>
+              <small>Apply performance optimizations</small>
+            </button>
+          </div>
+          <div class="col-md-6">
+            <button type="button" id="btn-generate-report" class="btn btn-default btn-block btn-lg">
+              <i class="fa fa-bar-chart"></i><br>
+              <strong>Generate Report</strong><br>
+              <small>Blockchain analytics report</small>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blockchain Network Status -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-globe"></i> Blockchain Network Status
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Network</th>
+                <th>Status</th>
+                <th>Block Height</th>
+                <th>Gas Price</th>
+                <th>TPS</th>
+                <th>Contracts</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for network_name, network_data in blockchain_networks %}
+                <tr>
+                  <td>
+                    <strong>{{ network_name|title }}</strong>
+                  </td>
+                  <td>
+                    {% if network_data.status == 'connected' %}
+                      <span class="label label-success">Connected</span>
+                    {% else %}
+                      <span class="label label-danger">Disconnected</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ network_data.block_height ?? 'N/A' }}</td>
+                  <td>{{ network_data.gas_price ?? 'N/A' }}</td>
+                  <td>{{ network_data.tps ?? 'N/A' }}</td>
+                  <td>{{ network_data.contracts_deployed ?? 0 }}</td>
+                  <td>
+                    <button class="btn btn-xs btn-info" onclick="viewNetworkDetails('{{ network_name }}')">
+                      <i class="fa fa-eye"></i> View
+                    </button>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Contracts Dashboard -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-file-code-o"></i> Smart Contracts Dashboard
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          {% for contract_name, contract_data in smart_contracts %}
+            <div class="col-md-4">
+              <div class="panel panel-info">
+                <div class="panel-heading">
+                  <h4 class="panel-title">{{ contract_name }}</h4>
+                </div>
+                <div class="panel-body">
+                  <p><strong>Networks:</strong> {{ contract_data.deployed_networks|join(', ') }}</p>
+                  {% if contract_data.total_transactions is defined %}
+                    <p><strong>Transactions:</strong> {{ contract_data.total_transactions|number_format }}</p>
+                  {% endif %}
+                  {% if contract_data.total_volume is defined %}
+                    <p><strong>Volume:</strong> {{ contract_data.total_volume }}</p>
+                  {% endif %}
+                  {% if contract_data.total_supply is defined %}
+                    <p><strong>Supply:</strong> {{ contract_data.total_supply }}</p>
+                  {% endif %}
+                  <p><strong>Status:</strong> 
+                    <span class="label label-success">{{ contract_data.status|title }}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- DeFi Protocols Integration -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-exchange"></i> DeFi Protocols Integration
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Protocol</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>TVL</th>
+                <th>24h Volume</th>
+                <th>Features</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for protocol_name, protocol_data in defi_protocols %}
+                <tr>
+                  <td><strong>{{ protocol_name|title }}</strong></td>
+                  <td>{{ protocol_data.type|title }}</td>
+                  <td>
+                    <span class="label label-success">{{ protocol_data.status|title }}</span>
+                  </td>
+                  <td>{{ protocol_data.total_tvl ?? 'N/A' }}</td>
+                  <td>{{ protocol_data.trading_volume_24h ?? 'N/A' }}</td>
+                  <td>
+                    {% if protocol_data.liquidity_pools is defined %}
+                      <small>{{ protocol_data.liquidity_pools }} pools</small>
+                    {% endif %}
+                    {% if protocol_data.price_feeds is defined %}
+                      <small>{{ protocol_data.price_feeds }} feeds</small>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- NFT Marketplace Status -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-picture-o"></i> NFT Marketplace Status
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="panel panel-primary">
+              <div class="panel-body text-center">
+                <h3>{{ nft_marketplace.total_collections }}</h3>
+                <p>Collections</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="panel panel-success">
+              <div class="panel-body text-center">
+                <h3>{{ nft_marketplace.total_nfts|number_format }}</h3>
+                <p>Total NFTs</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="panel panel-info">
+              <div class="panel-body text-center">
+                <h3>{{ nft_marketplace.total_sales|number_format }}</h3>
+                <p>Total Sales</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="panel panel-warning">
+              <div class="panel-body text-center">
+                <h3>{{ nft_marketplace.total_volume }}</h3>
+                <p>Total Volume</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Blockchain Metrics -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-line-chart"></i> Live Blockchain Metrics
+          <div class="pull-right">
+            <button type="button" class="btn btn-xs btn-default" onclick="refreshMetrics()">
+              <i class="fa fa-refresh"></i> Refresh
+            </button>
+          </div>
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-2">
+            <div class="metric-box">
+              <h4>{{ blockchain_metrics.total_networks }}</h4>
+              <p>Networks</p>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="metric-box">
+              <h4>{{ blockchain_metrics.total_transactions|number_format }}</h4>
+              <p>Transactions</p>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="metric-box">
+              <h4>{{ blockchain_metrics.total_contracts }}</h4>
+              <p>Contracts</p>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="metric-box">
+              <h4>{{ blockchain_metrics.cross_chain_transfers|number_format }}</h4>
+              <p>Cross-Chain</p>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="metric-box">
+              <h4>{{ blockchain_metrics.defi_integrations }}</h4>
+              <p>DeFi Protocols</p>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="metric-box">
+              <h4>{{ blockchain_metrics.blockchain_uptime }}</h4>
+              <p>Uptime</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decentralized Storage Status -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-cloud"></i> Decentralized Storage Status
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-3">
+            <p><strong>IPFS Nodes:</strong> {{ decentralized_storage.ipfs_nodes }}</p>
+          </div>
+          <div class="col-md-3">
+            <p><strong>Total Storage:</strong> {{ decentralized_storage.total_storage }}</p>
+          </div>
+          <div class="col-md-3">
+            <p><strong>Files Stored:</strong> {{ decentralized_storage.files_stored|number_format }}</p>
+          </div>
+          <div class="col-md-3">
+            <p><strong>Availability:</strong> {{ decentralized_storage.availability }}</p>
+          </div>
+        </div>
+        <div class="progress">
+          <div class="progress-bar progress-bar-success" style="width: {{ (decentralized_storage.availability|replace('%', '')|number_format) }}%">
+            Storage Availability: {{ decentralized_storage.availability }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Operation Status Modal -->
+    <div id="operationModal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title">Blockchain Operation Status</h4>
+          </div>
+          <div class="modal-body">
+            <div id="operation-status">
+              <div class="text-center">
+                <i class="fa fa-spinner fa-spin fa-3x"></i>
+                <p>Initializing blockchain operation...</p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.metric-box {
+  text-align: center;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #f9f9f9;
+}
+
+.metric-box h4 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #337ab7;
+}
+
+.metric-box p {
+  margin: 5px 0 0 0;
+  color: #666;
+  font-size: 12px;
+}
+
+.panel-body .btn-lg {
+  padding: 20px;
+  margin-bottom: 10px;
+}
+
+.panel-body .btn-lg i {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.operation-result {
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+
+.operation-success {
+  background-color: #dff0d8;
+  border: 1px solid #d6e9c6;
+  color: #3c763d;
+}
+
+.operation-error {
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  color: #a94442;
+}
+
+.network-status {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.network-connected {
+  background-color: #5cb85c;
+}
+
+.network-disconnected {
+  background-color: #d9534f;
+}
+</style>
+
+<script type="text/javascript">
+// Blockchain operations JavaScript
+$(document).ready(function() {
+    // Connect Networks
+    $('#btn-connect-networks').click(function() {
+        executeBlockchainOperation('{{ url_connect_networks }}', 'Connecting to blockchain networks...');
+    });
+    
+    // Deploy Smart Contracts
+    $('#btn-deploy-contracts').click(function() {
+        executeBlockchainOperation('{{ url_deploy_contracts }}', 'Deploying smart contracts...');
+    });
+    
+    // Sync DeFi Protocols
+    $('#btn-sync-defi').click(function() {
+        executeBlockchainOperation('{{ url_sync_defi }}', 'Synchronizing DeFi protocols...');
+    });
+    
+    // Launch NFT Marketplace
+    $('#btn-launch-nft').click(function() {
+        executeBlockchainOperation('{{ url_launch_nft }}', 'Launching NFT marketplace...');
+    });
+    
+    // Optimize Blockchain
+    $('#btn-optimize-blockchain').click(function() {
+        executeBlockchainOperation('{{ url_optimize_blockchain }}', 'Optimizing blockchain performance...');
+    });
+});
+
+function executeBlockchainOperation(url, loadingMessage) {
+    $('#operationModal').modal('show');
+    $('#operation-status').html(`
+        <div class="text-center">
+            <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
+            <h4>${loadingMessage}</h4>
+            <p>Please wait while the operation is being processed...</p>
+        </div>
+    `);
+    
+    $.ajax({
+        url: url,
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            if (response.status === 'success') {
+                showOperationSuccess(response);
+            } else {
+                showOperationError(response);
+            }
+        },
+        error: function(xhr, status, error) {
+            showOperationError({
+                message: 'Operation failed: ' + error,
+                error: 'Network or server error occurred'
+            });
+        }
+    });
+}
+
+function showOperationSuccess(response) {
+    let successHtml = `
+        <div class="operation-result operation-success">
+            <h4><i class="fa fa-check-circle"></i> Operation Successful</h4>
+            <p>${response.message}</p>
+    `;
+    
+    // Add specific details based on operation type
+    if (response.networks) {
+        successHtml += `<p><strong>Networks Connected:</strong> ${response.total_connected}</p>`;
+    }
+    
+    if (response.deployments) {
+        successHtml += `<p><strong>Contracts Deployed:</strong> ${response.total_deployments}</p>`;
+    }
+    
+    if (response.integrations) {
+        successHtml += `<p><strong>DeFi Protocols:</strong> ${response.active_integrations}</p>`;
+    }
+    
+    if (response.collections) {
+        successHtml += `<p><strong>NFT Collections:</strong> ${response.total_collections}</p>`;
+    }
+    
+    if (response.performance_improvement) {
+        successHtml += `<p><strong>Performance Improvement:</strong> ${response.performance_improvement}%</p>`;
+    }
+    
+    successHtml += `</div>`;
+    
+    $('#operation-status').html(successHtml);
+    
+    // Auto-refresh the page after 3 seconds
+    setTimeout(function() {
+        location.reload();
+    }, 3000);
+}
+
+function showOperationError(response) {
+    let errorHtml = `
+        <div class="operation-result operation-error">
+            <h4><i class="fa fa-exclamation-triangle"></i> Operation Failed</h4>
+            <p>${response.message || 'An unknown error occurred'}</p>
+    `;
+    
+    if (response.error) {
+        errorHtml += `<p><strong>Error Details:</strong> ${response.error}</p>`;
+    }
+    
+    errorHtml += `</div>`;
+    
+    $('#operation-status').html(errorHtml);
+}
+
+function viewNetworkDetails(networkName) {
+    alert('Viewing details for ' + networkName + ' network. Feature coming soon!');
+}
+
+function refreshMetrics() {
+    // Refresh the metrics by reloading the page
+    location.reload();
+}
+
+// Auto-refresh metrics every 30 seconds
+setInterval(function() {
+    refreshMetrics();
+}, 30000);
+
+// Real-time status updates
+function updateNetworkStatus() {
+    // This would be implemented with WebSockets or periodic AJAX calls
+    // for real-time blockchain network status updates
+}
+
+// Initialize tooltips
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+
+{{ footer }} 
