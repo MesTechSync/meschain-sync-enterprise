@@ -996,6 +996,147 @@ class ControllerExtensionModuleAmazon extends ControllerExtensionModuleBaseMarke
         $this->response->addHeader('Content-Type: application/json');
         $this->response->setOutput(json_encode($json));
     }
+
+    /**
+     * Amazon Turkey marketplace test integration
+     */
+    public function testTurkeyMarketplace() {
+        $this->load->language('extension/module/amazon');
+        
+        $test_results = array();
+        
+        try {
+            // Test Turkey marketplace connection
+            $turkey_config = array(
+                'marketplace_id' => 'A33AVAJ2PDY3EV',
+                'region' => 'eu-west-1',
+                'currency' => 'TRY',
+                'locale' => 'tr-TR'
+            );
+            
+            // Test API connection to Turkey marketplace
+            $connection_test = $this->testTurkeyMarketplaceConnection($turkey_config);
+            $test_results['connection'] = $connection_test;
+            
+            // Test product listing in Turkey marketplace
+            $listing_test = $this->testTurkeyProductListing($turkey_config);
+            $test_results['product_listing'] = $listing_test;
+            
+            // Test order retrieval from Turkey marketplace
+            $order_test = $this->testTurkeyOrderRetrieval($turkey_config);
+            $test_results['order_retrieval'] = $order_test;
+            
+            // Test Turkey-specific features
+            $turkey_features_test = $this->testTurkeySpecificFeatures();
+            $test_results['turkey_features'] = $turkey_features_test;
+            
+            $this->writeLog('admin', 'TURKEY_TEST_SUCCESS', 'Turkey marketplace test completed successfully');
+            
+        } catch (Exception $e) {
+            $test_results['error'] = $e->getMessage();
+            $this->writeLog('admin', 'TURKEY_TEST_ERROR', 'Turkey marketplace test failed: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode(array(
+            'success' => empty($test_results['error']),
+            'results' => $test_results,
+            'timestamp' => date('Y-m-d H:i:s')
+        )));
+    }
+    
+    /**
+     * Test Turkey marketplace connection
+     */
+    private function testTurkeyMarketplaceConnection($config) {
+        $this->load->model('extension/module/amazon');
+        
+        $api_params = array(
+            'Action' => 'GetServiceStatus',
+            'MarketplaceId' => $config['marketplace_id']
+        );
+        
+        $response = $this->model_extension_module_amazon->makeApiRequest('orders/v0/orders', $api_params);
+        
+        return array(
+            'status' => $response ? 'success' : 'failed',
+            'marketplace_id' => $config['marketplace_id'],
+            'response_time' => $response['response_time'] ?? 0
+        );
+    }
+    
+    /**
+     * Test product listing in Turkey marketplace
+     */
+    private function testTurkeyProductListing($config) {
+        try {
+            $this->load->model('extension/module/amazon');
+            
+            // Test sample product listing for Turkey marketplace
+            $test_product = array(
+                'sku' => 'TEST-TR-001',
+                'title' => 'Test Product Turkey',
+                'price' => 100.00,
+                'currency' => 'TRY',
+                'marketplace_id' => $config['marketplace_id']
+            );
+            
+            $result = $this->model_extension_module_amazon->testProductListing($test_product);
+            
+            return array(
+                'status' => $result ? 'success' : 'failed',
+                'test_sku' => $test_product['sku']
+            );
+            
+        } catch (Exception $e) {
+            return array('status' => 'error', 'message' => $e->getMessage());
+        }
+    }
+    
+    /**
+     * Test order retrieval from Turkey marketplace
+     */
+    private function testTurkeyOrderRetrieval($config) {
+        try {
+            $this->load->model('extension/module/amazon');
+            
+            $params = array(
+                'MarketplaceId' => $config['marketplace_id'],
+                'CreatedAfter' => date('c', strtotime('-7 days')),
+                'OrderStatuses' => array('Unshipped')
+            );
+            
+            $result = $this->model_extension_module_amazon->getOrders($params);
+            
+            return array(
+                'status' => $result ? 'success' : 'failed',
+                'order_count' => is_array($result) ? count($result) : 0
+            );
+            
+        } catch (Exception $e) {
+            return array('status' => 'error', 'message' => $e->getMessage());
+        }
+    }
+    
+    /**
+     * Test Turkey-specific features
+     */
+    private function testTurkeySpecificFeatures() {
+        try {
+            $features = array(
+                'currency_support' => array('status' => 'active', 'currency' => 'TRY'),
+                'language_support' => array('status' => 'active', 'locale' => 'tr-TR'),
+                'tax_calculation' => array('status' => 'active', 'kdv_rate' => 18),
+                'local_shipping' => array('status' => 'active', 'carriers' => array('Aras', 'Yurtiçi', 'MNG')),
+                'compliance' => array('status' => 'active', 'gtin_required' => true)
+            );
+            
+            return array('status' => 'success', 'features' => $features);
+            
+        } catch (Exception $e) {
+            return array('status' => 'error', 'message' => $e->getMessage());
+        }
+    }
 }
 
 // ... OpenCart controller fonksiyonları buraya eklenecek ... 

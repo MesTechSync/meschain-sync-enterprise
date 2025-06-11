@@ -10,7 +10,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { MS365Colors, MS365Typography, MS365Spacing, AdvancedMS365Theme } from '../../theme/microsoft365-advanced';
 import { MS365Card } from '../Microsoft365/MS365Card';
 import { MS365Button } from '../Microsoft365/MS365Button';
-import { MS365Charts } from '../Microsoft365/MS365Charts';
+import { MS365BarChart, MS365LineChart, MS365PieChart, MS365DoughnutChart } from '../Microsoft365/MS365Charts';
 import { MS365DataGrid } from '../Microsoft365/MS365DataGrid';
 
 // TypeScript Interfaces

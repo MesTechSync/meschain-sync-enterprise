@@ -9,12 +9,16 @@
   <div class="page-header">
     <div class="container-fluid">
       <div class="pull-right">
-        {% if has_permission %}
-        <button type="submit" form="form-amazon" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+        <button type="button" id="button-test-turkey" class="btn btn-info" data-toggle="tooltip" title="Test Turkey Marketplace">
+          <i class="fa fa-globe"></i> Test Turkey
+        </button>
+        <button type="button" id="button-test-connection" class="btn btn-warning" data-toggle="tooltip" title="Test Connection">
+          <i class="fa fa-plug"></i> Test Connection
+        </button>
+        <button type="submit" form="form-amazon" class="btn btn-primary" data-toggle="tooltip" title="{{ button_save }}">
           <i class="fa fa-save"></i>
         </button>
-        {% endif %}
-        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+        <a href="{{ cancel }}" class="btn btn-default" data-toggle="tooltip" title="{{ button_cancel }}">
           <i class="fa fa-reply"></i>
         </a>
       </div>
@@ -114,315 +118,121 @@
     <!-- Main Configuration Panel -->
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">
-          <i class="fa fa-cog"></i> {{ text_edit }}
-        </h3>
+        <h3 class="panel-title"><i class="fa fa-amazon"></i> Amazon Configuration</h3>
       </div>
       
       <div class="panel-body">
         {% if has_permission %}
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-amazon" class="form-horizontal">
           
-          <!-- Navigation Tabs -->
-          <ul class="nav nav-tabs" role="tablist">
-            <li class="active">
-              <a href="#tab-general" data-toggle="tab">
-                <i class="fa fa-cog"></i> {{ tab_general }}
-              </a>
-            </li>
-            <li>
-              <a href="#tab-api" data-toggle="tab">
-                <i class="fa fa-key"></i> {{ tab_api }}
-              </a>
-            </li>
-            <li>
-              <a href="#tab-products" data-toggle="tab">
-                <i class="fa fa-cubes"></i> {{ tab_products }}
-              </a>
-            </li>
-            <li>
-              <a href="#tab-orders" data-toggle="tab">
-                <i class="fa fa-shopping-cart"></i> {{ tab_orders }}
-              </a>
-            </li>
-            <li>
-              <a href="#tab-fulfillment" data-toggle="tab">
-                <i class="fa fa-truck"></i> {{ tab_fulfillment }}
-              </a>
-            </li>
-            <li>
-              <a href="#tab-advertising" data-toggle="tab">
-                <i class="fa fa-bullhorn"></i> {{ tab_advertising }}
-              </a>
-            </li>
-            <li>
-              <a href="#tab-logs" data-toggle="tab">
-                <i class="fa fa-file-text-o"></i> {{ tab_logs }}
-              </a>
-            </li>
-            <li>
-              <a href="#tab-help" data-toggle="tab">
-                <i class="fa fa-question-circle"></i> {{ tab_help }}
-              </a>
-            </li>
+          <!-- API Configuration Tab -->
+          <ul class="nav nav-tabs" id="amazon-tabs">
+            <li class="active"><a href="#tab-general" data-toggle="tab">General</a></li>
+            <li><a href="#tab-fba" data-toggle="tab">FBA Shipping</a></li>
+            <li><a href="#tab-advertising" data-toggle="tab">Advertising</a></li>
+            <li><a href="#tab-turkey" data-toggle="tab">Turkey Marketplace</a></li>
+            <li><a href="#tab-performance" data-toggle="tab">Performance</a></li>
           </ul>
           
           <div class="tab-content">
-            
-            <!-- General Settings Tab -->
+            <!-- General Settings -->
             <div class="tab-pane active" id="tab-general">
-              <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-status">
-                  {{ entry_status }}
-                </label>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-client-id">Client ID</label>
                 <div class="col-sm-10">
-                  <select name="module_amazon_status" id="input-status" class="form-control">
-                    {% if module_amazon_status %}
-                    <option value="1" selected="selected">{{ text_enabled }}</option>
-                    <option value="0">{{ text_disabled }}</option>
-                    {% else %}
-                    <option value="1">{{ text_enabled }}</option>
-                    <option value="0" selected="selected">{{ text_disabled }}</option>
-                    {% endif %}
+                  <input type="text" name="module_amazon_client_id" value="{{ module_amazon_client_id }}" placeholder="Client ID" id="input-client-id" class="form-control" />
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-client-secret">Client Secret</label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_amazon_client_secret" value="" placeholder="Client Secret" id="input-client-secret" class="form-control" />
+                  <small class="help-block">Leave empty to keep current value</small>
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-refresh-token">Refresh Token</label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_amazon_refresh_token" value="" placeholder="Refresh Token" id="input-refresh-token" class="form-control" />
+                  <small class="help-block">Leave empty to keep current value</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-seller-id">Seller ID</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_amazon_seller_id" value="{{ module_amazon_seller_id }}" placeholder="Seller ID" id="input-seller-id" class="form-control" />
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-region">Region</label>
+                <div class="col-sm-10">
+                  <select name="module_amazon_region" id="input-region" class="form-control">
+                    <option value="us" {% if module_amazon_region == 'us' %}selected="selected"{% endif %}>United States</option>
+                    <option value="eu" {% if module_amazon_region == 'eu' %}selected="selected"{% endif %}>Europe</option>
+                    <option value="fe" {% if module_amazon_region == 'fe' %}selected="selected"{% endif %}>Far East</option>
                   </select>
                 </div>
               </div>
               
               <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-marketplace">
-                  {{ entry_marketplace }}
-                </label>
+                <label class="col-sm-2 control-label">Status</label>
                 <div class="col-sm-10">
-                  <select name="module_amazon_marketplace" id="input-marketplace" class="form-control">
-                    <option value="us" {% if module_amazon_marketplace == 'us' %}selected{% endif %}>{{ marketplace_us }}</option>
-                    <option value="ca" {% if module_amazon_marketplace == 'ca' %}selected{% endif %}>{{ marketplace_ca }}</option>
-                    <option value="mx" {% if module_amazon_marketplace == 'mx' %}selected{% endif %}>{{ marketplace_mx }}</option>
-                    <option value="br" {% if module_amazon_marketplace == 'br' %}selected{% endif %}>{{ marketplace_br }}</option>
-                    <option value="uk" {% if module_amazon_marketplace == 'uk' %}selected{% endif %}>{{ marketplace_uk }}</option>
-                    <option value="de" {% if module_amazon_marketplace == 'de' %}selected{% endif %}>{{ marketplace_de }}</option>
-                    <option value="fr" {% if module_amazon_marketplace == 'fr' %}selected{% endif %}>{{ marketplace_fr }}</option>
-                    <option value="it" {% if module_amazon_marketplace == 'it' %}selected{% endif %}>{{ marketplace_it }}</option>
-                    <option value="es" {% if module_amazon_marketplace == 'es' %}selected{% endif %}>{{ marketplace_es }}</option>
-                    <option value="tr" {% if module_amazon_marketplace == 'tr' %}selected{% endif %}>{{ marketplace_tr }}</option>
-                    <option value="jp" {% if module_amazon_marketplace == 'jp' %}selected{% endif %}>{{ marketplace_jp }}</option>
-                    <option value="au" {% if module_amazon_marketplace == 'au' %}selected{% endif %}>{{ marketplace_au }}</option>
-                    <option value="in" {% if module_amazon_marketplace == 'in' %}selected{% endif %}>{{ marketplace_in }}</option>
-                    <option value="ae" {% if module_amazon_marketplace == 'ae' %}selected{% endif %}>{{ marketplace_ae }}</option>
-                  </select>
-                  <div class="help-block">{{ help_marketplace_id }}</div>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-fulfillment-channel">
-                  {{ entry_fulfillment_channel }}
-                </label>
-                <div class="col-sm-10">
-                  <select name="module_amazon_fulfillment_channel" id="input-fulfillment-channel" class="form-control">
-                    <option value="fba" {% if module_amazon_fulfillment_channel == 'fba' %}selected{% endif %}>{{ fulfillment_fba }}</option>
-                    <option value="fbm" {% if module_amazon_fulfillment_channel == 'fbm' %}selected{% endif %}>{{ fulfillment_fbm }}</option>
-                  </select>
-                  <div class="help-block">{{ help_fulfillment_channel }}</div>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-sandbox-mode">
-                  {{ entry_sandbox_mode }}
-                </label>
-                <div class="col-sm-10">
-                  <select name="module_amazon_sandbox_mode" id="input-sandbox-mode" class="form-control">
-                    {% if module_amazon_sandbox_mode %}
-                    <option value="1" selected="selected">{{ text_enabled }}</option>
-                    <option value="0">{{ text_disabled }}</option>
-                    {% else %}
-                    <option value="1">{{ text_enabled }}</option>
-                    <option value="0" selected="selected">{{ text_disabled }}</option>
-                    {% endif %}
-                  </select>
-                  <div class="help-block">{{ help_sandbox_mode }}</div>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-auto-sync">
-                  {{ entry_auto_sync }}
-                </label>
-                <div class="col-sm-10">
-                  <select name="module_amazon_auto_sync" id="input-auto-sync" class="form-control">
-                    {% if module_amazon_auto_sync %}
-                    <option value="1" selected="selected">{{ text_enabled }}</option>
-                    <option value="0">{{ text_disabled }}</option>
-                    {% else %}
-                    <option value="1">{{ text_enabled }}</option>
-                    <option value="0" selected="selected">{{ text_disabled }}</option>
-                    {% endif %}
-                  </select>
-                  <div class="help-block">{{ help_auto_sync }}</div>
+                  <label class="radio-inline">
+                    <input type="radio" name="module_amazon_status" value="1" {% if module_amazon_status %}checked="checked"{% endif %} />
+                    Enabled
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" name="module_amazon_status" value="0" {% if not module_amazon_status %}checked="checked"{% endif %} />
+                    Disabled
+                  </label>
                 </div>
               </div>
             </div>
             
-            <!-- SP-API Settings Tab -->
-            <div class="tab-pane" id="tab-api">
-              <div class="alert alert-info">
-                <h4><i class="fa fa-info-circle"></i> {{ text_api_info }}</h4>
-                <p>{{ help_api_setup }}</p>
-              </div>
-              
-              <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-client-id">
-                  {{ entry_client_id }}
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" name="module_amazon_client_id" value="{{ module_amazon_client_id }}" placeholder="{{ entry_client_id }}" id="input-client-id" class="form-control" />
-                  {% if error_client_id %}
-                  <div class="text-danger">{{ error_client_id }}</div>
-                  {% endif %}
-                  <div class="help-block">{{ help_client_id }}</div>
-                </div>
-              </div>
-              
-              <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-client-secret">
-                  {{ entry_client_secret }}
-                </label>
-                <div class="col-sm-10">
-                  <input type="password" name="module_amazon_client_secret" value="{{ module_amazon_client_secret }}" placeholder="{{ entry_client_secret }}" id="input-client-secret" class="form-control" />
-                  {% if error_client_secret %}
-                  <div class="text-danger">{{ error_client_secret }}</div>
-                  {% endif %}
-                  <div class="help-block">{{ help_client_secret }}</div>
-                </div>
-              </div>
-              
-              <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-refresh-token">
-                  {{ entry_refresh_token }}
-                </label>
-                <div class="col-sm-10">
-                  <input type="password" name="module_amazon_refresh_token" value="{{ module_amazon_refresh_token }}" placeholder="{{ entry_refresh_token }}" id="input-refresh-token" class="form-control" />
-                  {% if error_refresh_token %}
-                  <div class="text-danger">{{ error_refresh_token }}</div>
-                  {% endif %}
-                  <div class="help-block">{{ help_refresh_token }}</div>
-                </div>
-              </div>
-              
-              <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-seller-id">
-                  {{ entry_seller_id }}
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" name="module_amazon_seller_id" value="{{ module_amazon_seller_id }}" placeholder="{{ entry_seller_id }}" id="input-seller-id" class="form-control" />
-                  {% if error_seller_id %}
-                  <div class="text-danger">{{ error_seller_id }}</div>
-                  {% endif %}
-                  <div class="help-block">{{ help_seller_id }}</div>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label class="col-sm-2 control-label">{{ text_connection_test }}</label>
-                <div class="col-sm-10">
-                  <button type="button" id="button-test-connection" class="btn btn-primary">
-                    <i class="fa fa-check"></i> {{ button_test_connection }}
-                  </button>
-                  <div id="test-result" class="help-block"></div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Products Tab -->
-            <div class="tab-pane" id="tab-products">
-              <div class="form-group">
-                <label class="col-sm-2 control-label">{{ text_product_operations }}</label>
-                <div class="col-sm-10">
-                  <div class="btn-group">
-                    <button type="button" id="button-sync-products" class="btn btn-success">
-                      <i class="fa fa-refresh"></i> {{ button_sync_products }}
-                    </button>
-                    <button type="button" id="button-sync-inventory" class="btn btn-warning">
-                      <i class="fa fa-cubes"></i> {{ button_sync_inventory }}
-                    </button>
-                    <button type="button" id="button-generate-report" class="btn btn-info">
-                      <i class="fa fa-file-text"></i> {{ button_generate_report }}
-                    </button>
+            <!-- FBA Shipping Tab -->
+            <div class="tab-pane" id="tab-fba">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="panel panel-info">
+                    <div class="panel-heading">
+                      <h4>FBA Inventory Status</h4>
+                    </div>
+                    <div class="panel-body">
+                      <div id="fba-inventory-status">
+                        <i class="fa fa-spinner fa-spin"></i> Loading FBA inventory...
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-product-type">
-                  {{ entry_product_type }}
-                </label>
-                <div class="col-sm-10">
-                  <select name="module_amazon_product_type" id="input-product-type" class="form-control">
-                    <option value="default" {% if module_amazon_product_type == 'default' %}selected{% endif %}>{{ product_type_default }}</option>
-                    <option value="book" {% if module_amazon_product_type == 'book' %}selected{% endif %}>{{ product_type_book }}</option>
-                    <option value="electronics" {% if module_amazon_product_type == 'electronics' %}selected{% endif %}>{{ product_type_electronics }}</option>
-                    <option value="clothing" {% if module_amazon_product_type == 'clothing' %}selected{% endif %}>{{ product_type_clothing }}</option>
-                    <option value="home" {% if module_amazon_product_type == 'home' %}selected{% endif %}>{{ product_type_home }}</option>
-                    <option value="sports" {% if module_amazon_product_type == 'sports' %}selected{% endif %}>{{ product_type_sports }}</option>
-                    <option value="toys" {% if module_amazon_product_type == 'toys' %}selected{% endif %}>{{ product_type_toys }}</option>
-                  </select>
-                  <div class="help-block">{{ help_product_type }}</div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Orders Tab -->
-            <div class="tab-pane" id="tab-orders">
-              <div class="form-group">
-                <label class="col-sm-2 control-label">{{ text_order_operations }}</label>
-                <div class="col-sm-10">
-                  <div class="btn-group">
-                    <button type="button" id="button-sync-orders" class="btn btn-success">
-                      <i class="fa fa-refresh"></i> {{ button_sync_orders }}
-                    </button>
-                    <button type="button" id="button-sync-reports" class="btn btn-primary">
-                      <i class="fa fa-download"></i> {{ button_sync_reports }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-auto-import-orders">
-                  {{ entry_auto_import_orders }}
-                </label>
-                <div class="col-sm-10">
-                  <select name="module_amazon_auto_import_orders" id="input-auto-import-orders" class="form-control">
-                    {% if module_amazon_auto_import_orders %}
-                    <option value="1" selected="selected">{{ text_enabled }}</option>
-                    <option value="0">{{ text_disabled }}</option>
-                    {% else %}
-                    <option value="1">{{ text_enabled }}</option>
-                    <option value="0" selected="selected">{{ text_disabled }}</option>
-{% endif %}
-                  </select>
-                  <div class="help-block">{{ help_auto_import_orders }}</div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Fulfillment Tab -->
-            <div class="tab-pane" id="tab-fulfillment">
-              <div class="alert alert-info">
-                <h4><i class="fa fa-info-circle"></i> Fulfillment Information</h4>
-                <p>{{ info_fba_inventory }}</p>
-              </div>
-              
-              <div class="form-group">
-                <label class="col-sm-2 control-label">{{ text_inventory_operations }}</label>
-                <div class="col-sm-10">
-                  <div class="btn-group">
-                    <button type="button" id="button-sync-fba-inventory" class="btn btn-success">
-                      <i class="fa fa-warehouse"></i> Sync FBA Inventory
-                    </button>
-                    <button type="button" id="button-sync-fbm-inventory" class="btn btn-warning">
-                      <i class="fa fa-home"></i> Sync FBM Inventory
-                    </button>
+                
+                <div class="col-md-6">
+                  <div class="panel panel-success">
+                    <div class="panel-heading">
+                      <h4>Create FBA Shipment</h4>
+                    </div>
+                    <div class="panel-body">
+                      <form id="fba-shipment-form">
+                        <div class="form-group">
+                          <label>Shipment Name</label>
+                          <input type="text" name="shipment_name" class="form-control" placeholder="Enter shipment name" />
+                        </div>
+                        <div class="form-group">
+                          <label>Destination Country</label>
+                          <select name="ship_to_country" class="form-control">
+                            <option value="TR">Turkey</option>
+                            <option value="US">United States</option>
+                            <option value="DE">Germany</option>
+                          </select>
+                        </div>
+                        <button type="button" id="create-fba-shipment" class="btn btn-success">
+                          <i class="fa fa-truck"></i> Create Shipment
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -430,119 +240,122 @@
             
             <!-- Advertising Tab -->
             <div class="tab-pane" id="tab-advertising">
-              <div class="alert alert-warning">
-                <h4><i class="fa fa-info-circle"></i> Amazon Advertising</h4>
-                <p>Amazon Advertising API integration for campaign management.</p>
-              </div>
-              
-              <div class="form-group">
-                <label class="col-sm-2 control-label">{{ text_advertising_operations }}</label>
-                <div class="col-sm-10">
-                  <div class="btn-group">
-                    <button type="button" id="button-sync-campaigns" class="btn btn-info">
-                      <i class="fa fa-bullhorn"></i> Sync Campaigns
-                    </button>
-                    <button type="button" id="button-advertising-reports" class="btn btn-primary">
-                      <i class="fa fa-chart-line"></i> Get Reports
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Logs Tab -->
-            <div class="tab-pane" id="tab-logs">
-  <div class="form-group">
-                <label class="col-sm-2 control-label">{{ text_log_operations }}</label>
-                <div class="col-sm-10">
-                  <div class="btn-group">
-                    <button type="button" id="button-view-logs" class="btn btn-info">
-                      <i class="fa fa-eye"></i> {{ button_view_logs }}
-                    </button>
-                    <button type="button" id="button-clear-logs" class="btn btn-warning">
-                      <i class="fa fa-trash"></i> {{ button_clear_logs }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              {% if logs %}
-              <div class="table-responsive">
-                <table class="table table-bordered table-hover">
-                  <thead>
-                    <tr>
-                      <th>{{ column_date }}</th>
-                      <th>{{ column_type }}</th>
-                      <th>{{ column_message }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for log in logs %}
-                    <tr>
-                      <td>{{ log.date_added }}</td>
-                      <td>
-                        {% if log.type == 'error' %}
-                          <span class="label label-danger">{{ log_error }}</span>
-                        {% elseif log.type == 'warning' %}
-                          <span class="label label-warning">{{ log_warning }}</span>
-                        {% elseif log.type == 'success' %}
-                          <span class="label label-success">{{ log_success }}</span>
-                        {% else %}
-                          <span class="label label-info">{{ log_info }}</span>
-                        {% endif %}
-                      </td>
-                      <td>{{ log.message }}</td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              {% else %}
-              <div class="alert alert-info">
-                <i class="fa fa-info-circle"></i> {{ info_no_logs }}
-              </div>
-              {% endif %}
-            </div>
-            
-            <!-- Help Tab -->
-            <div class="tab-pane" id="tab-help">
               <div class="row">
-                <div class="col-md-6">
-                  <div class="panel panel-info">
+                <div class="col-md-8">
+                  <div class="panel panel-primary">
                     <div class="panel-heading">
-                      <h3 class="panel-title">{{ text_setup_guide }}</h3>
+                      <h4>Advertising Campaigns</h4>
                     </div>
                     <div class="panel-body">
-                      <ol>
-                        <li>{{ help_step_1 }}</li>
-                        <li>{{ help_step_2 }}</li>
-                        <li>{{ help_step_3 }}</li>
-                        <li>{{ help_step_4 }}</li>
-                        <li>{{ help_step_5 }}</li>
-                      </ol>
+                      <div id="advertising-campaigns">
+                        <i class="fa fa-spinner fa-spin"></i> Loading campaigns...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-4">
+                  <div class="panel panel-warning">
+                    <div class="panel-heading">
+                      <h4>Create Campaign</h4>
+                    </div>
+                    <div class="panel-body">
+                      <form id="advertising-campaign-form">
+                        <div class="form-group">
+                          <label>Campaign Name</label>
+                          <input type="text" name="campaign_name" class="form-control" placeholder="Enter campaign name" />
+                        </div>
+                        <div class="form-group">
+                          <label>Campaign Type</label>
+                          <select name="campaign_type" class="form-control">
+                            <option value="sponsoredProducts">Sponsored Products</option>
+                            <option value="sponsoredBrands">Sponsored Brands</option>
+                            <option value="sponsoredDisplay">Sponsored Display</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Daily Budget ($)</label>
+                          <input type="number" name="daily_budget" class="form-control" min="1" step="0.01" value="10.00" />
+                        </div>
+                        <div class="form-group">
+                          <label>Marketplace</label>
+                          <select name="marketplace" class="form-control">
+                            <option value="us">United States</option>
+                            <option value="turkey">Turkey</option>
+                            <option value="germany">Germany</option>
+                          </select>
+                        </div>
+                        <button type="button" id="create-advertising-campaign" class="btn btn-warning">
+                          <i class="fa fa-bullhorn"></i> Create Campaign
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Turkey Marketplace Tab -->
+            <div class="tab-pane" id="tab-turkey">
+              <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i> Turkey marketplace specific settings and testing
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4>Turkey Configuration</h4>
+                    </div>
+                    <div class="panel-body">
+                      <div class="form-group">
+                        <label>Marketplace ID</label>
+                        <input type="text" class="form-control" value="A33AVAJ2PDY3EV" readonly />
+                      </div>
+                      <div class="form-group">
+                        <label>Currency</label>
+                        <input type="text" class="form-control" value="TRY (Turkish Lira)" readonly />
+                      </div>
+                      <div class="form-group">
+                        <label>Locale</label>
+                        <input type="text" class="form-control" value="tr-TR" readonly />
+                      </div>
                     </div>
                   </div>
                 </div>
                 
                 <div class="col-md-6">
-                  <div class="panel panel-warning">
+                  <div class="panel panel-success">
                     <div class="panel-heading">
-                      <h3 class="panel-title">{{ text_troubleshooting }}</h3>
+                      <h4>Turkey Test Results</h4>
                     </div>
                     <div class="panel-body">
-                      <p><strong>{{ text_common_issues }}:</strong></p>
-                      <ul>
-                        <li>{{ troubleshoot_connection }}</li>
-                        <li>{{ troubleshoot_sync }}</li>
-                        <li>{{ troubleshoot_permissions }}</li>
-                        <li>Invalid or expired tokens - re-authorize</li>
-                      </ul>
+                      <div id="turkey-test-results">
+                        <p class="text-muted">Click "Test Turkey" to run marketplace tests</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             
+            <!-- Performance Tab -->
+            <div class="tab-pane" id="tab-performance">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="panel panel-info">
+                    <div class="panel-heading">
+                      <h4><i class="fa fa-tachometer"></i> Performance Metrics</h4>
+                    </div>
+                    <div class="panel-body">
+                      <div id="performance-metrics">
+                        <canvas id="performance-chart" width="400" height="200"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </form>
         {% else %}
@@ -716,6 +529,271 @@ $('#button-generate-report').on('click', function() {
         }
     });
 });
+
+// Cross-browser compatible JavaScript
+(function() {
+    'use strict';
+    
+    // Feature detection and polyfills for older browsers
+    if (!Array.prototype.forEach) {
+        Array.prototype.forEach = function(callback, thisArg) {
+            for (var i = 0; i < this.length; i++) {
+                callback.call(thisArg, this[i], i, this);
+            }
+        };
+    }
+    
+    // Cross-browser event handling
+    function addEvent(element, event, handler) {
+        if (element.addEventListener) {
+            element.addEventListener(event, handler, false);
+        } else if (element.attachEvent) {
+            element.attachEvent('on' + event, handler);
+        }
+    }
+    
+    // Performance-optimized AJAX function
+    function makeAjaxRequest(url, data, callback, method) {
+        method = method || 'POST';
+        var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.error('JSON Parse Error:', e);
+                        callback({success: false, error: 'Invalid response'});
+                    }
+                } else {
+                    callback({success: false, error: 'HTTP Error: ' + xhr.status});
+                }
+            }
+        };
+        
+        xhr.open(method, url, true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send(data);
+    }
+    
+    // Initialize when DOM is ready (cross-browser)
+    function domReady(callback) {
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(callback, 1);
+        } else if (document.addEventListener) {
+            document.addEventListener('DOMContentLoaded', callback);
+        } else {
+            document.attachEvent('onreadystatechange', function() {
+                if (document.readyState === 'complete') callback();
+            });
+        }
+    }
+    
+    domReady(function() {
+        // Test Turkey Marketplace
+        var buttonTestTurkey = document.getElementById('button-test-turkey');
+        if (buttonTestTurkey) {
+            addEvent(buttonTestTurkey, 'click', function() {
+                buttonTestTurkey.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Testing...';
+                buttonTestTurkey.disabled = true;
+                
+                makeAjaxRequest('index.php?route=extension/module/amazon/testTurkeyMarketplace&user_token={{ user_token }}', '', function(response) {
+                    buttonTestTurkey.innerHTML = '<i class="fa fa-globe"></i> Test Turkey';
+                    buttonTestTurkey.disabled = false;
+                    
+                    var resultsDiv = document.getElementById('turkey-test-results');
+                    if (response.success) {
+                        resultsDiv.innerHTML = '<div class="alert alert-success"><strong>Success!</strong> Turkey marketplace test passed</div>';
+                    } else {
+                        resultsDiv.innerHTML = '<div class="alert alert-danger"><strong>Error!</strong> ' + (response.error || 'Test failed') + '</div>';
+                    }
+                });
+            });
+        }
+        
+        // Test Connection
+        var buttonTestConnection = document.getElementById('button-test-connection');
+        if (buttonTestConnection) {
+            addEvent(buttonTestConnection, 'click', function() {
+                buttonTestConnection.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Testing...';
+                buttonTestConnection.disabled = true;
+                
+                makeAjaxRequest('index.php?route=extension/module/amazon/test_connection&user_token={{ user_token }}', '', function(response) {
+                    buttonTestConnection.innerHTML = '<i class="fa fa-plug"></i> Test Connection';
+                    buttonTestConnection.disabled = false;
+                    
+                    if (response.success) {
+                        alert('Connection test successful!');
+                    } else {
+                        alert('Connection test failed: ' + (response.error || 'Unknown error'));
+                    }
+                });
+            });
+        }
+        
+        // Load FBA inventory when tab is activated
+        var fbaTab = document.querySelector('a[href="#tab-fba"]');
+        if (fbaTab) {
+            addEvent(fbaTab, 'click', function() {
+                setTimeout(function() {
+                    loadFBAInventory();
+                }, 100);
+            });
+        }
+        
+        // Load advertising campaigns when tab is activated
+        var advertisingTab = document.querySelector('a[href="#tab-advertising"]');
+        if (advertisingTab) {
+            addEvent(advertisingTab, 'click', function() {
+                setTimeout(function() {
+                    loadAdvertisingCampaigns();
+                }, 100);
+            });
+        }
+        
+        // Create FBA Shipment
+        var createFbaShipmentBtn = document.getElementById('create-fba-shipment');
+        if (createFbaShipmentBtn) {
+            addEvent(createFbaShipmentBtn, 'click', function() {
+                var form = document.getElementById('fba-shipment-form');
+                var formData = new FormData(form);
+                var params = [];
+                
+                for (var pair of formData.entries()) {
+                    params.push(encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]));
+                }
+                
+                createFbaShipmentBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Creating...';
+                createFbaShipmentBtn.disabled = true;
+                
+                makeAjaxRequest('index.php?route=extension/module/amazon/manageFBA&user_token={{ user_token }}', 'action=create_shipment&' + params.join('&'), function(response) {
+                    createFbaShipmentBtn.innerHTML = '<i class="fa fa-truck"></i> Create Shipment';
+                    createFbaShipmentBtn.disabled = false;
+                    
+                    if (response.success) {
+                        alert('FBA shipment created successfully! ID: ' + response.shipment_id);
+                        loadFBAInventory();
+                    } else {
+                        alert('Error creating FBA shipment: ' + (response.error || 'Unknown error'));
+                    }
+                });
+            });
+        }
+        
+        // Create Advertising Campaign
+        var createCampaignBtn = document.getElementById('create-advertising-campaign');
+        if (createCampaignBtn) {
+            addEvent(createCampaignBtn, 'click', function() {
+                var form = document.getElementById('advertising-campaign-form');
+                var formData = new FormData(form);
+                var params = [];
+                
+                for (var pair of formData.entries()) {
+                    params.push(encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]));
+                }
+                
+                createCampaignBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Creating...';
+                createCampaignBtn.disabled = true;
+                
+                makeAjaxRequest('index.php?route=extension/module/amazon/manageAdvertising&user_token={{ user_token }}', 'action=create_campaign&' + params.join('&'), function(response) {
+                    createCampaignBtn.innerHTML = '<i class="fa fa-bullhorn"></i> Create Campaign';
+                    createCampaignBtn.disabled = false;
+                    
+                    if (response.success) {
+                        alert('Advertising campaign created successfully! ID: ' + response.campaign_id);
+                        loadAdvertisingCampaigns();
+                    } else {
+                        alert('Error creating campaign: ' + (response.error || 'Unknown error'));
+                    }
+                });
+            });
+        }
+        
+        // Load FBA Inventory function
+        function loadFBAInventory() {
+            var statusDiv = document.getElementById('fba-inventory-status');
+            if (!statusDiv) return;
+            
+            statusDiv.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading FBA inventory...';
+            
+            makeAjaxRequest('index.php?route=extension/module/amazon/manageFBA&user_token={{ user_token }}', 'action=list', function(response) {
+                if (response.success && response.data) {
+                    var html = '<table class="table table-striped"><thead><tr><th>SKU</th><th>Available</th><th>Inbound</th><th>Status</th></tr></thead><tbody>';
+                    response.data.forEach(function(item) {
+                        html += '<tr><td>' + item.sku + '</td><td>' + item.available + '</td><td>' + item.inbound + '</td><td><span class="label label-' + (item.status === 'InStock' ? 'success' : 'warning') + '">' + item.status + '</span></td></tr>';
+                    });
+                    html += '</tbody></table>';
+                    statusDiv.innerHTML = html;
+                } else {
+                    statusDiv.innerHTML = '<div class="alert alert-warning">No FBA inventory data available</div>';
+                }
+            });
+        }
+        
+        // Load Advertising Campaigns function
+        function loadAdvertisingCampaigns() {
+            var campaignDiv = document.getElementById('advertising-campaigns');
+            if (!campaignDiv) return;
+            
+            campaignDiv.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading campaigns...';
+            
+            makeAjaxRequest('index.php?route=extension/module/amazon/manageAdvertising&user_token={{ user_token }}', 'action=list_campaigns', function(response) {
+                if (response.success && response.campaigns) {
+                    var html = '<table class="table table-striped"><thead><tr><th>Campaign Name</th><th>Type</th><th>Status</th><th>Budget</th><th>Actions</th></tr></thead><tbody>';
+                    response.campaigns.forEach(function(campaign) {
+                        html += '<tr><td>' + campaign.name + '</td><td>' + campaign.type + '</td><td><span class="label label-' + (campaign.state === 'enabled' ? 'success' : 'default') + '">' + campaign.state + '</span></td><td>$' + campaign.budget + '</td><td><button class="btn btn-xs btn-info">Edit</button></td></tr>';
+                    });
+                    html += '</tbody></table>';
+                    campaignDiv.innerHTML = html;
+                } else {
+                    campaignDiv.innerHTML = '<div class="alert alert-warning">No advertising campaigns found</div>';
+                }
+            });
+        }
+        
+        // Performance monitoring with Chart.js (if available)
+        var performanceTab = document.querySelector('a[href="#tab-performance"]');
+        if (performanceTab) {
+            addEvent(performanceTab, 'click', function() {
+                setTimeout(function() {
+                    loadPerformanceMetrics();
+                }, 100);
+            });
+        }
+        
+        function loadPerformanceMetrics() {
+            var canvas = document.getElementById('performance-chart');
+            if (!canvas || typeof Chart === 'undefined') {
+                document.getElementById('performance-metrics').innerHTML = '<div class="alert alert-info">Performance chart library not loaded</div>';
+                return;
+            }
+            
+            var ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1h ago', '45m ago', '30m ago', '15m ago', 'Now'],
+                    datasets: [{
+                        label: 'API Response Time (ms)',
+                        data: [250, 180, 220, 190, 200],
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    });
+})();
 </script>
 
 {{ footer }} 
