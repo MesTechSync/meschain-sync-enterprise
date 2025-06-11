@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>🔗 MesChain Dashboard Debug</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 40px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 700px; 
+            margin: 0 auto; 
+            background: rgba(255,255,255,0.1); 
+            padding: 30px; 
+            border-radius: 20px; 
+            backdrop-filter: blur(10px);
+        }
+        .status-card { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin: 20px 0; 
+            border-left: 4px solid #10b981; 
+        }
+        .error-card { 
+            border-left-color: #ef4444; 
+        }
+        .btn { 
+            background: #3b82f6; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            margin: 10px 5px; 
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover { 
+            background: #2563eb; 
+            transform: translateY(-2px); 
+        }
+        .debug-info {
+            background: rgba(0,0,0,0.3); 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-family: monospace; 
+            font-size: 12px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 MesChain Dashboard Debug</h1>
+        
+        <div class="status-card">
+            <h3>✅ Sunucu Durumu</h3>
+            <p><strong>Port:</strong> 3023</p>
+            <p><strong>Status:</strong> Aktif ve Çalışıyor</p>
+            <p><strong>Bu Sayfa:</strong> Başarıyla Yüklendi</p>
+        </div>
+        
+        <div class="status-card error-card">
+            <h3>⚠️ Ana Dashboard Sorunu</h3>
+            <p>Dashboard sayfası beyaz/boş görünüyor</p>
+            <p>Muhtemel sebepler: JavaScript hatası, CDN yükleme sorunu</p>
+        </div>
+        
+        <div class="status-card">
+            <h3>🔧 Test Butonları</h3>
+            <button class="btn" onclick="openMainDashboard()">🎯 Ana Dashboard Aç</button>
+            <button class="btn" onclick="checkResources()">📡 CDN Test Et</button>
+            <button class="btn" onclick="location.reload()">🔄 Bu Sayfayı Yenile</button>
+        </div>
+        
+        <div class="debug-info" id="debugOutput">
+            <strong>🐛 Debug Bilgileri:</strong><br>
+            Timestamp: <span id="timestamp"></span><br>
+            User Agent: <span id="userAgent"></span><br>
+            Screen Resolution: <span id="screenRes"></span><br>
+        </div>
+        
+        <div class="status-card">
+            <h3>💡 Çözüm Adımları</h3>
+            <ol>
+                <li>Ana Dashboard'u açın (yukarıdaki buton)</li>
+                <li>F12 tuşuna basarak Developer Console açın</li>
+                <li>Console sekmesinde kırmızı hata mesajları kontrol edin</li>
+                <li>Network sekmesinde başarısız yüklemeler kontrol edin</li>
+                <li>CTRL+F5 ile hard refresh yapın</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Debug bilgilerini doldur
+        document.getElementById('timestamp').textContent = new Date().toLocaleString('tr-TR');
+        document.getElementById('userAgent').textContent = navigator.userAgent.substring(0, 80) + '...';
+        document.getElementById('screenRes').textContent = screen.width + 'x' + screen.height;
+        
+        function openMainDashboard() {
+            console.log('🎯 Ana dashboard açılıyor...');
+            window.open('/meschain_sync_super_admin.html', '_blank');
+        }
+        
+        function checkResources() {
+            console.log('📡 CDN kaynakları test ediliyor...');
+            const debugOutput = document.getElementById('debugOutput');
+            debugOutput.innerHTML += '<br><br><strong>CDN Test Sonuçları:</strong><br>';
+            
+            const resources = [
+                'https://cdn.tailwindcss.com',
+                'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap',
+                'https://cdn.jsdelivr.net/npm/apexcharts'
+            ];
+            
+            resources.forEach(async (url, index) => {
+                try {
+                    const response = await fetch(url, { mode: 'no-cors' });
+                    debugOutput.innerHTML += `✅ ${url.split('/')[2]} - OK<br>`;
+                } catch (error) {
+                    debugOutput.innerHTML += `❌ ${url.split('/')[2]} - HATA: ${error.message}<br>`;
+                }
+            });
+        }
+        
+        console.log('🚀 Debug sayfası yüklendi - MesChain v4.1');
+    </script>
+</body>
+</html> 

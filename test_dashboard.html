@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 MesChain Dashboard Test</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .status-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #10b981;
+        }
+        .error-card {
+            border-left-color: #ef4444;
+        }
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+        #testResults {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 MesChain Dashboard Test Sayfası</h1>
+        
+        <div class="status-card">
+            <h3>✅ Sunucu Durumu</h3>
+            <p>Port 3023 üzerinde çalışıyor</p>
+            <p>Test sayfası başarıyla yüklendi</p>
+        </div>
+        
+        <div class="status-card">
+            <h3>🔧 Test İşlemleri</h3>
+            <button class="test-button" onclick="testMainDashboard()">Ana Dashboard'u Test Et</button>
+            <button class="test-button" onclick="testResources()">CDN Kaynaklarını Test Et</button>
+            <button class="test-button" onclick="testAPI()">API Bağlantısını Test Et</button>
+        </div>
+        
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        const results = document.getElementById('testResults');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#3b82f6';
+            results.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        async function testMainDashboard() {
+            log('🔍 Ana dashboard testi başlatılıyor...');
+            
+            try {
+                const response = await fetch('/meschain_sync_super_admin.html');
+                if (response.ok) {
+                    const html = await response.text();
+                    log(`✅ Dashboard HTML yüklendi (${html.length} karakter)`, 'success');
+                    
+                    // HTML içeriğini analiz et
+                    if (html.includes('MesChain-Sync Super Admin Panel')) {
+                        log('✅ Dashboard başlığı bulundu', 'success');
+                    }
+                    if (html.includes('meschain_api_infrastructure.js')) {
+                        log('✅ API infrastructure script referansı bulundu', 'success');
+                    }
+                    if (html.includes('tailwindcss')) {
+                        log('✅ TailwindCSS CDN referansı bulundu', 'success');
+                    }
+                    
+                    log('💡 Çözüm: Dashboard HTML dosyası düzgün yükleniyor. Sorun muhtemelen JavaScript hatası veya CDN yükleme problemi.', 'info');
+                    
+                } else {
+                    log(`❌ Dashboard HTML yüklenemedi: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Dashboard test hatası: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testResources() {
+            log('🔍 CDN kaynakları test ediliyor...');
+            
+            const resources = [
+                'https://cdn.tailwindcss.com',
+                'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap',
+                'https://cdn.jsdelivr.net/npm/apexcharts',
+                'https://unpkg.com/@phosphor-icons/web',
+                'https://cdn.jsdelivr.net/npm/chart.js'
+            ];
+            
+            for (const url of resources) {
+                try {
+                    const response = await fetch(url, { mode: 'no-cors' });
+                    log(`✅ ${url.split('/')[2]} - Erişilebilir`, 'success');
+                } catch (error) {
+                    log(`❌ ${url.split('/')[2]} - Erişim hatası: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        async function testAPI() {
+            log('🔍 API bağlantısı test ediliyor...');
+            
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ API Health Check başarılı: ${JSON.stringify(data)}`, 'success');
+                } else {
+                    log(`❌ API Health Check başarısız: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ API test hatası: ${error.message}`, 'error');
+            }
+        }
+        
+        // Sayfa yüklendiğinde otomatik test
+        window.addEventListener('load', function() {
+            log('🚀 Test sayfası yüklendi', 'success');
+            log('💡 Lütfen test butonlarını kullanarak sorunları tespit edin', 'info');
+        });
+    </script>
+</body>
+</html> 
