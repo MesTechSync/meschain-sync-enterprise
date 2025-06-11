@@ -546,52 +546,68 @@ class AdvancedMarketplaceEngine {
      * 📊 Initialize Analytics Engine
      */
     initializeAnalytics() {
-        console.log('📊 Initializing advanced analytics engine...');
+        console.log('📊 Initializing optimized analytics engine...');
         
-        // Set up analytics data collection
+        // Reduce analytics collection frequency for faster startup
         setInterval(() => {
-            this.collectAnalyticsData();
-        }, 30000); // Every 30 seconds
+            try {
+                this.collectAnalyticsData();
+            } catch (error) {
+                console.error('❌ Analytics collection error:', error.message);
+            }
+        }, 60000); // Reduced to every 60 seconds
 
-        // Set up performance monitoring
+        // Reduce performance monitoring frequency 
         setInterval(() => {
-            this.monitorPerformance();
-        }, 60000); // Every minute
+            try {
+                this.monitorPerformance();
+            } catch (error) {
+                console.error('❌ Performance monitoring error:', error.message);
+            }
+        }, 90000); // Reduced to every 90 seconds
 
-        console.log('✅ Analytics engine initialized');
+        console.log('✅ Optimized analytics engine initialized');
     }
 
     /**
      * 🔍 Start Real-time Monitoring
      */
     startRealTimeMonitoring() {
-        console.log('🔍 Starting real-time monitoring...');
+        console.log('🔍 Starting optimized real-time monitoring...');
 
-        // WebSocket connection handling
+        // WebSocket connection handling with error management
         this.io.on('connection', (socket) => {
             console.log(`📡 Advanced marketplace client connected: ${socket.id}`);
             
-            socket.on('subscribe_analytics', () => {
-                socket.join('analytics');
-                console.log(`📊 Client ${socket.id} subscribed to analytics`);
-            });
+            try {
+                socket.on('subscribe_analytics', () => {
+                    socket.join('analytics');
+                    console.log(`📊 Client ${socket.id} subscribed to analytics`);
+                });
 
-            socket.on('subscribe_performance', () => {
-                socket.join('performance');
-                console.log(`📈 Client ${socket.id} subscribed to performance`);
-            });
+                socket.on('subscribe_performance', () => {
+                    socket.join('performance');
+                    console.log(`📈 Client ${socket.id} subscribed to performance`);
+                });
 
-            socket.on('disconnect', () => {
-                console.log(`📡 Client disconnected: ${socket.id}`);
-            });
+                socket.on('disconnect', () => {
+                    console.log(`📡 Client disconnected: ${socket.id}`);
+                });
+            } catch (error) {
+                console.error(`❌ Socket error for ${socket.id}:`, error.message);
+            }
         });
 
-        // Real-time data broadcasting
+        // Optimized real-time data broadcasting - reduced frequency for startup
         setInterval(() => {
-            this.broadcastRealTimeData();
-        }, 10000); // Every 10 seconds
+            try {
+                this.broadcastRealTimeData();
+            } catch (error) {
+                console.error('❌ Broadcast error:', error.message);
+            }
+        }, 30000); // Reduced to every 30 seconds for better performance
 
-        console.log('✅ Real-time monitoring active');
+        console.log('✅ Optimized real-time monitoring active');
     }
 
     /**
