@@ -1,5 +1,84 @@
 Compiled with problems:
 ×
+ERROR in ./src/App.tsx 9:0-42
+Module not found: Error: Can't resolve 'react-hot-toast' in '/Users/mezbjen/Desktop/meschain-sync-enterprise-1/src'
+ERROR in ./src/App.tsx 21:0-52
+Module not found: Error: Can't resolve './modules/ProductModule' in '/Users/mezbjen/Desktop/meschain-sync-enterprise-1/src'
+ERROR in ./src/App.tsx 22:0-48
+Module not found: Error: Can't resolve './modules/OrderModule' in '/Users/mezbjen/Desktop/meschain-sync-enterprise-1/src'
+ERROR in ./src/App.tsx 23:0-56
+Module not found: Error: Can't resolve './modules/InventoryModule' in '/Users/mezbjen/Desktop/meschain-sync-enterprise-1/src'
+ERROR in ./src/App.tsx 24:0-50
+Module not found: Error: Can't resolve './modules/ReportModule' in '/Users/mezbjen/Desktop/meschain-sync-enterprise-1/src'
+ERROR in ./src/App.tsx 25:0-54
+Module not found: Error: Can't resolve './modules/SettingsModule' in '/Users/mezbjen/Desktop/meschain-sync-enterprise-1/src'
+ERROR in ./src/i18n/index.ts 5:0-64
+Module not found: Error: Can't resolve 'i18next-browser-languagedetector' in '/Users/mezbjen/Desktop/meschain-sync-enterprise-1/src/i18n'
+ERROR in ./src/i18n/index.ts 6:0-43
+Module not found: Error: Can't resolve 'i18next-http-backend' in '/Users/mezbjen/Desktop/meschain-sync-enterprise-1/src/i18n'
+ERROR in src/App.tsx:6:25
+TS2307: Cannot find module 'react-hot-toast' or its corresponding type declarations.
+    4 | import { CssBaseline, CircularProgress, Box } from '@mui/material';
+    5 | import { ErrorBoundary } from 'react-error-boundary';
+  > 6 | import { Toaster } from 'react-hot-toast';
+      |                         ^^^^^^^^^^^^^^^^^
+    7 | import { I18nextProvider } from 'react-i18next';
+    8 |
+    9 | import { theme } from './theme/theme';
+ERROR in src/App.tsx:19:27
+TS2307: Cannot find module './modules/ProductModule' or its corresponding type declarations.
+    17 | import EbayModule from './modules/EbayModule';
+    18 | import OzonModule from './modules/OzonModule';
+  > 19 | import ProductModule from './modules/ProductModule';
+       |                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    20 | import OrderModule from './modules/OrderModule';
+    21 | import InventoryModule from './modules/InventoryModule';
+    22 | import ReportModule from './modules/ReportModule';
+ERROR in src/App.tsx:20:25
+TS2307: Cannot find module './modules/OrderModule' or its corresponding type declarations.
+    18 | import OzonModule from './modules/OzonModule';
+    19 | import ProductModule from './modules/ProductModule';
+  > 20 | import OrderModule from './modules/OrderModule';
+       |                         ^^^^^^^^^^^^^^^^^^^^^^^
+    21 | import InventoryModule from './modules/InventoryModule';
+    22 | import ReportModule from './modules/ReportModule';
+    23 | import SettingsModule from './modules/SettingsModule';
+ERROR in src/App.tsx:21:29
+TS2307: Cannot find module './modules/InventoryModule' or its corresponding type declarations.
+    19 | import ProductModule from './modules/ProductModule';
+    20 | import OrderModule from './modules/OrderModule';
+  > 21 | import InventoryModule from './modules/InventoryModule';
+       |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    22 | import ReportModule from './modules/ReportModule';
+    23 | import SettingsModule from './modules/SettingsModule';
+    24 | import i18n from './i18n';
+ERROR in src/App.tsx:22:26
+TS2307: Cannot find module './modules/ReportModule' or its corresponding type declarations.
+    20 | import OrderModule from './modules/OrderModule';
+    21 | import InventoryModule from './modules/InventoryModule';
+  > 22 | import ReportModule from './modules/ReportModule';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    23 | import SettingsModule from './modules/SettingsModule';
+    24 | import i18n from './i18n';
+    25 | // AI/ML Integration - Priority 2
+ERROR in src/App.tsx:23:28
+TS2307: Cannot find module './modules/SettingsModule' or its corresponding type declarations.
+    21 | import InventoryModule from './modules/InventoryModule';
+    22 | import ReportModule from './modules/ReportModule';
+  > 23 | import SettingsModule from './modules/SettingsModule';
+       |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    24 | import i18n from './i18n';
+    25 | // AI/ML Integration - Priority 2
+    26 | import AdvancedAIIntegration from './ai/AdvancedAIIntegration';
+ERROR in src/App.tsx:62:41
+TS2741: Property 'children' is missing in type '{}' but required in type 'AppLayoutProps'.
+    60 |           <div className="App">
+    61 |             <Routes>
+  > 62 |               <Route path="/" element={<AppLayout />}>
+       |                                         ^^^^^^^^^
+    63 |                 <Route index element={<MainDashboard />} />
+    64 |                 <Route path="dashboard" element={<MainDashboard />} />
+    65 |                 
 ERROR in src/components/analytics/AdvancedAnalytics.tsx:38:8
 TS2307: Cannot find module '@heroicons/react/24/outline' or its corresponding type declarations.
     36 |   DocumentArrowDownIcon,
@@ -18,33 +97,6 @@ TS2307: Cannot find module 'react-hot-toast' or its corresponding type declarati
     43 | import {
     44 |   Box,
     45 |   Card,
-ERROR in src/components/analytics/AdvancedRealTimeDashboard.tsx:13:10
-TS2724: '"../Microsoft365/MS365Charts"' has no exported member named 'MS365Charts'. Did you mean 'MS365BarChart'?
-    11 | import { MS365Card } from '../Microsoft365/MS365Card';
-    12 | import { MS365Button } from '../Microsoft365/MS365Button';
-  > 13 | import { MS365Charts } from '../Microsoft365/MS365Charts';
-       |          ^^^^^^^^^^^
-    14 | import { MS365DataGrid } from '../Microsoft365/MS365DataGrid';
-    15 |
-    16 | // TypeScript Interfaces
-ERROR in src/components/analytics/AdvancedRealTimeDashboard.tsx:363:44
-TS2339: Property 'purple' does not exist on type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }'.
-    361 |               <span style={{ fontSize: MS365Typography.sizes.sm }}>Conversion Rate</span>
-    362 |               <span style={{ 
-  > 363 |                 color: MS365Colors.primary.purple[600],
-        |                                            ^^^^^^
-    364 |                 fontWeight: MS365Typography.weights.semibold 
-    365 |               }}>
-    366 |                 {(metrics.businessMetrics.conversionRate * 100).toFixed(1)}%
-ERROR in src/components/analytics/AdvancedRealTimeDashboard.tsx:373:44
-TS2339: Property 'orange' does not exist on type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }'.
-    371 |               <span style={{ fontSize: MS365Typography.sizes.sm }}>Avg Order Value</span>
-    372 |               <span style={{ 
-  > 373 |                 color: MS365Colors.primary.orange[600],
-        |                                            ^^^^^^
-    374 |                 fontWeight: MS365Typography.weights.semibold 
-    375 |               }}>
-    376 |                 ${metrics.businessMetrics.averageOrderValue.toFixed(2)}
 ERROR in src/components/analytics/AnalyticsFilters.tsx:12:8
 TS2307: Cannot find module '@heroicons/react/24/outline' or its corresponding type declarations.
     10 |   AdjustmentsHorizontalIcon,
@@ -54,394 +106,17 @@ TS2307: Cannot find module '@heroicons/react/24/outline' or its corresponding ty
     13 | import { format, subDays, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
     14 | import { tr, enUS } from 'date-fns/locale';
     15 |
-ERROR in src/components/analytics/InteractiveDashboardWidgets.tsx:13:10
-TS2724: '"../Microsoft365/MS365Charts"' has no exported member named 'MS365Charts'. Did you mean 'MS365BarChart'?
-    11 | import { MS365Card } from '../Microsoft365/MS365Card';
-    12 | import { MS365Button } from '../Microsoft365/MS365Button';
-  > 13 | import { MS365Charts } from '../Microsoft365/MS365Charts';
-       |          ^^^^^^^^^^^
-    14 |
-    15 | // TypeScript Interfaces
-    16 | export interface WidgetPosition {
-ERROR in src/components/analytics/PerformanceMonitoringSystem.tsx:13:10
-TS2724: '"../Microsoft365/MS365Charts"' has no exported member named 'MS365Charts'. Did you mean 'MS365BarChart'?
-    11 | import { MS365Card } from '../Microsoft365/MS365Card';
-    12 | import { MS365Button } from '../Microsoft365/MS365Button';
-  > 13 | import { MS365Charts } from '../Microsoft365/MS365Charts';
-       |          ^^^^^^^^^^^
-    14 |
-    15 | // TypeScript Interfaces
-    16 | export interface SystemHealthMetric {
-ERROR in src/components/analytics/PredictiveAnalyticsEngine.tsx:13:10
-TS2724: '"../Microsoft365/MS365Charts"' has no exported member named 'MS365Charts'. Did you mean 'MS365BarChart'?
-    11 | import { MS365Card } from '../Microsoft365/MS365Card';
-    12 | import { MS365Button } from '../Microsoft365/MS365Button';
-  > 13 | import { MS365Charts } from '../Microsoft365/MS365Charts';
-       |          ^^^^^^^^^^^
-    14 |
-    15 | // TypeScript Interfaces
-    16 | export interface PredictionModel {
-ERROR in src/components/analytics/PredictiveAnalyticsEngine.tsx:349:51
-TS2339: Property 'orange' does not exist on type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }'.
-    347 |       case 'stable': return MS365Colors.primary.blue[600];
-    348 |       case 'decreasing': return MS365Colors.primary.red[600];
-  > 349 |       case 'volatile': return MS365Colors.primary.orange[600];
-        |                                                   ^^^^^^
-    350 |       default: return MS365Colors.neutral[600];
-    351 |     }
-    352 |   };
-ERROR in src/components/analytics/PredictiveAnalyticsEngine.tsx:417:68
-TS2339: Property 'orange' does not exist on type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }'.
-    415 |                   fontSize: MS365Typography.sizes.xs,
-    416 |                   color: pred.confidence > 80 ? MS365Colors.primary.green[600] : 
-  > 417 |                         pred.confidence > 60 ? MS365Colors.primary.orange[600] : 
-        |                                                                    ^^^^^^
-    418 |                         MS365Colors.primary.red[600]
-    419 |                 }}>
-    420 |                   {pred.confidence.toFixed(1)}% confidence
-ERROR in src/components/analytics/PredictiveAnalyticsEngine.tsx:485:47
-TS2339: Property 'orange' does not exist on type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }'.
-    483 |     switch (priority) {
-    484 |       case 'critical': return MS365Colors.primary.red[600];
-  > 485 |       case 'high': return MS365Colors.primary.orange[600];
-        |                                               ^^^^^^
-    486 |       case 'medium': return MS365Colors.primary.blue[600];
-    487 |       case 'low': return MS365Colors.neutral[600];
-    488 |       default: return MS365Colors.neutral[600];
-ERROR in src/components/Animations/AnimationProvider.tsx:7:35
-TS2395: Individual declarations in merged declaration 'useAnimation' must be all exported or all local.
-     5 |
-     6 | import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
-  >  7 | import { AnimatePresence, motion, useAnimation, useInView } from 'framer-motion';
-       |                                   ^^^^^^^^^^^^
-     8 | import { useSpring, animated, useTransition, config } from '@react-spring/web';
-     9 |
-    10 | // Types
-ERROR in src/components/Animations/AnimationProvider.tsx:7:35
-TS2440: Import declaration conflicts with local declaration of 'useAnimation'.
-     5 |
-     6 | import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
-  >  7 | import { AnimatePresence, motion, useAnimation, useInView } from 'framer-motion';
-       |                                   ^^^^^^^^^^^^
-     8 | import { useSpring, animated, useTransition, config } from '@react-spring/web';
-     9 |
-    10 | // Types
-ERROR in src/components/Animations/AnimationProvider.tsx:207:14
-TS2395: Individual declarations in merged declaration 'useAnimation' must be all exported or all local.
-    205 | const AnimationContext = createContext<AnimationContextType | undefined>(undefined);
-    206 |
-  > 207 | export const useAnimation = () => {
-        |              ^^^^^^^^^^^^
-    208 |   const context = useContext(AnimationContext);
-    209 |   if (!context) {
-    210 |     throw new Error('useAnimation must be used within AnimationProvider');
-ERROR in src/components/Animations/AnimationProvider.tsx:297:90
-TS2339: Property 'fast' does not exist on type 'AnimationConfig'.
-    295 |     to: { opacity: 1, transform: 'translateY(0px)' },
-    296 |     delay,
-  > 297 |     config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
-        |                                                                                          ^^^^
-    298 |   });
-    299 | };
-    300 |
-ERROR in src/components/Animations/AnimationProvider.tsx:297:104
-TS2339: Property 'normal' does not exist on type 'AnimationConfig'.
-    295 |     to: { opacity: 1, transform: 'translateY(0px)' },
-    296 |     delay,
-  > 297 |     config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
-        |                                                                                                        ^^^^^^
-    298 |   });
-    299 | };
-    300 |
-ERROR in src/components/Animations/AnimationProvider.tsx:319:90
-TS2339: Property 'fast' does not exist on type 'AnimationConfig'.
-    317 |     to: { opacity: 1, transform: 'translate(0px, 0px)' },
-    318 |     delay,
-  > 319 |     config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
-        |                                                                                          ^^^^
-    320 |   });
-    321 | };
-    322 |
-ERROR in src/components/Animations/AnimationProvider.tsx:319:104
-TS2339: Property 'normal' does not exist on type 'AnimationConfig'.
-    317 |     to: { opacity: 1, transform: 'translate(0px, 0px)' },
-    318 |     delay,
-  > 319 |     config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
-        |                                                                                                        ^^^^^^
-    320 |   });
-    321 | };
-    322 |
-ERROR in src/components/Animations/AnimationProvider.tsx:331:90
-TS2339: Property 'fast' does not exist on type 'AnimationConfig'.
-    329 |     to: { opacity: 1, transform: 'scale(1)' },
-    330 |     delay,
-  > 331 |     config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
-        |                                                                                          ^^^^
-    332 |   });
-    333 | };
-    334 |
-ERROR in src/components/Animations/AnimationProvider.tsx:331:104
-TS2339: Property 'normal' does not exist on type 'AnimationConfig'.
-    329 |     to: { opacity: 1, transform: 'scale(1)' },
-    330 |     delay,
-  > 331 |     config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
-        |                                                                                                        ^^^^^^
-    332 |   });
-    333 | };
-    334 |
-ERROR in src/components/Animations/AnimationProvider.tsx:343:90
-TS2339: Property 'fast' does not exist on type 'AnimationConfig'.
-    341 |     enter: { opacity: 1, transform: 'translateY(0px)' },
-    342 |     trail: config.reducedMotion ? 0 : delay,
-  > 343 |     config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
-        |                                                                                          ^^^^
-    344 |   });
-    345 | };
-    346 |
-ERROR in src/components/Animations/AnimationProvider.tsx:343:104
-TS2339: Property 'normal' does not exist on type 'AnimationConfig'.
-    341 |     enter: { opacity: 1, transform: 'translateY(0px)' },
-    342 |     trail: config.reducedMotion ? 0 : delay,
-  > 343 |     config: config.reducedMotion ? { duration: 0 } : config.duration === 'fast' ? config.fast : config.normal
-        |                                                                                                        ^^^^^^
-    344 |   });
-    345 | };
-    346 |
-ERROR in src/components/Animations/AnimationProvider.tsx:352:35
-TS2345: Argument of type '{ threshold: number; }' is not assignable to parameter of type 'UseInViewOptions'.
-  Object literal may only specify known properties, and 'threshold' does not exist in type 'UseInViewOptions'.
-    350 |   const controls = useAnimation();
-    351 |   const ref = React.useRef(null);
-  > 352 |   const inView = useInView(ref, { threshold });
-        |                                   ^^^^^^^^^
-    353 |
-    354 |   useEffect(() => {
-    355 |     if (inView && config.scrollAnimations && !config.reducedMotion) {
-ERROR in src/components/Animations/AnimationProvider.tsx:356:16
-TS2339: Property 'start' does not exist on type 'AnimationContextType'.
-    354 |   useEffect(() => {
-    355 |     if (inView && config.scrollAnimations && !config.reducedMotion) {
-  > 356 |       controls.start('visible');
-        |                ^^^^^
-    357 |     }
-    358 |   }, [controls, inView, config.scrollAnimations, config.reducedMotion]);
-    359 |
-ERROR in src/components/Animations/AnimationProvider.tsx:370:61
-TS2339: Property 'bounce' does not exist on type 'AnimationConfig'.
-    368 |     scale: 1,
-    369 |     shadow: 0,
-  > 370 |     config: config.reducedMotion ? { duration: 0 } : config.bounce
-        |                                                             ^^^^^^
-    371 |   }));
-    372 |
-    373 |   const handleMouseEnter = () => {
-ERROR in src/components/Animations/AnimationProvider.tsx:435:7
-TS2322: Type 'AnimationContextType' is not assignable to type 'boolean | AnimationControls | TargetAndTransition | VariantLabels | undefined'.
-    433 |     <motion.div
-    434 |       ref={ref}
-  > 435 |       animate={controls}
-        |       ^^^^^^^
-    436 |       initial="hidden"
-    437 |       variants={config.enabled && !config.reducedMotion ? cardVariants : {}}
-    438 |       whileHover={config.microInteractions && !config.reducedMotion ? "hover" : undefined}
-ERROR in src/components/Animations/AnimationProvider.tsx:459:7
-TS2322: Type 'AnimationContextType' is not assignable to type 'boolean | AnimationControls | TargetAndTransition | VariantLabels | undefined'.
-    457 |     <motion.div
-    458 |       ref={ref}
-  > 459 |       animate={controls}
-        |       ^^^^^^^
-    460 |       initial="hidden"
-    461 |       variants={config.enabled && !config.reducedMotion ? listVariants : {}}
-    462 |       className={className}
-ERROR in src/components/Animations/AnimationProvider.tsx:494:6
+ERROR in src/components/Animations/AnimationProvider.tsx:526:6
 TS2786: 'AnimatePresence' cannot be used as a JSX component.
   Its return type 'Element | undefined' is not a valid JSX element.
     Type 'undefined' is not assignable to type 'Element | null'.
-    492 |
-    493 |   return (
-  > 494 |     <AnimatePresence>
+    524 |
+    525 |   return (
+  > 526 |     <AnimatePresence>
         |      ^^^^^^^^^^^^^^^
-    495 |       {isOpen && (
-    496 |         <>
-    497 |           {/* Backdrop */}
-ERROR in src/components/Animations/AnimationProvider.tsx:572:61
-TS2339: Property 'bounce' does not exist on type 'AnimationConfig'.
-    570 |     from: { width: '0%' },
-    571 |     to: { width: `${Math.min(100, Math.max(0, progress))}%` },
-  > 572 |     config: config.reducedMotion ? { duration: 0 } : config.bounce
-        |                                                             ^^^^^^
-    573 |   });
-    574 |
-    575 |   return (
-ERROR in src/components/CategoryMapping/AdvancedCategoryMapper.tsx:708:13
-TS2322: Type '({ id: string; header: string; cell: (row: ProductMapping) => Element; width: number; sortable?: undefined; } | { id: string; header: string; cell: (row: ProductMapping) => Element; sortable: boolean; width?: undefined; } | { ...; })[]' is not assignable to type 'DataGridColumn<any>[]'.
-  Type '{ id: string; header: string; cell: (row: ProductMapping) => Element; width: number; sortable?: undefined; } | { id: string; header: string; cell: (row: ProductMapping) => Element; sortable: boolean; width?: undefined; } | { ...; }' is not assignable to type 'DataGridColumn<any>'.
-    Type '{ id: string; header: string; cell: (row: ProductMapping) => Element; width: number; sortable?: undefined; }' is missing the following properties from type 'DataGridColumn<any>': key, title, dataIndex
-    706 |           <MS365DataGrid
-    707 |             data={mappings}
-  > 708 |             columns={gridColumns}
-        |             ^^^^^^^
-    709 |             pageSize={10}
-    710 |             sortable
-    711 |             filterable
-ERROR in src/components/CategoryMapping/AdvancedCategoryMapper.tsx:713:26
-TS7006: Parameter 'row' implicitly has an 'any' type.
-    711 |             filterable
-    712 |             selectable={false}
-  > 713 |             onRowClick={(row) => setExpandedMapping(expandedMapping === row.id ? null : row.id)}
-        |                          ^^^
-    714 |           />
-    715 |         }
-    716 |       />
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:101:29
-TS2339: Property 'primary' does not exist on type 'Microsoft365Theme'.
-     99 |         data: Object.values(metrics.byMarketplace),
-    100 |         backgroundColor: [
-  > 101 |           Microsoft365Theme.primary.blue,
-        |                             ^^^^^^^
-    102 |           Microsoft365Theme.primary.green,
-    103 |           Microsoft365Theme.secondary.lightBlue,
-    104 |           Microsoft365Theme.secondary.lightGreen,
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:102:29
-TS2339: Property 'primary' does not exist on type 'Microsoft365Theme'.
-    100 |         backgroundColor: [
-    101 |           Microsoft365Theme.primary.blue,
-  > 102 |           Microsoft365Theme.primary.green,
-        |                             ^^^^^^^
-    103 |           Microsoft365Theme.secondary.lightBlue,
-    104 |           Microsoft365Theme.secondary.lightGreen,
-    105 |           '#8B5CF6',
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:103:29
-TS2339: Property 'secondary' does not exist on type 'Microsoft365Theme'.
-    101 |           Microsoft365Theme.primary.blue,
-    102 |           Microsoft365Theme.primary.green,
-  > 103 |           Microsoft365Theme.secondary.lightBlue,
-        |                             ^^^^^^^^^
-    104 |           Microsoft365Theme.secondary.lightGreen,
-    105 |           '#8B5CF6',
-    106 |           '#F59E0B'
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:104:29
-TS2339: Property 'secondary' does not exist on type 'Microsoft365Theme'.
-    102 |           Microsoft365Theme.primary.green,
-    103 |           Microsoft365Theme.secondary.lightBlue,
-  > 104 |           Microsoft365Theme.secondary.lightGreen,
-        |                             ^^^^^^^^^
-    105 |           '#8B5CF6',
-    106 |           '#F59E0B'
-    107 |         ],
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:120:29
-TS2339: Property 'primary' does not exist on type 'Microsoft365Theme'.
-    118 |         data: [75, 20, 5],
-    119 |         backgroundColor: [
-  > 120 |           Microsoft365Theme.primary.green,
-        |                             ^^^^^^^
-    121 |           Microsoft365Theme.secondary.lightBlue,
-    122 |           Microsoft365Theme.primary.red,
-    123 |         ],
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:121:29
-TS2339: Property 'secondary' does not exist on type 'Microsoft365Theme'.
-    119 |         backgroundColor: [
-    120 |           Microsoft365Theme.primary.green,
-  > 121 |           Microsoft365Theme.secondary.lightBlue,
-        |                             ^^^^^^^^^
-    122 |           Microsoft365Theme.primary.red,
-    123 |         ],
-    124 |         borderWidth: 2,
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:122:29
-TS2339: Property 'primary' does not exist on type 'Microsoft365Theme'.
-    120 |           Microsoft365Theme.primary.green,
-    121 |           Microsoft365Theme.secondary.lightBlue,
-  > 122 |           Microsoft365Theme.primary.red,
-        |                             ^^^^^^^
-    123 |         ],
-    124 |         borderWidth: 2,
-    125 |         borderColor: '#ffffff',
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:181:15
-TS2322: Type '{ text: string; display: boolean; font: { family: string; size: number; weight: string; }; }' is not assignable to type '_DeepPartialObject<TitleOptions>'.
-  Types of property 'font' are incompatible.
-    Type '{ family: string; size: number; weight: string; }' is not assignable to type '((ctx: ScriptableChartContext, options: AnyObject) => Partial<FontSpec> | undefined) | _DeepPartialObject<Partial<FontSpec>> | _DeepPartialObject<...> | undefined'.
-      Type '{ family: string; size: number; weight: string; }' is not assignable to type '_DeepPartialObject<ScriptableOptions<Partial<FontSpec>, ScriptableChartContext>>'.
-        Types of property 'weight' are incompatible.
-          Type 'string' is not assignable to type 'number | "bold" | "normal" | "bolder" | "lighter" | ((ctx: ScriptableChartContext, options: AnyObject) => number | "bold" | "normal" | "bolder" | "lighter" | null | undefined) | null | undefined'.
-    179 |             plugins: {
-    180 |               ...chartOptions.plugins,
-  > 181 |               title: {
-        |               ^^^^^
-    182 |                 ...chartOptions.plugins.title,
-    183 |                 text: 'Category Mapping Accuracy by Marketplace',
-    184 |               },
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:250:57
-TS2339: Property 'primary' does not exist on type 'Microsoft365Theme'.
-    248 |           <button 
-    249 |             className="px-4 py-2 text-white rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
-  > 250 |             style={{ backgroundColor: Microsoft365Theme.primary.blue }}
-        |                                                         ^^^^^^^
-    251 |           >
-    252 |             Auto-Map All
-    253 |           </button>
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:322:89
-TS2339: Property 'primary' does not exist on type 'Microsoft365Theme'.
-    320 |                         style={{
-    321 |                           width: `${mapping.confidence}%`,
-  > 322 |                           backgroundColor: mapping.confidence >= 90 ? Microsoft365Theme.primary.green :
-        |                                                                                         ^^^^^^^
-    323 |                                           mapping.confidence >= 70 ? '#F59E0B' : Microsoft365Theme.primary.red
-    324 |                         }}
-    325 |                       ></div>
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:323:100
-TS2339: Property 'primary' does not exist on type 'Microsoft365Theme'.
-    321 |                           width: `${mapping.confidence}%`,
-    322 |                           backgroundColor: mapping.confidence >= 90 ? Microsoft365Theme.primary.green :
-  > 323 |                                           mapping.confidence >= 70 ? '#F59E0B' : Microsoft365Theme.primary.red
-        |                                                                                                    ^^^^^^^
-    324 |                         }}
-    325 |                       ></div>
-    326 |                     </div>
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:339:67
-TS2339: Property 'primary' does not exist on type 'Microsoft365Theme'.
-    337 |                       onClick={() => onApproveMapping(mapping.id)}
-    338 |                       className="text-white px-3 py-1 rounded text-xs hover:opacity-90"
-  > 339 |                       style={{ backgroundColor: Microsoft365Theme.primary.green }}
-        |                                                                   ^^^^^^^
-    340 |                     >
-    341 |                       Approve
-    342 |                     </button>
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:346:67
-TS2339: Property 'primary' does not exist on type 'Microsoft365Theme'.
-    344 |                       onClick={() => onRejectMapping(mapping.id)}
-    345 |                       className="text-white px-3 py-1 rounded text-xs hover:opacity-90"
-  > 346 |                       style={{ backgroundColor: Microsoft365Theme.primary.red }}
-        |                                                                   ^^^^^^^
-    347 |                     >
-    348 |                       Reject
-    349 |                     </button>
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:455:83
-TS2339: Property 'primary' does not exist on type 'Microsoft365Theme'.
-    453 |         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-    454 |           <div className="text-center">
-  > 455 |             <div className="text-3xl font-bold" style={{ color: Microsoft365Theme.primary.blue }}>
-        |                                                                                   ^^^^^^^
-    456 |               {realTimeData.totalProcessed}
-    457 |             </div>
-    458 |             <div className="text-sm text-gray-600">Products Processed Today</div>
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:461:83
-TS2339: Property 'primary' does not exist on type 'Microsoft365Theme'.
-    459 |           </div>
-    460 |           <div className="text-center">
-  > 461 |             <div className="text-3xl font-bold" style={{ color: Microsoft365Theme.primary.green }}>
-        |                                                                                   ^^^^^^^
-    462 |               {realTimeData.successRate.toFixed(1)}%
-    463 |             </div>
-    464 |             <div className="text-sm text-gray-600">Success Rate</div>
-ERROR in src/components/CategoryMapping/CategoryMappingDashboard.tsx:467:83
-TS2339: Property 'secondary' does not exist on type 'Microsoft365Theme'.
-    465 |           </div>
-    466 |           <div className="text-center">
-  > 467 |             <div className="text-3xl font-bold" style={{ color: Microsoft365Theme.secondary.lightBlue }}>
-        |                                                                                   ^^^^^^^^^
-    468 |               {realTimeData.avgProcessingTime.toFixed(0)}ms
-    469 |             </div>
-    470 |             <div className="text-sm text-gray-600">Avg Processing Time</div>
+    527 |       {isOpen && (
+    528 |         <>
+    529 |           {/* Backdrop */}
 ERROR in src/components/CategoryMapping/CategoryTreeVisualization.tsx:355:61
 TS2339: Property 'borderRadius' does not exist on type '{ input: { base: { padding: string; borderRadius: string; border: string; fontSize: string; fontFamily: string; transition: string; backgroundColor: string; }; focus: { borderColor: string; boxShadow: string; outline: string; }; error: { ...; }; success: { ...; }; }; label: { ...; }; }'.
     353 |           padding: `${MS365Spacing[2]} ${MS365Spacing[3]}`,
@@ -461,9 +136,9 @@ TS2339: Property 'borderRadius' does not exist on type '{ input: { base: { paddi
     372 |           fontFamily: MS365Typography.fonts.system,
     373 |           backgroundColor: MS365Colors.background.primary,
 ERROR in src/components/CategoryMapping/CategoryTreeVisualization.tsx:594:50
-TS2345: Argument of type '(prev: TreeViewState) => { filterBy: string; selectedNodes: string[]; expandedNodes: string[]; hoveredNode: string | null; draggedNode: string | null; searchQuery: string; viewMode: "tree" | ... 1 more ... | "hierarchy"; }' is not assignable to parameter of type 'SetStateAction<TreeViewState>'.
-  Type '(prev: TreeViewState) => { filterBy: string; selectedNodes: string[]; expandedNodes: string[]; hoveredNode: string | null; draggedNode: string | null; searchQuery: string; viewMode: "tree" | ... 1 more ... | "hierarchy"; }' is not assignable to type '(prevState: TreeViewState) => TreeViewState'.
-    Call signature return types '{ filterBy: string; selectedNodes: string[]; expandedNodes: string[]; hoveredNode: string | null; draggedNode: string | null; searchQuery: string; viewMode: "tree" | "flow" | "hierarchy"; }' and 'TreeViewState' are incompatible.
+TS2345: Argument of type '(prev: TreeViewState) => { filterBy: string; selectedNodes: string[]; expandedNodes: string[]; hoveredNode: string | null; draggedNode: string | null; searchQuery: string; viewMode: "flow" | ... 1 more ... | "hierarchy"; }' is not assignable to parameter of type 'SetStateAction<TreeViewState>'.
+  Type '(prev: TreeViewState) => { filterBy: string; selectedNodes: string[]; expandedNodes: string[]; hoveredNode: string | null; draggedNode: string | null; searchQuery: string; viewMode: "flow" | ... 1 more ... | "hierarchy"; }' is not assignable to type '(prevState: TreeViewState) => TreeViewState'.
+    Call signature return types '{ filterBy: string; selectedNodes: string[]; expandedNodes: string[]; hoveredNode: string | null; draggedNode: string | null; searchQuery: string; viewMode: "flow" | "tree" | "hierarchy"; }' and 'TreeViewState' are incompatible.
       The types of 'filterBy' are incompatible between these types.
         Type 'string' is not assignable to type '"all" | "pending" | "mapped" | "unmapped"'.
     592 |         filterBy={treeState.filterBy}
@@ -659,7 +334,7 @@ TS2322: Type '"xs"' is not assignable to type '"md" | "sm" | "lg" | "xl" | undef
     333 |                       onClick={(e) => {
     334 |                         e.stopPropagation();
 ERROR in src/components/Microsoft365/MS365Dashboard.tsx:332:23
-TS2322: Type '"success"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"success"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     330 |                     <MS365Button
     331 |                       size="xs"
   > 332 |                       variant="success"
@@ -677,7 +352,7 @@ TS2322: Type '"xs"' is not assignable to type '"md" | "sm" | "lg" | "xl" | undef
     343 |                       onClick={(e) => {
     344 |                         e.stopPropagation();
 ERROR in src/components/Microsoft365/MS365Dashboard.tsx:342:23
-TS2322: Type '"error"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"error"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     340 |                     <MS365Button
     341 |                       size="xs"
   > 342 |                       variant="error"
@@ -839,7 +514,7 @@ TS2322: Type '{ children: string; variant: "secondary"; leftIcon: string; }' is 
     488 |           </MS365Button>
     489 |           <MS365Button variant="warning" leftIcon="⚠️">
 ERROR in src/components/Microsoft365/MS365PanelManager.tsx:489:24
-TS2322: Type '"warning"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"warning"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     487 |             Toplu İçe Aktar
     488 |           </MS365Button>
   > 489 |           <MS365Button variant="warning" leftIcon="⚠️">
@@ -848,7 +523,7 @@ TS2322: Type '"warning"' is not assignable to type '"link" | "primary" | "second
     491 |           </MS365Button>
     492 |           <MS365Button variant="error" leftIcon="🔒">
 ERROR in src/components/Microsoft365/MS365PanelManager.tsx:492:24
-TS2322: Type '"error"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"error"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     490 |             Pasif Kullanıcılar
     491 |           </MS365Button>
   > 492 |           <MS365Button variant="error" leftIcon="🔒">
@@ -857,7 +532,7 @@ TS2322: Type '"error"' is not assignable to type '"link" | "primary" | "secondar
     494 |           </MS365Button>
     495 |           <MS365Button variant="success" leftIcon="✅">
 ERROR in src/components/Microsoft365/MS365PanelManager.tsx:495:24
-TS2322: Type '"success"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"success"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     493 |             Güvenlik Taraması
     494 |           </MS365Button>
   > 495 |           <MS365Button variant="success" leftIcon="✅">
@@ -973,7 +648,7 @@ TS2322: Type '{ children: string; variant: "ghost"; leftIcon: string; fullWidth:
     653 |             </MS365Button>
     654 |             <MS365Button variant="warning" leftIcon="⚠️" fullWidth>
 ERROR in src/components/Microsoft365/MS365PanelManager.tsx:654:26
-TS2322: Type '"warning"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"warning"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     652 |               Audit Log Ayarları
     653 |             </MS365Button>
   > 654 |             <MS365Button variant="warning" leftIcon="⚠️" fullWidth>
@@ -1021,7 +696,7 @@ TS2322: Type '{ children: string; variant: "secondary"; leftIcon: string; onClic
     312 |           </MS365Button>
     313 |           <MS365Button variant="success" leftIcon="🏪" onClick={() => setActiveTab('marketplaces')}>
 ERROR in src/components/Microsoft365/MS365SuperAdminPanel.tsx:313:24
-TS2322: Type '"success"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"success"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     311 |             Güvenlik Paneli
     312 |           </MS365Button>
   > 313 |           <MS365Button variant="success" leftIcon="🏪" onClick={() => setActiveTab('marketplaces')}>
@@ -1030,7 +705,7 @@ TS2322: Type '"success"' is not assignable to type '"link" | "primary" | "second
     315 |           </MS365Button>
     316 |           <MS365Button variant="warning" leftIcon="📋" onClick={() => setActiveTab('logs')}>
 ERROR in src/components/Microsoft365/MS365SuperAdminPanel.tsx:316:24
-TS2322: Type '"warning"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"warning"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     314 |             Pazaryeri Ayarları
     315 |           </MS365Button>
   > 316 |           <MS365Button variant="warning" leftIcon="📋" onClick={() => setActiveTab('logs')}>
@@ -1049,7 +724,7 @@ TS2322: Type '{ children: string; variant: "ghost"; leftIcon: string; onClick: (
     321 |           </MS365Button>
     322 |           <MS365Button variant="error" leftIcon="🔄">
 ERROR in src/components/Microsoft365/MS365SuperAdminPanel.tsx:322:24
-TS2322: Type '"error"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"error"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     320 |             Sistem Ayarları
     321 |           </MS365Button>
   > 322 |           <MS365Button variant="error" leftIcon="🔄">
@@ -1104,7 +779,7 @@ TS2322: Type '"xs"' is not assignable to type '"md" | "sm" | "lg" | "xl" | undef
     397 |                         </MS365Button>
     398 |                       )}
 ERROR in src/components/Microsoft365/MS365SuperAdminPanel.tsx:395:48
-TS2322: Type '"error"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"error"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     393 |                       </MS365Button>
     394 |                       {user.role !== 'super_admin' && (
   > 395 |                         <MS365Button size="xs" variant="error" leftIcon="🗑️">
@@ -1131,7 +806,7 @@ TS2322: Type '"xs"' is not assignable to type '"md" | "sm" | "lg" | "xl" | undef
     468 |                   </MS365Button>
     469 |                   <MS365Button size="xs" variant="ghost">
 ERROR in src/components/Microsoft365/MS365SuperAdminPanel.tsx:466:42
-TS2322: Type '"success"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"success"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     464 |               {!alert.resolved && (
     465 |                 <div style={{ display: 'flex', gap: Microsoft365DesignSystem.spacing[2] }}>
   > 466 |                   <MS365Button size="xs" variant="success" onClick={() => resolveAlert(alert.id)}>
@@ -1149,8 +824,8 @@ TS2322: Type '"xs"' is not assignable to type '"md" | "sm" | "lg" | "xl" | undef
     471 |                   </MS365Button>
     472 |                 </div>
 ERROR in src/components/Microsoft365/MS365SuperAdminPanel.tsx:544:19
-TS2322: Type '"success" | "primary"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
-  Type '"success"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"primary" | "success"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
+  Type '"success"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     542 |                 <MS365Button 
     543 |                   size="sm" 
   > 544 |                   variant={marketplace.status === 'active' ? 'success' : 'primary'}
@@ -1247,7 +922,7 @@ TS2322: Type '{ children: string; variant: "ghost"; leftIcon: string; fullWidth:
     591 |             </MS365Button>
     592 |             <MS365Button variant="warning" leftIcon="⚠️" fullWidth>
 ERROR in src/components/Microsoft365/MS365SuperAdminPanel.tsx:592:26
-TS2322: Type '"warning"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"warning"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     590 |               2FA Zorunluluğu
     591 |             </MS365Button>
   > 592 |             <MS365Button variant="warning" leftIcon="⚠️" fullWidth>
@@ -1366,7 +1041,7 @@ TS2307: Cannot find module '../Microsoft365/MS365Spinner' or its corresponding t
     15 |
     16 | // Lazy load components for optimal performance
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:52:41
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     50 |
     51 |   const getHealthColor = (score: number) => {
   > 52 |     if (score >= 90) return MS365Colors.success;
@@ -1375,7 +1050,7 @@ TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: stri
     54 |     return MS365Colors.error;
     55 |   };
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:53:41
-TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     51 |   const getHealthColor = (score: number) => {
     52 |     if (score >= 90) return MS365Colors.success;
   > 53 |     if (score >= 70) return MS365Colors.warning;
@@ -1384,7 +1059,7 @@ TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: stri
     55 |   };
     56 |
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:54:24
-TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     52 |     if (score >= 90) return MS365Colors.success;
     53 |     if (score >= 70) return MS365Colors.warning;
   > 54 |     return MS365Colors.error;
@@ -1402,7 +1077,7 @@ TS2339: Property 'fontFamily' does not exist on type '{ fonts: { system: string;
     79 |         {/* Header */}
     80 |         <div style={{
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:81:86
-TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     79 |         {/* Header */}
     80 |         <div style={{
   > 81 |           background: `linear-gradient(135deg, ${MS365Colors.primary}, ${MS365Colors.info})`,
@@ -1519,7 +1194,7 @@ TS2339: Property 'l' does not exist on type '{ 0: string; 1: string; 2: string; 
     144 |           <div style={{ 
     145 |             display: 'flex', 
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:146:52
-TS2339: Property 'border' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'border' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     144 |           <div style={{ 
     145 |             display: 'flex', 
   > 146 |             borderBottom: `2px solid ${MS365Colors.border}`,
@@ -1537,8 +1212,8 @@ TS2339: Property 'l' does not exist on type '{ 0: string; 1: string; 2: string; 
     149 |           }}>
     150 |             {tabs.map(tab => (
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:155:19
-TS2322: Type 'string | { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; ... 5 more ...; 900: string; }; red: { ...; }; }' is not assignable to type 'Background<string | number> | undefined'.
-  Type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }' is not assignable to type 'Background<string | number> | undefined'.
+TS2322: Type 'string | { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; ... 5 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }' is not assignable to type 'Background<string | number> | undefined'.
+  Type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }' is not assignable to type 'Background<string | number> | undefined'.
     153 |                 onClick={() => setActiveTab(tab.key as DashboardTab)}
     154 |                 style={{
   > 155 |                   background: activeTab === tab.key ? MS365Colors.primary : 'transparent',
@@ -1547,7 +1222,7 @@ TS2322: Type 'string | { blue: { 50: string; 100: string; 200: string; 300: stri
     157 |                   border: 'none',
     158 |                   padding: `${MS365Spacing.m} ${MS365Spacing.l}`,
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:156:72
-TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     154 |                 style={{
     155 |                   background: activeTab === tab.key ? MS365Colors.primary : 'transparent',
   > 156 |                   color: activeTab === tab.key ? 'white' : MS365Colors.text.primary,
@@ -1610,7 +1285,7 @@ TS2339: Property 'l' does not exist on type '{ 0: string; 1: string; 2: string; 
     222 |         border: `2px solid ${MS365Colors.primary}30`
     223 |       }}>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:221:86
-TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     219 |         padding: MS365Spacing.xl,
     220 |         marginBottom: MS365Spacing.l,
   > 221 |         background: `linear-gradient(135deg, ${MS365Colors.primary}15, ${MS365Colors.info}15)`,
@@ -1628,7 +1303,7 @@ TS2339: Property 'l' does not exist on type '{ 0: string; 1: string; 2: string; 
     226 |             <div style={{ position: 'relative', width: '150px', height: '150px', margin: '0 auto' }}>
     227 |               <svg width="150" height="150" style={{ transform: 'rotate(-90deg)' }}>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:234:60
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     232 |                   r="65" 
     233 |                   fill="none" 
   > 234 |                   stroke={overallScore >= 90 ? MS365Colors.success : overallScore >= 70 ? MS365Colors.warning : MS365Colors.error}
@@ -1637,7 +1312,7 @@ TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: stri
     236 |                   strokeDasharray={`${(overallScore / 100) * 408.4} 408.4`}
     237 |                   style={{ transition: 'stroke-dasharray 2s ease' }}
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:234:103
-TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     232 |                   r="65" 
     233 |                   fill="none" 
   > 234 |                   stroke={overallScore >= 90 ? MS365Colors.success : overallScore >= 70 ? MS365Colors.warning : MS365Colors.error}
@@ -1646,7 +1321,7 @@ TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: stri
     236 |                   strokeDasharray={`${(overallScore / 100) * 408.4} 408.4`}
     237 |                   style={{ transition: 'stroke-dasharray 2s ease' }}
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:234:125
-TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     232 |                   r="65" 
     233 |                   fill="none" 
   > 234 |                   stroke={overallScore >= 90 ? MS365Colors.success : overallScore >= 70 ? MS365Colors.warning : MS365Colors.error}
@@ -1664,7 +1339,7 @@ TS2339: Property 'h1' does not exist on type '{ fonts: { system: string; mono: s
     249 |                 </div>
     250 |                 <div style={{ fontSize: '14px', color: MS365Colors.text.secondary }}>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:250:68
-TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     248 |                   {Math.round(overallScore)}
     249 |                 </div>
   > 250 |                 <div style={{ fontSize: '14px', color: MS365Colors.text.secondary }}>
@@ -1709,7 +1384,7 @@ TS2339: Property 'm' does not exist on type '{ 0: string; 1: string; 2: string; 
     266 |                 borderRadius: '8px',
     267 |                 border: `1px solid ${MS365Colors.success}30`
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:265:46
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     263 |               <div style={{ 
     264 |                 padding: MS365Spacing.m,
   > 265 |                 backgroundColor: MS365Colors.success + '20',
@@ -1718,7 +1393,7 @@ TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: stri
     267 |                 border: `1px solid ${MS365Colors.success}30`
     268 |               }}>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:267:50
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     265 |                 backgroundColor: MS365Colors.success + '20',
     266 |                 borderRadius: '8px',
   > 267 |                 border: `1px solid ${MS365Colors.success}30`
@@ -1727,7 +1402,7 @@ TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: stri
     269 |                 <h4 style={{ margin: 0, color: MS365Colors.success }}>Security Score</h4>
     270 |                 <div style={{ fontSize: '24px', fontWeight: 'bold', color: MS365Colors.success }}>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:269:60
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     267 |                 border: `1px solid ${MS365Colors.success}30`
     268 |               }}>
   > 269 |                 <h4 style={{ margin: 0, color: MS365Colors.success }}>Security Score</h4>
@@ -1736,7 +1411,7 @@ TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: stri
     271 |                   {systemStats.securityScore.toFixed(0)}%
     272 |                 </div>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:270:88
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     268 |               }}>
     269 |                 <h4 style={{ margin: 0, color: MS365Colors.success }}>Security Score</h4>
   > 270 |                 <div style={{ fontSize: '24px', fontWeight: 'bold', color: MS365Colors.success }}>
@@ -1754,7 +1429,7 @@ TS2339: Property 'm' does not exist on type '{ 0: string; 1: string; 2: string; 
     278 |                 borderRadius: '8px',
     279 |                 border: `1px solid ${MS365Colors.info}30`
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:277:46
-TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     275 |               <div style={{ 
     276 |                 padding: MS365Spacing.m,
   > 277 |                 backgroundColor: MS365Colors.info + '20',
@@ -1763,7 +1438,7 @@ TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string;
     279 |                 border: `1px solid ${MS365Colors.info}30`
     280 |               }}>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:279:50
-TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     277 |                 backgroundColor: MS365Colors.info + '20',
     278 |                 borderRadius: '8px',
   > 279 |                 border: `1px solid ${MS365Colors.info}30`
@@ -1772,7 +1447,7 @@ TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string;
     281 |                 <h4 style={{ margin: 0, color: MS365Colors.info }}>Performance Score</h4>
     282 |                 <div style={{ fontSize: '24px', fontWeight: 'bold', color: MS365Colors.info }}>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:281:60
-TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     279 |                 border: `1px solid ${MS365Colors.info}30`
     280 |               }}>
   > 281 |                 <h4 style={{ margin: 0, color: MS365Colors.info }}>Performance Score</h4>
@@ -1781,7 +1456,7 @@ TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string;
     283 |                   {systemStats.performanceScore.toFixed(0)}%
     284 |                 </div>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:282:88
-TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'info' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     280 |               }}>
     281 |                 <h4 style={{ margin: 0, color: MS365Colors.info }}>Performance Score</h4>
   > 282 |                 <div style={{ fontSize: '24px', fontWeight: 'bold', color: MS365Colors.info }}>
@@ -1808,7 +1483,7 @@ TS2339: Property 'l' does not exist on type '{ 0: string; 1: string; 2: string; 
     298 |         <QuickStatCard
     299 |           title="Security Vulnerabilities"
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:302:66
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     300 |           value={systemStats.vulnerabilities}
     301 |           icon="🛡️"
   > 302 |           color={systemStats.vulnerabilities === 0 ? MS365Colors.success : MS365Colors.error}
@@ -1817,7 +1492,7 @@ TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: stri
     304 |         />
     305 |         
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:302:88
-TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     300 |           value={systemStats.vulnerabilities}
     301 |           icon="🛡️"
   > 302 |           color={systemStats.vulnerabilities === 0 ? MS365Colors.success : MS365Colors.error}
@@ -1826,7 +1501,7 @@ TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string
     304 |         />
     305 |         
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:310:30
-TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     308 |           value={systemStats.optimizationOpportunities}
     309 |           icon="🚀"
   > 310 |           color={MS365Colors.warning}
@@ -1835,7 +1510,7 @@ TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: stri
     312 |         />
     313 |         
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:318:11
-TS2322: Type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }' is not assignable to type 'string'.
+TS2322: Type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }' is not assignable to type 'string'.
     316 |           value={1}
     317 |           icon="👁️"
   > 318 |           color={MS365Colors.primary}
@@ -1844,7 +1519,7 @@ TS2322: Type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: 
     320 |         />
     321 |         
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:327:30
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     325 |           unit="%"
     326 |           icon="⏱️"
   > 327 |           color={MS365Colors.success}
@@ -1952,7 +1627,7 @@ TS2339: Property 'h4' does not exist on type '{ fonts: { system: string; mono: s
     376 |         </h4>
     377 |         <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: MS365Spacing.s }}>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:374:75
-TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     372 |       <div>
     373 |         <div style={{ fontSize: '32px', marginBottom: MS365Spacing.s }}>{icon}</div>
   > 374 |         <h4 style={{ ...MS365Typography.h4, margin: 0, color: MS365Colors.text.secondary }}>
@@ -1988,7 +1663,7 @@ TS2339: Property 'body' does not exist on type '{ fonts: { system: string; mono:
     383 |           </span>
     384 |         </div>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:381:70
-TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     379 |             {value}
     380 |           </span>
   > 381 |           <span style={{ ...MS365Typography.body, color: MS365Colors.text.secondary }}>
@@ -2051,7 +1726,7 @@ TS2339: Property 'm' does not exist on type '{ 0: string; 1: string; 2: string; 
     459 |                 border: `1px solid ${MS365Colors.warning}30`,
     460 |                 borderRadius: '8px',
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:458:46
-TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     456 |               <div key={index} style={{
     457 |                 padding: MS365Spacing.m,
   > 458 |                 backgroundColor: MS365Colors.warning + '10',
@@ -2060,7 +1735,7 @@ TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: stri
     460 |                 borderRadius: '8px',
     461 |                 marginBottom: MS365Spacing.s
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:459:50
-TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     457 |                 padding: MS365Spacing.m,
     458 |                 backgroundColor: MS365Colors.warning + '10',
   > 459 |                 border: `1px solid ${MS365Colors.warning}30`,
@@ -2078,7 +1753,7 @@ TS2339: Property 's' does not exist on type '{ 0: string; 1: string; 2: string; 
     463 |                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
     464 |                   <div>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:468:72
-TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     466 |                       {opportunity.text}
     467 |                     </div>
   > 468 |                     <div style={{ fontSize: '12px', color: MS365Colors.text.secondary }}>
@@ -2087,7 +1762,7 @@ TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string;
     470 |                     </div>
     471 |                   </div>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:475:82
-TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     473 |                     padding: '2px 6px',
     474 |                     borderRadius: '8px',
   > 475 |                     backgroundColor: opportunity.impact === 'High' ? MS365Colors.error + '20' : MS365Colors.warning + '20',
@@ -2096,7 +1771,7 @@ TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string
     477 |                     fontSize: '10px',
     478 |                     fontWeight: 'bold'
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:475:109
-TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     473 |                     padding: '2px 6px',
     474 |                     borderRadius: '8px',
   > 475 |                     backgroundColor: opportunity.impact === 'High' ? MS365Colors.error + '20' : MS365Colors.warning + '20',
@@ -2105,7 +1780,7 @@ TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: stri
     477 |                     fontSize: '10px',
     478 |                     fontWeight: 'bold'
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:476:72
-TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     474 |                     borderRadius: '8px',
     475 |                     backgroundColor: opportunity.impact === 'High' ? MS365Colors.error + '20' : MS365Colors.warning + '20',
   > 476 |                     color: opportunity.impact === 'High' ? MS365Colors.error : MS365Colors.warning,
@@ -2114,7 +1789,7 @@ TS2339: Property 'error' does not exist on type '{ primary: { blue: { 50: string
     478 |                     fontWeight: 'bold'
     479 |                   }}>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:476:92
-TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     474 |                     borderRadius: '8px',
     475 |                     backgroundColor: opportunity.impact === 'High' ? MS365Colors.error + '20' : MS365Colors.warning + '20',
   > 476 |                     color: opportunity.impact === 'High' ? MS365Colors.error : MS365Colors.warning,
@@ -2123,7 +1798,7 @@ TS2339: Property 'warning' does not exist on type '{ primary: { blue: { 50: stri
     478 |                     fontWeight: 'bold'
     479 |                   }}>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:492:44
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     490 |             style={{ 
     491 |               width: '100%',
   > 492 |               backgroundColor: MS365Colors.success,
@@ -2132,7 +1807,7 @@ TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: stri
     494 |             }}
     495 |           >
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:493:40
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     491 |               width: '100%',
     492 |               backgroundColor: MS365Colors.success,
   > 493 |               borderColor: MS365Colors.success 
@@ -2177,7 +1852,7 @@ TS2339: Property 's' does not exist on type '{ 0: string; 1: string; 2: string; 
     512 |             borderRadius: '8px',
     513 |             fontFamily: 'Consolas, Monaco, monospace',
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:517:48
-TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     515 |           }}>
     516 |             {optimizationResults.length === 0 && !isOptimizing && (
   > 517 |               <div style={{ color: MS365Colors.text.secondary, textAlign: 'center', paddingTop: '50px' }}>
@@ -2186,7 +1861,7 @@ TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string;
     519 |               </div>
     520 |             )}
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:525:36
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     523 |               <div key={index} style={{ 
     524 |                 marginBottom: '8px',
   > 525 |                 color: MS365Colors.success,
@@ -2195,7 +1870,7 @@ TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: stri
     527 |                 alignItems: 'center',
     528 |                 gap: '8px'
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:530:51
-TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     528 |                 gap: '8px'
     529 |               }}>
   > 530 |                 <span style={{ color: MS365Colors.success }}>✓</span>
@@ -2204,7 +1879,7 @@ TS2339: Property 'success' does not exist on type '{ primary: { blue: { 50: stri
     532 |               </div>
     533 |             ))}
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:540:17
-TS2322: Type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }' is not assignable to type 'Color | undefined'.
+TS2322: Type '{ blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }' is not assignable to type 'Color | undefined'.
     538 |                 alignItems: 'center',
     539 |                 gap: '8px',
   > 540 |                 color: MS365Colors.primary 
@@ -2231,7 +1906,7 @@ TS2339: Property 'm' does not exist on type '{ 0: string; 1: string; 2: string; 
     571 |       fontSize: '16px'
     572 |     }}>
 ERROR in src/components/Priority5/Priority5Dashboard.tsx:570:26
-TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; }; neutral: { ...; }; semantic: { ...; }; ba...'.
+TS2339: Property 'text' does not exist on type '{ primary: { blue: { 50: string; 100: string; 200: string; 300: string; 400: string; 500: string; 600: string; 700: string; 800: string; 900: string; }; green: { 50: string; 100: string; 200: string; 300: string; 400: string; ... 4 more ...; 900: string; }; red: { ...; }; purple: { ...; }; orange: { ...; }; }; neutr...'.
     568 |     <div style={{ 
     569 |       marginTop: MS365Spacing.m,
   > 570 |       color: MS365Colors.text.secondary,
@@ -2594,7 +2269,7 @@ TS2322: Type '{ children: string; leftIcon: string; rightIcon: string; }' is not
     390 |           <MS365Button variant="error" leftIcon="🗑️">Delete Items</MS365Button>
     391 |         </div>
 ERROR in src/demo/Microsoft365Demo.tsx:389:24
-TS2322: Type '"success"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"success"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     387 |           <MS365Button rightIcon="🚀">Deploy</MS365Button>
     388 |           <MS365Button leftIcon="💾" rightIcon="📤">Save & Export</MS365Button>
   > 389 |           <MS365Button variant="success" leftIcon="✅">Approve All</MS365Button>
@@ -2603,7 +2278,7 @@ TS2322: Type '"success"' is not assignable to type '"link" | "primary" | "second
     391 |         </div>
     392 |       </div>
 ERROR in src/demo/Microsoft365Demo.tsx:390:24
-TS2322: Type '"error"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"error"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     388 |           <MS365Button leftIcon="💾" rightIcon="📤">Save & Export</MS365Button>
     389 |           <MS365Button variant="success" leftIcon="✅">Approve All</MS365Button>
   > 390 |           <MS365Button variant="error" leftIcon="🗑️">Delete Items</MS365Button>
@@ -2612,7 +2287,7 @@ TS2322: Type '"error"' is not assignable to type '"link" | "primary" | "secondar
     392 |       </div>
     393 |
 ERROR in src/demo/Microsoft365Demo.tsx:402:34
-TS2322: Type '"success"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"success"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     400 |           <MS365Button fullWidth>Full Width Primary</MS365Button>
     401 |           <MS365Button fullWidth variant="secondary">Full Width Secondary</MS365Button>
   > 402 |           <MS365Button fullWidth variant="success" leftIcon="✅">Full Width with Icon</MS365Button>
@@ -2621,8 +2296,8 @@ TS2322: Type '"success"' is not assignable to type '"link" | "primary" | "second
     404 |       </div>
     405 |     </div>
 ERROR in src/demo/Microsoft365Demo.tsx:457:13
-TS2322: Type '"error" | "ghost"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
-  Type '"error"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"error" | "ghost"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
+  Type '"error"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     455 |           </MS365Button>
     456 |           <MS365Button
   > 457 |             variant={activeDemo === 'superadmin' ? 'error' : 'ghost'}
@@ -2645,7 +2320,7 @@ TS2322: Type '{ title: string; description: string; status: "active"; progress: 
     357 |       </div>
     358 |
 ERROR in src/demo/SuperAdminDemo.tsx:60:24
-TS2322: Type '"error"' is not assignable to type '"link" | "primary" | "secondary" | "outline" | "ghost" | "destructive" | undefined'.
+TS2322: Type '"error"' is not assignable to type '"primary" | "secondary" | "outline" | "link" | "ghost" | "destructive" | undefined'.
     58 |       <div>
     59 |         <div style={{ position: 'fixed', top: Microsoft365DesignSystem.spacing[4], right: Microsoft365DesignSystem.spacing[4], zIndex: 1000 }}>
   > 60 |           <MS365Button variant="error" onClick={() => setShowFullPanel(false)}>
@@ -2733,7 +2408,7 @@ TS1208: 'test-deployment.ts' cannot be compiled under '--isolatedModules' becaus
     8 | console.log('🎯 Testing deployment system for %40+ performance improvement\n');
     9 |
 ERROR in src/deployment/test-deployment.ts:13:42
-TS2306: File '/Users/mezbjen/Desktop/meschain-sync-enterprise/src/deployment/DropshippingOptimizationDeployer.ts' is not a module.
+TS2306: File '/Users/mezbjen/Desktop/meschain-sync-enterprise-1/src/deployment/DropshippingOptimizationDeployer.ts' is not a module.
     11 |   try {
     12 |     // Import the quick deployment function
   > 13 |     const { quickDeploy } = await import('./DropshippingOptimizationDeployer');
@@ -3142,7 +2817,7 @@ TS2802: Type 'IterableIterator<[string, RateLimitEntry]>' can only be iterated t
     387 |         }
 ERROR in src/security/SecurityManager.tsx:594:24
 TS2345: Argument of type '{ id: any; username: any; }' is not assignable to parameter of type 'SetStateAction<null>'.
-  Object literal may only specify known properties, and 'id' does not exist in type '(prevState: null) => null'.
+  Object literal may only specify kwn properties, and 'id' does not exist in type '(prevState: null) => null'.
     592 |       setToken(newToken);
     593 |       setIsAuthenticated(true);
   > 594 |       setCurrentUser({ id: userId, username: credentials.username });

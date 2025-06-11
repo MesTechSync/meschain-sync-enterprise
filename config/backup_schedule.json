@@ -1,0 +1,39 @@
+{
+    "full_backup": {
+        "frequency": "daily",
+        "time": "01:00",
+        "retention_days": 30,
+        "compression": true,
+        "encryption": true,
+        "verify_after_backup": true
+    },
+    "incremental_backup": {
+        "frequency": "hourly",
+        "retention_days": 7,
+        "compression": true,
+        "encryption": true
+    },
+    "critical_backup": {
+        "frequency": "continuous",
+        "retention_days": 14,
+        "encryption": true,
+        "offsite_storage": true
+    },
+    "rto_target": 1800,
+    "rpo_target": 300,
+    "storage": {
+        "local": "/backups/local",
+        "remote": {
+            "aws_s3": {
+                "bucket": "meschain-backups",
+                "region": "eu-west-1"
+            },
+            "azure_blob": {
+                "container": "meschain-dr"
+            },
+            "google_cloud": {
+                "bucket": "meschain-backup"
+            }
+        }
+    }
+}
