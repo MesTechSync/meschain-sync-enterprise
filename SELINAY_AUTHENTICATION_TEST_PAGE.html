@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Selinay Authentication Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .test-header {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+        
+        .test-header h1 {
+            margin-bottom: 10px;
+        }
+        
+        .test-header p {
+            opacity: 0.9;
+        }
+        
+        .test-controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .test-controls h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .test-btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .test-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .status-display {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 300px;
+        }
+        
+        .status-display h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .status-item {
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .status-success { color: #00cc44; }
+        .status-error { color: #ff4444; }
+        .status-info { color: #0088cc; }
+        
+        #auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+        }
+        
+        .dashboard-view {
+            display: none;
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+        
+        .dashboard-card {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .user-info {
+            margin-bottom: 20px;
+        }
+        
+        .user-avatar {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .dashboard-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .dashboard-btn {
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .dashboard-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>🔐 Selinay Authentication System Test</h1>
+        <p>Phase 1: JWT Authentication & User Management Integration</p>
+    </div>
+    
+    <div class="test-controls">
+        <h3>🧪 Test Controls</h3>
+        <button class="test-btn" onclick="testLogin()">Test Login</button>
+        <button class="test-btn" onclick="testLogout()">Test Logout</button>
+        <button class="test-btn" onclick="testTokenValidation()">Test Token</button>
+        <button class="test-btn" onclick="testProtectedRoute()">Test Protected Route</button>
+        <button class="test-btn" onclick="showLoginForm()">Show Login Form</button>
+        <button class="test-btn" onclick="showDashboard()">Show Dashboard</button>
+    </div>
+    
+    <div class="status-display">
+        <h4>📊 System Status</h4>
+        <div id="status-log">
+            <div class="status-item status-info">✅ Authentication System Loaded</div>
+            <div class="status-item status-info">🔄 Ready for testing</div>
+        </div>
+    </div>
+    
+    <!-- Login Container -->
+    <div id="auth-container"></div>
+    
+    <!-- Dashboard View -->
+    <div id="dashboard-view" class="dashboard-view">
+        <div class="dashboard-card">
+            <div class="user-info">
+                <div class="user-avatar">👤</div>
+                <h2 id="dashboard-user-name">Kullanıcı</h2>
+                <p id="dashboard-user-role">Rol</p>
+            </div>
+            
+            <h3>🎉 Giriş Başarılı!</h3>
+            <p>Authentication sistemi çalışıyor.</p>
+            
+            <div class="dashboard-actions">
+                <button class="dashboard-btn" onclick="showProfile()">👤 Profil</button>
+                <button class="dashboard-btn" onclick="showSettings()">⚙️ Ayarlar</button>
+                <button class="dashboard-btn" onclick="showAnalytics()">📊 Analitik</button>
+                <button class="dashboard-btn" onclick="selinayAuth.logout()">🚪 Çıkış</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load Authentication System -->
+    <script src="SELINAY_AUTHENTICATION_FRONTEND_COMPONENTS.js"></script>
+    
+    <script>
+        // 🧪 Test Functions
+        function addStatusLog(message, type = 'info') {
+            const statusLog = document.getElementById('status-log');
+            const statusItem = document.createElement('div');
+            statusItem.className = `status-item status-${type}`;
+            statusItem.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            statusLog.appendChild(statusItem);
+            
+            // Keep only last 10 items
+            while (statusLog.children.length > 10) {
+                statusLog.removeChild(statusLog.firstChild);
+            }
+        }
+        
+        function testLogin() {
+            addStatusLog('🧪 Testing login with admin/admin123', 'info');
+            
+            // Simulate login
+            const mockCredentials = {
+                username: 'admin',
+                password: 'admin123'
+            };
+            
+            selinayAuth.authenticateUser(mockCredentials).then(response => {
+                if (response.success) {
+                    selinayAuth.handleLoginSuccess(response.data);
+                    addStatusLog('✅ Login test successful', 'success');
+                    showDashboard();
+                } else {
+                    addStatusLog('❌ Login test failed: ' + response.error, 'error');
+                }
+            });
+        }
+        
+        function testLogout() {
+            addStatusLog('🧪 Testing logout', 'info');
+            selinayAuth.logout();
+            addStatusLog('✅ Logout test completed', 'success');
+            showLoginForm();
+        }
+        
+        function testTokenValidation() {
+            const token = selinayAuth.getToken();
+            const isValid = selinayAuth.isTokenValid(token);
+            
+            addStatusLog(`🧪 Token validation: ${isValid ? 'Valid' : 'Invalid'}`, 
+                        isValid ? 'success' : 'error');
+        }
+        
+        function testProtectedRoute() {
+            const isAuthenticated = selinayAuth.isAuthenticated();
+            addStatusLog(`🧪 Protected route access: ${isAuthenticated ? 'Allowed' : 'Denied'}`, 
+                        isAuthenticated ? 'success' : 'error');
+        }
+        
+        function showLoginForm() {
+            document.getElementById('auth-container').style.display = 'flex';
+            document.getElementById('dashboard-view').style.display = 'none';
+            selinayAuth.createLoginForm();
+            addStatusLog('📋 Login form displayed', 'info');
+        }
+        
+        function showDashboard() {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('dashboard-view').style.display = 'block';
+            
+            // Update user info
+            const user = selinayAuth.getUserData();
+            if (user) {
+                document.getElementById('dashboard-user-name').textContent = user.name;
+                document.getElementById('dashboard-user-role').textContent = 
+                    selinayAuth.getRoleDisplayName(user.role);
+            }
+            
+            addStatusLog('📊 Dashboard displayed', 'info');
+        }
+        
+        function showProfile() {
+            selinayAuth.showNotification('👤 Profil sayfası açılıyor...', 'info');
+            addStatusLog('👤 Profile page requested', 'info');
+        }
+        
+        function showSettings() {
+            selinayAuth.showNotification('⚙️ Ayarlar sayfası açılıyor...', 'info');
+            addStatusLog('⚙️ Settings page requested', 'info');
+        }
+        
+        function showAnalytics() {
+            selinayAuth.showNotification('📊 Analitik sayfası açılıyor...', 'info');
+            addStatusLog('📊 Analytics page requested', 'info');
+        }
+        
+        // 🚀 Initialize Test Page
+        document.addEventListener('DOMContentLoaded', function() {
+            addStatusLog('🚀 Test page initialized', 'success');
+            
+            // Check if user is already logged in
+            if (selinayAuth.isAuthenticated()) {
+                showDashboard();
+                addStatusLog('✅ User already authenticated', 'success');
+            } else {
+                showLoginForm();
+                addStatusLog('🔐 Showing login form', 'info');
+            }
+        });
+        
+        // Override redirect functions for testing
+        const originalRedirect = window.location;
+        Object.defineProperty(window, 'location', {
+            value: {
+                ...originalRedirect,
+                href: originalRedirect.href,
+                pathname: originalRedirect.pathname,
+                assign: function(url) {
+                    addStatusLog(`🔄 Redirect to: ${url}`, 'info');
+                    if (url.includes('dashboard')) {
+                        showDashboard();
+                    } else if (url.includes('login')) {
+                        showLoginForm();
+                    }
+                }
+            },
+            writable: true
+        });
+        
+        // Test authentication system on load
+        setTimeout(() => {
+            addStatusLog('🔍 Running system checks...', 'info');
+            
+            // Test token manager
+            const tokenManager = selinayAuth.tokenManager;
+            if (tokenManager) {
+                addStatusLog('✅ Token manager initialized', 'success');
+            }
+            
+            // Test role system
+            const roles = selinayAuth.userRoles;
+            if (roles && Object.keys(roles).length > 0) {
+                addStatusLog('✅ Role system initialized', 'success');
+            }
+            
+            // Test protected routes
+            const protectedRoutes = selinayAuth.protectedRoutes;
+            if (protectedRoutes && protectedRoutes.length > 0) {
+                addStatusLog('✅ Protected routes configured', 'success');
+            }
+            
+            addStatusLog('🎯 System ready for testing!', 'success');
+        }, 1000);
+    </script>
+</body>
+</html> 
