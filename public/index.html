@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="description" content="MesChain-Sync Enterprise - Advanced Multi-Marketplace Integration Platform" />
+    
+    <!-- Favicon -->
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    
+    <title>MesChain-Sync Enterprise v4.5</title>
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        #root {
+            min-height: 100vh;
+        }
+        
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <noscript>
+        <div style="text-align: center; padding: 50px; color: #333;">
+            <h2>JavaScript Gerekli</h2>
+            <p>MesChain-Sync Enterprise uygulamasını kullanmak için JavaScript'i etkinleştirmeniz gerekiyor.</p>
+        </div>
+    </noscript>
+    
+    <div id="root">
+        <div class="loading-container">
+            <div>
+                <div class="loading-spinner"></div>
+                <div class="loading-text">MesChain-Sync Enterprise Yükleniyor...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global configuration
+        window.MESCHAIN_CONFIG = {
+            API_BASE_URL: 'http://localhost:3023',
+            WS_URL: 'ws://localhost:3023',
+            VERSION: '4.5.0',
+            BUILD_DATE: new Date().toISOString(),
+            ENVIRONMENT: 'development'
+        };
+        
+        // Performance monitoring
+        window.addEventListener('load', function() {
+            if (window.performance) {
+                const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
+                console.log('🚀 MesChain-Sync Enterprise loaded in', loadTime, 'ms');
+            }
+        });
+        
+        // Error handling
+        window.addEventListener('error', function(e) {
+            console.error('🚨 Frontend Error:', e.error);
+        });
+        
+        // Unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('🚨 Unhandled Promise Rejection:', e.reason);
+        });
+    </script>
+</body>
+</html> 

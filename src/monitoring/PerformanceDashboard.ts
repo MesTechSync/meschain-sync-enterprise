@@ -1,336 +1,465 @@
 /**
- * MezBjen Takımı - Performance Monitoring Dashboard
- * Dropshipping optimizasyon sonuçlarını real-time izleme ve raporlama
- * Tarih: 9 Haziran 2025, Pazartesi - 14:00-16:00 Görev Slotu
- * Hedef: %40+ performans artışını track etme ve doğrulama
+ * MesChain-Sync Performance Dashboard
+ * Real-time monitoring and analytics for marketplace integrations
+ * 
+ * @author MesChain Development Team
+ * @version 4.1.0
+ * @copyright 2024 MesChain Technologies
  */
 
-import { EventEmitter } from 'events';
-import { PerformanceMetrics, OptimizationStrategy, PerformanceConfig } from '../optimization/DropshippingPerformanceOptimizer';
-
-export interface DashboardMetrics {
-  timestamp: Date;
-  performanceScore: number;
-  apiResponseTime: number;
-  throughput: number;
-  errorRate: number;
-  inventoryAccuracy: number;
-  cacheHitRate: number;
-  orderProcessingTime: number;
-  improvementPercentage: number;
-  activeOptimizations: OptimizationStrategy[];
+export interface MarketplaceMetrics {
+    marketplace: string;
+    status: 'active' | 'inactive' | 'error';
+    responseTime: number;
+    successRate: number;
+    orderCount: number;
+    errorCount: number;
+    lastSync: Date;
+    uptime: number;
 }
 
-export interface PerformanceComparison {
-  baseline: DashboardMetrics;
-  current: DashboardMetrics;
-  improvement: {
-    overall: number;
-    apiResponseTime: number;
-    throughput: number;
-    errorRate: number;
-    inventoryAccuracy: number;
-    cacheHitRate: number;
-    orderProcessingTime: number;
-  };
-  goalAchieved: boolean; // %40+ hedef karşılandı mı
+export interface SystemMetrics {
+    totalMarketplaces: number;
+    activeMarketplaces: number;
+    totalOrders: number;
+    totalProducts: number;
+    averageResponseTime: number;
+    systemUptime: number;
+    memoryUsage: number;
+    cpuUsage: number;
 }
 
-export interface AlertConfig {
-  performanceThreshold: number;
-  responseTimeThreshold: number;
-  errorRateThreshold: number;
-  inventoryAccuracyThreshold: number;
-  notificationChannels: string[];
+export interface PerformanceAlert {
+    id: string;
+    marketplace: string;
+    type: 'error' | 'warning' | 'info';
+    message: string;
+    timestamp: Date;
+    resolved: boolean;
 }
 
-export class PerformanceDashboard extends EventEmitter {
-  private metrics: DashboardMetrics[] = [];
-  private baseline: DashboardMetrics | null = null;
-  private alertConfig: AlertConfig;
-  private isMonitoring: boolean = false;
-  private monitoringInterval: NodeJS.Timeout | null = null;
+export class PerformanceDashboard {
+    private marketplaces: string[] = [
+        'trendyol', 'n11', 'hepsiburada', 'amazon', 'ozon', 'ebay'
+    ];
+    
+    private metricsCache: Map<string, MarketplaceMetrics> = new Map();
+    private alertsCache: PerformanceAlert[] = [];
+    private refreshInterval: number = 30000; // 30 seconds
 
-  constructor(alertConfig: AlertConfig) {
-    super();
-    this.alertConfig = alertConfig;
-    this.setupEventListeners();
-  }
-
-  /**
-   * Baseline performans ölçümlerini ayarla
-   */
-  public setBaseline(metrics: DashboardMetrics): void {
-    this.baseline = { ...metrics };
-    console.log('📊 [PerformanceDashboard] Baseline metrics set:', {
-      performanceScore: metrics.performanceScore,
-      apiResponseTime: metrics.apiResponseTime,
-      throughput: metrics.throughput,
-      errorRate: metrics.errorRate
-    });
-  }
-
-  /**
-   * Real-time monitoring başlat
-   */
-  public startMonitoring(intervalMs: number = 5000): void {
-    if (this.isMonitoring) {
-      console.log('⚠️ [PerformanceDashboard] Monitoring already active');
-      return;
+    constructor() {
+        this.initializeMonitoring();
     }
 
-    this.isMonitoring = true;
-    console.log(`🚀 [PerformanceDashboard] Starting real-time monitoring (${intervalMs}ms intervals)`);
-
-    this.monitoringInterval = setInterval(() => {
-      this.collectCurrentMetrics();
-    }, intervalMs);
-
-    this.emit('monitoring_started', { intervalMs });
-  }
-
-  /**
-   * Monitoring durdur
-   */
-  public stopMonitoring(): void {
-    if (!this.isMonitoring) {
-      return;
+    /**
+     * Initialize real-time monitoring
+     */
+    private initializeMonitoring(): void {
+        this.loadMarketplaceMetrics();
+        this.startRealTimeUpdates();
+        this.setupAlertSystem();
     }
 
-    this.isMonitoring = false;
-    if (this.monitoringInterval) {
-      clearInterval(this.monitoringInterval);
-      this.monitoringInterval = null;
+    /**
+     * Get current system metrics
+     */
+    public async getSystemMetrics(): Promise<SystemMetrics> {
+        const marketplaceMetrics = Array.from(this.metricsCache.values());
+        
+        return {
+            totalMarketplaces: this.marketplaces.length,
+            activeMarketplaces: marketplaceMetrics.filter(m => m.status === 'active').length,
+            totalOrders: marketplaceMetrics.reduce((sum, m) => sum + m.orderCount, 0),
+            totalProducts: await this.getTotalProducts(),
+            averageResponseTime: this.calculateAverageResponseTime(marketplaceMetrics),
+            systemUptime: this.getSystemUptime(),
+            memoryUsage: this.getMemoryUsage(),
+            cpuUsage: this.getCpuUsage()
+        };
     }
 
-    console.log('⏹️ [PerformanceDashboard] Monitoring stopped');
-    this.emit('monitoring_stopped');
-  }
+    /**
+     * Get marketplace-specific metrics
+     */
+    public async getMarketplaceMetrics(marketplace: string): Promise<MarketplaceMetrics | null> {
+        if (!this.marketplaces.includes(marketplace)) {
+            return null;
+        }
 
-  /**
-   * Güncel metrikleri topla
-   */
-  private async collectCurrentMetrics(): Promise<void> {
-    try {
-      // Simülasyon - gerçek implementasyonda optimizer'dan alınacak
-      const currentMetrics: DashboardMetrics = {
-        timestamp: new Date(),
-        performanceScore: this.generateRealisticMetric(0.85, 0.95),
-        apiResponseTime: this.generateRealisticMetric(150, 300), // ms
-        throughput: this.generateRealisticMetric(80, 120), // req/sec
-        errorRate: this.generateRealisticMetric(0.01, 0.05), // %
-        inventoryAccuracy: this.generateRealisticMetric(0.95, 0.99), // %
-        cacheHitRate: this.generateRealisticMetric(0.75, 0.90), // %
-        orderProcessingTime: this.generateRealisticMetric(500, 1000), // ms
-        improvementPercentage: 0,
-        activeOptimizations: ['CACHING', 'BULK_OPERATIONS', 'DELTA_SYNC']
-      };
+        const cached = this.metricsCache.get(marketplace);
+        if (cached && this.isCacheValid(cached.lastSync)) {
+            return cached;
+        }
 
-      // İyileştirme yüzdesini hesapla
-      if (this.baseline) {
-        currentMetrics.improvementPercentage = this.calculateImprovementPercentage(currentMetrics);
-      }
-
-      this.metrics.push(currentMetrics);
-
-      // Son 100 metriği tut (memory optimization)
-      if (this.metrics.length > 100) {
-        this.metrics = this.metrics.slice(-100);
-      }
-
-      // Alert kontrolü
-      this.checkAlerts(currentMetrics);
-
-      this.emit('metrics_updated', currentMetrics);
-
-    } catch (error) {
-      console.error('❌ [PerformanceDashboard] Error collecting metrics:', error);
-      this.emit('metrics_error', error);
-    }
-  }
-
-  /**
-   * İyileştirme yüzdesini hesapla
-   */
-  private calculateImprovementPercentage(current: DashboardMetrics): number {
-    if (!this.baseline) return 0;
-
-    const improvements = {
-      responseTime: this.calculatePercentageChange(this.baseline.apiResponseTime, current.apiResponseTime, true),
-      throughput: this.calculatePercentageChange(this.baseline.throughput, current.throughput, false),
-      errorRate: this.calculatePercentageChange(this.baseline.errorRate, current.errorRate, true),
-      accuracy: this.calculatePercentageChange(this.baseline.inventoryAccuracy, current.inventoryAccuracy, false),
-      cacheHit: this.calculatePercentageChange(this.baseline.cacheHitRate, current.cacheHitRate, false),
-      orderTime: this.calculatePercentageChange(this.baseline.orderProcessingTime, current.orderProcessingTime, true)
-    };
-
-    // Ortalama iyileştirme yüzdesi
-    const avgImprovement = Object.values(improvements).reduce((sum, val) => sum + val, 0) / Object.values(improvements).length;
-    return Math.round(avgImprovement * 100) / 100;
-  }
-
-  /**
-   * Yüzdelik değişim hesapla
-   */
-  private calculatePercentageChange(baseline: number, current: number, lowerIsBetter: boolean): number {
-    const change = ((current - baseline) / baseline) * 100;
-    return lowerIsBetter ? -change : change;
-  }
-
-  /**
-   * Alert kontrolü
-   */
-  private checkAlerts(metrics: DashboardMetrics): void {
-    const alerts: string[] = [];
-
-    if (metrics.performanceScore < this.alertConfig.performanceThreshold) {
-      alerts.push(`Performance score below threshold: ${metrics.performanceScore}`);
+        return await this.fetchMarketplaceMetrics(marketplace);
     }
 
-    if (metrics.apiResponseTime > this.alertConfig.responseTimeThreshold) {
-      alerts.push(`API response time exceeded: ${metrics.apiResponseTime}ms`);
+    /**
+     * Get all marketplace metrics
+     */
+    public async getAllMarketplaceMetrics(): Promise<MarketplaceMetrics[]> {
+        const promises = this.marketplaces.map(marketplace => 
+            this.getMarketplaceMetrics(marketplace)
+        );
+        
+        const results = await Promise.all(promises);
+        return results.filter(result => result !== null) as MarketplaceMetrics[];
     }
 
-    if (metrics.errorRate > this.alertConfig.errorRateThreshold) {
-      alerts.push(`Error rate exceeded: ${(metrics.errorRate * 100).toFixed(2)}%`);
+    /**
+     * Get performance alerts
+     */
+    public getPerformanceAlerts(unreadOnly: boolean = false): PerformanceAlert[] {
+        if (unreadOnly) {
+            return this.alertsCache.filter(alert => !alert.resolved);
+        }
+        return [...this.alertsCache];
     }
 
-    if (metrics.inventoryAccuracy < this.alertConfig.inventoryAccuracyThreshold) {
-      alerts.push(`Inventory accuracy below threshold: ${(metrics.inventoryAccuracy * 100).toFixed(2)}%`);
+    /**
+     * Create performance alert
+     */
+    public createAlert(marketplace: string, type: 'error' | 'warning' | 'info', message: string): void {
+        const alert: PerformanceAlert = {
+            id: this.generateAlertId(),
+            marketplace,
+            type,
+            message,
+            timestamp: new Date(),
+            resolved: false
+        };
+
+        this.alertsCache.unshift(alert);
+        
+        // Keep only last 100 alerts
+        if (this.alertsCache.length > 100) {
+            this.alertsCache = this.alertsCache.slice(0, 100);
+        }
+
+        this.notifyAlert(alert);
     }
 
-    if (alerts.length > 0) {
-      console.warn('🚨 [PerformanceDashboard] Performance alerts:', alerts);
-      this.emit('performance_alert', { alerts, metrics });
-    }
-  }
-
-  /**
-   * Performans karşılaştırması getir
-   */
-  public getPerformanceComparison(): PerformanceComparison | null {
-    if (!this.baseline || this.metrics.length === 0) {
-      return null;
+    /**
+     * Resolve alert
+     */
+    public resolveAlert(alertId: string): boolean {
+        const alert = this.alertsCache.find(a => a.id === alertId);
+        if (alert) {
+            alert.resolved = true;
+            return true;
+        }
+        return false;
     }
 
-    const current = this.metrics[this.metrics.length - 1];
-    const improvement = {
-      overall: current.improvementPercentage,
-      apiResponseTime: this.calculatePercentageChange(this.baseline.apiResponseTime, current.apiResponseTime, true),
-      throughput: this.calculatePercentageChange(this.baseline.throughput, current.throughput, false),
-      errorRate: this.calculatePercentageChange(this.baseline.errorRate, current.errorRate, true),
-      inventoryAccuracy: this.calculatePercentageChange(this.baseline.inventoryAccuracy, current.inventoryAccuracy, false),
-      cacheHitRate: this.calculatePercentageChange(this.baseline.cacheHitRate, current.cacheHitRate, false),
-      orderProcessingTime: this.calculatePercentageChange(this.baseline.orderProcessingTime, current.orderProcessingTime, true)
-    };
+    /**
+     * Get performance trends
+     */
+    public async getPerformanceTrends(marketplace: string, timeRange: '1h' | '24h' | '7d' | '30d'): Promise<any> {
+        const endTime = new Date();
+        const startTime = new Date();
+        
+        switch (timeRange) {
+            case '1h':
+                startTime.setHours(startTime.getHours() - 1);
+                break;
+            case '24h':
+                startTime.setDate(startTime.getDate() - 1);
+                break;
+            case '7d':
+                startTime.setDate(startTime.getDate() - 7);
+                break;
+            case '30d':
+                startTime.setDate(startTime.getDate() - 30);
+                break;
+        }
 
-    return {
-      baseline: this.baseline,
-      current,
-      improvement,
-      goalAchieved: improvement.overall >= 40 // %40+ hedef
-    };
-  }
-
-  /**
-   * Dashboard raporu oluştur
-   */
-  public generateReport(): {
-    summary: any;
-    performance: PerformanceComparison | null;
-    recentMetrics: DashboardMetrics[];
-    recommendations: string[];
-  } {
-    const performance = this.getPerformanceComparison();
-    const recentMetrics = this.metrics.slice(-10);
-
-    const summary = {
-      totalMeasurements: this.metrics.length,
-      monitoring: this.isMonitoring,
-      baselineSet: !!this.baseline,
-      goalAchieved: performance?.goalAchieved || false,
-      currentImprovement: performance?.improvement.overall || 0
-    };
-
-    const recommendations = this.generateRecommendations(performance);
-
-    return {
-      summary,
-      performance,
-      recentMetrics,
-      recommendations
-    };
-  }
-
-  /**
-   * Öneriler oluştur
-   */
-  private generateRecommendations(performance: PerformanceComparison | null): string[] {
-    const recommendations: string[] = [];
-
-    if (!performance) {
-      recommendations.push('Set baseline metrics to start performance comparison');
-      return recommendations;
+        return await this.fetchPerformanceTrends(marketplace, startTime, endTime);
     }
 
-    if (performance.improvement.overall < 40) {
-      recommendations.push('Performance improvement below 40% target - consider additional optimizations');
+    /**
+     * Export performance report
+     */
+    public async exportPerformanceReport(format: 'json' | 'csv' | 'pdf'): Promise<string> {
+        const systemMetrics = await this.getSystemMetrics();
+        const marketplaceMetrics = await this.getAllMarketplaceMetrics();
+        const alerts = this.getPerformanceAlerts();
+
+        const reportData = {
+            generatedAt: new Date(),
+            systemMetrics,
+            marketplaceMetrics,
+            alerts,
+            summary: this.generatePerformanceSummary(systemMetrics, marketplaceMetrics)
+        };
+
+        switch (format) {
+            case 'json':
+                return JSON.stringify(reportData, null, 2);
+            case 'csv':
+                return this.convertToCSV(reportData);
+            case 'pdf':
+                return await this.generatePDF(reportData);
+            default:
+                throw new Error('Unsupported export format');
+        }
     }
 
-    if (performance.improvement.apiResponseTime < 20) {
-      recommendations.push('API response time improvement is low - optimize caching and request batching');
+    /**
+     * Private methods
+     */
+    private async loadMarketplaceMetrics(): Promise<void> {
+        for (const marketplace of this.marketplaces) {
+            const metrics = await this.fetchMarketplaceMetrics(marketplace);
+            if (metrics) {
+                this.metricsCache.set(marketplace, metrics);
+            }
+        }
     }
 
-    if (performance.improvement.throughput < 30) {
-      recommendations.push('Throughput improvement is low - consider parallel processing and rate limit optimization');
+    private startRealTimeUpdates(): void {
+        setInterval(async () => {
+            await this.updateMetrics();
+        }, this.refreshInterval);
     }
 
-    if (performance.current.errorRate > 0.02) {
-      recommendations.push('Error rate is high - implement better retry mechanisms and error handling');
+    private setupAlertSystem(): void {
+        // Monitor for performance issues
+        setInterval(() => {
+            this.checkPerformanceThresholds();
+        }, 60000); // Check every minute
     }
 
-    if (performance.current.cacheHitRate < 0.8) {
-      recommendations.push('Cache hit rate is low - optimize caching strategy and TTL settings');
+    private async updateMetrics(): Promise<void> {
+        for (const marketplace of this.marketplaces) {
+            try {
+                const metrics = await this.fetchMarketplaceMetrics(marketplace);
+                if (metrics) {
+                    this.metricsCache.set(marketplace, metrics);
+                }
+            } catch (error) {
+                this.createAlert(marketplace, 'error', `Failed to update metrics: ${error}`);
+            }
+        }
     }
 
-    if (recommendations.length === 0) {
-      recommendations.push('Performance targets achieved - maintain current optimization strategies');
+    private async fetchMarketplaceMetrics(marketplace: string): Promise<MarketplaceMetrics> {
+        // Simulate API call to get marketplace metrics
+        const response = await fetch(`/api/marketplace/${marketplace}/metrics`);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch metrics for ${marketplace}`);
+        }
+
+        const data = await response.json();
+        
+        return {
+            marketplace,
+            status: data.status || 'inactive',
+            responseTime: data.responseTime || 0,
+            successRate: data.successRate || 0,
+            orderCount: data.orderCount || 0,
+            errorCount: data.errorCount || 0,
+            lastSync: new Date(data.lastSync || Date.now()),
+            uptime: data.uptime || 0
+        };
     }
 
-    return recommendations;
-  }
+    private async getTotalProducts(): Promise<number> {
+        try {
+            const response = await fetch('/api/products/count');
+            const data = await response.json();
+            return data.count || 0;
+        } catch {
+            return 0;
+        }
+    }
 
-  /**
-   * Gerçekçi metrik simülasyonu
-   */
-  private generateRealisticMetric(min: number, max: number): number {
-    return min + Math.random() * (max - min);
-  }
+    private calculateAverageResponseTime(metrics: MarketplaceMetrics[]): number {
+        if (metrics.length === 0) return 0;
+        
+        const total = metrics.reduce((sum, m) => sum + m.responseTime, 0);
+        return Math.round(total / metrics.length);
+    }
 
-  /**
-   * Event listener'ları ayarla
-   */
-  private setupEventListeners(): void {
-    this.on('metrics_updated', (metrics: DashboardMetrics) => {
-      if (metrics.improvementPercentage >= 40) {
-        console.log('🎯 [PerformanceDashboard] Target achieved! 40%+ improvement reached');
-      }
-    });
+    private getSystemUptime(): number {
+        // Return system uptime in seconds
+        return Math.floor(process.uptime ? process.uptime() : 0);
+    }
 
-    this.on('performance_alert', (data: { alerts: string[], metrics: DashboardMetrics }) => {
-      console.log('🚨 [PerformanceDashboard] Performance alert triggered');
-    });
-  }
+    private getMemoryUsage(): number {
+        if (typeof process !== 'undefined' && process.memoryUsage) {
+            const used = process.memoryUsage();
+            return Math.round((used.heapUsed / used.heapTotal) * 100);
+        }
+        return 0;
+    }
 
-  /**
-   * Cleanup resources
-   */
-  public destroy(): void {
-    this.stopMonitoring();
-    this.removeAllListeners();
-    this.metrics = [];
-    this.baseline = null;
-  }
+    private getCpuUsage(): number {
+        // Simplified CPU usage calculation
+        return Math.random() * 100; // Replace with actual CPU monitoring
+    }
+
+    private isCacheValid(lastSync: Date): boolean {
+        const now = new Date();
+        const diffMs = now.getTime() - lastSync.getTime();
+        return diffMs < this.refreshInterval;
+    }
+
+    private generateAlertId(): string {
+        return `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    private notifyAlert(alert: PerformanceAlert): void {
+        // Send notification via WebSocket, email, etc.
+        console.log(`[${alert.type.toUpperCase()}] ${alert.marketplace}: ${alert.message}`);
+        
+        // If it's a critical error, send immediate notification
+        if (alert.type === 'error') {
+            this.sendCriticalAlert(alert);
+        }
+    }
+
+    private sendCriticalAlert(alert: PerformanceAlert): void {
+        // Send critical alert via email, SMS, Slack, etc.
+        fetch('/api/alerts/critical', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(alert)
+        }).catch(error => {
+            console.error('Failed to send critical alert:', error);
+        });
+    }
+
+    private checkPerformanceThresholds(): void {
+        this.metricsCache.forEach((metrics, marketplace) => {
+            // Check response time threshold
+            if (metrics.responseTime > 5000) { // 5 seconds
+                this.createAlert(marketplace, 'warning', `High response time: ${metrics.responseTime}ms`);
+            }
+
+            // Check success rate threshold
+            if (metrics.successRate < 95) {
+                this.createAlert(marketplace, 'warning', `Low success rate: ${metrics.successRate}%`);
+            }
+
+            // Check if marketplace is down
+            if (metrics.status === 'error') {
+                this.createAlert(marketplace, 'error', `Marketplace is down or experiencing errors`);
+            }
+
+            // Check error count threshold
+            if (metrics.errorCount > 10) {
+                this.createAlert(marketplace, 'warning', `High error count: ${metrics.errorCount} errors`);
+            }
+        });
+    }
+
+    private async fetchPerformanceTrends(marketplace: string, startTime: Date, endTime: Date): Promise<any> {
+        try {
+            const response = await fetch(`/api/marketplace/${marketplace}/trends`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ startTime, endTime })
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Failed to fetch performance trends:', error);
+            return { error: 'Failed to fetch trends' };
+        }
+    }
+
+    private generatePerformanceSummary(systemMetrics: SystemMetrics, marketplaceMetrics: MarketplaceMetrics[]): any {
+        const activeMarketplaces = marketplaceMetrics.filter(m => m.status === 'active');
+        const totalErrors = marketplaceMetrics.reduce((sum, m) => sum + m.errorCount, 0);
+        
+        return {
+            overallHealth: this.calculateOverallHealth(systemMetrics, marketplaceMetrics),
+            performanceGrade: this.calculatePerformanceGrade(systemMetrics.averageResponseTime),
+            reliabilityScore: this.calculateReliabilityScore(activeMarketplaces),
+            totalErrors,
+            recommendations: this.generateRecommendations(systemMetrics, marketplaceMetrics)
+        };
+    }
+
+    private calculateOverallHealth(systemMetrics: SystemMetrics, marketplaceMetrics: MarketplaceMetrics[]): string {
+        const activePercentage = (systemMetrics.activeMarketplaces / systemMetrics.totalMarketplaces) * 100;
+        
+        if (activePercentage >= 90 && systemMetrics.averageResponseTime < 1000) {
+            return 'Excellent';
+        } else if (activePercentage >= 70 && systemMetrics.averageResponseTime < 3000) {
+            return 'Good';
+        } else if (activePercentage >= 50) {
+            return 'Fair';
+        } else {
+            return 'Poor';
+        }
+    }
+
+    private calculatePerformanceGrade(avgResponseTime: number): string {
+        if (avgResponseTime < 500) return 'A+';
+        if (avgResponseTime < 1000) return 'A';
+        if (avgResponseTime < 2000) return 'B';
+        if (avgResponseTime < 3000) return 'C';
+        if (avgResponseTime < 5000) return 'D';
+        return 'F';
+    }
+
+    private calculateReliabilityScore(activeMarketplaces: MarketplaceMetrics[]): number {
+        if (activeMarketplaces.length === 0) return 0;
+        
+        const totalSuccessRate = activeMarketplaces.reduce((sum, m) => sum + m.successRate, 0);
+        return Math.round(totalSuccessRate / activeMarketplaces.length);
+    }
+
+    private generateRecommendations(systemMetrics: SystemMetrics, marketplaceMetrics: MarketplaceMetrics[]): string[] {
+        const recommendations: string[] = [];
+        
+        if (systemMetrics.averageResponseTime > 3000) {
+            recommendations.push('Consider optimizing API calls to improve response times');
+        }
+        
+        if (systemMetrics.memoryUsage > 80) {
+            recommendations.push('High memory usage detected. Consider scaling up resources');
+        }
+        
+        const inactiveMarketplaces = marketplaceMetrics.filter(m => m.status !== 'active');
+        if (inactiveMarketplaces.length > 0) {
+            recommendations.push(`${inactiveMarketplaces.length} marketplace(s) are inactive. Check API connections`);
+        }
+        
+        const highErrorMarketplaces = marketplaceMetrics.filter(m => m.errorCount > 5);
+        if (highErrorMarketplaces.length > 0) {
+            recommendations.push(`${highErrorMarketplaces.length} marketplace(s) have high error rates. Review error logs`);
+        }
+        
+        if (recommendations.length === 0) {
+            recommendations.push('System is running optimally. No immediate actions required');
+        }
+        
+        return recommendations;
+    }
+
+    private convertToCSV(data: any): string {
+        // Simplified CSV conversion
+        const csvLines: string[] = [];
+        
+        // Headers
+        csvLines.push('Marketplace,Status,Response Time,Success Rate,Order Count,Error Count');
+        
+        // Data rows
+        data.marketplaceMetrics.forEach((metrics: MarketplaceMetrics) => {
+            csvLines.push(
+                `${metrics.marketplace},${metrics.status},${metrics.responseTime},${metrics.successRate},${metrics.orderCount},${metrics.errorCount}`
+            );
+        });
+        
+        return csvLines.join('\n');
+    }
+
+    private async generatePDF(data: any): Promise<string> {
+        // This would require a PDF library like jsPDF or puppeteer
+        // For now, return a placeholder
+        return `PDF Report generated at ${data.generatedAt}`;
+    }
 }
-
-export default PerformanceDashboard;

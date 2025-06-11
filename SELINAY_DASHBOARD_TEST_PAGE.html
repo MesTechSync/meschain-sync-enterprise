@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Selinay Dashboard Test - MesChain-Sync</title>
+    <link rel="stylesheet" href="SELINAY_DASHBOARD_STYLES.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="dashboard-container"></div>
+    
+    <!-- Load Dashboard Components -->
+    <script src="SELINAY_AUTHENTICATION_FRONTEND_COMPONENTS.js"></script>
+    <script src="SELINAY_CORE_DASHBOARD_COMPONENTS.js"></script>
+    
+    <script>
+        // Initialize dashboard after authentication
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mock user authentication for testing
+            if (typeof selinayAuth !== 'undefined') {
+                selinayAuth.currentUser = {
+                    name: 'Selinay Test User',
+                    role: 'admin',
+                    permissions: ['dashboard', 'dropshipping', 'analytics']
+                };
+                
+                // Update user info in dashboard
+                setTimeout(() => {
+                    const userInfo = document.getElementById('dashboard-user-info');
+                    if (userInfo) {
+                        userInfo.innerHTML = `
+                            <span class="user-name">Selinay Test User</span>
+                            <span class="user-role">Admin</span>
+                        `;
+                    }
+                }, 1000);
+            }
+            
+            console.log('🚀 Dashboard test page loaded successfully');
+        });
+    </script>
+</body>
+</html> 

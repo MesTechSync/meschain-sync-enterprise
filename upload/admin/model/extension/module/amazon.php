@@ -644,4 +644,70 @@ class ModelExtensionModuleAmazon extends Model {
         $log = "[$date] [$user] [$action] $message\n";
         file_put_contents($log_file, $log, FILE_APPEND);
     }
+    
+    /**
+     * Make API request to Amazon
+     */
+    public function makeApiRequest($endpoint, $params = array(), $method = 'GET') {
+        $helper = $this->getAmazonHelper();
+        return $helper->makeApiRequest($endpoint, $params, $method);
+    }
+    
+    /**
+     * Test product listing for marketplace
+     */
+    public function testProductListing($product_data) {
+        try {
+            $helper = $this->getAmazonHelper();
+            $result = $helper->createOrUpdateListing($product_data);
+            return $result && isset($result['success']) ? $result['success'] : false;
+        } catch (Exception $e) {
+            $this->log->write('[ERROR] Amazon test product listing failed: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get orders from Amazon for testing
+     */
+    public function getOrders($params = array()) {
+        try {
+            $helper = $this->getAmazonHelper();
+            $start_date = $params['CreatedAfter'] ?? date('c', strtotime('-7 days'));
+            $end_date = $params['CreatedBefore'] ?? date('c');
+            
+            $orders = $helper->getOrders($start_date, $end_date);
+            return is_array($orders) ? $orders : array();
+            
+        } catch (Exception $e) {
+            $this->log->write('[ERROR] Amazon get orders failed: ' . $e->getMessage());
+            return array();
+        }
+    }
+    
+    /**
+     * Get advertising campaigns
+     */
+    public function getAdvertisingCampaigns() {
+        try {
+            $helper = $this->getAmazonHelper();
+            return $helper->getAdvertisingCampaigns();
+        } catch (Exception $e) {
+            $this->log->write('[ERROR] Amazon get advertising campaigns failed: ' . $e->getMessage());
+            return array('success' => false, 'message' => $e->getMessage());
+        }
+    }
+    
+    /**
+     * Create advertising campaign
+     */
+    public function createAdvertisingCampaign($campaign_data) {
+        try {
+            $helper = $this->getAmazonHelper();
+            return $helper->createAdvertisingCampaign($campaign_data);
+        } catch (Exception $e) {
+            $this->log->write('[ERROR] Amazon create advertising campaign failed: ' . $e->getMessage());
+            return array('success' => false, 'message' => $e->getMessage());
+        }
+    }
 } 

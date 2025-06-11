@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 MUSTI ↔ VSCODE Performance Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1E1E1E 0%, #2C2C54 100%);
+            color: #FFFFFF;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .header {
+            background: linear-gradient(90deg, #007ACC, #FF6B35);
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #fff; }
+            to { text-shadow: 0 0 30px #007ACC, 0 0 40px #FF6B35; }
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        .card-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .metric-value {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #28A745;
+        }
+        
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #28A745;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔥 MUSTI ↔ VSCODE COORDINATION DASHBOARD</h1>
+        <p>Real-time Performance Monitoring & DevOps Excellence</p>
+        <div>
+            <span class="live-indicator"></span>
+            <span>10 Haziran 2025, 23:45 UTC+3</span>
+        </div>
+    </div>
+    
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-icon">💻</span>
+                VSCode Backend API Performance
+            </div>
+            
+            <div class="metric-row">
+                <span>Trendyol API Response</span>
+                <span class="metric-value">18ms</span>
+            </div>
+            <div class="metric-row">
+                <span>Amazon API Response</span>
+                <span class="metric-value">45ms</span>
+            </div>
+            <div class="metric-row">
+                <span>Database Queries</span>
+                <span class="metric-value">12ms</span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <span class="card-icon">🤝</span>
+                VSCode ↔ Musti Coordination
+            </div>
+            
+            <div class="metric-row">
+                <span>Sync Status</span>
+                <span class="metric-value">100% Active</span>
+            </div>
+            <div class="metric-row">
+                <span>Deployment Pipeline</span>
+                <span class="metric-value">Ready</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

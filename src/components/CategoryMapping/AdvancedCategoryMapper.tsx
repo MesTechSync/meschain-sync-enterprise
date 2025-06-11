@@ -11,6 +11,7 @@ import { MS365Colors, MS365Typography, MS365Spacing, AdvancedMS365Theme } from '
 import { MS365Card } from '../Microsoft365/MS365Card';
 import { MS365Button } from '../Microsoft365/MS365Button';
 import { MS365DataGrid } from '../Microsoft365/MS365DataGrid';
+import { DataGridColumn } from '../Microsoft365/MS365DataGrid';
 
 // TypeScript Interfaces
 export interface CategorySuggestion {
@@ -421,77 +422,84 @@ export const AdvancedCategoryMapper: React.FC<AdvancedCategoryMapperProps> = ({
   };
 
   // Data Grid columns configuration
-  const gridColumns = [
+  const gridColumns: DataGridColumn<ProductMapping>[] = [
     {
-      id: 'select',
-      header: '',
-      cell: (row: ProductMapping) => (
+      key: 'select',
+      title: '',
+      dataIndex: 'id',
+      width: 50,
+      render: (value, record) => (
         <input
           type="checkbox"
-          checked={selectedMappings.includes(row.id)}
-          onChange={() => handleMappingSelect(row.id)}
+          checked={selectedMappings.includes(record.id)}
+          onChange={() => handleMappingSelect(record.id)}
           style={{ accentColor: MS365Colors.primary.blue[500] }}
         />
-      ),
-      width: 50
+      )
     },
     {
-      id: 'product',
-      header: 'Product',
-      cell: (row: ProductMapping) => (
+      key: 'product',
+      title: 'Product',
+      dataIndex: 'productName',
+      sortable: true,
+      render: (value, record) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: MS365Spacing[3] }}>
-          {row.productImage && (
+          {record.productImage && (
             <img 
-              src={row.productImage} 
-              alt={row.productName}
+              src={record.productImage} 
+              alt={record.productName}
               style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }}
             />
           )}
           <div>
             <div style={{ fontWeight: MS365Typography.weights.medium, fontSize: MS365Typography.sizes.sm }}>
-              {row.productName.length > 50 ? row.productName.substring(0, 50) + '...' : row.productName}
+              {record.productName.length > 50 ? record.productName.substring(0, 50) + '...' : record.productName}
             </div>
             <div style={{ fontSize: MS365Typography.sizes.xs, color: MS365Colors.neutral[600] }}>
-              {row.sourceCategoryPath.join(' > ')}
+              {record.sourceCategoryPath.join(' > ')}
             </div>
           </div>
         </div>
-      ),
-      sortable: true
+      )
     },
     {
-      id: 'marketplace',
-      header: 'Marketplace',
-      cell: (row: ProductMapping) => (
+      key: 'marketplace',
+      title: 'Marketplace',
+      dataIndex: 'marketplace',
+      sortable: true,
+      width: 120,
+      render: (value, record) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: MS365Spacing[2] }}>
-          <MarketplaceBadge marketplace={row.marketplace} />
+          <MarketplaceBadge marketplace={record.marketplace} />
           <span style={{ fontSize: MS365Typography.sizes.sm, textTransform: 'capitalize' }}>
-            {row.marketplace}
+            {record.marketplace}
           </span>
         </div>
-      ),
-      sortable: true,
-      width: 120
+      )
     },
     {
-      id: 'suggestions',
-      header: 'AI Suggestions',
-      cell: (row: ProductMapping) => (
+      key: 'suggestions',
+      title: 'AI Suggestions',
+      dataIndex: 'suggestions',
+      sortable: true,
+      render: (value, record) => (
         <div>
           <div style={{ marginBottom: MS365Spacing[1] }}>
-            <ConfidenceMeter confidence={row.suggestions[0]?.confidence || 0} size="sm" />
+            <ConfidenceMeter confidence={record.suggestions[0]?.confidence || 0} size="sm" />
           </div>
           <div style={{ fontSize: MS365Typography.sizes.xs, color: MS365Colors.neutral[600] }}>
-            {row.suggestions.length} suggestion{row.suggestions.length !== 1 ? 's' : ''}
+            {record.suggestions.length} suggestion{record.suggestions.length !== 1 ? 's' : ''}
           </div>
         </div>
-      ),
-      sortable: true
+      )
     },
     {
-      id: 'status',
-      header: 'Status',
-      cell: (row: ProductMapping) => {
+      key: 'status',
+      title: 'Status',
+      dataIndex: 'status',
+      sortable: true,
+      width: 100,
+      render: (value, record) => {
         const statusConfig = {
           pending: { color: '#f59e0b', label: 'Pending' },
           mapped: { color: MS365Colors.primary.green[500], label: 'Mapped' },
@@ -500,7 +508,7 @@ export const AdvancedCategoryMapper: React.FC<AdvancedCategoryMapperProps> = ({
           manual: { color: MS365Colors.primary.blue[500], label: 'Manual' }
         };
 
-        const config = statusConfig[row.status];
+        const config = statusConfig[record.status];
 
         return (
           <div
@@ -517,35 +525,34 @@ export const AdvancedCategoryMapper: React.FC<AdvancedCategoryMapperProps> = ({
             {config.label}
           </div>
         );
-      },
-      sortable: true,
-      width: 100
+      }
     },
     {
-      id: 'actions',
-      header: 'Actions',
-      cell: (row: ProductMapping) => (
+      key: 'actions',
+      title: 'Actions',
+      dataIndex: 'id',
+      width: 120,
+      render: (value, record) => (
         <div style={{ display: 'flex', gap: MS365Spacing[1] }}>
           <MS365Button
             size="sm"
             variant="ghost"
-            onClick={() => setExpandedMapping(expandedMapping === row.id ? null : row.id)}
+            onClick={() => setExpandedMapping(expandedMapping === record.id ? null : record.id)}
           >
-            {expandedMapping === row.id ? '−' : '+'}
+            {expandedMapping === record.id ? '−' : '+'}
           </MS365Button>
-          {row.suggestions.length > 0 && (
+          {record.suggestions.length > 0 && (
             <MS365Button
               size="sm"
               variant="primary"
-              onClick={() => handleSuggestionSelect(row.id, row.suggestions[0])}
-              disabled={row.status === 'mapped'}
+              onClick={() => handleSuggestionSelect(record.id, record.suggestions[0])}
+              disabled={record.status === 'mapped'}
             >
               Accept
             </MS365Button>
           )}
         </div>
-      ),
-      width: 120
+      )
     }
   ];
 
@@ -704,13 +711,17 @@ export const AdvancedCategoryMapper: React.FC<AdvancedCategoryMapperProps> = ({
         subtitle={`${mappings.length} products • ${mappings.filter(m => m.status === 'pending').length} pending approval`}
         content={
           <MS365DataGrid
-            data={mappings}
+            dataSource={mappings}
             columns={gridColumns}
-            pageSize={10}
-            sortable
-            filterable
-            selectable={false}
-            onRowClick={(row) => setExpandedMapping(expandedMapping === row.id ? null : row.id)}
+            pagination={{
+              current: 1,
+              pageSize: 10,
+              total: mappings.length
+            }}
+            bordered
+            onRow={(record) => ({
+              onClick: () => setExpandedMapping(expandedMapping === record.id ? null : record.id)
+            })}
           />
         }
       />

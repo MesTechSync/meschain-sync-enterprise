@@ -1,168 +1,99 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import { CssBaseline, CircularProgress, Box } from '@mui/material';
+import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from 'react-hot-toast';
-import { useTranslation } from 'react-i18next';
-import './i18n'; // Import i18n configuration
+import { I18nextProvider } from 'react-i18next';
 
-// Components
-import Layout from './components/Layout';
-import Dashboard from './components/Dashboard';
-import DropshipperDashboard from './components/DropshipperDashboard';
-import PWAPrompt from './components/PWAPrompt';
-import { usePWA } from './hooks/usePWA';
-import AdvancedReportsPage from './pages/AdvancedReportsPage';
-import TrendyolTestPage from './pages/TrendyolTestPage';
+import { theme } from './theme/theme';
+import { GlobalErrorFallback } from './components/ErrorBoundary/GlobalErrorFallback';
+import AppLayout from './components/Layout/AppLayout';
+import MainDashboard from './components/Dashboard/MainDashboard';
+import TrendyolModule from './modules/TrendyolModule';
+import N11Module from './modules/N11Module';
+import AmazonModule from './modules/AmazonModule';
+import HepsiburadaModule from './modules/HepsiburadaModule';
+import EbayModule from './modules/EbayModule';
+import OzonModule from './modules/OzonModule';
+import ProductModule from './modules/ProductModule';
+import OrderModule from './modules/OrderModule';
+import InventoryModule from './modules/InventoryModule';
+import ReportModule from './modules/ReportModule';
+import SettingsModule from './modules/SettingsModule';
+import i18n from './i18n';
+// AI/ML Integration - Priority 2
+import AdvancedAIIntegration from './ai/AdvancedAIIntegration';
+// Security Framework - Priority 3
+import AdvancedSecurityFramework from './security/AdvancedSecurityFramework';
 
-// Pages
-import MarketplacesPage from './pages/MarketplacesPage';
-import DropshippingPage from './pages/DropshippingPage';
-import OrdersPage from './pages/OrdersPage';
-import InventoryPage from './pages/InventoryPage';
-import SettingsPage from './pages/SettingsPage';
+// Marketplace Pages
+import TrendyolPage from './components/Marketplace/TrendyolPage';
+import N11Page from './components/Marketplace/N11Page';
+import AmazonPage from './components/Marketplace/AmazonPage';
+import HepsiburadaPage from './components/Marketplace/HepsiburadaPage';
+import EbayPage from './components/Marketplace/EbayPage';
+import OzonPage from './components/Marketplace/OzonPage';
 
-// Types
-export type UserRole = 'super_admin' | 'admin' | 'dropshipper' | 'integrator' | 'support';
+// Other Pages
+import OrdersPage from './components/Orders/OrdersPage';
+import ProductsPage from './components/Products/ProductsPage';
+import ReportsPage from './components/Reports/ReportsPage';
+import InventoryPage from './components/Inventory/InventoryPage';
+import SettingsPage from './components/Settings/SettingsPage';
 
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  role: UserRole;
-  firstName: string;
-  lastName: string;
-  avatar?: string;
-}
+// Placeholder components for other pages
+const SupportPage = () => <div>Destek Sayfası</div>;
 
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-// Mock user data - In real app, this would come from authentication
-const mockUser: User = {
-  id: '1',
-  username: 'admin',
-  email: 'admin@meschain.com',
-  role: 'super_admin',
-  firstName: 'Admin',
-  lastName: 'User',
-  avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff'
-};
-
-// Route protection component
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-  allowedRoles: UserRole[];
-  userRole: UserRole;
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles, userRole }) => {
-  if (!allowedRoles.includes(userRole)) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  return <>{children}</>;
-};
-
-// Loading component
-const LoadingSpinner: React.FC = () => {
-  const { t } = useTranslation();
-  
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      <span className="ml-4 text-lg text-gray-600">{t('common.loading')}</span>
-    </div>
-  );
-};
+const LoadingFallback = () => (
+  <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+    <CircularProgress />
+  </Box>
+);
 
 const App: React.FC = () => {
-  const { t } = useTranslation();
-  const { 
-    isInstallable, 
-    isOffline, 
-    updateAvailable, 
-    installApp, 
-    updateApp,
-    dismissInstall,
-    dismissUpdate,
-    promptInstall
-  } = usePWA();
-
-  const getDashboardComponent = (role: UserRole) => {
-    switch (role) {
-      case 'dropshipper':
-        return <DropshipperDashboard />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <div className="App">
-          <Suspense fallback={<LoadingSpinner />}>
-            <Layout user={mockUser}>
-              <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/dropshipper" element={<DropshipperDashboard />} />
-                <Route path="/marketplaces" element={<MarketplacesPage />} />
-                <Route path="/dropshipping" element={<DropshippingPage />} />
-                <Route path="/orders" element={<OrdersPage />} />
-                <Route path="/inventory" element={<InventoryPage />} />
-                <Route path="/analytics" element={<AdvancedReportsPage />} />
-                <Route path="/reports" element={<AdvancedReportsPage />} />
-                <Route path="/trendyol-test" element={<TrendyolTestPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
-              </Routes>
-            </Layout>
-          </Suspense>
-
-          {/* PWA Components */}
-          {isInstallable && <PWAPrompt onInstall={promptInstall} />}
-
-          {/* Toast notifications */}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-              success: {
-                duration: 3000,
-                iconTheme: {
-                  primary: '#10b981',
-                  secondary: '#fff',
-                },
-              },
-              error: {
-                duration: 5000,
-                iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#fff',
-                },
-              },
-            }}
-          />
-
-          {/* React Query Devtools */}
-          {process.env.NODE_ENV === 'development' && (
-            <ReactQueryDevtools initialIsOpen={false} />
-          )}
-        </div>
-      </Router>
-    </QueryClientProvider>
+    <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <I18nextProvider i18n={i18n}>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<AppLayout />}>
+                <Route index element={<MainDashboard />} />
+                <Route path="dashboard" element={<MainDashboard />} />
+                
+                {/* AI/ML Integration Routes - Priority 2 Enhancement */}
+                <Route path="ai" element={<AdvancedAIIntegration />} />
+                <Route path="ai/integration" element={<AdvancedAIIntegration />} />
+                <Route path="ai/ml-pipeline" element={<AdvancedAIIntegration />} />
+                
+                {/* Security Framework Routes - Priority 3 Enhancement */}
+                <Route path="security" element={<AdvancedSecurityFramework />} />
+                <Route path="security/framework" element={<AdvancedSecurityFramework />} />
+                <Route path="security/threats" element={<AdvancedSecurityFramework />} />
+                
+                {/* Marketplace Routes */}
+                <Route path="marketplace/trendyol" element={<TrendyolModule />} />
+                <Route path="marketplace/n11" element={<N11Module />} />
+                <Route path="marketplace/amazon" element={<AmazonModule />} />
+                <Route path="marketplace/hepsiburada" element={<HepsiburadaModule />} />
+                <Route path="marketplace/ebay" element={<EbayModule />} />
+                <Route path="marketplace/ozon" element={<OzonModule />} />
+                
+                {/* Module Routes */}
+                <Route path="products" element={<ProductModule />} />
+                <Route path="orders" element={<OrderModule />} />
+                <Route path="inventory" element={<InventoryModule />} />
+                <Route path="reports" element={<ReportModule />} />
+                <Route path="settings" element={<SettingsModule />} />
+              </Route>
+            </Routes>
+            <Toaster position="top-right" />
+          </div>
+        </I18nextProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 };
 

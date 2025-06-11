@@ -836,4 +836,357 @@ class ControllerExtensionModuleHepsiburada extends ControllerExtensionModuleBase
         $this->load->model('extension/module/hepsiburada');
         $this->model_extension_module_hepsiburada->uninstall();
     }
+
+    /**
+     * Advanced Hepsiburada Campaign Management
+     */
+    public function campaignManagement() {
+        $json = array();
+        
+        try {
+            $action = $this->request->post['action'] ?? 'get_campaigns';
+            
+            $this->load->model('extension/module/hepsiburada');
+            $this->load->library('meschain/helper/hepsiburada_campaigns');
+            
+            switch ($action) {
+                case 'get_campaigns':
+                    $campaigns = $this->hepsiburada_campaigns->getCampaigns();
+                    $json['campaigns'] = $campaigns;
+                    break;
+                    
+                case 'create_campaign':
+                    $campaign_data = $this->request->post['campaign_data'] ?? array();
+                    $campaign_result = $this->hepsiburada_campaigns->createCampaign($campaign_data);
+                    $json['campaign'] = $campaign_result;
+                    break;
+                    
+                case 'join_campaign':
+                    $campaign_id = $this->request->post['campaign_id'];
+                    $product_ids = $this->request->post['product_ids'] ?? array();
+                    $join_result = $this->hepsiburada_campaigns->joinCampaign($campaign_id, $product_ids);
+                    $json['join_result'] = $join_result;
+                    break;
+                    
+                case 'get_campaign_performance':
+                    $campaign_id = $this->request->post['campaign_id'];
+                    $date_range = $this->request->post['date_range'] ?? 'last_30_days';
+                    $performance = $this->hepsiburada_campaigns->getCampaignPerformance($campaign_id, $date_range);
+                    $json['performance'] = $performance;
+                    break;
+                    
+                default:
+                    throw new Exception('Invalid campaign action');
+            }
+            
+            $json['success'] = true;
+            $json['timestamp'] = time();
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('HEPSIBURADA_CAMPAIGN ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+    
+    /**
+     * Hepsiburada Smart Pricing & Competition Analysis
+     */
+    public function smartPricing() {
+        $json = array();
+        
+        try {
+            $action = $this->request->post['action'] ?? 'analyze_competition';
+            
+            $this->load->library('meschain/helper/hepsiburada_pricing');
+            
+            switch ($action) {
+                case 'analyze_competition':
+                    $product_ids = $this->request->post['product_ids'] ?? array();
+                    $analysis_result = $this->hepsiburada_pricing->analyzeCompetition($product_ids);
+                    $json['analysis'] = $analysis_result;
+                    break;
+                    
+                case 'optimize_prices':
+                    $optimization_data = $this->request->post['optimization_data'] ?? array();
+                    $strategy = $this->request->post['strategy'] ?? 'competitive';
+                    $margin = $this->request->post['margin'] ?? 15;
+                    
+                    $optimization_result = $this->hepsiburada_pricing->optimizePrices($optimization_data, $strategy, $margin);
+                    $json['optimization'] = $optimization_result;
+                    break;
+                    
+                case 'get_price_history':
+                    $product_id = $this->request->post['product_id'];
+                    $days = $this->request->post['days'] ?? 30;
+                    $price_history = $this->hepsiburada_pricing->getPriceHistory($product_id, $days);
+                    $json['price_history'] = $price_history;
+                    break;
+                    
+                case 'set_dynamic_pricing':
+                    $rules = $this->request->post['pricing_rules'] ?? array();
+                    $dynamic_result = $this->hepsiburada_pricing->setDynamicPricing($rules);
+                    $json['dynamic_pricing'] = $dynamic_result;
+                    break;
+                    
+                default:
+                    throw new Exception('Invalid pricing action');
+            }
+            
+            $json['success'] = true;
+            $json['timestamp'] = time();
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('HEPSIBURADA_PRICING ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+    
+    /**
+     * Hepsiburada Customer Service Automation
+     */
+    public function customerServiceAutomation() {
+        $json = array();
+        
+        try {
+            $action = $this->request->post['action'] ?? 'get_questions';
+            
+            $this->load->library('meschain/helper/hepsiburada_customer_service');
+            
+            switch ($action) {
+                case 'get_questions':
+                    $status = $this->request->post['status'] ?? 'unanswered';
+                    $questions = $this->hepsiburada_customer_service->getQuestions($status);
+                    $json['questions'] = $questions;
+                    break;
+                    
+                case 'answer_question':
+                    $question_id = $this->request->post['question_id'];
+                    $answer = $this->request->post['answer'];
+                    $answer_result = $this->hepsiburada_customer_service->answerQuestion($question_id, $answer);
+                    $json['answer_result'] = $answer_result;
+                    break;
+                    
+                case 'auto_answer_questions':
+                    $auto_answer_config = $this->request->post['auto_answer_config'] ?? array();
+                    $auto_result = $this->hepsiburada_customer_service->autoAnswerQuestions($auto_answer_config);
+                    $json['auto_result'] = $auto_result;
+                    break;
+                    
+                case 'get_reviews':
+                    $rating_filter = $this->request->post['rating_filter'] ?? 'all';
+                    $reviews = $this->hepsiburada_customer_service->getReviews($rating_filter);
+                    $json['reviews'] = $reviews;
+                    break;
+                    
+                case 'respond_to_review':
+                    $review_id = $this->request->post['review_id'];
+                    $response = $this->request->post['response'];
+                    $response_result = $this->hepsiburada_customer_service->respondToReview($review_id, $response);
+                    $json['response_result'] = $response_result;
+                    break;
+                    
+                default:
+                    throw new Exception('Invalid customer service action');
+            }
+            
+            $json['success'] = true;
+            $json['timestamp'] = time();
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('HEPSIBURADA_CUSTOMER_SERVICE ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+    
+    /**
+     * Hepsiburada Logistics & Shipping Management
+     */
+    public function logisticsManagement() {
+        $json = array();
+        
+        try {
+            $action = $this->request->post['action'] ?? 'get_shipping_options';
+            
+            $this->load->library('meschain/helper/hepsiburada_logistics');
+            
+            switch ($action) {
+                case 'get_shipping_options':
+                    $shipping_options = $this->hepsiburada_logistics->getShippingOptions();
+                    $json['shipping_options'] = $shipping_options;
+                    break;
+                    
+                case 'calculate_shipping_cost':
+                    $shipping_data = $this->request->post['shipping_data'] ?? array();
+                    $cost_calculation = $this->hepsiburada_logistics->calculateShippingCost($shipping_data);
+                    $json['shipping_cost'] = $cost_calculation;
+                    break;
+                    
+                case 'create_shipment':
+                    $shipment_data = $this->request->post['shipment_data'] ?? array();
+                    $shipment_result = $this->hepsiburada_logistics->createShipment($shipment_data);
+                    $json['shipment'] = $shipment_result;
+                    break;
+                    
+                case 'track_shipment':
+                    $tracking_number = $this->request->post['tracking_number'];
+                    $tracking_info = $this->hepsiburada_logistics->trackShipment($tracking_number);
+                    $json['tracking'] = $tracking_info;
+                    break;
+                    
+                case 'bulk_shipment':
+                    $order_ids = $this->request->post['order_ids'] ?? array();
+                    $shipping_template = $this->request->post['shipping_template'];
+                    $bulk_result = $this->hepsiburada_logistics->createBulkShipment($order_ids, $shipping_template);
+                    $json['bulk_shipment'] = $bulk_result;
+                    break;
+                    
+                default:
+                    throw new Exception('Invalid logistics action');
+            }
+            
+            $json['success'] = true;
+            $json['timestamp'] = time();
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('HEPSIBURADA_LOGISTICS ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+    
+    /**
+     * Hepsiburada Advanced Analytics & Reporting
+     */
+    public function advancedAnalytics() {
+        $json = array();
+        
+        try {
+            $analytics_type = $this->request->post['analytics_type'] ?? 'sales_performance';
+            $date_range = $this->request->post['date_range'] ?? 'last_30_days';
+            
+            $this->load->library('meschain/helper/hepsiburada_analytics');
+            
+            switch ($analytics_type) {
+                case 'sales_performance':
+                    $performance_data = $this->hepsiburada_analytics->getSalesPerformance($date_range);
+                    $json['analytics'] = $performance_data;
+                    break;
+                    
+                case 'product_performance':
+                    $product_metrics = $this->hepsiburada_analytics->getProductPerformance($date_range);
+                    $json['analytics'] = $product_metrics;
+                    break;
+                    
+                case 'customer_analytics':
+                    $customer_data = $this->hepsiburada_analytics->getCustomerAnalytics($date_range);
+                    $json['analytics'] = $customer_data;
+                    break;
+                    
+                case 'competitive_analysis':
+                    $category_id = $this->request->post['category_id'] ?? null;
+                    $competitive_data = $this->hepsiburada_analytics->getCompetitiveAnalysis($category_id, $date_range);
+                    $json['analytics'] = $competitive_data;
+                    break;
+                    
+                case 'financial_summary':
+                    $financial_data = $this->hepsiburada_analytics->getFinancialSummary($date_range);
+                    $json['analytics'] = $financial_data;
+                    break;
+                    
+                case 'inventory_analytics':
+                    $inventory_data = $this->hepsiburada_analytics->getInventoryAnalytics();
+                    $json['analytics'] = $inventory_data;
+                    break;
+                    
+                default:
+                    throw new Exception('Invalid analytics type');
+            }
+            
+            $json['success'] = true;
+            $json['generated_at'] = date('Y-m-d H:i:s');
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('HEPSIBURADA_ANALYTICS ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+    
+    /**
+     * Hepsiburada Product Optimization
+     */
+    public function productOptimization() {
+        $json = array();
+        
+        try {
+            $action = $this->request->post['action'] ?? 'analyze_products';
+            
+            $this->load->library('meschain/helper/hepsiburada_optimization');
+            
+            switch ($action) {
+                case 'analyze_products':
+                    $product_ids = $this->request->post['product_ids'] ?? array();
+                    $analysis_result = $this->hepsiburada_optimization->analyzeProducts($product_ids);
+                    $json['analysis'] = $analysis_result;
+                    break;
+                    
+                case 'optimize_titles':
+                    $optimization_data = $this->request->post['optimization_data'] ?? array();
+                    $title_optimization = $this->hepsiburada_optimization->optimizeTitles($optimization_data);
+                    $json['optimization'] = $title_optimization;
+                    break;
+                    
+                case 'optimize_descriptions':
+                    $product_ids = $this->request->post['product_ids'] ?? array();
+                    $seo_keywords = $this->request->post['seo_keywords'] ?? array();
+                    $description_optimization = $this->hepsiburada_optimization->optimizeDescriptions($product_ids, $seo_keywords);
+                    $json['optimization'] = $description_optimization;
+                    break;
+                    
+                case 'optimize_images':
+                    $image_optimization_data = $this->request->post['image_data'] ?? array();
+                    $image_optimization = $this->hepsiburada_optimization->optimizeImages($image_optimization_data);
+                    $json['optimization'] = $image_optimization;
+                    break;
+                    
+                case 'seo_analysis':
+                    $product_id = $this->request->post['product_id'];
+                    $seo_analysis = $this->hepsiburada_optimization->performSeoAnalysis($product_id);
+                    $json['seo'] = $seo_analysis;
+                    break;
+                    
+                default:
+                    throw new Exception('Invalid optimization action');
+            }
+            
+            $json['success'] = true;
+            $json['timestamp'] = time();
+            
+        } catch (Exception $e) {
+            $json['success'] = false;
+            $json['error'] = $e->getMessage();
+            $this->log->write('HEPSIBURADA_OPTIMIZATION ERROR: ' . $e->getMessage());
+        }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
 } 
