@@ -654,4 +654,243 @@ class MesChainAmazonHelper {
             'currency' => $amazon_product['AttributeSets']['ItemAttributes']['ListPrice']['CurrencyCode'] ?? 'USD'
         );
     }
+    
+    /**
+     * Get FBA inventory levels
+     * 
+     * @return array
+     */
+    public function getFBAInventory() {
+        try {
+            $params = array(
+                'Action' => 'ListInventorySupply',
+                'SellerSkus' => $this->getActiveSkus()
+            );
+            
+            $response = $this->makeApiRequest('fba/inventory/v1', $params);
+            
+            if ($response && isset($response['InventorySupplyList'])) {
+                return array(
+                    'success' => true,
+                    'inventory' => $this->formatFBAInventoryData($response['InventorySupplyList'])
+                );
+            }
+            
+            return array('success' => false, 'message' => 'No FBA inventory data found');
+            
+        } catch (Exception $e) {
+            $this->logger->write('Amazon FBA Inventory Error: ' . $e->getMessage());
+            return array('success' => false, 'message' => $e->getMessage());
+        }
+    }
+    
+    /**
+     * Create FBA shipment
+     * 
+     * @param array $shipment_data
+     * @return array
+     */
+    public function createFBAShipment($shipment_data) {
+        try {
+            $params = array(
+                'Action' => 'CreateInboundShipmentPlan',
+                'ShipFromAddress' => $shipment_data['ship_from_address'],
+                'LabelPrepType' => $shipment_data['label_prep_type'] ?? 'SELLER_LABEL',
+                'ShipToCountryCode' => $shipment_data['ship_to_country'] ?? 'TR'
+            );
+            
+            // Add items to shipment
+            if (isset($shipment_data['items']) && is_array($shipment_data['items'])) {
+                foreach ($shipment_data['items'] as $index => $item) {
+                    $params['InboundShipmentPlanRequestItems.member.' . ($index + 1) . '.SellerSKU'] = $item['sku'];
+                    $params['InboundShipmentPlanRequestItems.member.' . ($index + 1) . '.Quantity'] = $item['quantity'];
+                }
+            }
+            
+            $response = $this->makeApiRequest('fba/inbound/v0', $params);
+            
+            if ($response && isset($response['InboundShipmentPlans'])) {
+                return array(
+                    'success' => true,
+                    'shipment_id' => $response['InboundShipmentPlans'][0]['ShipmentId'] ?? null,
+                    'plan_id' => $response['InboundShipmentPlans'][0]['InboundShipmentPlanId'] ?? null
+                );
+            }
+            
+            return array('success' => false, 'message' => 'Failed to create FBA shipment');
+            
+        } catch (Exception $e) {
+            $this->logger->write('Amazon FBA Shipment Creation Error: ' . $e->getMessage());
+            return array('success' => false, 'message' => $e->getMessage());
+        }
+    }
+    
+    /**
+     * Update FBA shipment 
+     * 
+     * @param string $shipment_id
+     * @param array $updates
+     * @return array
+     */
+    public function updateFBAShipment($shipment_id, $updates) {
+        try {
+            $params = array(
+                'Action' => 'UpdateInboundShipment',
+                'ShipmentId' => $shipment_id
+            );
+            
+            // Add update parameters
+            if (isset($updates['shipment_name'])) {
+                $params['InboundShipmentHeader.ShipmentName'] = $updates['shipment_name'];
+            }
+            
+            if (isset($updates['destination_fulfillment_center_id'])) {
+                $params['InboundShipmentHeader.DestinationFulfillmentCenterId'] = $updates['destination_fulfillment_center_id'];
+            }
+            
+            $response = $this->makeApiRequest('fba/inbound/v0', $params);
+            
+            if ($response) {
+                return array('success' => true, 'message' => 'FBA shipment updated successfully');
+            }
+            
+            return array('success' => false, 'message' => 'Failed to update FBA shipment');
+            
+        } catch (Exception $e) {
+            $this->logger->write('Amazon FBA Shipment Update Error: ' . $e->getMessage());
+            return array('success' => false, 'message' => $e->getMessage());
+        }
+    }
+    
+    /**
+     * Get advertising campaigns
+     * 
+     * @return array
+     */
+    public function getAdvertisingCampaigns() {
+        try {
+            $params = array(
+                'stateFilter' => 'enabled,paused,archived',
+                'campaignTypeFilter' => 'sponsoredProducts,sponsoredBrands,sponsoredDisplay'
+            );
+            
+            $response = $this->makeApiRequest('advertising/v2/campaigns', $params);
+            
+            if ($response && is_array($response)) {
+                return array(
+                    'success' => true,
+                    'campaigns' => $this->formatAdvertisingCampaigns($response)
+                );
+            }
+            
+            return array('success' => false, 'message' => 'No advertising campaigns found');
+            
+        } catch (Exception $e) {
+            $this->logger->write('Amazon Advertising Campaigns Error: ' . $e->getMessage());
+            return array('success' => false, 'message' => $e->getMessage());
+        }
+    }
+    
+    /**
+     * Create advertising campaign
+     * 
+     * @param array $campaign_data
+     * @return array
+     */
+    public function createAdvertisingCampaign($campaign_data) {
+        try {
+            $params = array(
+                'name' => $campaign_data['name'],
+                'campaignType' => $campaign_data['campaign_type'] ?? 'sponsoredProducts',
+                'targetingType' => $campaign_data['targeting_type'] ?? 'auto',
+                'state' => $campaign_data['state'] ?? 'enabled',
+                'dailyBudget' => floatval($campaign_data['daily_budget'] ?? 10.00),
+                'startDate' => $campaign_data['start_date'] ?? date('Ymd'),
+                'endDate' => $campaign_data['end_date'] ?? null
+            );
+            
+            // Turkey-specific settings
+            if (isset($campaign_data['marketplace']) && $campaign_data['marketplace'] === 'turkey') {
+                $params['marketplace'] = 'A33AVAJ2PDY3EV';
+                $params['currency'] = 'TRY';
+                $params['locale'] = 'tr-TR';
+            }
+            
+            $response = $this->makeApiRequest('advertising/v2/campaigns', $params, 'POST');
+            
+            if ($response && isset($response['campaignId'])) {
+                return array(
+                    'success' => true,
+                    'campaign_id' => $response['campaignId'],
+                    'status' => $response['code'] ?? 'SUCCESS'
+                );
+            }
+            
+            return array('success' => false, 'message' => 'Failed to create advertising campaign');
+            
+        } catch (Exception $e) {
+            $this->logger->write('Amazon Advertising Campaign Creation Error: ' . $e->getMessage());
+            return array('success' => false, 'message' => $e->getMessage());
+        }
+    }
+    
+    /**
+     * Update campaign bid
+     * 
+     * @param string $campaign_id
+     * @param float $bid_amount
+     * @return array
+     */
+    public function updateCampaignBid($campaign_id, $bid_amount) {
+        try {
+            $params = array(
+                'defaultBid' => floatval($bid_amount)
+            );
+            
+            $response = $this->makeApiRequest('advertising/v2/campaigns/' . $campaign_id, $params, 'PUT');
+            
+            if ($response && isset($response['code']) && $response['code'] === 'SUCCESS') {
+                return array('success' => true, 'message' => 'Campaign bid updated successfully');
+            }
+            
+            return array('success' => false, 'message' => 'Failed to update campaign bid');
+            
+        } catch (Exception $e) {
+            $this->logger->write('Amazon Campaign Bid Update Error: ' . $e->getMessage());
+            return array('success' => false, 'message' => $e->getMessage());
+        }
+    }
+    
+    /**
+     * Get campaign performance
+     * 
+     * @param string $campaign_id
+     * @param string $date_range
+     * @return array
+     */
+    public function getCampaignPerformance($campaign_id, $date_range = 'last_30_days') {
+        try {
+            $date_params = $this->getDateRangeParams($date_range);
+            
+            $params = array(
+                'reportDate' => $date_params['end_date'],
+                'metrics' => 'impressions,clicks,cost,sales,acos,ctr,cpc'
+            );
+            
+            $response = $this->makeApiRequest('advertising/v2/campaigns/' . $campaign_id . '/report', $params);
+            
+            if ($response && isset($response['campaignId'])) {
+                return array(
+                    'success' => true,
+                    'performance' => $this->formatCampaignPerformance($response)
+                );
+            }
+            
+            return array('success' => false, 'message' => 'No performance data found');
+            
+        } catch (Exception $e) {
+            $this->logger->write('Amazon Campaign Performance Error: ' . $e->getMessage());
+            return array('success' => false, 'message' => $e->getMessage());
+        }
+    }
 } 
