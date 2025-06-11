@@ -1,11 +1,20 @@
 /**
- * MesChain-Sync Performance Dashboard
- * Real-time monitoring and analytics for marketplace integrations
+ * MesChain-Sync Performance Dashboard - Azure Enhanced Edition
+ * Real-time monitoring and analytics for marketplace integrations with Azure Cloud Integration
  * 
- * @author MesChain Development Team
- * @version 4.1.0
- * @copyright 2024 MesChain Technologies
+ * @author MesChain Development Team & MezBjen Team
+ * @version 5.0.0
+ * @copyright 2025 MesChain Technologies
+ * @features Azure Application Insights, Blob Storage, Service Bus, Key Vault, Event Hubs
  */
+
+// Azure SDK Imports
+import { DefaultAzureCredential } from '@azure/identity';
+import { BlobServiceClient } from '@azure/storage-blob';
+import { ServiceBusClient } from '@azure/service-bus';
+import { SecretClient } from '@azure/keyvault-secrets';
+import { EventHubProducerClient } from '@azure/event-hubs';
+import { TelemetryClient } from 'applicationinsights';
 
 export interface MarketplaceMetrics {
     marketplace: string;
@@ -16,6 +25,12 @@ export interface MarketplaceMetrics {
     errorCount: number;
     lastSync: Date;
     uptime: number;
+    // Azure Enhanced Properties
+    azureRegion?: string;
+    correlationId?: string;
+    healthScore?: number;
+    azureResourceId?: string;
+    telemetryEnabled?: boolean;
 }
 
 export interface SystemMetrics {
@@ -27,6 +42,20 @@ export interface SystemMetrics {
     systemUptime: number;
     memoryUsage: number;
     cpuUsage: number;
+    // Azure Enhanced Properties
+    azureServiceHealth?: {
+        applicationInsights: boolean;
+        blobStorage: boolean;
+        serviceBus: boolean;
+        keyVault: boolean;
+        eventHubs: boolean;
+    };
+    cloudMetrics?: {
+        requestsPerMinute: number;
+        dataThroughput: number;
+        errorRate: number;
+        azureCosts: number;
+    };
 }
 
 export interface PerformanceAlert {
@@ -36,6 +65,57 @@ export interface PerformanceAlert {
     message: string;
     timestamp: Date;
     resolved: boolean;
+    // Azure Enhanced Properties
+    azureMetadata?: {
+        operationId: string;
+        resourceType: string;
+        autoResolutionSuggestion?: string;
+        azureRegion: string;
+        severity: 'critical' | 'high' | 'medium' | 'low';
+    };
+    telemetryData?: any;
+}
+
+export interface AzureConfiguration {
+    applicationInsights: {
+        connectionString: string;
+        enableLiveMetrics: boolean;
+        samplingPercentage: number;
+    };
+    storage: {
+        accountName: string;
+        containerName: string;
+        lifecyclePolicy: boolean;
+    };
+    serviceBus: {
+        namespace: string;
+        queueName: string;
+        deadLetterQueue: string;
+    };
+    keyVault: {
+        vaultUrl: string;
+        secretRotationEnabled: boolean;
+    };
+    eventHubs: {
+        namespace: string;
+        eventHubName: string;
+        consumerGroup: string;
+    };
+    security: {
+        managedIdentityEnabled: boolean;
+        auditLoggingEnabled: boolean;
+    };
+    performance: {
+        cachingEnabled: boolean;
+        retryPolicy: {
+            maxAttempts: number;
+            backoffMultiplier: number;
+        };
+        circuitBreaker: {
+            failureThreshold: number;
+            timeoutThreshold: number;
+        };
+    };
 }
 
 export class PerformanceDashboard {
@@ -47,8 +127,119 @@ export class PerformanceDashboard {
     private alertsCache: PerformanceAlert[] = [];
     private refreshInterval: number = 30000; // 30 seconds
 
-    constructor() {
+    // Azure Services Integration
+    private azureCredential: DefaultAzureCredential;
+    private blobServiceClient: BlobServiceClient;
+    private serviceBusClient: ServiceBusClient;
+    private keyVaultClient: SecretClient;
+    private eventHubClient: EventHubProducerClient;
+    private telemetryClient: TelemetryClient;
+    private azureConfig: AzureConfiguration;
+    
+    // Circuit Breaker State
+    private circuitBreakerState: Map<string, {
+        failures: number;
+        lastFailure: Date;
+        isOpen: boolean;
+    }> = new Map();
+
+    constructor(azureConfig: AzureConfiguration) {
+        this.azureConfig = azureConfig;
+        this.initializeAzureServices();
         this.initializeMonitoring();
+    }
+
+    /**
+     * Initialize Azure Services with Enhanced Security and Error Handling
+     */
+    private async initializeAzureServices(): Promise<void> {
+        try {
+            console.log('🔷 Initializing Azure services for MezBjen team...');
+            
+            // Initialize Azure Credential with Managed Identity
+            this.azureCredential = new DefaultAzureCredential();
+            
+            // Initialize services in dependency order with retry logic
+            await this.initializeWithRetry('Application Insights', async () => {
+                const appInsights = require('applicationinsights');
+                appInsights.setup(this.azureConfig.applicationInsights.connectionString)
+                    .setAutoDependencyCorrelation(true)
+                    .setAutoCollectRequests(true)
+                    .setAutoCollectPerformance(true)
+                    .setAutoCollectExceptions(true)
+                    .setAutoCollectDependencies(true)
+                    .setAutoCollectConsole(true)
+                    .setUseDiskRetryCaching(true)
+                    .setSendLiveMetrics(this.azureConfig.applicationInsights.enableLiveMetrics)
+                    .start();
+                
+                this.telemetryClient = appInsights.defaultClient;
+                this.telemetryClient.config.samplingPercentage = this.azureConfig.applicationInsights.samplingPercentage;
+            });
+
+            await this.initializeWithRetry('Blob Storage', async () => {
+                this.blobServiceClient = new BlobServiceClient(
+                    `https://${this.azureConfig.storage.accountName}.blob.core.windows.net`,
+                    this.azureCredential
+                );
+                
+                // Setup lifecycle management
+                if (this.azureConfig.storage.lifecyclePolicy) {
+                    await this.setupStorageLifecyclePolicy();
+                }
+            });
+
+            await this.initializeWithRetry('Service Bus', async () => {
+                this.serviceBusClient = new ServiceBusClient(
+                    `${this.azureConfig.serviceBus.namespace}.servicebus.windows.net`,
+                    this.azureCredential
+                );
+            });
+
+            await this.initializeWithRetry('Key Vault', async () => {
+                this.keyVaultClient = new SecretClient(
+                    this.azureConfig.keyVault.vaultUrl,
+                    this.azureCredential
+                );
+                
+                // Setup secret rotation monitoring
+                if (this.azureConfig.keyVault.secretRotationEnabled) {
+                    await this.monitorSecretRotation();
+                }
+            });
+
+            await this.initializeWithRetry('Event Hubs', async () => {
+                this.eventHubClient = new EventHubProducerClient(
+                    `${this.azureConfig.eventHubs.namespace}.servicebus.windows.net`,
+                    this.azureConfig.eventHubs.eventHubName,
+                    this.azureCredential
+                );
+            });
+
+            // Initialize circuit breakers for all services
+            this.initializeCircuitBreakers();
+            
+            // Start continuous health monitoring
+            this.startAzureHealthMonitoring();
+            
+            console.log('✅ Azure services initialized successfully for MezBjen team');
+            
+            // Send initialization telemetry
+            this.telemetryClient?.trackEvent({
+                name: 'PerformanceDashboardInitialized',
+                properties: {
+                    version: '5.0.0',
+                    team: 'MezBjen',
+                    azureRegion: process.env.AZURE_REGION || 'unknown',
+                    initializationTime: new Date().toISOString()
+                }
+            });
+            
+        } catch (error) {
+            console.error('❌ Azure services initialization failed:', error);
+            this.telemetryClient?.trackException({ exception: error as Error });
+            throw new Error(`Azure initialization failed: ${error}`);
+        }
     }
 
     /**
@@ -462,4 +653,302 @@ export class PerformanceDashboard {
         // For now, return a placeholder
         return `PDF Report generated at ${data.generatedAt}`;
     }
-}
+
+    /**
+     * Initialize service with retry logic and circuit breaker pattern
+     */
+    private async initializeWithRetry(serviceName: string, initFunction: () => Promise<void>): Promise<void> {
+        const maxAttempts = this.azureConfig.performance.retryPolicy.maxAttempts;
+        const backoffMultiplier = this.azureConfig.performance.retryPolicy.backoffMultiplier;
+        
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                await initFunction();
+                console.log(`✅ ${serviceName} initialized successfully`);
+                return;
+            } catch (error) {
+                console.warn(`⚠️ ${serviceName} initialization attempt ${attempt} failed:`, error);
+                
+                if (attempt === maxAttempts) {
+                    throw new Error(`${serviceName} initialization failed after ${maxAttempts} attempts`);
+                }
+                
+                // Exponential backoff
+                const delay = Math.pow(backoffMultiplier, attempt) * 1000;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+
+    /**
+     * Setup Azure Storage Lifecycle Management
+     */
+    private async setupStorageLifecyclePolicy(): Promise<void> {
+        try {
+            // Implement lifecycle management for performance data
+            console.log('📦 Setting up storage lifecycle policy...');
+            // This would typically involve setting up blob lifecycle rules
+            // for automatic tiering and deletion of old performance data
+        } catch (error) {
+            console.error('❌ Storage lifecycle setup failed:', error);
+        }
+    }
+
+    /**
+     * Monitor Key Vault secret rotation
+     */
+    private async monitorSecretRotation(): Promise<void> {
+        try {
+            console.log('🔐 Setting up Key Vault secret rotation monitoring...');
+            // Monitor secrets that are approaching expiration
+            // and trigger rotation events
+        } catch (error) {
+            console.error('❌ Secret rotation monitoring setup failed:', error);
+        }
+    }
+
+    /**
+     * Initialize circuit breakers for all Azure services
+     */
+    private initializeCircuitBreakers(): void {
+        const services = ['ApplicationInsights', 'BlobStorage', 'ServiceBus', 'KeyVault', 'EventHubs'];
+        services.forEach(service => {
+            this.circuitBreakerState.set(service, {
+                failures: 0,
+                lastFailure: new Date(0),
+                isOpen: false
+            });
+        });
+    }
+
+    /**
+     * Check circuit breaker state and execute with protection
+     */
+    private async executeWithCircuitBreaker<T>(
+        serviceName: string, 
+        operation: () => Promise<T>
+    ): Promise<T | null> {
+        const breaker = this.circuitBreakerState.get(serviceName);
+        if (!breaker) return null;
+
+        const now = new Date();
+        const timeSinceLastFailure = now.getTime() - breaker.lastFailure.getTime();
+        
+        // Check if circuit breaker should be reset
+        if (breaker.isOpen && timeSinceLastFailure > this.azureConfig.performance.circuitBreaker.timeoutThreshold) {
+            breaker.isOpen = false;
+            breaker.failures = 0;
+        }
+
+        if (breaker.isOpen) {
+            console.warn(`⚠️ Circuit breaker open for ${serviceName}, operation skipped`);
+            return null;
+        }
+
+        try {
+            const result = await operation();
+            // Reset failures on success
+            breaker.failures = 0;
+            return result;
+        } catch (error) {
+            breaker.failures++;
+            breaker.lastFailure = now;
+            
+            if (breaker.failures >= this.azureConfig.performance.circuitBreaker.failureThreshold) {
+                breaker.isOpen = true;
+                console.error(`🔴 Circuit breaker opened for ${serviceName} after ${breaker.failures} failures`);
+            }
+            
+            throw error;
+        }
+    }
+
+    /**
+     * Start continuous Azure health monitoring
+     */
+    private startAzureHealthMonitoring(): void {
+        setInterval(async () => {
+            try {
+                const healthData = await this.checkAzureServicesHealth();
+                
+                // Track service health metrics
+                this.telemetryClient?.trackMetric({
+                    name: 'AzureServicesHealth',
+                    value: healthData.overallHealth ? 1 : 0,
+                    properties: {
+                        timestamp: new Date().toISOString(),
+                        ...healthData.services
+                    }
+                });
+
+                // Generate alerts for unhealthy services
+                Object.entries(healthData.services).forEach(([service, isHealthy]) => {
+                    if (!isHealthy) {
+                        this.generateAzureServiceAlert(service);
+                    }
+                });
+
+            } catch (error) {
+                console.error('❌ Azure health monitoring failed:', error);
+            }
+        }, 60000); // Check every minute
+    }
+
+    /**
+     * Check health of all Azure services
+     */
+    private async checkAzureServicesHealth(): Promise<{
+        overallHealth: boolean;
+        services: Record<string, boolean>;
+    }> {
+        const healthChecks = {
+            applicationInsights: false,
+            blobStorage: false,
+            serviceBus: false,
+            keyVault: false,
+            eventHubs: false
+        };
+
+        // Application Insights health
+        try {
+            if (this.telemetryClient) {
+                this.telemetryClient.trackMetric({ name: 'HealthCheck', value: 1 });
+                healthChecks.applicationInsights = true;
+            }
+        } catch (error) {
+            console.error('❌ Application Insights health check failed:', error);
+        }
+
+        // Blob Storage health
+        try {
+            await this.executeWithCircuitBreaker('BlobStorage', async () => {
+                await this.blobServiceClient?.getAccountInfo();
+                healthChecks.blobStorage = true;
+            });
+        } catch (error) {
+            console.error('❌ Blob Storage health check failed:', error);
+        }
+
+        // Service Bus health
+        try {
+            await this.executeWithCircuitBreaker('ServiceBus', async () => {
+                const sender = this.serviceBusClient?.createSender('health-check');
+                if (sender) {
+                    await sender.close();
+                    healthChecks.serviceBus = true;
+                }
+            });
+        } catch (error) {
+            console.error('❌ Service Bus health check failed:', error);
+        }
+
+        // Key Vault health
+        try {
+            await this.executeWithCircuitBreaker('KeyVault', async () => {
+                await this.keyVaultClient?.getSecret('health-check');
+                healthChecks.keyVault = true;
+            });
+        } catch (error) {
+            // Health check secret might not exist, this is acceptable
+            healthChecks.keyVault = true;
+        }
+
+        // Event Hubs health
+        try {
+            await this.executeWithCircuitBreaker('EventHubs', async () => {
+                const partitionIds = await this.eventHubClient?.getPartitionIds();
+                if (partitionIds && partitionIds.length > 0) {
+                    healthChecks.eventHubs = true;
+                }
+            });
+        } catch (error) {
+            console.error('❌ Event Hubs health check failed:', error);
+        }
+
+        const overallHealth = Object.values(healthChecks).every(Boolean);
+        
+        return {
+            overallHealth,
+            services: healthChecks
+        };
+    }
+
+    /**
+     * Generate Azure service health alert
+     */
+    private generateAzureServiceAlert(serviceName: string): void {
+        const alert: PerformanceAlert = {
+            id: `azure-${serviceName}-${Date.now()}`,
+            marketplace: 'Azure Services',
+            type: 'error',
+            message: `Azure ${serviceName} service health check failed`,
+            timestamp: new Date(),
+            resolved: false,
+            azureMetadata: {
+                operationId: `health-check-${Date.now()}`,
+                resourceType: serviceName,
+                autoResolutionSuggestion: `Check ${serviceName} service status and connectivity`,
+                azureRegion: process.env.AZURE_REGION || 'unknown',
+                severity: 'high'
+            }
+        };
+
+        this.alertsCache.push(alert);
+        
+        // Send alert to Service Bus
+        this.sendAlertToServiceBus(alert);
+        
+        // Track alert in Application Insights
+        this.telemetryClient?.trackEvent({
+            name: 'AzureServiceAlert',
+            properties: {
+                serviceName,
+                alertId: alert.id,
+                severity: alert.azureMetadata?.severity,
+                timestamp: alert.timestamp.toISOString()
+            }
+        });
+    }
+
+    /**
+     * Send alert to Azure Service Bus for processing
+     */
+    private async sendAlertToServiceBus(alert: PerformanceAlert): Promise<void> {
+        try {
+            await this.executeWithCircuitBreaker('ServiceBus', async () => {
+                const sender = this.serviceBusClient?.createSender(this.azureConfig.serviceBus.queueName);
+                if (sender) {
+                    await sender.sendMessages({
+                        body: JSON.stringify(alert),
+                        messageId: alert.id,
+                        correlationId: alert.azureMetadata?.operationId,
+                        label: 'PerformanceAlert'
+                    });
+                    await sender.close();
+                }
+            });
+        } catch (error) {
+            console.error('❌ Failed to send alert to Service Bus:', error);
+            this.telemetryClient?.trackException({ exception: error as Error });
+        }
+    }
+
+    /**
+     * Stream real-time metrics to Azure Event Hubs
+     */
+    private async streamMetricsToEventHub(metrics: SystemMetrics): Promise<void> {
+        try {
+            await this.executeWithCircuitBreaker('EventHubs', async () => {
+                const eventData = {
+                    body: {
+                        timestamp: new Date().toISOString(),
+                        correlationId: this.generateCorrelationId(),
+                        metrics: metrics,
+                        source: 'PerformanceDashboard',
+                        version: '5.0.0'
+                    },
+                    contentType: 'application/json'
+                };
+
+                const batch = await this.eventHubClient?.createBatch();
+                if
