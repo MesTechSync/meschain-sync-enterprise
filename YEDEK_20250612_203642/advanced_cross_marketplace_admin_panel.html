@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MesChain-Sync - Gelişmiş Cross-Marketplace Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --dark-blue: #1e40af;
+            --light-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --dark-gray: #1f2937;
+            --light-gray: #f8fafc;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            background: white;
+            color: #374151;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .logo-section {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 100%);
+            color: white;
+        }
+
+        .rocket-logo {
+            font-size: 18px;
+            color: #ff6b6b;
+            margin-right: 8px;
+            display: inline-block;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+        }
+
+        .admin-section {
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .big-a {
+            font-size: 48px;
+            font-weight: 800;
+            color: #374151;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .admin-text {
+            font-size: 14px;
+            color: #000;
+            margin: 5px 0 0 0;
+            font-weight: 500;
+        }
+
+        .super-admin-text {
+            font-size: 16px;
+            color: var(--accent-red);
+            margin: 2px 0 0 0;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .menu-list {
+            padding: 20px 0;
+            list-style: none;
+        }
+
+        .menu-item {
+            margin: 0;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: #6b7280;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-link:hover, .menu-link.active {
+            background: #f3f4f6;
+            color: var(--primary-blue);
+            border-left-color: var(--primary-blue);
+            transform: translateX(5px);
+        }
+
+        .menu-link i {
+            width: 20px;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+
+        .super-admin-menu {
+            color: var(--accent-red) !important;
+            font-weight: 700;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .top-header {
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lang-btn {
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .lang-btn.active, .lang-btn:hover {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .notification-bell {
+            position: relative;
+            padding: 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .notification-bell:hover {
+            background: #f3f4f6;
+            transform: scale(1.05);
+        }
+
+        .notification-bell i {
+            font-size: 18px;
+            color: #6b7280;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--accent-red);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .dashboard-content {
+            padding: 30px;
+        }
+
+        .cross-marketplace-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+
+        .cross-marketplace-title {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .marketplace-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .marketplace-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .marketplace-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+
+        .marketplace-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .marketplace-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: 700;
+        }
+
+        .trendyol { background: linear-gradient(135deg, #f27a1a, #e55d00); }
+        .amazon { background: linear-gradient(135deg, #ff9900, #ff7700); }
+        .hepsiburada { background: linear-gradient(135deg, #ff6000, #e04000); }
+        .n11 { background: linear-gradient(135deg, #6c5ce7, #5f3dc4); }
+        .ebay { background: linear-gradient(135deg, #0064d2, #0052a3); }
+        .ozon { background: linear-gradient(135deg, #005bff, #0041cc); }
+
+        .marketplace-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin: 0;
+        }
+
+        .marketplace-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            margin-left: auto;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .marketplace-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin: 0;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin: 5px 0 0 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 20px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, var(--success-green), #059669);
+            color: white;
+            padding: 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btn i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="rocket-logo">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <h1 class="logo-text">MesChain-Sync</h1>
+        </div>
+
+        <div class="admin-section">
+            <div class="big-a">A</div>
+            <div class="admin-text">admin</div>
+            <div class="super-admin-text">Süper Admin</div>
+        </div>
+
+        <ul class="menu-list">
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link super-admin-menu">
+                    <i class="fas fa-crown"></i>
+                    Süper Admin
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link active" onclick="showSection('marketplaces')">
+                    <i class="fas fa-store"></i>
+                    Marketplaces
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('cross-marketplace')">
+                    <i class="fas fa-exchange-alt"></i>
+                    Cross-Marketplace
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('trendyol-magaza')">
+                    <i class="fas fa-shopping-bag"></i>
+                    Trendyol Mağaza
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('trendyol-test')">
+                    <i class="fas fa-flask"></i>
+                    Trendyol Test API Rehberi
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('gelismis-raporlar')">
+                    <i class="fas fa-chart-line"></i>
+                    Gelişmiş Raporlar
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('reports')">
+                    <i class="fas fa-file-alt"></i>
+                    Reports
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('gelismis-ozellikler')">
+                    <i class="fas fa-cogs"></i>
+                    Gelişmiş Özellikler
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('analitik')">
+                    <i class="fas fa-analytics"></i>
+                    Analitik
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('otomasyon')">
+                    <i class="fas fa-robot"></i>
+                    Otomasyon
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('iletisim')">
+                    <i class="fas fa-comments"></i>
+                    İletişim
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('gelismis-ayarlar')">
+                    <i class="fas fa-tools"></i>
+                    Gelişmiş Ayarlar
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-header">
+            <h2 style="margin: 0; color: #1f2937; font-weight: 600;">Cross-Marketplace Yönetim Paneli</h2>
+            <div class="header-right">
+                <div class="health-indicator me-3">
+                    <i class="fas fa-circle text-warning"></i>
+                    <span class="ms-2">Bağlantı kuruluyor...</span>
+                </div>
+                <div class="last-update text-muted me-3" style="font-size: 12px;">
+                    Son güncelleme: Yükleniyor...
+                </div>
+                <div class="language-selector">
+                    <button class="lang-btn active" onclick="changeLanguage('tr')">TR</button>
+                    <button class="lang-btn" onclick="changeLanguage('en')">EN</button>
+                </div>
+                <div class="notification-bell" onclick="showNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Cross-Marketplace Dashboard Header -->
+            <div class="cross-marketplace-header">
+                <h1 class="cross-marketplace-title">Cross-Marketplace Dashboard</h1>
+                <p style="margin: 15px 0 0 0; font-size: 16px; opacity: 0.9;">Tüm marketplace'leri tek panelden yönetin</p>
+            </div>
+
+            <!-- Marketplace Cards Grid -->
+            <div class="marketplace-grid">
+                <!-- Trendyol Mağaza -->
+                <div class="marketplace-card">
+                    <div class="marketplace-header">
+                        <div class="marketplace-logo trendyol">T</div>
+                        <div>
+                            <h3 class="marketplace-name">Trendyol Mağaza</h3>
+                        </div>
+                        <span class="marketplace-status status-active">Aktif</span>
+                    </div>
+                    <div class="marketplace-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">1,847</div>
+                            <div class="stat-label">Toplam Ürün</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">456</div>
+                            <div class="stat-label">Aylık Sipariş</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">₺67,843</div>
+                            <div class="stat-label">Aylık Ciro</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">4.7★</div>
+                            <div class="stat-label">Ortalama Puan</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amazon Mağaza -->
+                <div class="marketplace-card">
+                    <div class="marketplace-header">
+                        <div class="marketplace-logo amazon">A</div>
+                        <div>
+                            <h3 class="marketplace-name">Amazon Mağaza</h3>
+                        </div>
+                        <span class="marketplace-status status-active">Aktif</span>
+                    </div>
+                    <div class="marketplace-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">2,134</div>
+                            <div class="stat-label">Toplam Ürün</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">723</div>
+                            <div class="stat-label">Aylık Sipariş</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">$12,456</div>
+                            <div class="stat-label">Aylık Ciro</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">4.8★</div>
+                            <div class="stat-label">Ortalama Puan</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hepsiburada Mağaza -->
+                <div class="marketplace-card">
+                    <div class="marketplace-header">
+                        <div class="marketplace-logo hepsiburada">H</div>
+                        <div>
+                            <h3 class="marketplace-name">Hepsiburada Mağaza</h3>
+                        </div>
+                        <span class="marketplace-status status-active">Aktif</span>
+                    </div>
+                    <div class="marketplace-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">1,523</div>
+                            <div class="stat-label">Toplam Ürün</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">342</div>
+                            <div class="stat-label">Aylık Sipariş</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">₺78,945</div>
+                            <div class="stat-label">Aylık Ciro</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">4.6★</div>
+                            <div class="stat-label">Ortalama Puan</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- N11 Mağaza -->
+                <div class="marketplace-card">
+                    <div class="marketplace-header">
+                        <div class="marketplace-logo n11">N</div>
+                        <div>
+                            <h3 class="marketplace-name">N11 Mağaza</h3>
+                        </div>
+                        <span class="marketplace-status status-inactive">Beklemede</span>
+                    </div>
+                    <div class="marketplace-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">892</div>
+                            <div class="stat-label">Toplam Ürün</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">156</div>
+                            <div class="stat-label">Aylık Sipariş</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">₺45,321</div>
+                            <div class="stat-label">Aylık Ciro</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">4.3★</div>
+                            <div class="stat-label">Ortalama Puan</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- eBay Mağaza -->
+                <div class="marketplace-card">
+                    <div class="marketplace-header">
+                        <div class="marketplace-logo ebay">E</div>
+                        <div>
+                            <h3 class="marketplace-name">eBay Mağaza</h3>
+                        </div>
+                        <span class="marketplace-status status-active">Aktif</span>
+                    </div>
+                    <div class="marketplace-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">1,234</div>
+                            <div class="stat-label">Toplam Ürün</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">267</div>
+                            <div class="stat-label">Aylık Sipariş</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">$8,945</div>
+                            <div class="stat-label">Aylık Ciro</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">4.5★</div>
+                            <div class="stat-label">Ortalama Puan</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ozon Mağaza -->
+                <div class="marketplace-card">
+                    <div class="marketplace-header">
+                        <div class="marketplace-logo ozon">O</div>
+                        <div>
+                            <h3 class="marketplace-name">Ozon Mağaza</h3>
+                        </div>
+                        <span class="marketplace-status status-active">Aktif</span>
+                    </div>
+                    <div class="marketplace-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">967</div>
+                            <div class="stat-label">Toplam Ürün</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">189</div>
+                            <div class="stat-label">Aylık Sipariş</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">₽234,567</div>
+                            <div class="stat-label">Aylık Ciro</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">4.4★</div>
+                            <div class="stat-label">Ortalama Puan</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="chart-container">
+                <h3 class="chart-title">Marketplace Performans Karşılaştırması</h3>
+                <canvas id="marketplaceChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="action-btn" onclick="testAzureFunctions()">
+                    <i class="fas fa-heartbeat"></i>
+                    Azure Functions Test
+                </button>
+                <button class="action-btn" onclick="fetchDashboardData()">
+                    <i class="fas fa-sync"></i>
+                    Verileri Yenile
+                </button>
+                <button class="action-btn" onclick="testSignalR()">
+                    <i class="fas fa-broadcast-tower"></i>
+                    SignalR Test
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-download"></i>
+                    Toplu Sipariş Çekme
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-upload"></i>
+                    Toplu Ürün Yükleme
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-chart-bar"></i>
+                    Gelişmiş Raporlar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Chart.js configuration
+        const ctx = document.getElementById('marketplaceChart').getContext('2d');
+        const marketplaceChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Trendyol', 'Amazon', 'Hepsiburada', 'N11', 'eBay', 'Ozon'],
+                datasets: [{
+                    label: 'Aylık Sipariş',
+                    data: [456, 723, 342, 156, 267, 189],
+                    backgroundColor: [
+                        'rgba(242, 122, 26, 0.8)',
+                        'rgba(255, 153, 0, 0.8)',
+                        'rgba(255, 96, 0, 0.8)',
+                        'rgba(108, 92, 231, 0.8)',
+                        'rgba(0, 100, 210, 0.8)',
+                        'rgba(0, 91, 255, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(242, 122, 26, 1)',
+                        'rgba(255, 153, 0, 1)',
+                        'rgba(255, 96, 0, 1)',
+                        'rgba(108, 92, 231, 1)',
+                        'rgba(0, 100, 210, 1)',
+                        'rgba(0, 91, 255, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        async function testAzureFunctions() {
+            console.log('Testing Azure Functions...');
+            
+            const testResults = {
+                health: { status: 'testing', endpoint: '/health' },
+                dashboard: { status: 'testing', endpoint: '/adminDashboardUpdater' },
+                negotiate: { status: 'testing', endpoint: '/negotiate' },
+                signalr: { status: 'testing', endpoint: '/signalRMessages' }
+            };
+            
+            // Update UI to show testing status
+            updateTestResults(testResults);
+            
+            // Test health endpoint
+            try {
+                const healthResponse = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/health`);
+                testResults.health.status = healthResponse.ok ? 'success' : 'failed';
+                testResults.health.response = healthResponse.ok ? await healthResponse.json() : { error: 'Failed to fetch' };
+            } catch (error) {
+                testResults.health.status = 'error';
+                testResults.health.error = error.message;
+            }
+            
+            // Test dashboard endpoint
+            try {
+                const dashboardResponse = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/adminDashboardUpdater`);
+                testResults.dashboard.status = dashboardResponse.ok ? 'success' : 'failed';
+                testResults.dashboard.response = dashboardResponse.ok ? await dashboardResponse.json() : { error: 'Failed to fetch' };
+            } catch (error) {
+                testResults.dashboard.status = 'error';
+                testResults.dashboard.error = error.message;
+            }
+            
+            // Test negotiate endpoint
+            try {
+                const negotiateResponse = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/negotiate?userId=test&userRole=admin`);
+                testResults.negotiate.status = negotiateResponse.ok ? 'success' : 'failed';
+                testResults.negotiate.response = negotiateResponse.ok ? await negotiateResponse.json() : { error: 'Failed to fetch' };
+            } catch (error) {
+                testResults.negotiate.status = 'error';
+                testResults.negotiate.error = error.message;
+            }
+            
+            // Test SignalR messages endpoint
+            try {
+                const signalrResponse = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/signalRMessages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'test', data: { message: 'Test message' } })
+                });
+                testResults.signalr.status = signalrResponse.ok ? 'success' : 'failed';
+                testResults.signalr.response = signalrResponse.ok ? await signalrResponse.json() : { error: 'Failed to fetch' };
+            } catch (error) {
+                testResults.signalr.status = 'error';
+                testResults.signalr.error = error.message;
+            }
+            
+            updateTestResults(testResults);
+            console.log('Azure Functions test results:', testResults);
+        }
+        
+        async function testSignalR() {
+            console.log('Testing SignalR functionality...');
+            
+            const testMessage = {
+                type: 'marketplaceSync',
+                data: {
+                    marketplace: 'trendyol',
+                    status: 'completed',
+                    itemCount: 50,
+                    timestamp: new Date().toISOString()
+                }
+            };
+            
+            const result = await sendSignalRMessage(testMessage.type, testMessage.data);
+            
+            if (result) {
+                alert(`SignalR test successful!\nMessage ID: ${result.messageId}\nTimestamp: ${result.timestamp}`);
+            } else {
+                alert('SignalR test failed. Check console for details.');
+            }
+        }
+        
+        function updateTestResults(results) {
+            // Create or update test results display
+            let testResultsContainer = document.querySelector('.test-results-container');
+            
+            if (!testResultsContainer) {
+                testResultsContainer = document.createElement('div');
+                testResultsContainer.className = 'test-results-container mt-4 p-3 border rounded bg-light';
+                testResultsContainer.innerHTML = '<h5>Azure Functions Test Results</h5>';
+                
+                const quickActions = document.querySelector('.quick-actions');
+                quickActions.parentNode.insertBefore(testResultsContainer, quickActions.nextSibling);
+            }
+            
+            const resultsHTML = Object.keys(results).map(endpoint => {
+                const result = results[endpoint];
+                const statusColor = result.status === 'success' ? 'success' : 
+                                   result.status === 'testing' ? 'warning' : 'danger';
+                const statusIcon = result.status === 'success' ? 'check-circle' : 
+                                  result.status === 'testing' ? 'clock' : 'times-circle';
+                
+                return `
+                    <div class="test-result-item d-flex align-items-center justify-content-between mb-2">
+                        <span><strong>${endpoint}</strong> ${result.endpoint}</span>
+                        <span class="text-${statusColor}">
+                            <i class="fas fa-${statusIcon}"></i> ${result.status}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+            
+            testResultsContainer.innerHTML = `
+                <h5>Azure Functions Test Results</h5>
+                ${resultsHTML}
+                <small class="text-muted">Base URL: ${AZURE_FUNCTIONS_BASE_URL}</small>
+            `;
+        }
+
+        // Azure Functions configuration - Using local mock server
+        const AZURE_FUNCTIONS_BASE_URL = 'http://localhost:7071/api';
+        
+        // API integration functions
+        async function fetchDashboardData() {
+            try {
+                const response = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/adminDashboardUpdater`);
+                if (response.ok) {
+                    const data = await response.json();
+                    updateDashboardUI(data);
+                    console.log('Dashboard data updated:', data);
+                } else {
+                    console.warn('Failed to fetch dashboard data, using mock data');
+                    updateDashboardUI(getMockData());
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                updateDashboardUI(getMockData());
+            }
+        }
+        
+        async function checkSystemHealth() {
+            try {
+                const response = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/health`);
+                if (response.ok) {
+                    const health = await response.json();
+                    updateHealthStatus(health);
+                    console.log('System health:', health);
+                } else {
+                    updateHealthStatus({ status: 'degraded', message: 'Some services unavailable' });
+                }
+            } catch (error) {
+                console.error('Health check failed:', error);
+                updateHealthStatus({ status: 'error', message: 'Health check failed' });
+            }
+        }
+        
+        async function sendSignalRMessage(messageType, data) {
+            try {
+                const response = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/signalRMessages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        type: messageType,
+                        data: data,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('SignalR message sent:', result);
+                    return result;
+                } else {
+                    console.error('Failed to send SignalR message');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error sending SignalR message:', error);
+                return null;
+            }
+        }
+        
+        function getMockData() {
+            return {
+                success: true,
+                data: {
+                    totalUsers: 1247 + Math.floor(Math.random() * 50),
+                    activeConnections: 89 + Math.floor(Math.random() * 20),
+                    systemHealth: 'healthy',
+                    lastUpdate: new Date().toISOString(),
+                    marketplaces: {
+                        trendyol: { status: 'active', orders: 45 + Math.floor(Math.random() * 10), sync: 'ok' },
+                        amazon: { status: 'active', orders: 23 + Math.floor(Math.random() * 10), sync: 'ok' },
+                        hepsiburada: { status: 'active', orders: 67 + Math.floor(Math.random() * 10), sync: 'ok' },
+                        n11: { status: 'active', orders: 12 + Math.floor(Math.random() * 5), sync: 'ok' }
+                    },
+                    metrics: {
+                        totalOrders: 147 + Math.floor(Math.random() * 20),
+                        successRate: 98.5 + (Math.random() * 1.5),
+                        avgResponseTime: 245 + Math.floor(Math.random() * 100),
+                        errorCount: Math.floor(Math.random() * 5)
+                    }
+                },
+                timestamp: new Date().toISOString()
+            };
+        }
+        
+        function updateDashboardUI(response) {
+            if (!response.success && !response.data) return;
+            
+            const data = response.data || response;
+            
+            // Update total users
+            const totalUsersEl = document.querySelector('.stat-value');
+            if (totalUsersEl && data.totalUsers) {
+                totalUsersEl.textContent = data.totalUsers.toLocaleString();
+            }
+            
+            // Update active connections
+            const activeConnectionsEl = document.querySelectorAll('.stat-value')[1];
+            if (activeConnectionsEl && data.activeConnections) {
+                activeConnectionsEl.textContent = data.activeConnections.toLocaleString();
+            }
+            
+            // Update marketplace cards
+            if (data.marketplaces) {
+                Object.keys(data.marketplaces).forEach(marketplace => {
+                    const marketplaceData = data.marketplaces[marketplace];
+                    const card = document.querySelector(`[data-marketplace="${marketplace}"]`);
+                    if (card) {
+                        const statusEl = card.querySelector('.marketplace-status');
+                        const ordersEl = card.querySelector('.marketplace-orders');
+                        
+                        if (statusEl) {
+                            statusEl.textContent = marketplaceData.status === 'active' ? 'Aktif' : 'Pasif';
+                            statusEl.className = `marketplace-status ${marketplaceData.status === 'active' ? 'text-success' : 'text-danger'}`;
+                        }
+                        
+                        if (ordersEl) {
+                            ordersEl.textContent = `${marketplaceData.orders} sipariş`;
+                        }
+                    }
+                });
+            }
+            
+            // Update system metrics
+            if (data.metrics) {
+                const metricsContainer = document.querySelector('.metrics-container');
+                if (metricsContainer) {
+                    const totalOrdersEl = metricsContainer.querySelector('.total-orders');
+                    const successRateEl = metricsContainer.querySelector('.success-rate');
+                    const avgResponseEl = metricsContainer.querySelector('.avg-response');
+                    const errorCountEl = metricsContainer.querySelector('.error-count');
+                    
+                    if (totalOrdersEl) totalOrdersEl.textContent = data.metrics.totalOrders;
+                    if (successRateEl) successRateEl.textContent = `${data.metrics.successRate.toFixed(1)}%`;
+                    if (avgResponseEl) avgResponseEl.textContent = `${data.metrics.avgResponseTime}ms`;
+                    if (errorCountEl) errorCountEl.textContent = data.metrics.errorCount;
+                }
+            }
+            
+            // Update last update time
+            const lastUpdateEl = document.querySelector('.last-update');
+            if (lastUpdateEl) {
+                lastUpdateEl.textContent = `Son güncelleme: ${new Date(data.lastUpdate || Date.now()).toLocaleString('tr-TR')}`;
+            }
+        }
+        
+        function updateHealthStatus(health) {
+            const healthIndicator = document.querySelector('.health-indicator');
+            if (healthIndicator) {
+                const statusText = health.status === 'healthy' ? 'Sağlıklı' : 
+                                 health.status === 'degraded' ? 'Kısmi Sorun' : 'Hata';
+                const statusColor = health.status === 'healthy' ? 'success' : 
+                                   health.status === 'degraded' ? 'warning' : 'danger';
+                
+                healthIndicator.innerHTML = `
+                    <i class="fas fa-circle text-${statusColor}"></i>
+                    <span class="ms-2">${statusText}</span>
+                `;
+            }
+        }
+
+        // Menu functionality
+        function showSection(section) {
+            // Remove active class from all menu links
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Add active class to clicked menu link
+            event.target.classList.add('active');
+            
+            // Here you can add logic to show different sections
+            console.log('Showing section:', section);
+            
+            // Send analytics event
+            sendSignalRMessage('sectionView', { section: section, timestamp: new Date().toISOString() });
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('MesChain-Sync Admin Panel initialized');
+            
+            // Initial data load
+            fetchDashboardData();
+            checkSystemHealth();
+            
+            // Add marketplace data attributes for easier targeting
+            const marketplaceCards = document.querySelectorAll('.marketplace-card');
+            const marketplaces = ['trendyol', 'amazon', 'hepsiburada', 'n11'];
+            marketplaceCards.forEach((card, index) => {
+                if (marketplaces[index]) {
+                    card.setAttribute('data-marketplace', marketplaces[index]);
+                }
+            });
+            
+            // Add click animations
+            marketplaceCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-5px)';
+                    }, 150);
+                    
+                    // Send marketplace click event
+                    const marketplace = this.getAttribute('data-marketplace');
+                    if (marketplace) {
+                        sendSignalRMessage('marketplaceClick', { 
+                            marketplace: marketplace, 
+                            timestamp: new Date().toISOString() 
+                        });
+                    }
+                });
+            });
+        });
+
+        // Real-time updates
+        setInterval(() => {
+            fetchDashboardData();
+            checkSystemHealth();
+            
+            // Animate stat values
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach(stat => {
+                if (stat.textContent.includes('₺') || stat.textContent.includes('$') || stat.textContent.includes('₽')) {
+                    stat.style.color = '#10b981';
+                    setTimeout(() => {
+                        stat.style.color = '#2563eb';
+                    }, 1000);
+                }
+            });
+        }, 10000); // Update every 10 seconds
+    </script>
+</body>
+</html>

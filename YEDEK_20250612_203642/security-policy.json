@@ -1,0 +1,150 @@
+{
+  "security": {
+    "policy": {
+      "version": "1.0.0",
+      "lastUpdated": "2025-01-25",
+      "maintainer": "MesChain Sync Security Team"
+    },
+    "vulnerabilityManagement": {
+      "automaticUpdates": true,
+      "securityScanFrequency": "daily",
+      "highSeverityThreshold": "immediate",
+      "moderateSeverityThreshold": "24hours",
+      "lowSeverityThreshold": "weekly"
+    },
+    "allowedPackages": {
+      "whitelist": [
+        "@types/*",
+        "react",
+        "react-dom",
+        "typescript",
+        "@microsoft/*",
+        "chart.js"
+      ],
+      "blacklist": [
+        "eval",
+        "vm2",
+        "serialize-javascript"
+      ]
+    },
+    "securityHeaders": {
+      "contentSecurityPolicy": {
+        "defaultSrc": "'self'",
+        "scriptSrc": "'self' 'unsafe-inline'",
+        "styleSrc": "'self' 'unsafe-inline'",
+        "imgSrc": "'self' data: https:",
+        "connectSrc": "'self' https://api.meschain.com",
+        "fontSrc": "'self' https://fonts.googleapis.com",
+        "objectSrc": "'none'",
+        "mediaSrc": "'self'",
+        "frameSrc": "'none'"
+      },
+      "strictTransportSecurity": {
+        "maxAge": 31536000,
+        "includeSubDomains": true,
+        "preload": true
+      },
+      "xFrameOptions": "DENY",
+      "xContentTypeOptions": "nosniff",
+      "referrerPolicy": "strict-origin-when-cross-origin",
+      "permissionsPolicy": {
+        "geolocation": "none",
+        "camera": "none",
+        "microphone": "none",
+        "payment": "none"
+      }
+    },
+    "inputValidation": {
+      "maxInputLength": 10000,
+      "allowedFileTypes": [".jpg", ".jpeg", ".png", ".svg", ".pdf", ".csv", ".xlsx"],
+      "maxFileSize": "10MB",
+      "xssProtection": true,
+      "sqlInjectionProtection": true,
+      "pathTraversalProtection": true
+    },
+    "authentication": {
+      "jwtConfig": {
+        "algorithm": "HS256",
+        "expiresIn": "1h",
+        "refreshTokenExpiry": "7d",
+        "issuer": "meschain-sync",
+        "audience": "meschain-users"
+      },
+      "passwordPolicy": {
+        "minLength": 8,
+        "requireUppercase": true,
+        "requireLowercase": true,
+        "requireNumbers": true,
+        "requireSpecialChars": true,
+        "maxAttempts": 5,
+        "lockoutDuration": "15m"
+      },
+      "sessionManagement": {
+        "secure": true,
+        "httpOnly": true,
+        "sameSite": "strict",
+        "maxAge": 3600000
+      }
+    },
+    "rateLimiting": {
+      "global": {
+        "windowMs": 900000,
+        "max": 1000
+      },
+      "api": {
+        "windowMs": 900000,
+        "max": 100
+      },
+      "auth": {
+        "windowMs": 900000,
+        "max": 10
+      }
+    },
+    "monitoring": {
+      "enableSecurityLogs": true,
+      "logLevel": "info",
+      "alerting": {
+        "emailNotifications": true,
+        "slackWebhook": false,
+        "smsAlerts": false
+      },
+      "metricsCollection": {
+        "failedLoginAttempts": true,
+        "suspiciousActivity": true,
+        "vulnerabilityScans": true,
+        "performanceMetrics": true
+      }
+    },
+    "compliance": {
+      "gdpr": {
+        "enabled": true,
+        "dataRetentionPeriod": "2years",
+        "rightToErasure": true,
+        "dataPortability": true
+      },
+      "hipaa": false,
+      "pci": false,
+      "sox": false
+    },
+    "incidentResponse": {
+      "securityTeamEmail": "security@meschain.com",
+      "escalationMatrix": [
+        {
+          "severity": "critical",
+          "responseTime": "15min",
+          "contacts": ["security-lead@meschain.com"]
+        },
+        {
+          "severity": "high",
+          "responseTime": "1hour",
+          "contacts": ["security-team@meschain.com"]
+        },
+        {
+          "severity": "medium",
+          "responseTime": "4hours",
+          "contacts": ["dev-team@meschain.com"]
+        }
+      ]
+    }
+  }
+} 
