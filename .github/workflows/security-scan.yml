@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    # Daily security scan at 02:00 UTC
-    - cron: '0 2 * * *'
+    # Weekly security scan at 02:00 UTC (Mondays only)
+    - cron: '0 2 * * 1'
   workflow_dispatch:
 
 jobs:
