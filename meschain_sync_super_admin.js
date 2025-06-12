@@ -1693,6 +1693,95 @@ class MesChainSyncSuperAdminDashboard {
     }
 
     /**
+     * Add Performance Indicator to Card
+     */
+    addPerformanceIndicator(card) {
+        // Check if indicator already exists
+        if (card.querySelector('.performance-indicator')) return;
+        
+        const indicator = document.createElement('div');
+        indicator.className = 'performance-indicator absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full animate-pulse';
+        indicator.style.cssText = `
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        `;
+        
+        // Make card position relative if not already
+        if (getComputedStyle(card).position === 'static') {
+            card.style.position = 'relative';
+        }
+        
+        card.appendChild(indicator);
+    }
+
+    /**
+     * Animate Performance Card
+     */
+    animatePerformanceCard(card, state) {
+        if (state === 'hover') {
+            card.style.transform = 'translateY(-8px) scale(1.02)';
+            card.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.1)';
+            card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            
+            // Enhance performance indicator
+            const indicator = card.querySelector('.performance-indicator');
+            if (indicator) {
+                indicator.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.8)';
+                indicator.style.transform = 'scale(1.2)';
+            }
+        } else {
+            card.style.transform = 'translateY(0) scale(1)';
+            card.style.boxShadow = '';
+            
+            const indicator = card.querySelector('.performance-indicator');
+            if (indicator) {
+                indicator.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.5)';
+                indicator.style.transform = 'scale(1)';
+            }
+        }
+    }
+
+    /**
+     * Start Performance Monitoring
+     */
+    startPerformanceMonitoring() {
+        // Update performance indicators every 5 seconds
+        setInterval(() => {
+            this.updatePerformanceIndicators();
+        }, 5000);
+    }
+
+    /**
+     * Update Performance Indicators
+     */
+    updatePerformanceIndicators() {
+        const indicators = document.querySelectorAll('.performance-indicator');
+        const colors = ['#10b981', '#f59e0b', '#ef4444']; // green, amber, red
+        const statuses = ['excellent', 'good', 'warning'];
+        
+        indicators.forEach(indicator => {
+            // Simulate performance status
+            const randomStatus = Math.floor(Math.random() * 100);
+            let colorIndex = 0;
+            
+            if (randomStatus < 80) colorIndex = 0; // green
+            else if (randomStatus < 95) colorIndex = 1; // amber
+            else colorIndex = 2; // red
+            
+            indicator.style.background = colors[colorIndex];
+            indicator.style.boxShadow = `0 0 10px ${colors[colorIndex]}50`;
+            indicator.title = `Performance: ${statuses[colorIndex]}`;
+        });
+    }
+
+    /**
      * Setup Real-time System Logs
      */
     setupRealTimeSystemLogs() {
@@ -1708,6 +1797,76 @@ class MesChainSyncSuperAdminDashboard {
             // Add log filtering interaction
             this.setupLogFiltering();
         }
+    }
+
+    /**
+     * Setup Log Filtering
+     */
+    setupLogFiltering() {
+        // Create filter buttons if they don't exist
+        const systemsSection = document.querySelector('#systems-section');
+        if (!systemsSection) return;
+        
+        let filterContainer = systemsSection.querySelector('.log-filters');
+        if (!filterContainer) {
+            filterContainer = document.createElement('div');
+            filterContainer.className = 'log-filters flex space-x-2 mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg';
+            
+            const filters = ['ALL', 'SUCCESS', 'INFO', 'WARNING', 'ERROR', 'SYNC'];
+            const filterButtons = filters.map(filter => `
+                <button class="filter-btn px-3 py-1 text-sm rounded-lg transition-all ${filter === 'ALL' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'}" data-filter="${filter}">
+                    ${filter}
+                </button>
+            `).join('');
+            
+            filterContainer.innerHTML = `
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center mr-3">Filter:</span>
+                ${filterButtons}
+            `;
+            
+            // Insert before log container
+            const logContainer = systemsSection.querySelector('.space-y-2');
+            if (logContainer && logContainer.parentNode) {
+                logContainer.parentNode.insertBefore(filterContainer, logContainer);
+            }
+        }
+        
+        // Setup filter functionality
+        filterContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                const filter = e.target.dataset.filter;
+                this.applyLogFilter(filter);
+                
+                // Update active button
+                filterContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white');
+                    btn.classList.add('bg-white', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+                });
+                
+                e.target.classList.add('bg-blue-500', 'text-white');
+                e.target.classList.remove('bg-white', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            }
+        });
+    }
+
+    /**
+     * Apply Log Filter
+     */
+    applyLogFilter(filter) {
+        const logEntries = document.querySelectorAll('#systems-section .space-y-2 > div');
+        
+        logEntries.forEach(entry => {
+            if (filter === 'ALL') {
+                entry.style.display = 'flex';
+            } else {
+                const logType = entry.querySelector('span:last-child')?.textContent;
+                if (logType === filter) {
+                    entry.style.display = 'flex';
+                } else {
+                    entry.style.display = 'none';
+                }
+            }
+        });
     }
 
     /**
