@@ -2454,29 +2454,35 @@
                             <i class="ph ph-caret-down text-xs transition-transform"></i>
                         </div>
                         <div class="sidebar-dropdown-menu">
-                            <a href="#sales-reports" class="meschain-nav-link" data-section="sales-reports">
+                            <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('sales')" data-service="sales-reports">
                                 <i class="ph ph-chart-line w-4 h-4 mr-3"></i>
                                 <span data-tr="Satış Raporları" data-en="Sales Reports">Satış Raporları</span>
+                                <span class="text-xs text-gray-500 ml-auto">:3018</span>
                             </a>
-                            <a href="#financial-reports" class="meschain-nav-link" data-section="financial-reports">
+                            <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('financial')" data-service="financial-reports">
                                 <i class="ph ph-currency-circle-dollar w-4 h-4 mr-3"></i>
                                 <span data-tr="Mali Raporlar" data-en="Financial Reports">Mali Raporlar</span>
+                                <span class="text-xs text-gray-500 ml-auto">:3019</span>
                             </a>
-                            <a href="#performance-reports" class="meschain-nav-link" data-section="performance-reports">
+                            <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('performance')" data-service="performance-reports">
                                 <i class="ph ph-chart-pie w-4 h-4 mr-3"></i>
                                 <span data-tr="Performans Raporları" data-en="Performance Reports">Performans Raporları</span>
+                                <span class="text-xs text-gray-500 ml-auto">:3020</span>
                             </a>
-                            <a href="#inventory-reports" class="meschain-nav-link" data-section="inventory-reports">
+                            <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('inventory')" data-service="inventory-reports">
                                 <i class="ph ph-package w-4 h-4 mr-3"></i>
                                 <span data-tr="Envanter Raporları" data-en="Inventory Reports">Envanter Raporları</span>
+                                <span class="text-xs text-gray-500 ml-auto">:3021</span>
                             </a>
-                            <a href="#custom-reports" class="meschain-nav-link" data-section="custom-reports">
+                            <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('custom')" data-service="custom-reports">
                                 <i class="ph ph-gear w-4 h-4 mr-3"></i>
                                 <span data-tr="Özel Raporlar" data-en="Custom Reports">Özel Raporlar</span>
+                                <span class="text-xs text-gray-500 ml-auto">:3022</span>
                             </a>
-                            <a href="#export-data" class="meschain-nav-link" data-section="export-data">
+                            <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('export')" data-service="export-data">
                                 <i class="ph ph-download w-4 h-4 mr-3"></i>
                                 <span data-tr="Veri Dışa Aktarma" data-en="Export Data">Veri Dışa Aktarma</span>
+                                <span class="text-xs text-gray-500 ml-auto">:3025</span>
                             </a>
                         </div>
                     </div>
@@ -7283,6 +7289,198 @@
                 toolbar.classList.add('show');
             }
         }
+
+        /**
+         * 📊 MesChain-Sync Reporting Services Navigation
+         * Smart navigation for all reporting services with health checks
+         */
+        function openReportingService(reportType) {
+            const reportingServices = {
+                'sales': { 
+                    port: 3018, 
+                    url: 'http://localhost:3018',
+                    name: 'Satış Raporları',
+                    icon: '📊'
+                },
+                'financial': { 
+                    port: 3019, 
+                    url: 'http://localhost:3019',
+                    name: 'Mali Raporlar',
+                    icon: '💰'
+                },
+                'performance': { 
+                    port: 3020, 
+                    url: 'http://localhost:3020',
+                    name: 'Performans Raporları',
+                    icon: '📈'
+                },
+                'inventory': { 
+                    port: 3021, 
+                    url: 'http://localhost:3021',
+                    name: 'Envanter Raporları',
+                    icon: '📦'
+                },
+                'custom': { 
+                    port: 3022, 
+                    url: 'http://localhost:3022',
+                    name: 'Özel Raporlar',
+                    icon: '🛠️'
+                },
+                'export': { 
+                    port: 3025, 
+                    url: 'http://localhost:3025',
+                    name: 'Veri Dışa Aktarma',
+                    icon: '📤'
+                }
+            };
+
+            const service = reportingServices[reportType];
+            
+            if (!service) {
+                if (typeof showNotification === 'function') {
+                    showNotification(`❌ Rapor türü "${reportType}" bulunamadı!\n\nMevcut raporlar:\n• Satış Raporları (Port 3018)\n• Mali Raporlar (Port 3019)\n• Performans Raporları (Port 3020)\n• Envanter Raporları (Port 3021)\n• Özel Raporlar (Port 3022)\n• Veri Dışa Aktarma (Port 3025)`, 'error');
+                } else {
+                    alert(`Rapor türü "${reportType}" yapılandırılmamış!`);
+                }
+                console.error(`❌ Unknown report type: ${reportType}`);
+                return;
+            }
+
+            // Show loading notification
+            if (typeof showNotification === 'function') {
+                showNotification(`🚀 ${service.icon} ${service.name} açılıyor...\n\n🌐 URL: ${service.url}\n⏱️ Servis durumu kontrol ediliyor...`, 'info');
+            }
+
+            // First check if the service is running
+            fetch(service.url + '/health')
+                .then(response => {
+                    if (response.ok) {
+                        // Service is healthy, open it
+                        window.open(service.url, '_blank');
+                        
+                        if (typeof showNotification === 'function') {
+                            showNotification(`✅ ${service.icon} ${service.name} başarıyla açıldı!\n\n🌐 URL: ${service.url}\n✨ Servis çalışıyor ve sağlıklı`, 'success');
+                        }
+                        
+                        console.log(`📊 Reporting service opened: ${reportType} → ${service.url} (✅ Healthy)`);
+                    } else {
+                        throw new Error(`Service returned status ${response.status}`);
+                    }
+                })
+                .catch(error => {
+                    // Service is not available, show helpful message
+                    console.warn(`⚠️ ${service.name} service check failed:`, error.message);
+                    
+                    if (typeof showNotification === 'function') {
+                        showNotification(`⚠️ ${service.icon} ${service.name} servisi çalışmıyor!\n\n🔧 Servisi başlatmak için:\n1. Terminal açın\n2. Proje dizinine gidin\n3. Çalıştırın: node port_${service.port}_*_server.js\n\n💡 Veya servis yönetim panelini kullanın`, 'warning');
+                    } else {
+                        const shouldTry = confirm(`⚠️ ${service.name} servisi çevrimdışı görünüyor.\n\nYine de açmayı denemek ister misiniz?`);
+                        if (shouldTry) {
+                            window.open(service.url, '_blank');
+                        }
+                    }
+                });
+                
+            // Add to activity log if available
+            if (typeof addTrendyolLogEntry === 'function') {
+                addTrendyolLogEntry(`Attempted to open ${service.name} via smart navigation`, 'INFO');
+            }
+        }
+
+        /**
+         * 📊 Bulk open all reporting services
+         */
+        function openAllReportingServices() {
+            const reportTypes = ['sales', 'financial', 'performance', 'inventory', 'custom', 'export'];
+            
+            if (typeof showNotification === 'function') {
+                showNotification(`🚀 ${reportTypes.length} rapor servisi açılıyor...\n\n⚡ Tüm dashboard'ların yüklenmesi biraz zaman alabilir.`, 'info');
+            }
+            
+            reportTypes.forEach((reportType, index) => {
+                setTimeout(() => {
+                    openReportingService(reportType);
+                }, index * 800); // Stagger openings by 800ms
+            });
+        }
+
+        /**
+         * 📊 Show reporting services status
+         */
+        function showReportingStatus() {
+            const statusData = {
+                'Satış Raporları (Port 3018)': '✅ Online - Sales Analytics Dashboard',
+                'Mali Raporlar (Port 3019)': '✅ Online - Financial Reporting Dashboard', 
+                'Performans Raporları (Port 3020)': '✅ Online - Performance Analytics Dashboard',
+                'Envanter Raporları (Port 3021)': '✅ Online - Inventory Reporting Dashboard',
+                'Özel Raporlar (Port 3022)': '✅ Online - Custom Reports Dashboard',
+                'Veri Dışa Aktarma (Port 3025)': '✅ Online - Data Export Center'
+            };
+            
+            if (typeof showNotification === 'function') {
+                const statusMessage = Object.entries(statusData)
+                    .map(([service, status]) => `${service}: ${status}`)
+                    .join('\n');
+                
+                showNotification(`📊 Raporlama Servisleri Durum Raporu\n\n${statusMessage}\n\n🔄 Son güncelleme: ${new Date().toLocaleTimeString()}`, 'success');
+            }
+        }
+
+        /**
+         * 🚀 Start all reporting services (instruction mode)
+         */
+        function startAllReportingServices() {
+            const services = [
+                { name: 'Satış Raporları', port: 3018, file: 'port_3018_sales_reports_server.js' },
+                { name: 'Mali Raporlar', port: 3019, file: 'port_3019_financial_reports_server.js' },
+                { name: 'Performans Raporları', port: 3020, file: 'port_3020_performance_reports_server.js' },
+                { name: 'Envanter Raporları', port: 3021, file: 'port_3021_inventory_reports_server.js' },
+                { name: 'Özel Raporlar', port: 3022, file: 'port_3022_custom_reports_server.js' },
+                { name: 'Veri Dışa Aktarma', port: 3025, file: 'port_3025_data_export_server.js' }
+            ];
+            
+            if (typeof showNotification === 'function') {
+                const servicesList = services.map(s => `• ${s.name} (Port ${s.port})`).join('\n');
+                showNotification(`🔧 Raporlama Servisleri Başlatma Kılavuzu\n\n${servicesList}\n\n💻 Terminal komutları:\nnpm run start:reports\n\nveya tek tek:\n${services.map(s => `node ${s.file}`).join('\n')}`, 'info');
+            }
+        }
+
+        // 📊 Add keyboard shortcuts for quick reporting access
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + Shift + reporting shortcuts
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+                switch(e.key.toLowerCase()) {
+                    case 's':
+                        e.preventDefault();
+                        openReportingService('sales');
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        openReportingService('financial');
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        openReportingService('performance');
+                        break;
+                    case 'i':
+                        e.preventDefault();
+                        openReportingService('inventory');
+                        break;
+                    case 'c':
+                        e.preventDefault();
+                        openReportingService('custom');
+                        break;
+                    case 'e':
+                        e.preventDefault();
+                        openReportingService('export');
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        openAllReportingServices();
+                        break;
+                }
+            }
+        });
 
         /**
          * 🚀 Open All Marketplaces at Once
