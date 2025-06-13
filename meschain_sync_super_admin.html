@@ -1791,6 +1791,120 @@
             color: white;
             box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
         }
+
+        /* 📱 MAC AIR RESPONSIVE OPTIMIZATION */
+        @media (max-width: 1440px) {
+            /* Reduce header title sizes for Mac Air */
+            .text-4xl {
+                font-size: 1.875rem !important; /* Instead of 2.25rem */
+                line-height: 2.25rem !important;
+            }
+            
+            .text-3xl {
+                font-size: 1.5rem !important; /* Instead of 1.875rem */
+                line-height: 2rem !important;
+            }
+            
+            .text-2xl {
+                font-size: 1.25rem !important; /* Instead of 1.5rem */
+                line-height: 1.75rem !important;
+            }
+            
+            /* Reduce margins and padding */
+            .mb-4 md:mb-6 lg:mb-8 {
+                margin-bottom: 1.5rem !important; /* Instead of 2rem */
+            }
+            
+            .mb-6 {
+                margin-bottom: 1rem !important; /* Instead of 1.5rem */
+            }
+            
+            .mb-4 {
+                margin-bottom: 0.75rem !important; /* Instead of 1rem */
+            }
+            
+            .mb-3 {
+                margin-bottom: 0.5rem !important; /* Instead of 0.75rem */
+            }
+            
+            /* Compact main content padding */
+            main {
+                padding-left: 50px !important;
+                padding-right: 50px !important;
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
+            }
+            
+            /* Reduce grid gaps */
+            .gap-3 md:gap-4 lg:gap-6 {
+                gap: 1rem !important; /* Instead of 1.5rem */
+            }
+            
+            .gap-4 {
+                gap: 0.75rem !important; /* Instead of 1rem */
+            }
+            
+            /* Compact metric cards */
+            .meschain-metric-card {
+                padding: 1rem !important; /* Instead of 1.5rem */
+            }
+            
+            .metric-value {
+                font-size: 1.5rem !important; /* Instead of 2rem */
+                line-height: 2rem !important;
+            }
+            
+            .metric-label {
+                font-size: 0.75rem !important; /* Instead of 0.875rem */
+            }
+            
+            /* Reduce glass container padding */
+            .meschain-glass {
+                padding: 1.5rem !important; /* Instead of 2rem */
+            }
+            
+            /* Compact team achievement cards */
+            .team-achievement {
+                padding: 1rem !important;
+            }
+            
+            .team-achievement h3 {
+                font-size: 1rem !important; /* Instead of 1.25rem */
+                margin-bottom: 0.5rem !important;
+            }
+            
+            .achievement-metric {
+                font-size: 0.75rem !important; /* Instead of 0.875rem */
+                margin-bottom: 0.25rem !important;
+            }
+        }
+
+        /* 📱 SMALLER SCREEN OPTIMIZATION */
+        @media (max-width: 1280px) {
+            .text-4xl {
+                font-size: 1.5rem !important; /* Even smaller for smaller screens */
+                line-height: 2rem !important;
+            }
+            
+            .text-3xl {
+                font-size: 1.25rem !important;
+                line-height: 1.75rem !important;
+            }
+            
+            main {
+                padding-left: 30px !important;
+                padding-right: 30px !important;
+            }
+            
+            /* Reduce space between sections */
+            .space-y-6 > * + * {
+                margin-top: 1rem !important;
+            }
+            
+            .space-y-4 > * + * {
+                margin-top: 0.75rem !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50" data-theme="light">
@@ -2189,7 +2303,7 @@
         <nav id="meschainSidebar" class="meschain-sidebar fixed left-0 top-16 bottom-0 w-64 z-40">
             <div class="pt-4 px-6 pb-6">
                 <!-- Enhanced Search Bar - Isolated from sections -->
-                <div class="sidebar-search mb-8" style="position: relative; z-index: 10;">
+                <div class="sidebar-search mb-4 md:mb-6 lg:mb-8" style="position: relative; z-index: 10;">
                     <input type="text" placeholder="Ara..." class="w-full px-12 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-sm focus:outline-none focus:border-purple-400 focus:bg-white/20 transition-all duration-300" id="sidebarSearch">
                     <i class="ph ph-magnifying-glass absolute left-4 top-3.5 text-gray-400 pointer-events-none"></i>
                 </div>
@@ -2923,18 +3037,18 @@
         </nav>
 
         <!-- MesChain-Sync Main Content -->
-        <main class="flex-1 ml-64 p-6 space-y-6" style="padding-left: 75px !important; padding-right: 75px !important;">
+        <main class="flex-1 ml-64 p-3 md:p-4 lg:p-6 space-y-3 md:space-y-4 lg:space-y-6" style="padding-left: 50px !important; padding-right: 50px !important;">
             <!-- Dashboard Section -->
             <section id="dashboard-section" class="meschain-section">
-                <div class="mb-8">
-                    <h2 class="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-3" data-tr="🔗 MesChain-Sync Kurumsal Gösterge Paneli" data-en="🔗 MesChain-Sync Enterprise Dashboard" data-de="🔗 MesChain-Sync Enterprise Dashboard" data-fr="🔗 Tableau de bord MesChain-Sync Enterprise">
+                <div class="mb-4">
+                    <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-2" data-tr="🔗 MesChain-Sync Kurumsal Gösterge Paneli" data-en="🔗 MesChain-Sync Enterprise Dashboard" data-de="🔗 MesChain-Sync Enterprise Dashboard" data-fr="🔗 Tableau de bord MesChain-Sync Enterprise">
                         🔗 MesChain-Sync Enterprise Dashboard
                     </h2>
-                    <p class="text-lg text-gray-600 dark:text-gray-300" data-tr="Gerçek zamanlı zincir senkronizasyonu ve AI destekli analitik ile gelişmiş çoklu pazaryeri entegrasyon platformu" data-en="Advanced multi-marketplace integration platform with real-time chain synchronization and AI-powered analytics" data-de="Erweiterte Multi-Marktplatz-Integrationsplattform mit Echtzeit-Kettensynchronisation und KI-gestützter Analytik" data-fr="Plateforme d'intégration multi-marché avancée avec synchronisation de chaîne en temps réel et analytique alimentée par l'IA">Advanced multi-marketplace integration platform with real-time chain synchronization and AI-powered analytics</p>
+                    <p class="text-sm md:text-base lg:text-lg text-gray-600 dark:text-gray-300" data-tr="Gerçek zamanlı zincir senkronizasyonu ve AI destekli analitik ile gelişmiş çoklu pazaryeri entegrasyon platformu" data-en="Advanced multi-marketplace integration platform with real-time chain synchronization and AI-powered analytics" data-de="Erweiterte Multi-Marktplatz-Integrationsplattform mit Echtzeit-Kettensynchronisation und KI-gestützter Analytik" data-fr="Plateforme d'intégration multi-marché avancée avec synchronisation de chaîne en temps réel et analytique alimentée par l'IA">Advanced multi-marketplace integration platform with real-time chain synchronization and AI-powered analytics</p>
                 </div>
 
                 <!-- System Overview Metrics - GEMINI Advanced Style -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-4 md:mb-6 lg:mb-8 lg:mb-10">
                     <div class="meschain-metric-card fade-in-up">
                         <div class="metric-value">99.98%</div>
                         <div class="metric-label" data-tr="Zincir Senkronizasyon Çalışma Süresi" data-en="Chain Sync Uptime" data-de="Ketten-Sync-Betriebszeit" data-fr="Temps de fonctionnement de synchronisation de chaîne">Chain Sync Uptime</div>
@@ -2958,13 +3072,13 @@
                 </div>
 
                 <!-- Quick Team Achievements Overview - GEMINI Enhanced -->
-                <div class="meschain-glass rounded-2xl p-8 mb-8">
-                    <h2 class="text-3xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent" data-tr="🏆 MesChain-Sync Takım Mükemmelliği Genel Bakış" data-en="🏆 MesChain-Sync Team Excellence Overview" data-de="🏆 MesChain-Sync Team Excellence Übersicht" data-fr="🏆 Aperçu de l'excellence d'équipe MesChain-Sync">
+                <div class="meschain-glass rounded-2xl p-4 md:p-6 lg:p-4 md:p-6 lg:p-8 mb-4 md:mb-6 lg:mb-4 md:mb-6 lg:mb-8">
+                    <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-3 md:mb-4 lg:mb-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent" data-tr="🏆 MesChain-Sync Takım Mükemmelliği Genel Bakış" data-en="🏆 MesChain-Sync Team Excellence Overview" data-de="🏆 MesChain-Sync Team Excellence Übersicht" data-fr="🏆 Aperçu de l'excellence d'équipe MesChain-Sync">
                         🏆 MesChain-Sync Team Excellence Overview
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-3 md:gap-4 lg:gap-6">
                         <div class="team-achievement">
-                            <h3 class="font-bold text-xl mb-3 text-blue-700 dark:text-blue-300" data-tr="🤖 AI Analitik Takımı" data-en="🤖 AI Analytics Team" data-de="🤖 KI-Analytics-Team" data-fr="🤖 Équipe d'analytique IA">🤖 AI Analytics Team</h3>
+                            <h3 class="font-bold text-sm md:text-base lg:text-xl mb-2 md:mb-3 text-blue-700 dark:text-blue-300" data-tr="🤖 AI Analitik Takımı" data-en="🤖 AI Analytics Team" data-de="🤖 KI-Analytics-Team" data-fr="🤖 Équipe d'analytique IA">🤖 AI Analytics Team</h3>
                             <div class="achievement-metric" data-tr="%96.4 zincir doğruluğu" data-en="96.4% chain accuracy" data-de="96,4% Kettengenauigkeit" data-fr="96,4% de précision de chaîne">96.4% chain accuracy</div>
                             <div class="achievement-metric" data-tr="%93.7 gelir tahmini" data-en="93.7% revenue prediction" data-de="93,7% Umsatzvorhersage" data-fr="93,7% de prédiction de revenus">93.7% revenue prediction</div>
                             <div class="achievement-metric" data-tr="%91.8 mesh optimizasyonu" data-en="91.8% mesh optimization" data-de="91,8% Mesh-Optimierung" data-fr="91,8% d'optimisation de maillage">91.8% mesh optimization</div>
@@ -3009,16 +3123,16 @@
                 </div>
 
                 <!-- System Performance Chart -->
-                <div class="meschain-chart-container mb-8">
-                    <h3 class="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <div class="meschain-chart-container mb-4 md:mb-6 lg:mb-4 md:mb-6 lg:mb-8">
+                    <h3 class="text-lg md:text-xl lg:text-2xl font-bold mb-3 md:mb-4 lg:mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                         📊 MesChain-Sync Advanced Performance Analytics
                     </h3>
                     <canvas id="meschainSystemPerformanceChart" width="400" height="200"></canvas>
                 </div>
 
                 <!-- Recent Activities -->
-                <div class="meschain-glass rounded-2xl p-8">
-                    <h3 class="text-2xl font-bold mb-6 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                <div class="meschain-glass rounded-2xl p-4 md:p-6 lg:p-4 md:p-6 lg:p-8">
+                    <h3 class="text-lg md:text-xl lg:text-2xl font-bold mb-3 md:mb-4 lg:mb-6 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
                         🔔 Real-time MesChain-Sync Activity Feed
                     </h3>
                     <div class="space-y-4">
@@ -3352,15 +3466,15 @@
 
             <!-- 🎛️ ATOM-VSCODE-112: Advanced Dashboard Widgets Section -->
             <section id="advanced-widgets-section" class="meschain-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                         🎛️ Advanced Dashboard Widgets
                     </h2>
                     <p class="text-xl text-gray-600 dark:text-gray-300">AI-powered advanced monitoring and analytics widgets powered by ATOM-VSCODE-112 engine</p>
                 </div>
 
                 <!-- Widget 1: Real-time Performance Monitor -->
-                <div class="achievement-card mb-8 fade-in-up">
+                <div class="achievement-card mb-4 md:mb-6 lg:mb-8 fade-in-up">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white">📊 Real-time Performance Monitor</h3>
                         <div class="flex items-center space-x-2">
@@ -3369,7 +3483,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
                         <div class="lg:col-span-2">
                             <div class="h-80 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6">
                                 <canvas id="realTimePerformanceChart" width="600" height="300"></canvas>
@@ -3393,7 +3507,7 @@
                 </div>
 
                 <!-- Widget 2: AI-Powered Sales Predictor -->
-                <div class="achievement-card mb-8 fade-in-up" style="animation-delay: 0.1s">
+                <div class="achievement-card mb-4 md:mb-6 lg:mb-8 fade-in-up" style="animation-delay: 0.1s">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white">🤖 AI-Powered Sales Predictor</h3>
                         <div class="flex items-center space-x-2">
@@ -3402,7 +3516,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:p-6 lg:p-8">
                         <div>
                             <div class="h-80 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6">
                                 <canvas id="aiSalesPredictionChart" width="400" height="300"></canvas>
@@ -3451,7 +3565,7 @@
                 </div>
 
                 <!-- Widget 3: Multi-Marketplace Health Dashboard -->
-                <div class="achievement-card mb-8 fade-in-up" style="animation-delay: 0.2s">
+                <div class="achievement-card mb-4 md:mb-6 lg:mb-8 fade-in-up" style="animation-delay: 0.2s">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center space-x-3">
                             <h3 class="text-2xl font-bold text-gray-900 dark:text-white">🏥 Multi-Marketplace Health Dashboard</h3>
@@ -3519,7 +3633,7 @@
                         <div class="network-connection" style="top: 50%; right: 15%; width: 35%;"></div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
                         <!-- Trendyol Health -->
                         <div class="marketplace-health-card text-center p-6 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl cursor-pointer hover:scale-105 transform transition-all duration-300 hover:shadow-lg" onclick="openMarketplace('trendyol')" data-marketplace="trendyol">
                             <!-- Real-time Status Indicator -->
@@ -3861,7 +3975,7 @@
                 </div>
 
                 <!-- Widget 4: Advanced User Activity Heatmap -->
-                <div class="achievement-card mb-8 fade-in-up" style="animation-delay: 0.3s">
+                <div class="achievement-card mb-4 md:mb-6 lg:mb-8 fade-in-up" style="animation-delay: 0.3s">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white">🔥 Advanced User Activity Heatmap</h3>
                         <div class="flex items-center space-x-2">
@@ -3870,7 +3984,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
                         <div class="lg:col-span-3">
                             <div class="h-80 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl p-6">
                                 <canvas id="userActivityHeatmap" width="700" height="300"></canvas>
@@ -3898,7 +4012,7 @@
                 </div>
 
                 <!-- Widget 5: Dynamic Resource Utilization Monitor -->
-                <div class="achievement-card mb-8 fade-in-up" style="animation-delay: 0.4s">
+                <div class="achievement-card mb-4 md:mb-6 lg:mb-8 fade-in-up" style="animation-delay: 0.4s">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white">⚙️ Dynamic Resource Utilization Monitor</h3>
                         <div class="flex items-center space-x-2">
@@ -3907,7 +4021,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
                         <!-- CPU Usage -->
                         <div class="text-center p-6 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl">
                             <div class="w-20 h-20 mx-auto mb-4 relative">
@@ -3974,7 +4088,7 @@
                     </div>
                     
                     <!-- Resource Details -->
-                    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 lg:gap-6">
                         <div class="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20 rounded-xl p-6">
                             <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4">📊 System Resources</h4>
                             <div class="space-y-3">
@@ -4024,15 +4138,15 @@
 
             <!-- Analytics Section - GEMINI-Style Enhanced -->
             <section id="analytics-section" class="meschain-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                         📊 Advanced MesChain-Sync Analytics
                     </h2>
                     <p class="text-xl text-gray-600 dark:text-gray-300">Deep insights and performance analytics with GEMINI-level sophistication</p>
                 </div>
 
                 <!-- Advanced Analytics Overview Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
                     <div class="meschain-metric-card fade-in-up">
                         <div class="flex items-center justify-between mb-4">
                             <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
@@ -4095,7 +4209,7 @@
                 </div>
 
                 <!-- Advanced Charts Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:p-6 lg:p-8 mb-4 md:mb-6 lg:mb-8">
                     <div class="achievement-card">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="text-2xl font-bold text-gray-900 dark:text-white">📈 User Engagement Analytics</h3>
@@ -4156,7 +4270,7 @@
                 </div>
 
                 <!-- Advanced Performance Insights -->
-                <div class="achievement-card mb-8">
+                <div class="achievement-card mb-4 md:mb-6 lg:mb-8">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white">⚡ MesChain-Sync Performance Insights</h3>
                         <div class="flex items-center space-x-3">
@@ -4169,7 +4283,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
                         <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl">
                             <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                                 <i class="ph ph-link text-white text-2xl"></i>
@@ -4233,15 +4347,15 @@
 
             <!-- System Status Section - GEMINI-Style Enhanced -->
             <section id="systems-section" class="meschain-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
                         🖥️ Advanced System Status Monitoring
                     </h2>
                     <p class="text-xl text-gray-600 dark:text-gray-300">Enterprise-grade infrastructure monitoring with GEMINI-level sophistication</p>
                 </div>
 
                 <!-- System Health Overview Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
                     <div class="meschain-metric-card fade-in-up">
                         <div class="flex items-center justify-between mb-4">
                             <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
@@ -4304,7 +4418,7 @@
                 </div>
 
                 <!-- Detailed System Components -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:p-6 lg:p-8 mb-4 md:mb-6 lg:mb-8">
                     <!-- Infrastructure Services -->
                     <div class="achievement-card">
                         <div class="flex items-center justify-between mb-6">
@@ -4465,7 +4579,7 @@
                 </div>
 
                 <!-- Network & Performance Monitoring -->
-                <div class="achievement-card mb-8">
+                <div class="achievement-card mb-4 md:mb-6 lg:mb-8">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white">🌐 Network & Performance Monitoring</h3>
                         <div class="flex items-center space-x-3">
@@ -4578,15 +4692,15 @@
 
             <!-- All Services Section -->
             <section id="services-section" class="meschain-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                         🔧 MesChain-Sync Service Management Center
                     </h2>
                     <p class="text-xl text-gray-600 dark:text-gray-300">Comprehensive overview and management of all MesChain-Sync services and integrations</p>
                 </div>
 
                 <!-- Service Status Overview -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
                     <div class="meschain-metric-card fade-in-up">
                         <div class="flex items-center justify-between mb-4">
                             <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
@@ -4649,7 +4763,7 @@
                 </div>
 
                 <!-- Core Services Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:p-6 lg:p-8 mb-4 md:mb-6 lg:mb-8">
                     <!-- Marketplace Integration Services -->
                     <div class="achievement-card">
                         <div class="flex items-center justify-between mb-6">
@@ -5005,15 +5119,15 @@
 
             <!-- Usage Guide Section -->
             <section id="usage-guide-section" class="meschain-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
                         📚 MesChain-Sync Usage Guide
                     </h2>
                     <p class="text-xl text-gray-600 dark:text-gray-300">Comprehensive guide for using MesChain-Sync platform effectively</p>
                 </div>
 
                 <!-- Guide Categories -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
                     <div class="achievement-card cursor-pointer" onclick="openGuideSection('getting-started')">
                         <div class="text-center p-6">
                             <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
@@ -5139,15 +5253,15 @@
 
             <!-- Technical Manual Section -->
             <section id="technical-manual-section" class="meschain-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
                         🔧 Technical Manual
                     </h2>
                     <p class="text-xl text-gray-600 dark:text-gray-300">Comprehensive technical documentation for developers and system administrators</p>
                 </div>
 
                 <!-- Technical Sections -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:p-6 lg:p-8 mb-4 md:mb-6 lg:mb-8">
                     <div class="achievement-card">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="text-2xl font-bold text-gray-900 dark:text-white">📋 API Documentation</h3>
@@ -5238,15 +5352,15 @@
 
             <!-- Theme Manager Section -->
             <section id="themes-section" class="meschain-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
                         🎨 Theme Manager
                     </h2>
                     <p class="text-xl text-gray-600 dark:text-gray-300">Customize your MesChain-Sync dashboard with beautiful themes</p>
                 </div>
 
                 <!-- Theme Showcase -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
                     <div class="theme-card achievement-card cursor-pointer" onclick="previewTheme('light')">
                         <div class="p-6">
                             <div class="w-full h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl mb-4 flex items-center justify-center">
@@ -5345,7 +5459,7 @@
                         <span class="meschain-status warning">Beta</span>
                     </div>
                     
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:p-6 lg:p-8">
                         <div class="space-y-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Color</label>
@@ -5397,15 +5511,15 @@
             
                         <!-- Performance Monitoring Section -->
                         <section id="performance-section" class="meschain-section hidden">
-                            <div class="mb-8">
-                                <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                            <div class="mb-4 md:mb-6 lg:mb-8">
+                                <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
                                     ⚡ Performance Monitoring Center
                                 </h2>
                                 <p class="text-xl text-gray-600 dark:text-gray-300">Real-time performance tracking and optimization insights</p>
                             </div>
             
                             <!-- Performance Metrics -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
                                 <div class="meschain-metric-card fade-in-up">
                                     <div class="flex items-center justify-between mb-4">
                                         <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
@@ -5468,7 +5582,7 @@
                             </div>
             
                             <!-- Performance Charts -->
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:p-6 lg:p-8">
                                 <div class="achievement-card">
                                     <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">📊 Performance Trends</h3>
                                     <div class="h-64">
@@ -5496,15 +5610,15 @@
             
                         <!-- Chain Synchronization Section -->
                         <section id="chain-sync-section" class="meschain-section hidden">
-                            <div class="mb-8">
-                                <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                            <div class="mb-4 md:mb-6 lg:mb-8">
+                                <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                                     🔗 Chain Synchronization Control Center
                                 </h2>
                                 <p class="text-xl text-gray-600 dark:text-gray-300">Advanced blockchain synchronization and mesh network management</p>
                             </div>
             
                             <!-- Sync Status Overview -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
                                 <div class="meschain-metric-card fade-in-up">
                                     <div class="flex items-center justify-between mb-4">
                                         <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
@@ -5567,7 +5681,7 @@
                             </div>
             
                             <!-- Chain Sync Details -->
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:p-6 lg:p-8">
                                 <div class="achievement-card">
                                     <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">🔗 Active Sync Channels</h3>
                                     <div class="space-y-4">
@@ -5606,15 +5720,15 @@
             
                         <!-- Mesh Network Management Section -->
                         <section id="mesh-network-section" class="meschain-section hidden">
-                            <div class="mb-8">
-                                <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                            <div class="mb-4 md:mb-6 lg:mb-8">
+                                <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
                                     🌐 Mesh Network Management
                                 </h2>
                                 <p class="text-xl text-gray-600 dark:text-gray-300">Advanced distributed network topology and health monitoring</p>
                             </div>
             
                             <!-- Network Health Overview -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
                                 <div class="meschain-metric-card fade-in-up">
                                     <div class="flex items-center justify-between mb-4">
                                         <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
@@ -5677,7 +5791,7 @@
                             </div>
             
                             <!-- Network Topology Visualization -->
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:p-6 lg:p-8">
                                 <div class="achievement-card">
                                     <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">🗺️ Network Topology</h3>
                                     <div class="h-64 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg flex items-center justify-center">
@@ -5694,15 +5808,15 @@
                                     <div class="space-y-4">
                                         <div class="flex justify-between items-center">
                                             <span class="text-gray-600 dark:text-gray-300">Node
-                <div class="mb-8">
-                    <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
                         🛒 Trendyol Production Management
                     </h2>
                     <p class="text-xl text-gray-600 dark:text-gray-300">Live Trendyol production environment with real-time API integration and monitoring</p>
                 </div>
 
                 <!-- Production Status Overview -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
                     <div class="meschain-metric-card fade-in-up">
                         <div class="flex items-center justify-between mb-4">
                             <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
@@ -5765,7 +5879,7 @@
                 </div>
 
                 <!-- Production Configuration Panel -->
-                <div class="achievement-card mb-8">
+                <div class="achievement-card mb-4 md:mb-6 lg:mb-8">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white">🔧 Production Configuration</h3>
                         <div class="flex items-center space-x-3">
@@ -5776,7 +5890,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 lg:gap-6">
                         <!-- API Credentials -->
                         <div class="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl">
                             <h4 class="text-lg font-bold text-blue-900 dark:text-blue-200 mb-4">🔐 API Credentials</h4>
@@ -5826,7 +5940,7 @@
                 </div>
 
                 <!-- Production Operations Panel -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:p-6 lg:p-8 mb-4 md:mb-6 lg:mb-8">
                     <!-- Quick Actions -->
                     <div class="achievement-card">
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">🚀 Quick Actions</h3>
