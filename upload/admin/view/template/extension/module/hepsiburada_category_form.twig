@@ -1,0 +1,135 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-category" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_form }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-category" class="form-horizontal">
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="input-opencart-category">{{ entry_opencart_category }}</label>
+            <div class="col-sm-10">
+              <select name="opencart_category_id" id="input-opencart-category" class="form-control">
+                <option value="0">{{ text_select_category }}</option>
+                {% for category in opencart_categories %}
+                {% if category.category_id == opencart_category_id %}
+                <option value="{{ category.category_id }}" selected="selected">{{ category.name }}</option>
+                {% else %}
+                <option value="{{ category.category_id }}">{{ category.name }}</option>
+                {% endif %}
+                {% endfor %}
+              </select>
+              {% if error_opencart_category %}
+              <div class="text-danger">{{ error_opencart_category }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="input-hepsiburada-category">{{ entry_hepsiburada_category }}</label>
+            <div class="col-sm-10">
+              <select name="hepsiburada_category_id" id="input-hepsiburada-category" class="form-control">
+                <option value="">{{ text_select_category }}</option>
+                {% for category in hepsiburada_categories %}
+                {% if category.category_id == hepsiburada_category_id %}
+                <option value="{{ category.category_id }}" selected="selected">{{ category.name }}</option>
+                {% else %}
+                <option value="{{ category.category_id }}">{{ category.name }}</option>
+                {% endif %}
+                {% endfor %}
+              </select>
+              {% if error_hepsiburada_category %}
+              <div class="text-danger">{{ error_hepsiburada_category }}</div>
+              {% endif %}
+              <input type="hidden" name="hepsiburada_category_name" value="{{ hepsiburada_category_name }}" id="input-hepsiburada-category-name" />
+              <input type="hidden" name="hepsiburada_category_path" value="{{ hepsiburada_category_path }}" id="input-hepsiburada-category-path" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">{{ text_attribute_requirement }}</label>
+            <div class="col-sm-10">
+              <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i> {{ text_help_attributes }}
+              </div>
+              <div id="required-attributes">
+                <!-- Burada seçilen kategoriye göre gerekli özellikler dinamik olarak yüklenecek -->
+                <div class="text-muted">{{ text_loading_categories }}</div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+// Hepsiburada kategorisi seçildiğinde kategori yolu ve adını da saklayalım
+$('#input-hepsiburada-category').on('change', function() {
+  var $option = $(this).find('option:selected');
+  var categoryName = $option.text();
+  
+  $('#input-hepsiburada-category-name').val(categoryName);
+  $('#input-hepsiburada-category-path').val(categoryName); // Gerçek uygulamada API'dan alınacak
+  
+  // Kategori değiştiğinde özellik gereksinimlerini yükle
+  // Bu fonksiyon gerçek API entegrasyonunda AJAX ile sunucudan veri çekecek
+  loadCategoryAttributes($(this).val());
+});
+
+function loadCategoryAttributes(categoryId) {
+  if (!categoryId) {
+    $('#required-attributes').html('<div class="text-muted">{{ text_select_category }}</div>');
+    return;
+  }
+  
+  // Demo amaçlı örnek özellikler - gerçekte AJAX ile yüklenmesi gerekir
+  var html = '<table class="table table-bordered table-hover">';
+  html += '<thead><tr>';
+  html += '<th>{{ column_attributes }}</th>';
+  html += '<th width="100px">{{ text_required }}</th>';
+  html += '</tr></thead>';
+  html += '<tbody>';
+  
+  if (categoryId == '35321') { // Dizüstü Bilgisayarlar kategorisi için örnek
+    html += '<tr><td>Marka</td><td><span class="label label-danger">{{ text_required }}</span></td></tr>';
+    html += '<tr><td>İşlemci Tipi</td><td><span class="label label-danger">{{ text_required }}</span></td></tr>';
+    html += '<tr><td>RAM</td><td><span class="label label-danger">{{ text_required }}</span></td></tr>';
+    html += '<tr><td>Disk Kapasitesi</td><td><span class="label label-danger">{{ text_required }}</span></td></tr>';
+    html += '<tr><td>Ekran Boyutu</td><td><span class="label label-warning">{{ text_optional }}</span></td></tr>';
+  } else if (categoryId == '35331') { // Akıllı Telefonlar kategorisi için örnek
+    html += '<tr><td>Marka</td><td><span class="label label-danger">{{ text_required }}</span></td></tr>';
+    html += '<tr><td>Model</td><td><span class="label label-danger">{{ text_required }}</span></td></tr>';
+    html += '<tr><td>Bellek (RAM)</td><td><span class="label label-danger">{{ text_required }}</span></td></tr>';
+    html += '<tr><td>Depolama</td><td><span class="label label-danger">{{ text_required }}</span></td></tr>';
+    html += '<tr><td>Renk</td><td><span class="label label-warning">{{ text_optional }}</span></td></tr>';
+  } else if (categoryId.startsWith('35')) { // Diğer elektronik kategorileri için örnek
+    html += '<tr><td>Marka</td><td><span class="label label-danger">{{ text_required }}</span></td></tr>';
+    html += '<tr><td>Model</td><td><span class="label label-danger">{{ text_required }}</span></td></tr>';
+  } else {
+    html += '<tr><td colspan="2" class="text-center">Bu kategori için belirlenmiş özellik gereksinimleri bulunmuyor.</td></tr>';
+  }
+  
+  html += '</tbody></table>';
+  $('#required-attributes').html(html);
+}
+//--></script>
+{{ footer }}

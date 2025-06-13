@@ -218,4 +218,235 @@ class HepsiburadaApiClient {
             throw $e;
         }
     }
+    
+    /**
+     * Get all categories from Hepsiburada
+     *
+     * @param string $locale The locale (language) for category names, default: 'tr'
+     * @param bool $forceRefresh Force refresh the categories cache
+     * @return array List of all categories
+     * @throws \Exception
+     */
+    public function getCategories($locale = 'tr', $forceRefresh = false)
+    {
+        // Cache key includes locale to support multiple languages
+        $cacheKey = 'hepsiburada.categories.' . $locale;
+        
+        // Check cache first unless force refresh is requested
+        if (!$forceRefresh && $this->cache) {
+            $cachedCategories = $this->cache->get($cacheKey);
+            if ($cachedCategories) {
+                return $cachedCategories;
+            }
+        }
+        
+        try {
+            $endpoint = 'categories';
+            $data = [
+                'locale' => $locale,
+                'status' => 'active'
+            ];
+            
+            $response = $this->request($endpoint, 'GET', $data);
+            
+            if (!empty($response['categories'])) {
+                $categories = $this->processCategoryData($response['categories']);
+                
+                // Cache categories for 24 hours (86400 seconds)
+                if ($this->cache) {
+                    $this->cache->set($cacheKey, $categories, 86400);
+                }
+                
+                return $categories;
+            }
+            
+            return [];
+        } catch (\Exception $e) {
+            error_log('Hepsiburada API Get Categories Failed: ' . $e->getMessage());
+            // Return an empty array instead of throwing, more user-friendly
+            return [];
+        }
+    }
+    
+    /**
+     * Get category details by ID
+     *
+     * @param string $categoryId The Hepsiburada category ID
+     * @param string $locale The locale (language) for category names, default: 'tr'
+     * @return array|null Category details if found, otherwise null
+     */
+    public function getCategoryById($categoryId, $locale = 'tr')
+    {
+        $cacheKey = 'hepsiburada.category.' . $categoryId . '.' . $locale;
+        
+        if ($this->cache) {
+            $cachedCategory = $this->cache->get($cacheKey);
+            if ($cachedCategory) {
+                return $cachedCategory;
+            }
+        }
+        
+        try {
+            $endpoint = 'categories/' . urlencode($categoryId);
+            $data = ['locale' => $locale];
+            
+            $response = $this->request($endpoint, 'GET', $data);
+            
+            if (!empty($response) && isset($response['id'])) {
+                // Process and format the category data
+                $categoryData = [
+                    'category_id' => $response['id'],
+                    'name' => $response['name'],
+                    'path' => $response['path'] ?? '',
+                    'leaf' => $response['leaf'] ?? true,
+                    'parent_id' => $response['parentId'] ?? '0',
+                    'attributes' => $response['attributes'] ?? [],
+                    'status' => $response['status'] ?? 'active'
+                ];
+                
+                // Cache for 12 hours (43200 seconds)
+                if ($this->cache) {
+                    $this->cache->set($cacheKey, $categoryData, 43200);
+                }
+                
+                return $categoryData;
+            }
+            
+            return null;
+        } catch (\Exception $e) {
+            error_log('Hepsiburada API Get Category by ID Failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Get required attributes for a specific category
+     *
+     * @param string $categoryId The Hepsiburada category ID
+     * @param string $locale The locale (language) for attribute names, default: 'tr'
+     * @return array List of required attributes for the category
+     */
+    public function getCategoryAttributes($categoryId, $locale = 'tr')
+    {
+        $cacheKey = 'hepsiburada.category.attributes.' . $categoryId . '.' . $locale;
+        
+        if ($this->cache) {
+            $cachedAttributes = $this->cache->get($cacheKey);
+            if ($cachedAttributes) {
+                return $cachedAttributes;
+            }
+        }
+        
+        try {
+            $endpoint = 'categories/' . urlencode($categoryId) . '/attributes';
+            $data = ['locale' => $locale];
+            
+            $response = $this->request($endpoint, 'GET', $data);
+            
+            if (!empty($response['attributes'])) {
+                $attributes = $this->processCategoryAttributes($response['attributes']);
+                
+                // Cache for 12 hours (43200 seconds)
+                if ($this->cache) {
+                    $this->cache->set($cacheKey, $attributes, 43200);
+                }
+                
+                return $attributes;
+            }
+            
+            return [];
+        } catch (\Exception $e) {
+            error_log('Hepsiburada API Get Category Attributes Failed: ' . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Process and format category data into a more usable structure
+     * 
+     * @param array $rawCategories The raw category data from the API
+     * @return array Processed category data
+     */
+    private function processCategoryData($rawCategories)
+    {
+        $processedCategories = [];
+        
+        foreach ($rawCategories as $category) {
+            // Ensure we have the minimum required data
+            if (empty($category['id']) || empty($category['name'])) {
+                continue;
+            }
+            
+            $processedCategories[] = [
+                'category_id' => $category['id'],
+                'name' => $category['name'],
+                'path' => $category['path'] ?? $category['name'],
+                'leaf' => $category['leaf'] ?? true,  // Is this a leaf/final category
+                'parent_id' => $category['parentId'] ?? '0',
+                'status' => $category['status'] ?? 'active',
+                'has_children' => !($category['leaf'] ?? true)
+            ];
+        }
+        
+        return $processedCategories;
+    }
+    
+    /**
+     * Process category attributes into a more usable format
+     * 
+     * @param array $rawAttributes The raw attributes data from the API
+     * @return array Processed attributes
+     */
+    private function processCategoryAttributes($rawAttributes)
+    {
+        $processedAttributes = [];
+        
+        foreach ($rawAttributes as $attribute) {
+            $processedAttributes[] = [
+                'attribute_id' => $attribute['id'] ?? '',
+                'name' => $attribute['name'] ?? '',
+                'required' => $attribute['required'] ?? false,
+                'type' => $attribute['type'] ?? 'text',
+                'values' => $attribute['values'] ?? [],
+                'unit' => $attribute['unit'] ?? '',
+                'description' => $attribute['description'] ?? ''
+            ];
+        }
+        
+        return $processedAttributes;
+    }
+    
+    /**
+     * Search for categories by name
+     * 
+     * @param string $query The search query
+     * @param string $locale The locale (language) for searching, default: 'tr'
+     * @return array List of matching categories
+     */
+    public function searchCategories($query, $locale = 'tr')
+    {
+        try {
+            // First get all categories (cached if available)
+            $allCategories = $this->getCategories($locale);
+            
+            // Filter categories based on the query
+            $results = [];
+            foreach ($allCategories as $category) {
+                if (stripos($category['name'], $query) !== false || 
+                    stripos($category['path'], $query) !== false) {
+                    $results[] = $category;
+                    
+                    // Limit results to top 20 matches
+                    if (count($results) >= 20) {
+                        break;
+                    }
+                }
+            }
+            
+            return $results;
+        } catch (\Exception $e) {
+            error_log('Hepsiburada API Search Categories Failed: ' . $e->getMessage());
+            return [];
+        }
+    }
 } 
