@@ -1,0 +1,761 @@
+/* 
+ * SELİNAY TEAM - USER INTERACTION OPTIMIZATION
+ * Task S-1: Phase 5 - Premium User Experience System
+ * Created: 9 Haziran 2025
+ * Target: Premium User Interactions & <100ms Response
+ */
+
+/* ==========================================================================
+   MICRO-INTERACTIONS FOUNDATION
+   ========================================================================== */
+
+/* Smooth Transitions Base */
+.meschain-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, opacity, background-color, border-color, box-shadow;
+}
+
+.meschain-smooth-fast {
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.meschain-smooth-slow {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hardware Acceleration */
+.meschain-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* ==========================================================================
+   BUTTON MICRO-INTERACTIONS
+   ========================================================================== */
+
+.meschain-button-interactive {
+    position: relative;
+    overflow: hidden;
+    transform: translateZ(0);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Hover Effects */
+.meschain-button-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.meschain-button-interactive:active {
+    transform: translateY(0);
+    transition-duration: 0.1s;
+}
+
+/* Ripple Effect */
+.meschain-button-interactive::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+    pointer-events: none;
+}
+
+.meschain-button-interactive:active::before {
+    width: 300px;
+    height: 300px;
+    transition: width 0.3s, height 0.3s;
+}
+
+/* Button Loading Animation */
+.meschain-button-loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+.meschain-button-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: meschain-spin 1s linear infinite;
+}
+
+@keyframes meschain-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success Animation */
+.meschain-button-success {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    animation: meschain-success-pulse 0.6s ease;
+}
+
+@keyframes meschain-success-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* ==========================================================================
+   INPUT FIELD INTERACTIONS
+   ========================================================================== */
+
+.meschain-input-interactive {
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid #e1e5e9;
+    background: #ffffff;
+}
+
+.meschain-input-interactive:hover {
+    border-color: #b8c5d1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.meschain-input-interactive:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+/* Floating Label Effect */
+.meschain-input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.meschain-input-floating {
+    width: 100%;
+    padding: 16px 12px 8px 12px;
+    font-size: 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    background: #ffffff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.meschain-label-floating {
+    position: absolute;
+    top: 16px;
+    left: 12px;
+    font-size: 16px;
+    color: #6c757d;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #ffffff;
+    padding: 0 4px;
+}
+
+.meschain-input-floating:focus + .meschain-label-floating,
+.meschain-input-floating:not(:placeholder-shown) + .meschain-label-floating {
+    top: -8px;
+    left: 8px;
+    font-size: 12px;
+    color: #007bff;
+    font-weight: 600;
+}
+
+/* Input Validation States */
+.meschain-input-valid {
+    border-color: #28a745;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.94-.94 2.94 2.94L8.5 6.4l.94.94L6.5 10.27z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.meschain-input-invalid {
+    border-color: #dc3545;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3e%3cpath fill='%23dc3545' d='M6 0C2.7 0 0 2.7 0 6s2.7 6 6 6 6-2.7 6-6S9.3 0 6 0zM8.5 9L7 7.5 5.5 9 4 7.5 2.5 9 1 7.5 2.5 6 1 4.5 2.5 3 4 4.5 5.5 3 7 4.5 8.5 3 10 4.5 8.5 6 10 7.5 8.5 9z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* ==========================================================================
+   CARD HOVER INTERACTIONS
+   ========================================================================== */
+
+.meschain-card-interactive {
+    position: relative;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.meschain-card-interactive::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.6s ease;
+    pointer-events: none;
+}
+
+.meschain-card-interactive:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.meschain-card-interactive:hover::before {
+    left: 100%;
+}
+
+.meschain-card-interactive:active {
+    transform: translateY(-2px);
+    transition-duration: 0.1s;
+}
+
+/* Card Flip Effect */
+.meschain-card-flip {
+    perspective: 1000px;
+    height: 200px;
+}
+
+.meschain-card-flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.meschain-card-flip:hover .meschain-card-flip-inner {
+    transform: rotateY(180deg);
+}
+
+.meschain-card-flip-front,
+.meschain-card-flip-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.meschain-card-flip-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: #ffffff;
+}
+
+/* ==========================================================================
+   NAVIGATION INTERACTIONS
+   ========================================================================== */
+
+.meschain-nav-interactive {
+    position: relative;
+    overflow: hidden;
+}
+
+.meschain-nav-item-interactive {
+    position: relative;
+    display: block;
+    padding: 12px 20px;
+    color: #495057;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.meschain-nav-item-interactive::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 123, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+    pointer-events: none;
+}
+
+.meschain-nav-item-interactive:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+    transform: translateX(4px);
+}
+
+.meschain-nav-item-interactive:hover::before {
+    left: 100%;
+}
+
+.meschain-nav-item-interactive.active {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* Breadcrumb Animation */
+.meschain-breadcrumb-interactive {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.meschain-breadcrumb-item-interactive {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.meschain-breadcrumb-item-interactive:not(:last-child)::after {
+    content: '›';
+    margin: 0 12px;
+    color: #6c757d;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.meschain-breadcrumb-link-interactive {
+    color: #007bff;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.meschain-breadcrumb-link-interactive:hover {
+    background-color: #e3f2fd;
+    transform: scale(1.05);
+}
+
+/* ==========================================================================
+   DROPDOWN & MENU INTERACTIONS
+   ========================================================================== */
+
+.meschain-dropdown-interactive {
+    position: relative;
+    display: inline-block;
+}
+
+.meschain-dropdown-toggle {
+    background: #ffffff;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    padding: 12px 40px 12px 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.meschain-dropdown-toggle::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #6c757d;
+    transition: transform 0.3s ease;
+}
+
+.meschain-dropdown-toggle:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.meschain-dropdown-toggle.active::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.meschain-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.meschain-dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.meschain-dropdown-item {
+    display: block;
+    padding: 12px 16px;
+    color: #495057;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.meschain-dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+    padding-left: 20px;
+}
+
+.meschain-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+/* ==========================================================================
+   MODAL INTERACTIONS
+   ========================================================================== */
+
+.meschain-modal-interactive {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.meschain-modal-interactive.show {
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+    visibility: visible;
+}
+
+.meschain-modal-dialog-interactive {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.8) translateY(-50px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.meschain-modal-interactive.show .meschain-modal-dialog-interactive {
+    transform: scale(1) translateY(0);
+}
+
+/* ==========================================================================
+   LOADING STATES & FEEDBACK
+   ========================================================================== */
+
+/* Skeleton Loading */
+.meschain-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: meschain-skeleton-loading 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes meschain-skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.meschain-skeleton-text {
+    height: 16px;
+    margin-bottom: 8px;
+}
+
+.meschain-skeleton-text:last-child {
+    width: 60%;
+}
+
+.meschain-skeleton-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.meschain-skeleton-button {
+    height: 40px;
+    width: 120px;
+    border-radius: 8px;
+}
+
+/* Progress Indicators */
+.meschain-progress {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.meschain-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border-radius: 4px;
+    transition: width 0.6s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.meschain-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.2) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 1rem 1rem;
+    animation: meschain-progress-stripes 1s linear infinite;
+}
+
+@keyframes meschain-progress-stripes {
+    0% { background-position: 1rem 0; }
+    100% { background-position: 0 0; }
+}
+
+/* ==========================================================================
+   TOAST NOTIFICATIONS
+   ========================================================================== */
+
+.meschain-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1060;
+    max-width: 350px;
+}
+
+.meschain-toast {
+    background: #ffffff;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    margin-bottom: 12px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    position: relative;
+}
+
+.meschain-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.meschain-toast.hide {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.meschain-toast-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px 8px;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.meschain-toast-title {
+    font-weight: 600;
+    color: #212529;
+    flex: 1;
+}
+
+.meschain-toast-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.meschain-toast-close:hover {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.meschain-toast-body {
+    padding: 8px 16px 12px;
+    color: #495057;
+}
+
+/* Toast Types */
+.meschain-toast-success {
+    border-left: 4px solid #28a745;
+}
+
+.meschain-toast-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.meschain-toast-error {
+    border-left: 4px solid #dc3545;
+}
+
+.meschain-toast-info {
+    border-left: 4px solid #17a2b8;
+}
+
+/* ==========================================================================
+   MARKETPLACE INTERACTIVE COMPONENTS
+   ========================================================================== */
+
+/* Trendyol Interactive Card */
+.meschain-trendyol-interactive {
+    background: linear-gradient(135deg, #f27a1a, #e55100);
+    color: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.meschain-trendyol-interactive::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    transform: scale(0);
+    transition: transform 0.6s ease;
+    pointer-events: none;
+}
+
+.meschain-trendyol-interactive:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(242, 122, 26, 0.3);
+}
+
+.meschain-trendyol-interactive:hover::before {
+    transform: scale(1);
+}
+
+.meschain-trendyol-interactive:active {
+    transform: translateY(-2px) scale(1.01);
+    transition-duration: 0.1s;
+}
+
+/* Stats Animation */
+.meschain-stat-counter {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    display: block;
+}
+
+.meschain-stat-counter[data-count] {
+    animation: meschain-count-up 2s ease-out;
+}
+
+@keyframes meschain-count-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ========================================================================== */
+
+/* Reduce Motion for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .meschain-smooth,
+    .meschain-smooth-fast,
+    .meschain-smooth-slow,
+    .meschain-card-interactive,
+    .meschain-button-interactive,
+    .meschain-nav-item-interactive {
+        transition: none;
+        animation: none;
+    }
+    
+    .meschain-skeleton {
+        animation: none;
+        background: #f0f0f0;
+    }
+    
+    .meschain-progress-bar::after {
+        animation: none;
+    }
+}
+
+/* GPU Acceleration for Smooth Performance */
+.meschain-gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform, opacity;
+}
+
+/* ==========================================================================
+   USER INTERACTION SUCCESS METRICS
+   Target: <100ms Response Time
+   Premium User Experience: Active
+   Micro-interactions: Optimized
+   Visual Feedback: Enhanced
+   ========================================================================== */ 

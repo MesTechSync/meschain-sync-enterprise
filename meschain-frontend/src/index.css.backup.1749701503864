@@ -1,0 +1,461 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* PWA Performance Optimizations */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-display: swap; /* Performance optimization */
+  line-height: 1.6;
+  color: #374151;
+  background-color: #f9fafb;
+}
+
+/* PWA Offline Indicator */
+body.offline::before {
+  content: "📵 Çevrimdışı Mod - Veriler önbellekten yükleniyor";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #f59e0b;
+  color: white;
+  text-align: center;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Enhanced Mobile-First Responsive Design */
+.meschain-container {
+  @apply min-h-screen bg-gray-50;
+  /* Mobile-first optimizations */
+  padding: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .meschain-container {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .meschain-container {
+    padding: 1.5rem;
+  }
+}
+
+/* Enhanced Card System with Mobile Optimization */
+.meschain-card {
+  @apply bg-white rounded-lg shadow-lg;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform; /* Performance optimization */
+}
+
+.meschain-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .meschain-card {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Enhanced Button System */
+.meschain-button {
+  @apply px-4 py-2 rounded-md font-medium transition-all duration-200;
+  min-height: 44px; /* Touch-friendly minimum */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.meschain-button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.meschain-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.meschain-button-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.meschain-button-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.meschain-button-secondary {
+  @apply bg-gray-600 hover:bg-gray-700 text-white;
+}
+
+.meschain-button-success {
+  @apply bg-green-600 hover:bg-green-700 text-white;
+}
+
+.meschain-button-danger {
+  @apply bg-red-600 hover:bg-red-700 text-white;
+}
+
+/* Mobile-optimized buttons */
+@media (max-width: 767px) {
+  .meschain-button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .meschain-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .meschain-button-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+}
+
+/* Enhanced Form Controls */
+.meschain-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+  min-height: 44px; /* Touch-friendly */
+  font-size: 16px; /* Prevent zoom on iOS */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.meschain-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.meschain-select {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+  min-height: 44px;
+  font-size: 16px;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Enhanced Table with Mobile Responsiveness */
+.meschain-table {
+  @apply min-w-full divide-y divide-gray-200;
+  background: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.meschain-table-header {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+  background: #f9fafb;
+}
+
+.meschain-table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+}
+
+/* Mobile table optimization */
+@media (max-width: 767px) {
+  .meschain-table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .meschain-table-header,
+  .meschain-table-cell {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .meschain-mobile-stack {
+    display: block !important;
+  }
+  
+  .meschain-mobile-stack td {
+    display: block;
+    text-align: right;
+    border: none;
+    padding: 0.5rem;
+  }
+  
+  .meschain-mobile-stack td::before {
+    content: attr(data-label) ": ";
+    float: left;
+    font-weight: 600;
+    color: #374151;
+  }
+}
+
+/* Performance-optimized Loading animations */
+.meschain-spinner {
+  @apply animate-spin rounded-full border-b-2 border-blue-600;
+  width: 2rem;
+  height: 2rem;
+  will-change: transform;
+}
+
+.meschain-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Enhanced Custom scrollbar */
+.meschain-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.meschain-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.meschain-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.meschain-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Mobile-first responsive utilities */
+.meschain-mobile-hidden {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .meschain-mobile-hidden {
+    display: block;
+  }
+}
+
+.meschain-desktop-hidden {
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .meschain-desktop-hidden {
+    display: none;
+  }
+}
+
+/* Enhanced Chart container with responsive sizing */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  margin: 1rem 0;
+}
+
+@media (min-width: 768px) {
+  .chart-container {
+    height: 300px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .chart-container {
+    height: 400px;
+  }
+}
+
+/* Enhanced Modal with mobile optimization */
+.meschain-modal-overlay {
+  @apply fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.meschain-modal-content {
+  @apply relative mx-auto p-5 border shadow-lg rounded-md bg-white;
+  top: 10%;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  .meschain-modal-content {
+    top: 20%;
+    width: 80%;
+  }
+}
+
+/* Enhanced Status badges with better contrast */
+.status-active {
+  @apply bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.status-inactive {
+  @apply bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.status-error {
+  @apply bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.status-warning {
+  @apply bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.status-syncing {
+  @apply bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium;
+  animation: pulse 2s infinite;
+}
+
+/* Performance-optimized Gradient backgrounds */
+.gradient-blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-attachment: fixed;
+}
+
+.gradient-green {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background-attachment: fixed;
+}
+
+.gradient-purple {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  background-attachment: fixed;
+}
+
+.gradient-orange {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  background-attachment: fixed;
+}
+
+/* PWA Install Banner Styles */
+.pwa-install-banner {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  max-width: 300px;
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .meschain-button:hover {
+    transform: none;
+  }
+  
+  .meschain-card:hover {
+    transform: none;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .meschain-button {
+    border: 2px solid currentColor;
+  }
+  
+  .meschain-card {
+    border: 1px solid #374151;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #111827;
+    color: #f9fafb;
+  }
+  
+  .meschain-card {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+  }
+  
+  .meschain-input,
+  .meschain-select {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .meschain-table {
+    background-color: #1f2937;
+  }
+  
+  .meschain-table-header {
+    background-color: #111827;
+  }
+} 
