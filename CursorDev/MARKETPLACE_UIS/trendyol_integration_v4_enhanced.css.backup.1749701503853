@@ -1,0 +1,695 @@
+/* Enhanced Trendyol Integration v4.0 CSS - Mobile Optimization & Real-time UI
+ * MesChain-Sync v4.0 - Production-Ready Styles
+ * Target: 80% → 85% completion with mobile optimization
+ * 
+ * @version 4.0.0
+ * @date June 4, 2025 23:00 UTC
+ * @author MesChain Development Team
+ * @priority HIGH - Critical for June 5 go-live
+ */
+
+/* =================================================================
+   ENHANCED TRENDYOL INTEGRATION STYLES v4.0
+   ================================================================= */
+
+/* Real-time Data Update Animations */
+.data-updated {
+    animation: dataUpdate 1s ease-in-out;
+    color: #10b981 !important;
+    font-weight: bold;
+}
+
+@keyframes dataUpdate {
+    0% { 
+        background-color: rgba(16, 185, 129, 0.2);
+        transform: scale(1);
+    }
+    50% { 
+        background-color: rgba(16, 185, 129, 0.4);
+        transform: scale(1.05);
+    }
+    100% { 
+        background-color: transparent;
+        transform: scale(1);
+    }
+}
+
+/* Connection Status Indicators */
+.trendyol-connection-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+}
+
+.trendyol-connection-dot.connected {
+    background-color: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.trendyol-connection-dot.warning {
+    background-color: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.trendyol-connection-dot.error {
+    background-color: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+.trendyol-connection-dot.offline {
+    background-color: #6b7280;
+    box-shadow: 0 0 8px rgba(107, 114, 128, 0.4);
+    animation: none;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Enhanced Loading States */
+.trendyol-loading {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.trendyol-loading.active {
+    display: block;
+}
+
+.trendyol-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid #f97316;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Real-time Metrics Cards */
+.trendyol-metric-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.trendyol-metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #f97316;
+}
+
+.trendyol-metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #f97316, #fb923c);
+}
+
+.trendyol-metric-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 5px;
+    font-family: 'Arial', sans-serif;
+}
+
+.trendyol-metric-label {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.trendyol-metric-change {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.trendyol-metric-change.positive {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.trendyol-metric-change.negative {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+/* Enhanced Chart Containers */
+.trendyol-chart-container {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.trendyol-chart-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.trendyol-chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.trendyol-chart-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.trendyol-chart-btn {
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.trendyol-chart-btn:hover {
+    background: #f9fafb;
+    border-color: #f97316;
+}
+
+.trendyol-chart-btn.active {
+    background: #f97316;
+    color: #ffffff;
+    border-color: #f97316;
+}
+
+/* Mobile Optimization - Progressive Enhancement */
+@media (max-width: 768px) {
+    .trendyol-metric-card {
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .trendyol-metric-value {
+        font-size: 24px;
+    }
+    
+    .trendyol-chart-container {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .trendyol-chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .trendyol-chart-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .trendyol-chart-btn {
+        flex: 1;
+        text-align: center;
+    }
+    
+    /* Mobile-friendly connection status */
+    .trendyol-connection-text {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .trendyol-metric-card {
+        padding: 12px;
+    }
+    
+    .trendyol-metric-value {
+        font-size: 20px;
+    }
+    
+    .trendyol-metric-label {
+        font-size: 12px;
+    }
+    
+    .trendyol-chart-container {
+        padding: 12px;
+    }
+    
+    .trendyol-chart-title {
+        font-size: 16px;
+    }
+}
+
+/* Enhanced Notification System */
+.trendyol-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    max-width: 350px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease-out;
+    display: none;
+}
+
+.trendyol-notification.success {
+    background-color: #10b981;
+    color: #ffffff;
+}
+
+.trendyol-notification.warning {
+    background-color: #f59e0b;
+    color: #ffffff;
+}
+
+.trendyol-notification.error {
+    background-color: #ef4444;
+    color: #ffffff;
+}
+
+.trendyol-notification.info {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Mobile notification adjustments */
+@media (max-width: 768px) {
+    .trendyol-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        text-align: center;
+    }
+}
+
+/* Performance Indicators */
+.trendyol-performance-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.trendyol-performance-indicator.excellent {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.trendyol-performance-indicator.good {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.trendyol-performance-indicator.fair {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.trendyol-performance-indicator.poor {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+/* Real-time Status Bar */
+.trendyol-status-bar {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+    color: #ffffff;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.trendyol-status-bar .status-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.trendyol-status-bar .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #ffffff;
+}
+
+/* Mobile status bar */
+@media (max-width: 768px) {
+    .trendyol-status-bar {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+    
+    .trendyol-status-bar .status-item {
+        justify-content: center;
+    }
+}
+
+/* Enhanced Button Styles */
+.trendyol-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.trendyol-btn-primary {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+    color: #ffffff;
+}
+
+.trendyol-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+}
+
+.trendyol-btn-secondary {
+    background: #ffffff;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+}
+
+.trendyol-btn-secondary:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.trendyol-btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Mobile button adjustments */
+@media (max-width: 768px) {
+    .trendyol-btn {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    
+    .trendyol-btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .trendyol-metric-card {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        border-color: #374151;
+        color: #f9fafb;
+    }
+    
+    .trendyol-metric-value {
+        color: #f9fafb;
+    }
+    
+    .trendyol-metric-label {
+        color: #9ca3af;
+    }
+    
+    .trendyol-chart-container {
+        background: #1f2937;
+        border-color: #374151;
+        color: #f9fafb;
+    }
+    
+    .trendyol-chart-title {
+        color: #f9fafb;
+    }
+    
+    .trendyol-chart-btn {
+        background: #374151;
+        color: #f9fafb;
+        border-color: #4b5563;
+    }
+    
+    .trendyol-chart-btn:hover {
+        background: #4b5563;
+    }
+}
+
+/* Accessibility Improvements */
+.trendyol-integration {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Focus indicators for keyboard navigation */
+.trendyol-btn:focus,
+.trendyol-chart-btn:focus {
+    outline: 2px solid #f97316;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .trendyol-metric-card {
+        border-width: 2px;
+    }
+    
+    .trendyol-connection-dot {
+        border: 2px solid #000000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .data-updated,
+    .trendyol-connection-dot,
+    .trendyol-spinner,
+    .trendyol-notification {
+        animation: none;
+    }
+    
+    .trendyol-metric-card:hover {
+        transform: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    .trendyol-chart-controls,
+    .trendyol-btn,
+    .trendyol-notification {
+        display: none;
+    }
+    
+    .trendyol-metric-card,
+    .trendyol-chart-container {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000000;
+    }
+}
+
+/* RTL Support for Turkish */
+[dir="rtl"] .trendyol-connection-dot {
+    margin-right: 0;
+    margin-left: 8px;
+}
+
+[dir="rtl"] .trendyol-metric-change {
+    right: auto;
+    left: 15px;
+}
+
+[dir="rtl"] .trendyol-notification {
+    right: auto;
+    left: 20px;
+}
+
+/* Enhanced Grid System for Metrics */
+.trendyol-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+    .trendyol-metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .trendyol-metrics-grid {
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+}
+
+/* Loading skeleton animations */
+.trendyol-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.trendyol-skeleton-text {
+    height: 16px;
+    margin-bottom: 8px;
+}
+
+.trendyol-skeleton-text:last-child {
+    margin-bottom: 0;
+    width: 60%;
+}
+
+.trendyol-skeleton-number {
+    height: 32px;
+    width: 80px;
+    margin-bottom: 8px;
+}
+
+/* PWA-specific styles */
+@media (display-mode: standalone) {
+    .trendyol-notification {
+        top: 30px; /* Account for PWA status bar */
+    }
+    
+    .trendyol-integration {
+        padding-top: 10px; /* Safe area for PWA */
+    }
+}
+
+/* Touch-friendly interactions for mobile */
+@media (hover: none) and (pointer: coarse) {
+    .trendyol-metric-card:hover {
+        transform: none;
+    }
+    
+    .trendyol-btn,
+    .trendyol-chart-btn {
+        min-height: 44px; /* iOS recommended touch target */
+        min-width: 44px;
+    }
+}
+
+/* Enhanced visual feedback for real-time updates */
+.trendyol-realtime-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    background-color: #10b981;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.trendyol-realtime-indicator.offline {
+    background-color: #ef4444;
+    animation: none;
+}
+
+/* Performance optimization classes */
+.trendyol-content {
+    will-change: opacity;
+    transition: opacity 0.3s ease;
+}
+
+.trendyol-chart-canvas {
+    will-change: transform;
+}
+
+/* Ensure content doesn't shift during loading */
+.trendyol-metric-card,
+.trendyol-chart-container {
+    min-height: 120px;
+}
+
+.trendyol-chart-container {
+    min-height: 300px;
+}
+
+/* Success state indicators */
+.trendyol-success-indicator {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.trendyol-warning-indicator {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.trendyol-error-indicator {
+    color: #ef4444;
+    font-weight: 600;
+}

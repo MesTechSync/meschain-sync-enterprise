@@ -1,0 +1,215 @@
+/* 🎨 SELINAY THEME VARIABLES - MesChain-Sync Enterprise */
+/* CSS Custom Properties System */
+/* Created: June 5, 2025 - Task 6 Implementation */
+
+:root {
+  /* 🌈 PRIMARY BRAND COLORS */
+  --brand-primary: #007acc;
+  --brand-secondary: #00a8e8;
+  --brand-tertiary: #0077b6;
+  --brand-gradient: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  
+  /* 🎯 SEMANTIC COLORS */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  
+  /* 🌟 LIGHT THEME COLORS */
+  --light-bg-primary: #ffffff;
+  --light-bg-secondary: #f8fafc;
+  --light-bg-tertiary: #f1f5f9;
+  --light-text-primary: #1e293b;
+  --light-text-secondary: #475569;
+  --light-text-muted: #94a3b8;
+  --light-border: #e2e8f0;
+  --light-shadow: rgba(0, 0, 0, 0.1);
+  
+  /* 🌙 DARK THEME COLORS */
+  --dark-bg-primary: #0a0a0a;
+  --dark-bg-secondary: #1a1a1a;
+  --dark-bg-tertiary: #2a2a2a;
+  --dark-text-primary: #ffffff;
+  --dark-text-secondary: #cccccc;
+  --dark-text-muted: #888888;
+  --dark-border: #333333;
+  --dark-shadow: rgba(0, 0, 0, 0.5);
+  
+  /* 📐 SPACING SYSTEM */
+  --space-xs: 0.25rem;    /* 4px */
+  --space-sm: 0.5rem;     /* 8px */
+  --space-md: 1rem;       /* 16px */
+  --space-lg: 1.5rem;     /* 24px */
+  --space-xl: 2rem;       /* 32px */
+  --space-2xl: 3rem;      /* 48px */
+  --space-3xl: 4rem;      /* 64px */
+  
+  /* 🔤 TYPOGRAPHY SYSTEM */
+  --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* 🔲 BORDER RADIUS SYSTEM */
+  --radius-none: 0;
+  --radius-sm: 0.125rem;   /* 2px */
+  --radius-base: 0.25rem;  /* 4px */
+  --radius-md: 0.375rem;   /* 6px */
+  --radius-lg: 0.5rem;     /* 8px */
+  --radius-xl: 0.75rem;    /* 12px */
+  --radius-2xl: 1rem;      /* 16px */
+  --radius-full: 9999px;
+  
+  /* 📊 Z-INDEX SYSTEM */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+  
+  /* 🎭 ANIMATION SYSTEM */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+  
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* 📱 RESPONSIVE BREAKPOINTS */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+  
+  /* 🎯 COMPONENT SPECIFIC VARIABLES */
+  --header-height: 60px;
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 60px;
+  --footer-height: 80px;
+  
+  /* 📦 MARKETPLACE SPECIFIC COLORS */
+  --trendyol-orange: #f27a1a;
+  --hepsiburada-orange: #ff6000;
+  --amazon-orange: #ff9900;
+  --n11-purple: #6b46c1;
+  --gittigidiyor-red: #dc2626;
+  --ciceksepeti-pink: #ec4899;
+  --pazarama-blue: #2563eb;
+  
+  /* 🔧 UTILITY VARIABLES */
+  --max-width-prose: 65ch;
+  --max-width-screen-sm: 640px;
+  --max-width-screen-md: 768px;
+  --max-width-screen-lg: 1024px;
+  --max-width-screen-xl: 1280px;
+  --max-width-screen-2xl: 1536px;
+}
+
+/* 🌍 TURKISH LANGUAGE SPECIFIC ADJUSTMENTS */
+:root:lang(tr) {
+  --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Turkish', Roboto, sans-serif;
+}
+
+/* 🌞 LIGHT THEME APPLICATION */
+[data-theme="light"] {
+  --bg-primary: var(--light-bg-primary);
+  --bg-secondary: var(--light-bg-secondary);
+  --bg-tertiary: var(--light-bg-tertiary);
+  --text-primary: var(--light-text-primary);
+  --text-secondary: var(--light-text-secondary);
+  --text-muted: var(--light-text-muted);
+  --border-color: var(--light-border);
+  --shadow-color: var(--light-shadow);
+}
+
+/* 🌙 DARK THEME APPLICATION */
+[data-theme="dark"] {
+  --bg-primary: var(--dark-bg-primary);
+  --bg-secondary: var(--dark-bg-secondary);
+  --bg-tertiary: var(--dark-bg-tertiary);
+  --text-primary: var(--dark-text-primary);
+  --text-secondary: var(--dark-text-secondary);
+  --text-muted: var(--dark-text-muted);
+  --border-color: var(--dark-border);
+  --shadow-color: var(--dark-shadow);
+}
+
+/* 🎨 UTILITY CLASSES */
+.theme-transition {
+  transition: background-color var(--transition-base), 
+              color var(--transition-base), 
+              border-color var(--transition-base);
+}
+
+/* 📱 REDUCED MOTION PREFERENCE */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+    --transition-slow: 0ms;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 🎯 HIGH CONTRAST MODE SUPPORT */
+@media (prefers-contrast: high) {
+  :root {
+    --light-border: #000000;
+    --dark-border: #ffffff;
+    --light-text-secondary: #000000;
+    --dark-text-secondary: #ffffff;
+  }
+}
+
+/* 🔧 PRINT STYLES */
+@media print {
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #ffffff;
+    --text-primary: #000000;
+    --text-secondary: #000000;
+    --text-muted: #666666;
+    --border-color: #000000;
+  }
+}
+
+/* 📊 PERFORMANCE OPTIMIZATION */
+* {
+  /* Enable GPU acceleration for smooth animations */
+  transform: translateZ(0);
+  /* Improve font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 🚀 SELINAY THEME VARIABLES - READY FOR PRODUCTION USE */
+/* Compatible with all MesChain-Sync Enterprise components */
+/* Supports Turkish localization and accessibility standards */
