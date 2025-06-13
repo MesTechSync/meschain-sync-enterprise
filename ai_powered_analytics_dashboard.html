@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MesChain SYNC - AI-Powered Analytics Dashboard</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://unpkg.com/@tensorflow/tfjs"></script>
+    <script src="https://unpkg.com/ml-matrix@6.10.7/lib/ml-matrix.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1e40af;
+            --secondary-color: #3b82f6;
+            --accent-color: #6366f1;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-bg: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --neural-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --ai-gradient: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .ai-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--ai-gradient);
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .neural-network {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .neuron {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(99, 102, 241, 0.6);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        .connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
+            animation: dataFlow 3s linear infinite;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.3; transform: scale(1); }
+            to { opacity: 1; transform: scale(1.5); }
+        }
+
+        @keyframes dataFlow {
+            0% { opacity: 0; transform: translateX(-100%); }
+            50% { opacity: 1; }
+            100% { opacity: 0; transform: translateX(100%); }
+        }
+
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--neural-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .ai-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ai-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .ai-pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+            animation: pulse 1s ease infinite;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .ai-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--neural-gradient);
+            opacity: 0.5;
+        }
+
+        .ai-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .ai-icon {
+            padding: 0.5rem;
+            background: var(--neural-gradient);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .prediction-container {
+            margin: 1.5rem 0;
+        }
+
+        .prediction-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--neural-gradient);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .neural-chart {
+            position: relative;
+            height: 300px;
+            margin: 1rem 0;
+        }
+
+        .ai-insights {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .insight-icon {
+            color: var(--success-color);
+            margin-top: 0.125rem;
+        }
+
+        .real-time-feed {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .feed-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border-left: 3px solid var(--secondary-color);
+            animation: slideInRight 0.5s ease;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .feed-timestamp {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .ml-model-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .model-card {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .model-accuracy {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .model-name {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .prediction-graph {
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        .graph-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .ai-controls {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .ai-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--neural-gradient);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ai-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .metric-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: var(--neural-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .performance-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .ai-card {
+                padding: 1.5rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="ai-background"></div>
+    <div class="neural-network" id="neuralNetwork"></div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                MesChain AI Analytics
+            </div>
+            <div class="ai-status">
+                <div class="ai-indicator">
+                    <div class="ai-pulse"></div>
+                    <span>AI Active</span>
+                </div>
+                <div class="ai-indicator">
+                    <i class="fas fa-chart-line"></i>
+                    <span id="predictionCount">0 Predictions</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Performance Metrics -->
+        <div class="performance-metrics">
+            <div class="metric-card">
+                <div class="metric-number" id="accuracyMetric">94.7%</div>
+                <div class="metric-subtitle">AI Accuracy</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number" id="predictionsMetric">1,247</div>
+                <div class="metric-subtitle">Predictions Made</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number" id="modelsMetric">7</div>
+                <div class="metric-subtitle">Active Models</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number" id="confidenceMetric">98.2%</div>
+                <div class="metric-subtitle">Confidence</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Sales Prediction Engine -->
+            <div class="ai-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="ai-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        Sales Prediction Engine
+                    </div>
+                </div>
+                
+                <div class="prediction-container">
+                    <div class="prediction-metric">
+                        <div>
+                            <div class="metric-label">Next 7 Days Revenue</div>
+                            <div class="metric-value" id="revenuePrediction">$45,280</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="metric-label">Confidence</div>
+                            <div style="color: var(--success-color); font-weight: 600;">92.5%</div>
+                        </div>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: 92.5%"></div>
+                    </div>
+                </div>
+
+                <div class="neural-chart">
+                    <canvas id="salesPredictionChart"></canvas>
+                </div>
+
+                <div class="ai-insights">
+                    <div class="insight-item">
+                        <i class="fas fa-lightbulb insight-icon"></i>
+                        <div>Peak sales expected on Thursday based on historical patterns</div>
+                    </div>
+                    <div class="insight-item">
+                        <i class="fas fa-trending-up insight-icon"></i>
+                        <div>15% increase predicted compared to last week</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Optimization -->
+            <div class="ai-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="ai-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        Smart Inventory Manager
+                    </div>
+                </div>
+
+                <div class="ml-model-status">
+                    <div class="model-card">
+                        <div class="model-accuracy" style="color: var(--success-color);">96.8%</div>
+                        <div class="model-name">Demand Forecast</div>
+                    </div>
+                    <div class="model-card">
+                        <div class="model-accuracy" style="color: var(--warning-color);">89.3%</div>
+                        <div class="model-name">Stock Optimization</div>
+                    </div>
+                    <div class="model-card">
+                        <div class="model-accuracy" style="color: var(--success-color);">94.1%</div>
+                        <div class="model-name">Reorder Point</div>
+                    </div>
+                </div>
+
+                <div class="neural-chart">
+                    <canvas id="inventoryChart"></canvas>
+                </div>
+
+                <div class="ai-controls">
+                    <button class="ai-btn" onclick="optimizeInventory()">
+                        <i class="fas fa-magic"></i>
+                        Auto-Optimize
+                    </button>
+                    <button class="ai-btn" onclick="predictDemand()">
+                        <i class="fas fa-crystal-ball"></i>
+                        Predict Demand
+                    </button>
+                </div>
+            </div>
+
+            <!-- Market Intelligence -->
+            <div class="ai-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="ai-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        Market Intelligence
+                    </div>
+                </div>
+
+                <div class="prediction-container">
+                    <div class="prediction-metric">
+                        <div>
+                            <div class="metric-label">Market Opportunity Score</div>
+                            <div class="metric-value">8.7/10</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="metric-label">Trend Direction</div>
+                            <div style="color: var(--success-color); font-weight: 600;">
+                                <i class="fas fa-arrow-up"></i> Bullish
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="neural-chart">
+                    <canvas id="marketChart"></canvas>
+                </div>
+
+                <div class="ai-insights">
+                    <div class="insight-item">
+                        <i class="fas fa-target insight-icon"></i>
+                        <div>Electronics category showing 23% growth potential</div>
+                    </div>
+                    <div class="insight-item">
+                        <i class="fas fa-clock insight-icon"></i>
+                        <div>Best launch window: Next 2 weeks</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time AI Feed -->
+            <div class="ai-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="ai-icon">
+                            <i class="fas fa-rss"></i>
+                        </div>
+                        AI Activity Feed
+                    </div>
+                </div>
+
+                <div class="real-time-feed" id="aiFeed">
+                    <!-- Dynamic content populated by JavaScript -->
+                </div>
+
+                <div class="ai-controls">
+                    <button class="ai-btn" onclick="pauseFeed()" id="feedToggle">
+                        <i class="fas fa-pause"></i>
+                        Pause Feed
+                    </button>
+                    <button class="ai-btn" onclick="clearFeed()">
+                        <i class="fas fa-trash"></i>
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        class AIAnalyticsDashboard {
+            constructor() {
+                this.predictionCount = 0;
+                this.feedActive = true;
+                this.charts = {};
+                this.neuralNetwork = null;
+                this.init();
+            }
+
+            async init() {
+                console.log('🧠 Initializing AI Analytics Dashboard...');
+                this.createNeuralNetwork();
+                this.initializeCharts();
+                this.startRealTimeFeed();
+                this.startPredictionEngine();
+                this.setupWebSocket();
+                console.log('✅ AI Dashboard ready');
+            }
+
+            createNeuralNetwork() {
+                const container = document.getElementById('neuralNetwork');
+                const neuronCount = 20;
+                
+                for (let i = 0; i < neuronCount; i++) {
+                    const neuron = document.createElement('div');
+                    neuron.className = 'neuron';
+                    neuron.style.left = Math.random() * 100 + '%';
+                    neuron.style.top = Math.random() * 100 + '%';
+                    neuron.style.animationDelay = Math.random() * 2 + 's';
+                    container.appendChild(neuron);
+
+                    // Create connections
+                    if (i > 0) {
+                        const connection = document.createElement('div');
+                        connection.className = 'connection';
+                        connection.style.left = Math.random() * 100 + '%';
+                        connection.style.top = Math.random() * 100 + '%';
+                        connection.style.width = Math.random() * 200 + 100 + 'px';
+                        connection.style.transform = `rotate(${Math.random() * 360}deg)`;
+                        connection.style.animationDelay = Math.random() * 3 + 's';
+                        container.appendChild(connection);
+                    }
+                }
+            }
+
+            initializeCharts() {
+                // Sales Prediction Chart
+                const salesCtx = document.getElementById('salesPredictionChart').getContext('2d');
+                this.charts.sales = new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: this.generateDateLabels(14),
+                        datasets: [{
+                            label: 'Historical Sales',
+                            data: this.generateSalesData(7),
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        }, {
+                            label: 'AI Prediction',
+                            data: [...Array(7).fill(null), ...this.generatePredictionData(7)],
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderDash: [5, 5],
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#cbd5e1' }
+                            }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#cbd5e1' } },
+                            y: { ticks: { color: '#cbd5e1' } }
+                        }
+                    }
+                });
+
+                // Inventory Chart
+                const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+                this.charts.inventory = new Chart(inventoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['In Stock', 'Low Stock', 'Out of Stock', 'Optimal'],
+                        datasets: [{
+                            data: [65, 15, 5, 15],
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#6366f1'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#cbd5e1' }
+                            }
+                        }
+                    }
+                });
+
+                // Market Intelligence Chart
+                const marketCtx = document.getElementById('marketChart').getContext('2d');
+                this.charts.market = new Chart(marketCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Growth', 'Competition', 'Demand', 'Profitability', 'Risk', 'Opportunity'],
+                        datasets: [{
+                            label: 'Market Score',
+                            data: [8.5, 6.2, 9.1, 7.8, 4.3, 8.7],
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                            pointBackgroundColor: '#6366f1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#cbd5e1' }
+                            }
+                        },
+                        scales: {
+                            r: {
+                                ticks: { color: '#cbd5e1' },
+                                grid: { color: '#374151' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            generateDateLabels(days) {
+                const labels = [];
+                for (let i = days; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    labels.push(date.toLocaleDateString());
+                }
+                return labels;
+            }
+
+            generateSalesData(days) {
+                const data = [];
+                let base = 5000;
+                for (let i = 0; i < days; i++) {
+                    base += (Math.random() - 0.5) * 1000;
+                    data.push(Math.max(base, 1000));
+                }
+                return data;
+            }
+
+            generatePredictionData(days) {
+                const data = [];
+                let base = 6200;
+                for (let i = 0; i < days; i++) {
+                    base += (Math.random() - 0.3) * 800;
+                    data.push(Math.max(base, 2000));
+                }
+                return data;
+            }
+
+            startRealTimeFeed() {
+                const feedContainer = document.getElementById('aiFeed');
+                const aiActivities = [
+                    { icon: 'fa-brain', text: 'Neural network training completed', type: 'success' },
+                    { icon: 'fa-chart-line', text: 'Sales prediction updated: +12% accuracy', type: 'info' },
+                    { icon: 'fa-boxes', text: 'Inventory optimization completed', type: 'success' },
+                    { icon: 'fa-exclamation-triangle', text: 'Low stock alert: iPhone 13 Pro', type: 'warning' },
+                    { icon: 'fa-globe', text: 'Market analysis: Electronics trending up', type: 'info' },
+                    { icon: 'fa-robot', text: 'AI model performance: 96.8% accuracy', type: 'success' },
+                    { icon: 'fa-lightning-bolt', text: 'Real-time demand spike detected', type: 'warning' },
+                    { icon: 'fa-magic', text: 'Auto-optimization triggered', type: 'info' }
+                ];
+
+                setInterval(() => {
+                    if (!this.feedActive) return;
+
+                    const activity = aiActivities[Math.floor(Math.random() * aiActivities.length)];
+                    const feedItem = document.createElement('div');
+                    feedItem.className = 'feed-item';
+                    feedItem.innerHTML = `
+                        <i class="fas ${activity.icon}" style="color: ${this.getTypeColor(activity.type)}"></i>
+                        <div style="flex: 1;">${activity.text}</div>
+                        <div class="feed-timestamp">${new Date().toLocaleTimeString()}</div>
+                    `;
+
+                    feedContainer.insertBefore(feedItem, feedContainer.firstChild);
+
+                    // Keep only last 10 items
+                    if (feedContainer.children.length > 10) {
+                        feedContainer.removeChild(feedContainer.lastChild);
+                    }
+                }, 3000);
+            }
+
+            getTypeColor(type) {
+                const colors = {
+                    success: '#10b981',
+                    warning: '#f59e0b',
+                    info: '#3b82f6',
+                    error: '#ef4444'
+                };
+                return colors[type] || colors.info;
+            }
+
+            startPredictionEngine() {
+                setInterval(() => {
+                    this.predictionCount++;
+                    document.getElementById('predictionCount').textContent = `${this.predictionCount} Predictions`;
+                    
+                    // Update metrics with slight variations
+                    this.updateMetrics();
+                    
+                    // Update chart data periodically
+                    if (this.predictionCount % 5 === 0) {
+                        this.updateChartData();
+                    }
+                }, 2000);
+            }
+
+            updateMetrics() {
+                const accuracy = 94.7 + (Math.random() - 0.5) * 2;
+                const predictions = 1247 + this.predictionCount;
+                const confidence = 98.2 + (Math.random() - 0.5) * 1;
+
+                document.getElementById('accuracyMetric').textContent = accuracy.toFixed(1) + '%';
+                document.getElementById('predictionsMetric').textContent = predictions.toLocaleString();
+                document.getElementById('confidenceMetric').textContent = confidence.toFixed(1) + '%';
+
+                // Update revenue prediction
+                const revenue = 45280 + (Math.random() - 0.5) * 5000;
+                document.getElementById('revenuePrediction').textContent = '$' + revenue.toLocaleString();
+            }
+
+            updateChartData() {
+                // Add new data point to sales chart
+                const newSalesData = 5000 + Math.random() * 3000;
+                this.charts.sales.data.datasets[0].data.push(newSalesData);
+                this.charts.sales.data.labels.push(new Date().toLocaleDateString());
+                
+                // Remove old data to keep chart readable
+                if (this.charts.sales.data.labels.length > 14) {
+                    this.charts.sales.data.labels.shift();
+                    this.charts.sales.data.datasets[0].data.shift();
+                }
+                
+                this.charts.sales.update('none');
+            }
+
+            setupWebSocket() {
+                // Simulate WebSocket connection
+                console.log('🔌 WebSocket connection established');
+                this.showNotification('AI Analytics Dashboard Connected', 'success');
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                
+                if (type === 'success') {
+                    notification.style.background = 'rgba(16, 185, 129, 0.9)';
+                } else if (type === 'error') {
+                    notification.style.background = 'rgba(239, 68, 68, 0.9)';
+                }
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.classList.add('show'), 100);
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+        }
+
+        // AI Control Functions
+        function optimizeInventory() {
+            const dashboard = window.aiDashboard;
+            dashboard.showNotification('🤖 AI Inventory optimization started...', 'info');
+            
+            setTimeout(() => {
+                dashboard.showNotification('✅ Inventory optimized! 15% efficiency gain', 'success');
+            }, 2000);
+        }
+
+        function predictDemand() {
+            const dashboard = window.aiDashboard;
+            dashboard.showNotification('🔮 Running demand prediction models...', 'info');
+            
+            setTimeout(() => {
+                dashboard.showNotification('📈 Demand prediction complete: 23% increase expected', 'success');
+            }, 1500);
+        }
+
+        function pauseFeed() {
+            const dashboard = window.aiDashboard;
+            const button = document.getElementById('feedToggle');
+            
+            dashboard.feedActive = !dashboard.feedActive;
+            
+            if (dashboard.feedActive) {
+                button.innerHTML = '<i class="fas fa-pause"></i> Pause Feed';
+            } else {
+                button.innerHTML = '<i class="fas fa-play"></i> Resume Feed';
+            }
+        }
+
+        function clearFeed() {
+            const feedContainer = document.getElementById('aiFeed');
+            feedContainer.innerHTML = '';
+        }
+
+        // Initialize AI Dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            window.aiDashboard = new AIAnalyticsDashboard();
+        });
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    await navigator.serviceWorker.register('/ai-analytics-sw.js');
+                    console.log('🤖 AI Analytics PWA Service Worker registered');
+                } catch (error) {
+                    console.error('❌ PWA registration failed:', error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

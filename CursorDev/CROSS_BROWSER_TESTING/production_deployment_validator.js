@@ -359,7 +359,8 @@ class ProductionDeploymentValidator {
             ];
 
             criticalFunctions.forEach(func => {
-                if (typeof eval(func) === 'undefined') {
+                const funcRef = func.split('.').reduce((obj, prop) => obj && obj[prop], window);
+                if (typeof funcRef === 'undefined') {
                     issues.push(`Missing critical function: ${func}`);
                 }
             });

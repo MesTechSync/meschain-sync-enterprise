@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 MesChain-Sync Enhanced Enterprise Admin Dashboard</title>
+    
+    <!-- Enhanced Design System Integration -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <style>
+        /* Enhanced Theme System */
+        :root {
+            /* Light Theme Variables */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --border-color: #e2e8f0;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #06b6d4;
+        }
+
+        .dark {
+            /* Dark Theme Variables */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border-color: #334155;
+            --accent-primary: #60a5fa;
+            --accent-secondary: #a78bfa;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --error: #f87171;
+            --info: #22d3ee;
+        }
+
+        /* Enhanced Glass Morphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        /* Advanced Metric Cards */
+        .metric-card {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Enhanced Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Enhanced Sidebar */
+        .sidebar {
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            border-right: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 0.25rem 0;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-primary);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Enhanced Charts */
+        .chart-container {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Loading Animations */
+        .loading-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Enhanced Navigation Sidebar -->
+    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 z-50 transform transition-transform duration-300">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-chain text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-900 dark:text-white">MesChain</h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Enterprise v4.2</p>
+                </div>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <i class="ph ph-house-simple mr-3"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#analytics" class="nav-item" data-section="analytics">
+                    <i class="ph ph-chart-line mr-3"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#services" class="nav-item" data-section="services">
+                    <i class="ph ph-gear-six mr-3"></i>
+                    <span>Services</span>
+                </a>
+                <a href="#monitoring" class="nav-item" data-section="monitoring">
+                    <i class="ph ph-monitor mr-3"></i>
+                    <span>Monitoring</span>
+                </a>
+                <a href="#marketplace" class="nav-item" data-section="marketplace">
+                    <i class="ph ph-storefront mr-3"></i>
+                    <span>Marketplace</span>
+                </a>
+                <a href="#security" class="nav-item" data-section="security">
+                    <i class="ph ph-shield-check mr-3"></i>
+                    <span>Security</span>
+                </a>
+                <a href="#settings" class="nav-item" data-section="settings">
+                    <i class="ph ph-gear mr-3"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="absolute bottom-0 left-0 right-0 p-6">
+            <div class="space-y-3">
+                <button onclick="quickSync()" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:shadow-lg transition-all duration-200">
+                    <i class="ph ph-arrows-clockwise mr-2"></i>
+                    Quick Sync
+                </button>
+                <button onclick="generateReport()" class="w-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200">
+                    <i class="ph ph-file-text mr-2"></i>
+                    Generate Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="ml-64 min-h-screen">
+        <!-- Enhanced Header -->
+        <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Enterprise Dashboard</h1>
+                    <p class="text-gray-500 dark:text-gray-400">Real-time monitoring and management</p>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Real-time Status -->
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Live</span>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        <i class="ph ph-moon text-gray-600 dark:text-gray-400"></i>
+                    </button>
+
+                    <!-- User Profile -->
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-semibold">SA</span>
+                        </div>
+                        <div class="hidden md:block">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Super Admin</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">admin@meschain.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="p-6">
+            <!-- Enhanced System Overview -->
+            <section id="dashboard-section" class="fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Total Services -->
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                                <i class="ph ph-gear-six text-white text-xl"></i>
+                            </div>
+                            <span class="status-indicator status-active">Active</span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1" id="totalServices">23</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Running Services</p>
+                        <div class="mt-3 flex items-center text-green-600 text-sm">
+                            <i class="ph ph-trend-up mr-1"></i>
+                            <span>+2 from yesterday</span>
+                        </div>
+                    </div>
+
+                    <!-- System Health -->
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                                <i class="ph ph-heart text-white text-xl"></i>
+                            </div>
+                            <span class="status-indicator status-active">Excellent</span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1" id="systemHealth">98.7%</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">System Health</p>
+                        <div class="mt-3 flex items-center text-green-600 text-sm">
+                            <i class="ph ph-check-circle mr-1"></i>
+                            <span>All systems operational</span>
+                        </div>
+                    </div>
+
+                    <!-- Active Users -->
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                                <i class="ph ph-users text-white text-xl"></i>
+                            </div>
+                            <span class="status-indicator status-active">Online</span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1" id="activeUsers">1,247</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Active Users</p>
+                        <div class="mt-3 flex items-center text-green-600 text-sm">
+                            <i class="ph ph-trend-up mr-1"></i>
+                            <span>+15% this hour</span>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Today -->
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+                                <i class="ph ph-currency-dollar text-white text-xl"></i>
+                            </div>
+                            <span class="status-indicator status-active">Growing</span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1" id="revenueToday">$47,239</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Revenue Today</p>
+                        <div class="mt-3 flex items-center text-green-600 text-sm">
+                            <i class="ph ph-trend-up mr-1"></i>
+                            <span>+8.3% vs yesterday</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Performance Chart -->
+                    <div class="glass-card p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">System Performance</h3>
+                            <div class="flex items-center space-x-2">
+                                <button class="text-xs px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full">24H</button>
+                                <button class="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">7D</button>
+                                <button class="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">30D</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="performanceChart" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Chart -->
+                    <div class="glass-card p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Revenue Analytics</h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-green-600 font-medium">+12.5%</span>
+                                <i class="ph ph-trend-up text-green-600"></i>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="revenueChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Services Status -->
+                <div class="glass-card p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Active Services Status</h3>
+                        <button onclick="refreshServices()" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                            <i class="ph ph-arrows-clockwise mr-1"></i>
+                            Refresh
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="servicesGrid">
+                        <!-- Services will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Enhanced JavaScript -->
+    <script>
+        class EnhancedAdminDashboard {
+            constructor() {
+                this.charts = {};
+                this.services = [];
+                this.currentTheme = 'light';
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadServices();
+                this.initializeCharts();
+                this.startRealTimeUpdates();
+                this.checkSystemHealth();
+            }
+
+            setupEventListeners() {
+                // Theme toggle
+                document.getElementById('themeToggle').addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+
+                // Navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.navigateToSection(item.dataset.section);
+                    });
+                });
+
+                // Mobile sidebar toggle
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768) {
+                        const sidebar = document.getElementById('sidebar');
+                        if (!sidebar.contains(e.target)) {
+                            sidebar.classList.remove('open');
+                        }
+                    }
+                });
+            }
+
+            toggleTheme() {
+                const html = document.documentElement;
+                const themeIcon = document.querySelector('#themeToggle i');
+                
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    themeIcon.className = 'ph ph-moon text-gray-600';
+                    this.currentTheme = 'light';
+                } else {
+                    html.classList.add('dark');
+                    themeIcon.className = 'ph ph-sun text-gray-400';
+                    this.currentTheme = 'dark';
+                }
+                
+                // Update charts theme
+                this.updateChartsTheme();
+            }
+
+            navigateToSection(section) {
+                // Update navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+                // Show/hide sections (would be implemented for multiple sections)
+                console.log(`Navigating to ${section}`);
+            }
+
+            async loadServices() {
+                // Simulate loading services
+                const mockServices = [
+                    { port: 3000, name: 'Main Dashboard', status: 'active', cpu: 45, memory: 67 },
+                    { port: 3002, name: 'Admin Panel', status: 'active', cpu: 32, memory: 54 },
+                    { port: 3004, name: 'Performance Monitor', status: 'active', cpu: 28, memory: 43 },
+                    { port: 3005, name: 'Product Management', status: 'active', cpu: 41, memory: 58 },
+                    { port: 3006, name: 'Order Management', status: 'active', cpu: 36, memory: 61 },
+                    { port: 3007, name: 'Inventory System', status: 'active', cpu: 39, memory: 52 },
+                    { port: 3023, name: 'Super Admin Panel', status: 'active', cpu: 33, memory: 48 },
+                    { port: 8080, name: 'API Gateway', status: 'active', cpu: 55, memory: 72 }
+                ];
+
+                this.services = mockServices;
+                this.renderServices();
+            }
+
+            renderServices() {
+                const grid = document.getElementById('servicesGrid');
+                grid.innerHTML = '';
+
+                this.services.forEach(service => {
+                    const serviceCard = document.createElement('div');
+                    serviceCard.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-lg transition-all duration-200';
+                    
+                    serviceCard.innerHTML = `
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                    <i class="ph ph-gear-six text-white text-sm"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-900 dark:text-white">${service.name}</h4>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Port ${service.port}</p>
+                                </div>
+                            </div>
+                            <span class="status-indicator status-${service.status}">${service.status}</span>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-600 dark:text-gray-400">CPU</span>
+                                <span class="font-medium text-gray-900 dark:text-white">${service.cpu}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: ${service.cpu}%"></div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-600 dark:text-gray-400">Memory</span>
+                                <span class="font-medium text-gray-900 dark:text-white">${service.memory}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full transition-all duration-300" style="width: ${service.memory}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 flex space-x-2">
+                            <button onclick="openService(${service.port})" class="flex-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 py-2 px-3 rounded-md text-xs font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
+                                Open
+                            </button>
+                            <button onclick="restartService(${service.port})" class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 py-2 px-3 rounded-md text-xs font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                Restart
+                            </button>
+                        </div>
+                    `;
+                    
+                    grid.appendChild(serviceCard);
+                });
+            }
+
+            initializeCharts() {
+                this.initializePerformanceChart();
+                this.initializeRevenueChart();
+            }
+
+            initializePerformanceChart() {
+                const ctx = document.getElementById('performanceChart').getContext('2d');
+                
+                this.charts.performance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                        datasets: [{
+                            label: 'CPU Usage',
+                            data: [45, 52, 48, 61, 58, 55, 62],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }, {
+                            label: 'Memory Usage',
+                            data: [67, 71, 69, 75, 73, 70, 77],
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    color: this.currentTheme === 'dark' ? '#cbd5e1' : '#64748b'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: this.currentTheme === 'dark' ? '#334155' : '#e2e8f0'
+                                },
+                                ticks: {
+                                    color: this.currentTheme === 'dark' ? '#94a3b8' : '#64748b'
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: this.currentTheme === 'dark' ? '#334155' : '#e2e8f0'
+                                },
+                                ticks: {
+                                    color: this.currentTheme === 'dark' ? '#94a3b8' : '#64748b'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            initializeRevenueChart() {
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                
+                this.charts.revenue = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Revenue',
+                            data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: this.currentTheme === 'dark' ? '#94a3b8' : '#64748b'
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: this.currentTheme === 'dark' ? '#334155' : '#e2e8f0'
+                                },
+                                ticks: {
+                                    color: this.currentTheme === 'dark' ? '#94a3b8' : '#64748b',
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            updateChartsTheme() {
+                Object.values(this.charts).forEach(chart => {
+                    if (chart.options.plugins.legend.labels) {
+                        chart.options.plugins.legend.labels.color = this.currentTheme === 'dark' ? '#cbd5e1' : '#64748b';
+                    }
+                    
+                    if (chart.options.scales) {
+                        Object.values(chart.options.scales).forEach(scale => {
+                            if (scale.grid) {
+                                scale.grid.color = this.currentTheme === 'dark' ? '#334155' : '#e2e8f0';
+                            }
+                            if (scale.ticks) {
+                                scale.ticks.color = this.currentTheme === 'dark' ? '#94a3b8' : '#64748b';
+                            }
+                        });
+                    }
+                    
+                    chart.update();
+                });
+            }
+
+            startRealTimeUpdates() {
+                setInterval(() => {
+                    this.updateMetrics();
+                    this.updateCharts();
+                }, 30000); // Update every 30 seconds
+            }
+
+            updateMetrics() {
+                // Simulate real-time metric updates
+                const metrics = {
+                    totalServices: Math.floor(Math.random() * 5) + 20,
+                    systemHealth: (Math.random() * 5 + 95).toFixed(1),
+                    activeUsers: Math.floor(Math.random() * 200) + 1100,
+                    revenueToday: Math.floor(Math.random() * 10000) + 40000
+                };
+
+                document.getElementById('totalServices').textContent = metrics.totalServices;
+                document.getElementById('systemHealth').textContent = metrics.systemHealth + '%';
+                document.getElementById('activeUsers').textContent = metrics.activeUsers.toLocaleString();
+                document.getElementById('revenueToday').textContent = '$' + metrics.revenueToday.toLocaleString();
+            }
+
+            updateCharts() {
+                // Update performance chart with new data
+                if (this.charts.performance) {
+                    const newCpuData = this.charts.performance.data.datasets[0].data;
+                    const newMemoryData = this.charts.performance.data.datasets[1].data;
+                    
+                    newCpuData.shift();
+                    newCpuData.push(Math.floor(Math.random() * 30) + 40);
+                    
+                    newMemoryData.shift();
+                    newMemoryData.push(Math.floor(Math.random() * 20) + 60);
+                    
+                    this.charts.performance.update();
+                }
+            }
+
+            async checkSystemHealth() {
+                try {
+                    // Check if services are responding
+                    const healthChecks = await Promise.allSettled(
+                        this.services.map(service => 
+                            fetch(`http://localhost:${service.port}/health`)
+                                .then(res => ({ port: service.port, status: res.ok ? 'active' : 'inactive' }))
+                                .catch(() => ({ port: service.port, status: 'inactive' }))
+                        )
+                    );
+
+                    healthChecks.forEach(result => {
+                        if (result.status === 'fulfilled') {
+                            const service = this.services.find(s => s.port === result.value.port);
+                            if (service) {
+                                service.status = result.value.status;
+                            }
+                        }
+                    });
+
+                    this.renderServices();
+                } catch (error) {
+                    console.error('Health check failed:', error);
+                }
+            }
+        }
+
+        // Global functions for UI interactions
+        function openService(port) {
+            window.open(`http://localhost:${port}`, '_blank');
+        }
+
+        function restartService(port) {
+            // Simulate service restart
+            console.log(`Restarting service on port ${port}`);
+            
+            // Show confirmation
+            if (confirm(`Are you sure you want to restart the service on port ${port}?`)) {
+                // Simulate restart process
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                notification.textContent = `Service on port ${port} is restarting...`;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                    
+                    const successNotification = document.createElement('div');
+                    successNotification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    successNotification.textContent = `Service on port ${port} restarted successfully!`;
+                    document.body.appendChild(successNotification);
+                    
+                    setTimeout(() => successNotification.remove(), 3000);
+                }, 2000);
+            }
+        }
+
+        function refreshServices() {
+            window.dashboard.loadServices();
+            window.dashboard.checkSystemHealth();
+        }
+
+        function quickSync() {
+            console.log('Performing quick sync...');
+            
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-purple-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            notification.textContent = 'Quick sync in progress...';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+                
+                const successNotification = document.createElement('div');
+                successNotification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                successNotification.textContent = 'Sync completed successfully!';
+                document.body.appendChild(successNotification);
+                
+                setTimeout(() => successNotification.remove(), 3000);
+            }, 3000);
+        }
+
+        function generateReport() {
+            console.log('Generating system report...');
+            
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-amber-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            notification.textContent = 'Generating report...';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+                
+                const successNotification = document.createElement('div');
+                successNotification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                successNotification.textContent = 'Report generated successfully!';
+                document.body.appendChild(successNotification);
+                
+                setTimeout(() => successNotification.remove(), 3000);
+            }, 2000);
+        }
+
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.dashboard = new EnhancedAdminDashboard();
+            console.log('🚀 Enhanced MesChain Admin Dashboard initialized successfully!');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob: ws: wss:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; style-src 'self' 'unsafe-inline' https: data:; font-src 'self' https: data:; connect-src 'self' https: ws: wss: ws://localhost:3005 wss://localhost:3005; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 MesChain-Sync Super Admin Panel - Official v4.1</title>
+    
+    <!-- Essential External Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Critical CSS -->
+    <style>
+        :root {
+            --bg-primary: #f1f5f9;
+            --bg-secondary: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-primary: #6d28d9;
+            --accent-secondary: #8b5cf6;
+            --border-primary: rgba(0, 0, 0, 0.1);
+            --theme-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --accent-primary: #8b5cf6;
+            --accent-secondary: #a78bfa;
+            --border-primary: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            transition: var(--theme-transition);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border-primary);
+            border-top: 4px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .main-container {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .main-container.loaded {
+            opacity: 1;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-primary);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .theme-toggle {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            margin: 0 0 1rem 0;
+            color: var(--accent-primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online { background: #10b981; }
+        .status-warning { background: #f59e0b; }
+        .status-offline { background: #ef4444; }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        [data-theme="dark"] .error-message {
+            background: #7f1d1d;
+            border-color: #dc2626;
+            color: #fca5a5;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-status {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .status-success {
+            background: #ecfdf5;
+            color: #065f46;
+        }
+
+        .status-info {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .status-warning {
+            background: #fef3c7;
+                <h2 class="dashboard-title">
+                    🚀 MesChain-Sync Enterprise Dashboard
+                </h2>
+                <p class="dashboard-subtitle">
+                    Advanced multi-marketplace integration platform with real-time chain synchronization and AI-powered analytics
+                </p>
+        }
+
+        .quick-actions-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .quick-actions-section {
+            margin-top: 3rem;
+        }
+
+        .action-button {
+            cursor: pointer;
+            border: none;
+            text-align: left;
+        }
+
+        .action-description {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .component-status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-primary);
+        }
+
+        .component-title {
+            margin: 0 0 1rem 0;
+            color: var(--accent-primary);
+        }
+
+        .component-list {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .status-header {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">🔗 MesChain-Sync Loading...</div>
+        <div class="loading-text" style="font-size: 12px; margin-top: 5px;">Initializing modular components...</div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="mainContainer" class="main-container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🔗 MesChain-Sync Super Admin Panel v4.1</h1>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="font-size: 12px; color: var(--text-secondary);">
+                    <span class="status-indicator status-online"></span>
+                    System Online
+                </div>
+                <button id="themeToggle" class="theme-toggle">
+                    <i class="ph ph-sun" id="themeIcon"></i>
+                    <span id="themeText">Light Mode</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message">
+            <strong>⚠️ Component Loading Error:</strong>
+            <span id="errorText"></span>
+        </div>
+
+        <!-- Content -->
+        <main class="content">
+            <div>
+                <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    🚀 MesChain-Sync Enterprise Dashboard
+                </h2>
+                <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2rem;">
+                    Advanced multi-marketplace integration platform with real-time chain synchronization and AI-powered analytics
+                </p>
+            </div>
+
+            <!-- Dashboard Metrics -->
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>🔗 Chain Sync Status</h3>
+                    <div class="metric-value">99.98%</div>
+                    <div class="metric-label">Uptime Performance</div>
+                    <div style="margin-top: 1rem; padding: 0.5rem; background: #ecfdf5; border-radius: 8px; font-size: 0.875rem; color: #065f46;">
+                        ✅ All chains synchronized
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>💰 Revenue Impact</h3>
+                    <div class="metric-value">₺2.847M</div>
+                    <div class="metric-label">Monthly Performance</div>
+                    <div style="margin-top: 1rem; padding: 0.5rem; background: #eff6ff; border-radius: 8px; font-size: 0.875rem; color: #1d4ed8;">
+                        📈 +89.2% growth
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🌐 Network Health</h3>
+                    <div class="metric-value">96.4%</div>
+                    <div class="metric-label">Mesh Network Status</div>
+                    <div style="margin-top: 1rem; padding: 0.5rem; background: #fef3c7; border-radius: 8px; font-size: 0.875rem; color: #92400e;">
+                        ⚡ AI-enhanced optimization
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔧 System Integration</h3>
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">Component Status</div>
+                    <div style="margin-top: 1rem; padding: 0.5rem; background: #f3e8ff; border-radius: 8px; font-size: 0.875rem; color: #6b21a8;">
+                        🎯 All systems operational
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="margin-top: 3rem;">
+                <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--text-primary);">
+                    🎛️ Quick Actions
+                </h3>
+                <div class="dashboard-grid">
+                    <button class="card" onclick="loadFullDashboard()" style="cursor: pointer; border: none; text-align: left;">
+                        <h3>📊 Full Dashboard</h3>
+                        <p style="color: var(--text-secondary); margin: 0;">Load complete admin interface with all components</p>
+                    </button>
+                    
+                    <button class="card" onclick="loadSystemMonitoring()" style="cursor: pointer; border: none; text-align: left;">
+                        <h3>🔍 System Monitoring</h3>
+                        <p style="color: var(--text-secondary); margin: 0;">Real-time system performance and health monitoring</p>
+                    </button>
+                    
+                    <button class="card" onclick="loadUserManagement()" style="cursor: pointer; border: none; text-align: left;">
+                        <h3>👥 User Management</h3>
+                        <p style="color: var(--text-secondary); margin: 0;">Manage users, roles, and access permissions</p>
+                    </button>
+                    
+                    <button class="card" onclick="loadAnalytics()" style="cursor: pointer; border: none; text-align: left;">
+                        <h3>📈 Advanced Analytics</h3>
+                        <p style="color: var(--text-secondary); margin: 0;">AI-powered analytics and business intelligence</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Component Loading Status -->
+            <div id="componentStatus" style="margin-top: 2rem; padding: 1rem; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-primary);">
+                <h3 style="margin: 0 0 1rem 0; color: var(--accent-primary);">🔧 Modular Component System</h3>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
+                    <p>✅ <strong>Core System:</strong> Loaded successfully</p>
+                    <p>⏳ <strong>Full Dashboard:</strong> Ready for lazy loading</p>
+                    <p>⏳ <strong>Advanced Components:</strong> Available on demand</p>
+                    <p>✅ <strong>Theme System:</strong> Operational</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Essential JavaScript -->
+    <script>
+        // Theme Management
+        let currentTheme = localStorage.getItem('meschain-theme') || 'light';
+        
+        function setTheme(theme) {
+            currentTheme = theme;
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('meschain-theme', theme);
+            
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (theme === 'dark') {
+                themeIcon.className = 'ph ph-moon';
+                themeText.textContent = 'Dark Mode';
+            } else {
+                themeIcon.className = 'ph ph-sun';
+                themeText.textContent = 'Light Mode';
+            }
+        }
+        
+        function toggleTheme() {
+            setTheme(currentTheme === 'light' ? 'dark' : 'light');
+        }
+        
+        // Error Handling
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Component Loading Functions
+        function loadFullDashboard() {
+            // Simulate loading the original large dashboard
+            window.location.href = 'meschain_sync_super_admin.html';
+        }
+        
+        function loadSystemMonitoring() {
+            alert('🔍 System Monitoring module will be loaded as a separate component. Feature coming soon!');
+        }
+        
+        function loadUserManagement() {
+            alert('👥 User Management module will be loaded as a separate component. Feature coming soon!');
+        }
+        
+        function loadAnalytics() {
+            alert('📈 Advanced Analytics module will be loaded as a separate component. Feature coming soon!');
+        }
+        
+        // Page Initialization
+        function initializePage() {
+            try {
+                // Set initial theme
+                setTheme(currentTheme);
+                
+                // Add event listeners
+                document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+                
+                // Hide loading screen
+                const loadingScreen = document.getElementById('loadingScreen');
+                const mainContainer = document.getElementById('mainContainer');
+                
+                setTimeout(() => {
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        mainContainer.classList.add('loaded');
+                    }, 500);
+                }, 1000);
+                
+                console.log('🚀 MesChain-Sync Modular Admin Panel initialized successfully');
+                
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+                showError('Failed to initialize admin panel: ' + error.message);
+            }
+        }
+        
+        // Global error handler
+        window.addEventListener('error', function(event) {
+            console.error('🚨 JavaScript Error:', event.error);
+            showError('JavaScript error occurred. Please check console for details.');
+        });
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializePage);
+        } else {
+            initializePage();
+        }
+        
+        // Day mode activation warning (from original file)
+        console.log('🌙 Day mode activation warning system is active');
+    </script>
+</body>
+</html>

@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 MesChain-Sync Advanced System Monitor</title>
+    
+    <!-- Enhanced Design System -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Advanced System Monitor Styles */
+        :root {
+            --primary: #3b82f6;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #06b6d4;
+            --dark: #0f172a;
+            --light: #f8fafc;
+        }
+
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .monitor-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .monitor-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-color: rgba(59,130,246,0.3);
+        }
+
+        .metric-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin: 0.5rem 0;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-active { background-color: var(--success); }
+        .status-warning { background-color: var(--warning); }
+        .status-error { background-color: var(--error); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .terminal-output {
+            background: #0d1117;
+            color: #c9d1d9;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 1rem;
+            border-radius: 8px;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin: 0.25rem 0;
+            opacity: 0;
+            animation: fadeInUp 0.3s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .network-graph {
+            background: radial-gradient(circle at center, rgba(59,130,246,0.1) 0%, transparent 70%);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .connection-line {
+            position: absolute;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            height: 1px;
+            animation: pulse-line 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-line {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-monitor text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold">Advanced System Monitor</h1>
+                    <p class="text-gray-400 text-sm">Real-time enterprise monitoring dashboard</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <div class="status-dot status-active"></div>
+                    <span class="text-sm text-gray-400">System Healthy</span>
+                </div>
+                <button id="refreshBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i class="ph ph-arrows-clockwise mr-2"></i>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="p-6">
+        <!-- System Overview -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-6">System Overview</h2>
+            <div class="monitor-grid">
+                <!-- CPU Monitor -->
+                <div class="monitor-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">CPU Usage</h3>
+                        <div class="relative w-16 h-16">
+                            <svg class="w-16 h-16 progress-ring">
+                                <circle cx="32" cy="32" r="28" stroke="rgba(59,130,246,0.2)" stroke-width="4" fill="none"/>
+                                <circle id="cpuProgress" cx="32" cy="32" r="28" stroke="#3b82f6" stroke-width="4" fill="none"
+                                        stroke-dasharray="175.93" stroke-dashoffset="175.93" class="progress-ring-circle"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span id="cpuPercentage" class="text-sm font-bold">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="metric-display">
+                            <span class="text-gray-400">Cores</span>
+                            <span id="cpuCores">8</span>
+                        </div>
+                        <div class="metric-display">
+                            <span class="text-gray-400">Load Average</span>
+                            <span id="loadAverage">2.1</span>
+                        </div>
+                        <div class="metric-display">
+                            <span class="text-gray-400">Temperature</span>
+                            <span id="cpuTemp">65°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memory Monitor -->
+                <div class="monitor-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">Memory Usage</h3>
+                        <div class="relative w-16 h-16">
+                            <svg class="w-16 h-16 progress-ring">
+                                <circle cx="32" cy="32" r="28" stroke="rgba(139,92,246,0.2)" stroke-width="4" fill="none"/>
+                                <circle id="memoryProgress" cx="32" cy="32" r="28" stroke="#8b5cf6" stroke-width="4" fill="none"
+                                        stroke-dasharray="175.93" stroke-dashoffset="175.93" class="progress-ring-circle"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span id="memoryPercentage" class="text-sm font-bold">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="metric-display">
+                            <span class="text-gray-400">Used</span>
+                            <span id="memoryUsed">8.2 GB</span>
+                        </div>
+                        <div class="metric-display">
+                            <span class="text-gray-400">Available</span>
+                            <span id="memoryAvailable">7.8 GB</span>
+                        </div>
+                        <div class="metric-display">
+                            <span class="text-gray-400">Cached</span>
+                            <span id="memoryCached">2.1 GB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Network Monitor -->
+                <div class="monitor-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">Network Activity</h3>
+                        <div class="flex items-center space-x-2">
+                            <div class="status-dot status-active"></div>
+                            <span class="text-sm text-gray-400">Active</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="metric-display">
+                            <span class="text-gray-400">Download</span>
+                            <span id="networkDown" class="text-green-400">↓ 125.3 MB/s</span>
+                        </div>
+                        <div class="metric-display">
+                            <span class="text-gray-400">Upload</span>
+                            <span id="networkUp" class="text-blue-400">↑ 87.2 MB/s</span>
+                        </div>
+                        <div class="metric-display">
+                            <span class="text-gray-400">Connections</span>
+                            <span id="connections">1,247</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Disk I/O Monitor -->
+                <div class="monitor-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">Disk I/O</h3>
+                        <div class="relative w-16 h-16">
+                            <svg class="w-16 h-16 progress-ring">
+                                <circle cx="32" cy="32" r="28" stroke="rgba(16,185,129,0.2)" stroke-width="4" fill="none"/>
+                                <circle id="diskProgress" cx="32" cy="32" r="28" stroke="#10b981" stroke-width="4" fill="none"
+                                        stroke-dasharray="175.93" stroke-dashoffset="175.93" class="progress-ring-circle"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span id="diskPercentage" class="text-sm font-bold">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="metric-display">
+                            <span class="text-gray-400">Read</span>
+                            <span id="diskRead">45.2 MB/s</span>
+                        </div>
+                        <div class="metric-display">
+                            <span class="text-gray-400">Write</span>
+                            <span id="diskWrite">23.8 MB/s</span>
+                        </div>
+                        <div class="metric-display">
+                            <span class="text-gray-400">IOPS</span>
+                            <span id="diskIOPS">2,847</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Service Status Grid -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-6">Active Services</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="servicesGrid">
+                <!-- Services will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Real-time Logs and Network Topology -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- System Logs -->
+            <div class="monitor-card">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">System Logs</h3>
+                    <button onclick="clearLogs()" class="text-gray-400 hover:text-white text-sm">
+                        <i class="ph ph-trash mr-1"></i>
+                        Clear
+                    </button>
+                </div>
+                <div id="logOutput" class="terminal-output">
+                    <!-- Logs will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Network Topology -->
+            <div class="monitor-card">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">Network Topology</h3>
+                    <span class="text-sm text-gray-400">Real-time connections</span>
+                </div>
+                <div id="networkGraph" class="network-graph h-48 relative">
+                    <!-- Network visualization will be generated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Charts -->
+        <section class="mt-8">
+            <h2 class="text-2xl font-bold mb-6">Performance Analytics</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="monitor-card">
+                    <h3 class="text-lg font-semibold mb-4">System Performance</h3>
+                    <canvas id="performanceChart" height="300"></canvas>
+                </div>
+                <div class="monitor-card">
+                    <h3 class="text-lg font-semibold mb-4">Resource Utilization</h3>
+                    <canvas id="resourceChart" height="300"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        class AdvancedSystemMonitor {
+            constructor() {
+                this.charts = {};
+                this.updateInterval = null;
+                this.logCount = 0;
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.initializeCharts();
+                this.loadInitialData();
+                this.startRealTimeUpdates();
+                this.generateNetworkTopology();
+            }
+
+            setupEventListeners() {
+                document.getElementById('refreshBtn').addEventListener('click', () => {
+                    this.refreshAllData();
+                });
+
+                // Auto-refresh toggle
+                let autoRefresh = true;
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === ' ') {
+                        e.preventDefault();
+                        autoRefresh = !autoRefresh;
+                        if (autoRefresh) {
+                            this.startRealTimeUpdates();
+                        } else {
+                            this.stopRealTimeUpdates();
+                        }
+                    }
+                });
+            }
+
+            updateProgressRing(elementId, percentage) {
+                const circle = document.getElementById(elementId);
+                const radius = 28;
+                const circumference = 2 * Math.PI * radius;
+                const offset = circumference - (percentage / 100) * circumference;
+                
+                circle.style.strokeDashoffset = offset;
+            }
+
+            updateSystemMetrics() {
+                // Simulate real system metrics
+                const cpu = Math.floor(Math.random() * 40) + 30;
+                const memory = Math.floor(Math.random() * 30) + 50;
+                const disk = Math.floor(Math.random() * 25) + 40;
+
+                // Update CPU
+                document.getElementById('cpuPercentage').textContent = cpu + '%';
+                this.updateProgressRing('cpuProgress', cpu);
+                document.getElementById('loadAverage').textContent = (Math.random() * 3 + 1).toFixed(1);
+                document.getElementById('cpuTemp').textContent = Math.floor(Math.random() * 20 + 60) + '°C';
+
+                // Update Memory
+                document.getElementById('memoryPercentage').textContent = memory + '%';
+                this.updateProgressRing('memoryProgress', memory);
+                const used = (16 * memory / 100).toFixed(1);
+                const available = (16 - used).toFixed(1);
+                document.getElementById('memoryUsed').textContent = used + ' GB';
+                document.getElementById('memoryAvailable').textContent = available + ' GB';
+                document.getElementById('memoryCached').textContent = (Math.random() * 3 + 1).toFixed(1) + ' GB';
+
+                // Update Disk
+                document.getElementById('diskPercentage').textContent = disk + '%';
+                this.updateProgressRing('diskProgress', disk);
+                document.getElementById('diskRead').textContent = (Math.random() * 50 + 20).toFixed(1) + ' MB/s';
+                document.getElementById('diskWrite').textContent = (Math.random() * 30 + 10).toFixed(1) + ' MB/s';
+                document.getElementById('diskIOPS').textContent = Math.floor(Math.random() * 2000 + 1000).toLocaleString();
+
+                // Update Network
+                document.getElementById('networkDown').textContent = `↓ ${(Math.random() * 100 + 50).toFixed(1)} MB/s`;
+                document.getElementById('networkUp').textContent = `↑ ${(Math.random() * 50 + 30).toFixed(1)} MB/s`;
+                document.getElementById('connections').textContent = Math.floor(Math.random() * 500 + 1000).toLocaleString();
+            }
+
+            loadServices() {
+                const services = [
+                    { port: 3000, name: 'Main Dashboard', status: 'active', uptime: '2d 14h' },
+                    { port: 3002, name: 'Admin Panel', status: 'active', uptime: '2d 14h' },
+                    { port: 3004, name: 'Performance Monitor', status: 'active', uptime: '2d 13h' },
+                    { port: 3005, name: 'Product Management', status: 'active', uptime: '2d 12h' },
+                    { port: 3006, name: 'Order Management', status: 'active', uptime: '2d 11h' },
+                    { port: 3007, name: 'Inventory System', status: 'active', uptime: '2d 10h' },
+                    { port: 3023, name: 'Super Admin Panel', status: 'active', uptime: '1d 23h' },
+                    { port: 3025, name: 'Enhanced Dashboard', status: 'active', uptime: '45m' },
+                    { port: 8080, name: 'API Gateway', status: 'active', uptime: '2d 14h' }
+                ];
+
+                const grid = document.getElementById('servicesGrid');
+                grid.innerHTML = '';
+
+                services.forEach(service => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-blue-500 transition-all duration-200';
+                    
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="status-dot status-${service.status}"></div>
+                                <span class="font-medium">${service.name}</span>
+                            </div>
+                            <span class="text-xs text-gray-400">:${service.port}</span>
+                        </div>
+                        <div class="text-xs text-gray-400">
+                            <div>Status: ${service.status}</div>
+                            <div>Uptime: ${service.uptime}</div>
+                        </div>
+                        <div class="mt-3 flex space-x-2">
+                            <button onclick="openService(${service.port})" class="flex-1 bg-blue-600 hover:bg-blue-700 py-1 px-2 rounded text-xs">
+                                Open
+                            </button>
+                            <button onclick="restartService(${service.port})" class="flex-1 bg-gray-600 hover:bg-gray-700 py-1 px-2 rounded text-xs">
+                                Restart
+                            </button>
+                        </div>
+                    `;
+                    
+                    grid.appendChild(card);
+                });
+            }
+
+            addLogEntry(message, type = 'info') {
+                const logOutput = document.getElementById('logOutput');
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                
+                const typeColors = {
+                    info: '#06b6d4',
+                    success: '#10b981',
+                    warning: '#f59e0b',
+                    error: '#ef4444'
+                };
+
+                entry.innerHTML = `
+                    <span style="color: #64748b">[${timestamp}]</span>
+                    <span style="color: ${typeColors[type]}">[${type.toUpperCase()}]</span>
+                    <span>${message}</span>
+                `;
+
+                logOutput.appendChild(entry);
+                
+                // Keep only last 50 entries
+                if (logOutput.children.length > 50) {
+                    logOutput.removeChild(logOutput.firstChild);
+                }
+                
+                logOutput.scrollTop = logOutput.scrollHeight;
+                this.logCount++;
+            }
+
+            generateNetworkTopology() {
+                const graph = document.getElementById('networkGraph');
+                graph.innerHTML = '';
+
+                // Create nodes and connections
+                const nodes = [
+                    { x: 50, y: 50, id: 'gateway' },
+                    { x: 150, y: 30, id: 'admin' },
+                    { x: 250, y: 70, id: 'api' },
+                    { x: 100, y: 120, id: 'db' },
+                    { x: 200, y: 140, id: 'cache' }
+                ];
+
+                // Create connections
+                const connections = [
+                    { from: 0, to: 1 }, { from: 0, to: 2 }, { from: 0, to: 3 },
+                    { from: 1, to: 2 }, { from: 2, to: 3 }, { from: 2, to: 4 }
+                ];
+
+                connections.forEach((conn, index) => {
+                    const line = document.createElement('div');
+                    line.className = 'connection-line';
+                    const fromNode = nodes[conn.from];
+                    const toNode = nodes[conn.to];
+                    
+                    const length = Math.sqrt(Math.pow(toNode.x - fromNode.x, 2) + Math.pow(toNode.y - fromNode.y, 2));
+                    const angle = Math.atan2(toNode.y - fromNode.y, toNode.x - fromNode.x) * 180 / Math.PI;
+                    
+                    line.style.width = length + 'px';
+                    line.style.left = fromNode.x + 'px';
+                    line.style.top = fromNode.y + 'px';
+                    line.style.transform = `rotate(${angle}deg)`;
+                    line.style.animationDelay = index * 0.2 + 's';
+                    
+                    graph.appendChild(line);
+                });
+
+                // Create nodes
+                nodes.forEach((node, index) => {
+                    const nodeElement = document.createElement('div');
+                    nodeElement.className = 'node';
+                    nodeElement.style.left = node.x + 'px';
+                    nodeElement.style.top = node.y + 'px';
+                    nodeElement.style.animationDelay = index * 0.1 + 's';
+                    nodeElement.title = node.id;
+                    
+                    graph.appendChild(nodeElement);
+                });
+            }
+
+            initializeCharts() {
+                this.initializePerformanceChart();
+                this.initializeResourceChart();
+            }
+
+            initializePerformanceChart() {
+                const ctx = document.getElementById('performanceChart').getContext('2d');
+                
+                this.charts.performance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({length: 20}, (_, i) => `${i}s`),
+                        datasets: [{
+                            label: 'CPU %',
+                            data: Array.from({length: 20}, () => Math.random() * 40 + 30),
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }, {
+                            label: 'Memory %',
+                            data: Array.from({length: 20}, () => Math.random() * 30 + 50),
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#94a3b8' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: '#374151' },
+                                ticks: { color: '#9ca3af' }
+                            },
+                            y: {
+                                grid: { color: '#374151' },
+                                ticks: { color: '#9ca3af' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            initializeResourceChart() {
+                const ctx = document.getElementById('resourceChart').getContext('2d');
+                
+                this.charts.resource = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['CPU', 'Memory', 'Disk', 'Network'],
+                        datasets: [{
+                            data: [65, 75, 45, 85],
+                            backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#94a3b8' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            startRealTimeUpdates() {
+                if (this.updateInterval) return;
+                
+                this.updateInterval = setInterval(() => {
+                    this.updateSystemMetrics();
+                    this.updateCharts();
+                    this.addRandomLogEntry();
+                }, 2000);
+
+                this.addLogEntry('Real-time monitoring started', 'success');
+            }
+
+            stopRealTimeUpdates() {
+                if (this.updateInterval) {
+                    clearInterval(this.updateInterval);
+                    this.updateInterval = null;
+                    this.addLogEntry('Real-time monitoring paused', 'warning');
+                }
+            }
+
+            updateCharts() {
+                if (this.charts.performance) {
+                    const datasets = this.charts.performance.data.datasets;
+                    datasets.forEach(dataset => {
+                        dataset.data.shift();
+                        dataset.data.push(Math.random() * 40 + 30);
+                    });
+                    this.charts.performance.update('none');
+                }
+
+                if (this.charts.resource) {
+                    this.charts.resource.data.datasets[0].data = [
+                        Math.random() * 40 + 30,
+                        Math.random() * 30 + 50,
+                        Math.random() * 25 + 40,
+                        Math.random() * 20 + 70
+                    ];
+                    this.charts.resource.update();
+                }
+            }
+
+            addRandomLogEntry() {
+                const messages = [
+                    'Service health check completed',
+                    'Database connection pool optimized',
+                    'Cache hit ratio: 94.7%',
+                    'API response time: 127ms',
+                    'Memory cleanup completed',
+                    'Security scan: No threats detected',
+                    'Backup process completed',
+                    'Network latency optimized'
+                ];
+                
+                const types = ['info', 'success', 'warning'];
+                const message = messages[Math.floor(Math.random() * messages.length)];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                this.addLogEntry(message, type);
+            }
+
+            loadInitialData() {
+                this.updateSystemMetrics();
+                this.loadServices();
+                this.addLogEntry('System monitor initialized', 'success');
+                this.addLogEntry('All services loaded successfully', 'info');
+            }
+
+            refreshAllData() {
+                this.addLogEntry('Refreshing all data...', 'info');
+                this.updateSystemMetrics();
+                this.loadServices();
+                this.generateNetworkTopology();
+                this.addLogEntry('Data refresh completed', 'success');
+            }
+        }
+
+        // Global functions
+        function openService(port) {
+            window.open(`http://localhost:${port}`, '_blank');
+        }
+
+        function restartService(port) {
+            if (confirm(`Restart service on port ${port}?`)) {
+                window.monitor.addLogEntry(`Restarting service on port ${port}...`, 'warning');
+                setTimeout(() => {
+                    window.monitor.addLogEntry(`Service on port ${port} restarted successfully`, 'success');
+                }, 2000);
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('logOutput').innerHTML = '';
+            window.monitor.addLogEntry('Log history cleared', 'info');
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.monitor = new AdvancedSystemMonitor();
+            console.log('🔗 Advanced System Monitor initialized');
+        });
+    </script>
+</body>
+</html>
