@@ -18,6 +18,7 @@ class AdvancedAnalyticsDashboardEngine {
     private $startTime;
     private $results;
     private $analyticsModules;
+    private $developmentMetrics;
     
     public function __construct() {
         $this->developmentId = 'ANALYTICS_DASH_' . date('YmdHis');

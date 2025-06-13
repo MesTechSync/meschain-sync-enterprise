@@ -7,36 +7,42 @@ const cors = require('cors');
 const serverConfigs = [
     {
         port: 3023,
-        panel: 'meschain_sync_super_admin.html',
-        name: 'MesChain Sync Super Admin',
-        description: 'Ana Süper Admin Panel'
+        panel: 'meschain_sync_admin_modular.html',
+        name: 'MesChain Sync Admin - Modular Enhanced',
+        description: 'Gelişmiş Modüler Admin Panel (Ultra Fast • Component Loading)'
     },
     {
         port: 3024,
+        panel: 'meschain_sync_super_admin.html',
+        name: 'MesChain Sync Super Admin - Full',
+        description: 'Ana Süper Admin Panel (Complete Features)'
+    },
+    {
+        port: 3025,
+        panel: 'meschain_sync_admin_minimal.html',
+        name: 'MesChain Sync Admin - Minimal',
+        description: 'Minimal Admin Panel (Basic Features)'
+    },
+    {
+        port: 3026,
         panel: 'current_panel_fixed.html',
         name: 'Current Panel Fixed',
         description: 'Güncellenmiş Admin Panel'
     },
     {
-        port: 3025,
-        panel: 'current_panel.html',
-        name: 'Current Panel',
-        description: 'Mevcut Admin Panel'
-    },
-    {
-        port: 3026,
+        port: 3027,
         panel: 'enhanced_super_admin_quantum_panel_june6_2025.html',
         name: 'Enhanced Quantum Panel',
         description: 'Gelişmiş Quantum Admin Panel'
     },
     {
-        port: 3027,
+        port: 3028,
         panel: 'meschain_sync_super_admin_enhanced_3d.html',
         name: 'Enhanced 3D Panel',
         description: '3D Gelişmiş Admin Panel'
     },
     {
-        port: 3028,
+        port: 3029,
         panel: 'ai_marketplace_revolution_dashboard_june8_2025.html',
         name: 'AI Marketplace Revolution',
         description: 'AI Pazaryeri Devrim Dashboard'

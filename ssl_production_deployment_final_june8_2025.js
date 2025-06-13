@@ -42,7 +42,7 @@ class SSLProductionSystem {
             },
             headers: {
                 'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-                'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'",
+                'Content-Security-Policy': "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob: ws: wss:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob: cdn.jsdelivr.net unpkg.com cdn.tailwindcss.com fonts.googleapis.com static2.sharepointonline.com; style-src 'self' 'unsafe-inline' https: data: fonts.googleapis.com cdn.tailwindcss.com; font-src 'self' https: data: fonts.gstatic.com; connect-src 'self' https: ws: wss:; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;",
                 'X-Frame-Options': 'DENY',
                 'X-Content-Type-Options': 'nosniff',
                 'Referrer-Policy': 'strict-origin-when-cross-origin',

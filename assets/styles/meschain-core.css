@@ -1,0 +1,319 @@
+/* MesChain-Sync Core Styles */
+/* Essential styles extracted from the main HTML file */
+
+:root {
+    /* Light Theme Variables */
+    --bg-primary-light: #ffffff;
+    --bg-secondary-light: #f8f9fa;
+    --bg-tertiary-light: #e9ecef;
+    --text-primary-light: #212529;
+    --text-secondary-light: #6c757d;
+    --border-light: #dee2e6;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    
+    /* Dark Theme Variables */
+    --bg-primary-dark: #1a1a1a;
+    --bg-secondary-dark: #2d2d30;
+    --bg-tertiary-dark: #3e3e42;
+    --text-primary-dark: #ffffff;
+    --text-secondary-dark: #cccccc;
+    --border-dark: #484848;
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+    
+    /* Theme Transition */
+    --theme-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* MesChain-Sync Colors */
+    --bg-primary: #f1f5f9;
+    --bg-secondary: #ffffff;
+    --bg-gradient-start: #ffffff;
+    --bg-gradient-end: #f1f5f9;
+    --sidebar-bg: rgba(255, 255, 255, 0.6);
+    --card-bg: rgba(255, 255, 255, 0.5);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
+    
+    --border-primary: rgba(0, 0, 0, 0.1);
+    --border-secondary: #e2e8f0;
+
+    --accent-primary: #6d28d9;
+    --accent-secondary: #8b5cf6;
+    --accent-glow: rgba(109, 40, 217, 0.1);
+
+    --meschain-primary: #2563eb;
+    --meschain-secondary: #3b82f6;
+    --meschain-accent: #1d4ed8;
+    --meschain-glow: rgba(37, 99, 235, 0.15);
+}
+
+/* Light Theme Active */
+[data-theme="light"] {
+    --bg-primary: var(--bg-primary-light);
+    --bg-secondary: var(--bg-secondary-light);
+    --bg-tertiary: var(--bg-tertiary-light);
+    --text-primary: var(--text-primary-light);
+    --text-secondary: var(--text-secondary-light);
+    --border-color: var(--border-light);
+    --shadow-color: var(--shadow-light);
+}
+
+/* Dark Theme Active */
+[data-theme="dark"] {
+    --bg-primary: var(--bg-primary-dark);
+    --bg-secondary: var(--bg-secondary-dark);
+    --bg-tertiary: var(--bg-tertiary-dark);
+    --text-primary: var(--text-primary-dark);
+    --text-secondary: var(--text-secondary-dark);
+    --border-color: var(--border-dark);
+    --shadow-color: var(--shadow-dark);
+    
+    /* Dark mode specific MesChain colors */
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-gradient-start: #0f172a;
+    --bg-gradient-end: #1e293b;
+    --sidebar-bg: rgba(15, 23, 42, 0.8);
+    --card-bg: rgba(30, 41, 59, 0.6);
+    
+    --accent-primary: #8b5cf6;
+    --accent-secondary: #a78bfa;
+    --accent-glow: rgba(139, 92, 246, 0.2);
+
+    --meschain-primary: #60a5fa;
+    --meschain-secondary: #93c5fd;
+    --meschain-accent: #3b82f6;
+    --meschain-glow: rgba(96, 165, 250, 0.25);
+}
+
+/* Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    transition: var(--theme-transition);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--text-primary);
+}
+
+p {
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+/* Glassmorphism Components */
+.meschain-glass {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-primary);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Cards */
+.meschain-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+.meschain-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px var(--shadow-color);
+}
+
+/* Buttons */
+.meschain-btn {
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.meschain-btn:hover {
+    background: var(--accent-secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(109, 40, 217, 0.3);
+}
+
+.meschain-btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+}
+
+.meschain-btn-secondary:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-primary);
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: var(--theme-transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    background: var(--accent-primary);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.theme-toggle-icon {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover .theme-toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-online { 
+    background: #10b981; 
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.status-warning { 
+    background: #f59e0b; 
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.status-offline { 
+    background: #ef4444; 
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .meschain-card {
+        padding: 1rem;
+    }
+    
+    .theme-toggle {
+        min-width: auto;
+        padding: 6px 8px;
+    }
+    
+    .theme-toggle span {
+        display: none;
+    }
+}
+
+/* Dark mode text improvements */
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-gray-900 {
+    color: #f3f4f6 !important;
+}
+
+[data-theme="dark"] .text-gray-700 {
+    color: #d1d5db !important;
+}
+
+[data-theme="dark"] .text-gray-600 {
+    color: #9ca3af !important;
+}
+
+[data-theme="dark"] .text-gray-500 {
+    color: #6b7280 !important;
+}
+
+/* Dark mode for Tailwind classes */
+[data-theme="dark"] .bg-white {
+    background-color: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .bg-gray-50 {
+    background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .bg-gray-100 {
+    background-color: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .border-gray-200 {
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .border-gray-300 {
+    border-color: var(--border-color) !important;
+}

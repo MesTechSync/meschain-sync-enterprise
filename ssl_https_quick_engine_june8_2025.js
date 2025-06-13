@@ -80,7 +80,7 @@ function applySecurityHeaders(res) {
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'");
+    res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob: ws: wss:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob: cdn.jsdelivr.net unpkg.com cdn.tailwindcss.com fonts.googleapis.com static2.sharepointonline.com; style-src 'self' 'unsafe-inline' https: data: fonts.googleapis.com cdn.tailwindcss.com; font-src 'self' https: data: fonts.gstatic.com; connect-src 'self' https: ws: wss:; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;");
 }
 
 // HTTPS sunucuları oluştur

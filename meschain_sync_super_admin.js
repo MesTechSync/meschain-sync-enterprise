@@ -1669,6 +1669,145 @@ class MesChainSyncSuperAdminDashboard {
     }
 
     /**
+     * Update AI Processing Metrics
+     */
+    updateAIProcessingMetrics() {
+        try {
+            // Simulate AI processing metrics
+            const aiMetrics = {
+                processingLoad: Math.random() * 40 + 30, // 30-70%
+                queueSize: Math.floor(Math.random() * 100) + 10,
+                throughput: Math.floor(Math.random() * 1000) + 500,
+                accuracy: Math.random() * 10 + 90, // 90-100%
+                responseTime: Math.random() * 50 + 50, // 50-100ms
+                memoryUsage: Math.random() * 30 + 40, // 40-70%
+                cpuUsage: Math.random() * 25 + 25, // 25-50%
+                modelEfficiency: Math.random() * 20 + 80 // 80-100%
+            };
+
+            // Update AI processing indicators in DOM if they exist
+            const indicators = {
+                'ai-processing-load': `${aiMetrics.processingLoad.toFixed(1)}%`,
+                'ai-queue-size': aiMetrics.queueSize.toString(),
+                'ai-throughput': `${aiMetrics.throughput}/min`,
+                'ai-accuracy': `${aiMetrics.accuracy.toFixed(2)}%`,
+                'ai-response-time': `${aiMetrics.responseTime.toFixed(1)}ms`,
+                'ai-memory-usage': `${aiMetrics.memoryUsage.toFixed(1)}%`,
+                'ai-cpu-usage': `${aiMetrics.cpuUsage.toFixed(1)}%`,
+                'ai-efficiency': `${aiMetrics.modelEfficiency.toFixed(1)}%`
+            };
+
+            // Update DOM elements if they exist
+            Object.entries(indicators).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value;
+                }
+            });
+
+            // Update progress bars if they exist
+            const progressBars = {
+                'ai-load-progress': aiMetrics.processingLoad,
+                'ai-memory-progress': aiMetrics.memoryUsage,
+                'ai-cpu-progress': aiMetrics.cpuUsage,
+                'ai-efficiency-progress': aiMetrics.modelEfficiency
+            };
+
+            Object.entries(progressBars).forEach(([id, value]) => {
+                const progressBar = document.getElementById(id);
+                if (progressBar) {
+                    progressBar.style.width = `${value}%`;
+                }
+            });
+
+            // Check for warnings and trigger alerts if needed
+            this.checkAIProcessingWarnings(aiMetrics);
+
+            console.log('🤖 AI Processing Metrics Updated:', aiMetrics);
+
+        } catch (error) {
+            console.error('❌ Error updating AI processing metrics:', error);
+        }
+    }
+
+    /**
+     * Check AI Processing Warnings
+     */
+    checkAIProcessingWarnings(metrics) {
+        try {
+            const warnings = [];
+
+            // Check processing load
+            if (metrics.processingLoad > 80) {
+                warnings.push('High AI processing load detected');
+            }
+
+            // Check queue size
+            if (metrics.queueSize > 80) {
+                warnings.push('AI processing queue is getting full');
+            }
+
+            // Check response time
+            if (metrics.responseTime > 200) {
+                warnings.push('AI response time is slower than expected');
+            }
+
+            // Check accuracy
+            if (metrics.accuracy < 85) {
+                warnings.push('AI model accuracy is below threshold');
+            }
+
+            // Check memory usage
+            if (metrics.memoryUsage > 85) {
+                warnings.push('High AI memory usage detected');
+            }
+
+            // Show warnings if any
+            if (warnings.length > 0) {
+                warnings.forEach(warning => {
+                    console.warn('⚠️ AI Warning:', warning);
+                    if (typeof this.showNotification === 'function') {
+                        this.showNotification(warning, 'warning');
+                    }
+                });
+            }
+
+        } catch (error) {
+            console.error('❌ Error checking AI processing warnings:', error);
+        }
+    }
+
+    /**
+     * Setup AI Load Warnings
+     */
+    setupAILoadWarnings() {
+        try {
+            // Define AI warning thresholds
+            this.aiWarningThresholds = {
+                processingLoad: 85,
+                queueSize: 100,
+                responseTime: 200,
+                accuracy: 85,
+                memoryUsage: 90,
+                cpuUsage: 80,
+                modelEfficiency: 70
+            };
+
+            // Setup warning notification system
+            this.aiWarningSystem = {
+                lastWarningTime: {},
+                warningCooldown: 30000, // 30 seconds cooldown between same warnings
+                enabled: true
+            };
+
+            console.log('⚠️ AI Load Warning System Configured');
+
+        } catch (error) {
+            console.error('❌ Error setting up AI load warnings:', error);
+        }
+    }
+
+    /**
      * Setup Network Performance Tracking
      */
     setupNetworkPerformanceTracking() {

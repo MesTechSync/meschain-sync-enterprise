@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3031;
+const PORT = 3002;
 
 // Middleware
 app.use(express.static(__dirname));
@@ -83,6 +83,19 @@ app.get('/api/status', (req, res) => {
             storage: 'Active'
         },
         timestamp: new Date().toISOString()
+    });
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({
+        success: true,
+        service: 'Admin Panel',
+        port: PORT,
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        endpoints: ['/', '/api/azure/health', '/api/azure/negotiate']
     });
 });
 

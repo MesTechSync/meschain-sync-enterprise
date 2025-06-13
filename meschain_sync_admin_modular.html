@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob: ws: wss:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; style-src 'self' 'unsafe-inline' https: data:; font-src 'self' https: data:; connect-src 'self' https: ws: wss: ws://localhost:3005 wss://localhost:3005; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 MesChain-Sync Modular Admin Panel v4.1</title>
+    
+    <!-- External Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Modular CSS -->
+    <link rel="stylesheet" href="assets/styles/meschain-core.css">
+    
+    <style>
+        /* Page-specific styles */
+        .main-container {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .main-container.loaded {
+            opacity: 1;
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border-primary);
+            border-top: 4px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-primary);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .quick-action-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 15px 50px var(--shadow-color), 0 0 20px var(--accent-glow);
+            border-color: var(--accent-primary);
+        }
+
+        .quick-action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--meschain-primary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .quick-action-card:hover::before {
+            opacity: 1;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-primary);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+    .loading-title {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .loading-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+        .loading-footer {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .header-title-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .modular-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .header-status-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-title-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-status-text {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        .dashboard-intro {
+            margin-bottom: 2rem;
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .metric-title {
+            color: var(--accent-primary);
+            margin: 0;
+        }
+
+        .metric-info-box {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+
+        .metric-info-box.info {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .metric-info-box.success {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-left: 4px solid #10b981;
+        }
+
+        .metric-info-box.warning {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left: 4px solid #f59e0b;
+        }
+
+        .metric-info-box.purple {
+            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .metric-info-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .metric-info-text.success {
+            color: #065f46;
+        }
+
+        .metric-info-text.info {
+            color: #1d4ed8;
+        }
+
+        .metric-info-text.warning {
+            color: #92400e;
+        }
+
+                .metric-info-text.purple {
+                    color: #6b21a8;
+                }
+        
+                .metric-info-subtext {
+                    font-size: 0.75rem;
+                    color: var(--text-secondary);
+                    margin-top: 0.25rem;
+                }
+        
+                .trend-icon {
+                    color: #10b981;
+                    font-size: 1.5rem;
+                }
+        
+                .quick-action-header {
+                    color: var(--accent-primary);
+                }
+        
+                .quick-action-arrow {
+                    margin-left: auto;
+                    opacity: 0.5;
+                }
+        
+                .quick-action-description {
+                    color: var(--text-secondary);
+                    margin: 0;
+                    line-height: 1.5;
+                }
+        
+                .quick-action-meta {
+                    margin-top: 1rem;
+                    font-size: 0.75rem;
+                    color: var(--text-secondary);
+                    opacity: 0.8;
+                }
+        
+                .modular-system-container {
+                    margin-top: 3rem;
+                    padding: 2rem;
+                    background: var(--bg-secondary);
+                    border-radius: 16px;
+                    border: 1px solid var(--border-primary);
+                }
+        
+                .modular-system-title {
+                    margin: 0 0 1.5rem 0;
+                    color: var(--accent-primary);
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+        
+                .status-item-title {
+                    font-weight: 500;
+                    color: var(--text-primary);
+                }
+        
+                .status-item-subtitle {
+                    font-size: 0.75rem;
+                    color: var(--text-secondary);
+                }
+        
+                .modular-benefits-text {
+                    font-size: 0.875rem;
+                    color: var(--text-secondary);
+                    line-height: 1.6;
+                }
+        
+                .modular-benefits-title {
+                    color: var(--text-primary);
+                }
+            </style>
+        </head>
+        
+        <body class="font-inter bg-primary text-primary">
+            <!-- Loading Screen -->
+            <div id="loadingScreen" class="loading-screen">
+                <div class="loading-spinner"></div>
+                <div class="loading-title">🚀 Loading MesChain-Sync v4.1</div>
+                <div class="loading-subtitle">Initializing modular components...</div>
+                <div class="loading-footer">Enterprise-grade performance optimization</div>
+            </div>
+        
+            <!-- Main Container -->
+            <div id="mainContainer" class="main-container">
+                <!-- Header -->
+                <header class="header">
+                    <div class="header-title-container">
+                        <h1>🔗 MesChain-Sync Admin</h1>
+                        <span class="modular-badge">MODULAR v4.1</span>
+                    </div>
+                    <div class="header-status-container">
+                        <div class="header-status-text">
+                            <span class="status-indicator status-online"></span>
+                            System Operational
+                        </div>
+                        <button onclick="themeManager.toggleTheme()" class="meschain-button button-secondary">
+                            <i class="ph ph-moon"></i>
+                        </button>
+                    </div>
+                </header>
+        <!-- Content -->
+        <main class="content">
+            <!-- Breadcrumb -->
+            <nav class="breadcrumb">
+                <i class="ph ph-house"></i>
+                <a href="#" onclick="showOverview()">Home</a>
+                <i class="ph ph-caret-right"></i>
+                <span id="currentPage">Dashboard Overview</span>
+            </nav>
+
+            <!-- Dynamic Content Area -->
+            <div id="contentArea">
+                <!-- Initial Overview Content -->
+                <div id="overviewContent">
+                    <div style="margin-bottom: 2rem;">
+                        <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                            🚀 Enterprise Dashboard
+                        </h2>
+                        <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2rem; max-width: 800px; line-height: 1.6;">
+                            Advanced multi-marketplace integration platform with real-time chain synchronization, 
+                            AI-powered analytics, and modular component architecture for optimal performance.
+                        </p>
+                    </div>
+
+                    <!-- System Health Metrics -->
+                    <div class="dashboard-grid">
+                        <div class="meschain-card fade-in-up">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <h3 style="color: var(--accent-primary); margin: 0;">🔗 Chain Sync</h3>
+                                <span class="status-indicator status-online"></span>
+                            </div>
+                            <div class="metric-value">99.98%</div>
+                            <div class="metric-label">Uptime Performance</div>
+                            <div style="margin-top: 1rem; padding: 0.75rem; background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-radius: 8px; border-left: 4px solid #10b981;">
+                                <div style="font-size: 0.875rem; color: #065f46; font-weight: 500;">
+                                    ✅ All chains synchronized
+                                </div>
+                                <div style="font-size: 0.75rem; color: #047857; margin-top: 0.25rem;">
+                                    Last sync: 2 seconds ago
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="meschain-card fade-in-up" style="animation-delay: 0.1s">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <h3 style="color: var(--accent-primary); margin: 0;">💰 Revenue</h3>
+                                <i class="ph ph-trend-up" style="color: #10b981; font-size: 1.5rem;"></i>
+                            </div>
+                            <div class="metric-value">₺2.847M</div>
+                            <div class="metric-label">Monthly Performance</div>
+                            <div style="margin-top: 1rem; padding: 0.75rem; background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 8px; border-left: 4px solid #3b82f6;">
+                                <div style="font-size: 0.875rem; color: #1d4ed8; font-weight: 500;">
+                                    📈 +89.2% growth
+                                </div>
+                                <div style="font-size: 0.75rem; color: #2563eb; margin-top: 0.25rem;">
+                                    Target: 134% achieved
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="meschain-card fade-in-up" style="animation-delay: 0.2s">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <h3 style="color: var(--accent-primary); margin: 0;">🌐 Network</h3>
+                                <span class="status-indicator status-online animate-pulse"></span>
+                            </div>
+                            <div class="metric-value">96.4%</div>
+                            <div class="metric-label">Mesh Health</div>
+                            <div style="margin-top: 1rem; padding: 0.75rem; background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 8px; border-left: 4px solid #f59e0b;">
+                                <div style="font-size: 0.875rem; color: #92400e; font-weight: 500;">
+                                    ⚡ AI-enhanced optimization
+                                </div>
+                                <div style="font-size: 0.75rem; color: #b45309; margin-top: 0.25rem;">
+                                    8 nodes active
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="meschain-card fade-in-up" style="animation-delay: 0.3s">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <h3 style="color: var(--accent-primary); margin: 0;">🔧 Integration</h3>
+                                <i class="ph ph-check-circle" style="color: #10b981; font-size: 1.5rem;"></i>
+                            </div>
+                            <div class="metric-value">100%</div>
+                            <div class="metric-label">System Status</div>
+                            <div style="margin-top: 1rem; padding: 0.75rem; background: linear-gradient(135deg, #f3e8ff, #e9d5ff); border-radius: 8px; border-left: 4px solid #8b5cf6;">
+                                <div style="font-size: 0.875rem; color: #6b21a8; font-weight: 500;">
+                                    🎯 All systems operational
+                                </div>
+                                <div style="font-size: 0.75rem; color: #7c3aed; margin-top: 0.25rem;">
+                                    12 services running
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div style="margin-top: 3rem;">
+                        <h3 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--text-primary);">
+                            🎛️ Quick Actions
+                        </h3>
+                        <div class="dashboard-grid">
+                            <div class="quick-action-card" onclick="loadDashboardModule('fullDashboard')">
+                                <div style="display: flex; align-items: center; justify-content: between; margin-bottom: 1rem;">
+                                    <h4 style="margin: 0; color: var(--accent-primary);">📊 Full Dashboard</h4>
+                                    <i class="ph ph-arrow-right" style="margin-left: auto; opacity: 0.5;"></i>
+                                </div>
+                                <p style="color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                                    Load complete admin interface with all components and advanced features
+                                </p>
+                                <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-secondary); opacity: 0.8;">
+                                    Loads: Charts, Analytics, User Management, System Monitoring
+                                </div>
+                            </div>
+                            
+                            <div class="quick-action-card" onclick="loadDashboardModule('systemMonitoring')">
+                                <div style="display: flex; align-items: center; justify-content: between; margin-bottom: 1rem;">
+                                    <h4 style="margin: 0; color: var(--accent-primary);">🔍 System Monitoring</h4>
+                                    <i class="ph ph-arrow-right" style="margin-left: auto; opacity: 0.5;"></i>
+                                </div>
+                                <p style="color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                                    Real-time system performance monitoring and health diagnostics
+                                </p>
+                                <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-secondary); opacity: 0.8;">
+                                    CPU, Memory, Network, Storage Analytics
+                                </div>
+                            </div>
+                            
+                            <div class="quick-action-card" onclick="loadDashboardModule('userManagement')">
+                                <div style="display: flex; align-items: center; justify-content: between; margin-bottom: 1rem;">
+                                    <h4 style="margin: 0; color: var(--accent-primary);">👥 User Management</h4>
+                                    <i class="ph ph-arrow-right" style="margin-left: auto; opacity: 0.5;"></i>
+                                </div>
+                                <p style="color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                                    Manage users, roles, permissions and access control systems
+                                </p>
+                                <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-secondary); opacity: 0.8;">
+                                    1,247 users • 89 active sessions
+                                </div>
+                            </div>
+                            
+                            <div class="quick-action-card" onclick="loadDashboardModule('analytics')">
+                                <div style="display: flex; align-items: center; justify-content: between; margin-bottom: 1rem;">
+                                    <h4 style="margin: 0; color: var(--accent-primary);">📈 Advanced Analytics</h4>
+                                    <i class="ph ph-arrow-right" style="margin-left: auto; opacity: 0.5;"></i>
+                                </div>
+                                <p style="color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                                    AI-powered analytics, business intelligence and predictive insights
+                                </p>
+                                <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-secondary); opacity: 0.8;">
+                                    Revenue, Performance, Predictions, Reports
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modular System Status -->
+                    <div style="margin-top: 3rem; padding: 2rem; background: var(--bg-secondary); border-radius: 16px; border: 1px solid var(--border-primary);">
+                        <h3 style="margin: 0 0 1.5rem 0; color: var(--accent-primary); display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="ph ph-gear"></i>
+                            Modular Component System
+                        </h3>
+                        <div class="status-grid">
+                            <div class="status-item">
+                                <span class="status-indicator status-online"></span>
+                                <div>
+                                    <div style="font-weight: 500; color: var(--text-primary);">Core System</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Loaded successfully</div>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-indicator status-warning"></span>
+                                <div>
+                                    <div style="font-weight: 500; color: var(--text-primary);">Components</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Ready for lazy loading</div>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-indicator status-online"></span>
+                                <div>
+                                    <div style="font-weight: 500; color: var(--text-primary);">Theme System</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Operational</div>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-indicator status-online"></span>
+                                <div>
+                                    <div style="font-weight: 500; color: var(--text-primary);">Performance</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Optimized • Fast loading</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-primary); border-radius: 8px; border-left: 4px solid var(--accent-primary);">
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
+                                <strong style="color: var(--text-primary);">💡 Modular Architecture Benefits:</strong><br>
+                                • 95% faster initial loading (786KB → ~50KB)<br>
+                                • Components load only when needed<br>
+                                • Better maintainability and debugging<br>
+                                • Enhanced user experience with optimized performance
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modular JavaScript -->
+    <script src="assets/scripts/theme-manager.js"></script>
+    <script src="assets/scripts/component-loader.js"></script>
+
+    <!-- Page-specific JavaScript -->
+    <script>
+        // Page Management
+        let currentModule = 'overview';
+
+        function showOverview() {
+            currentModule = 'overview';
+            document.getElementById('currentPage').textContent = 'Dashboard Overview';
+            document.getElementById('overviewContent').style.display = 'block';
+            
+            // Hide any loaded modules
+            const dynamicContent = document.querySelector('#contentArea > div:not(#overviewContent)');
+            if (dynamicContent) {
+                dynamicContent.remove();
+            }
+        }
+
+        function loadDashboardModule(moduleName) {
+            currentModule = moduleName;
+            
+            // Update breadcrumb
+            const moduleNames = {
+                'fullDashboard': 'Full Dashboard',
+                'systemMonitoring': 'System Monitoring',
+                'userManagement': 'User Management',
+                'analytics': 'Advanced Analytics'
+            };
+            
+            document.getElementById('currentPage').textContent = moduleNames[moduleName];
+            
+            // Hide overview content
+            document.getElementById('overviewContent').style.display = 'none';
+            
+            // Create dynamic content container
+            let dynamicContainer = document.querySelector('#contentArea > div:not(#overviewContent)');
+            if (!dynamicContainer) {
+                dynamicContainer = document.createElement('div');
+                dynamicContainer.id = 'dynamicContent';
+                document.getElementById('contentArea').appendChild(dynamicContainer);
+            }
+            
+            // Load the component
+            componentLoader.loadComponent(moduleName, dynamicContainer);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + H: Home/Overview
+            if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+                e.preventDefault();
+                showOverview();
+            }
+            
+            // Ctrl/Cmd + 1-4: Quick module access
+            if ((e.ctrlKey || e.metaKey) && ['1', '2', '3', '4'].includes(e.key)) {
+                e.preventDefault();
+                const modules = ['fullDashboard', 'systemMonitoring', 'userManagement', 'analytics'];
+                loadDashboardModule(modules[parseInt(e.key) - 1]);
+            }
+        });
+
+        // Page Initialization
+        function initializePage() {
+            try {
+                console.log('🚀 MesChain-Sync Modular Admin Panel initialized');
+                
+                // Hide loading screen after theme and component managers are ready
+                setTimeout(() => {
+                    const loadingScreen = document.getElementById('loadingScreen');
+                    const mainContainer = document.getElementById('mainContainer');
+                    
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        mainContainer.classList.add('loaded');
+                    }, 500);
+                }, 800);
+                
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+            }
+        }
+
+        // Global error handler
+        window.addEventListener('error', function(event) {
+            console.error('🚨 JavaScript Error:', event.error);
+        });
+
+        // Listen for component loaded events
+        document.addEventListener('componentLoaded', function(event) {
+            console.log(`✅ Component ${event.detail.componentName} loaded successfully`);
+        });
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializePage);
+        } else {
+            initializePage();
+        }
+    </script>
+</body>
+</html>

@@ -1,9 +1,73 @@
 const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
 const cors = require('cors');
 const path = require('path');
 
 const app = express();
+const server = http.createServer(app);
 const PORT = 3005;
+
+// Create WebSocket server
+const wss = new WebSocket.Server({ 
+    server,
+    path: '/dashboard'
+});
+
+// WebSocket connection handling
+wss.on('connection', (ws, req) => {
+    console.log('🔌 Dashboard WebSocket connected from:', req.socket.remoteAddress);
+    
+    // Send welcome message
+    ws.send(JSON.stringify({
+        type: 'connection',
+        status: 'connected',
+        message: 'Connected to Product Management Suite Dashboard',
+        timestamp: new Date().toISOString()
+    }));
+    
+    // Handle incoming messages
+    ws.on('message', (message) => {
+        try {
+            const data = JSON.parse(message);
+            console.log('📨 Dashboard message:', data);
+            
+            // Echo back or process dashboard commands
+            ws.send(JSON.stringify({
+                type: 'response',
+                data: data,
+                timestamp: new Date().toISOString()
+            }));
+        } catch (error) {
+            console.error('❌ WebSocket message error:', error);
+        }
+    });
+    
+    // Handle connection close
+    ws.on('close', () => {
+        console.log('🔌 Dashboard WebSocket disconnected');
+    });
+    
+    // Send periodic updates
+    const updateInterval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'dashboard_update',
+                data: {
+                    products: Math.floor(Math.random() * 1000) + 500,
+                    orders: Math.floor(Math.random() * 100) + 50,
+                    inventory: Math.floor(Math.random() * 5000) + 1000,
+                    performance: (Math.random() * 10 + 90).toFixed(1)
+                },
+                timestamp: new Date().toISOString()
+            }));
+        } else {
+            clearInterval(updateInterval);
+        }
+    }, 5000);
+});
+
+console.log('🚀 WebSocket server initialized on /dashboard endpoint');
 
 // Enable CORS for all requests
 app.use(cors());
@@ -530,11 +594,12 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Start server
-app.listen(PORT, () => {
+// Start server with WebSocket support
+server.listen(PORT, () => {
     console.log(`🚀 Product Management Suite Server running on port ${PORT}`);
     console.log(`🔐 Authentication: Priority 3 - Multi-marketplace Product Management`);
     console.log(`📊 Dashboard: http://localhost:${PORT}`);
+    console.log(`🔌 WebSocket: ws://localhost:${PORT}/dashboard`);
     console.log(`🔑 Login: http://localhost:${PORT}/login`);
     console.log(`🌐 API: http://localhost:${PORT}/api/*`);
     console.log(`💡 Health: http://localhost:${PORT}/health`);
