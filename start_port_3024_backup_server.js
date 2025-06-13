@@ -11,9 +11,9 @@ app.use(cors());
 app.use(express.static(__dirname));
 app.use(express.json());
 
-// Ana sayfa - meschain_sync_super_admin.html dosyasını serve et
+// Ana sayfa - meschain_sync_super_admin2.html dosyasını serve et
 app.get('/', (req, res) => {
-    const filePath = path.join(__dirname, 'meschain_sync_super_admin.html');
+    const filePath = path.join(__dirname, 'meschain_sync_super_admin2.html');
     if (fs.existsSync(filePath)) {
         res.sendFile(filePath);
     } else {

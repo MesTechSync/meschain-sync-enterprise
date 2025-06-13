@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="tr" class="" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob: ws: wss:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; style-src 'self' 'unsafe-inline' https: data:; font-src 'self' https: data:; connect-src 'self' https: ws: wss: ws://localhost:* wss://localhost:*; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 MesChain Enterprise Dashboard - Port 4500</title>
+    
+    <!-- External Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            /* Dark Theme Variables */
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #1c1c1e;
+            --bg-tertiary: #2c2c2e;
+            --bg-quaternary: #3a3a3c;
+            --text-primary: #ffffff;
+            --text-secondary: #d1d1d6;
+            --text-tertiary: #8e8e93;
+            --border-color: #48484a;
+            --accent-blue: #007aff;
+            --accent-green: #30d158;
+            --accent-red: #ff453a;
+            --accent-yellow: #ffd60a;
+            --accent-orange: #ff9500;
+            --accent-purple: #bf5af2;
+            --shadow: rgba(0, 0, 0, 0.7);
+            --glow-blue: rgba(0, 122, 255, 0.3);
+            --glow-green: rgba(48, 209, 88, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            min-height: 100vh;
+            background: radial-gradient(ellipse at top, rgba(0, 122, 255, 0.08) 0%, var(--bg-primary) 50%);
+        }
+
+        .header-section {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .service-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: var(--accent-blue);
+        }
+
+        .service-card:hover::before {
+            opacity: 1;
+        }
+
+        .service-card.healthy {
+            border-left: 4px solid var(--accent-green);
+            box-shadow: 0 0 20px var(--glow-green);
+        }
+
+        .service-card.unhealthy {
+            border-left: 4px solid var(--accent-red);
+            box-shadow: 0 0 20px rgba(255, 69, 58, 0.3);
+        }
+
+        .service-card.unknown {
+            border-left: 4px solid var(--accent-yellow);
+            box-shadow: 0 0 20px rgba(255, 214, 10, 0.3);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            position: relative;
+        }
+
+        .status-indicator::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: pulse 2s infinite;
+        }
+
+        .status-healthy { 
+            background: var(--accent-green);
+        }
+        .status-healthy::after {
+            background: var(--accent-green);
+        }
+
+        .status-unhealthy { 
+            background: var(--accent-red);
+        }
+        .status-unhealthy::after {
+            background: var(--accent-red);
+        }
+
+        .status-unknown { 
+            background: var(--accent-yellow);
+        }
+        .status-unknown::after {
+            background: var(--accent-yellow);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.3;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+        }
+
+        .metric-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+            pointer-events: none;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), #005cbf);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 122, 255, 0.4);
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-red), #d70015);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(255, 69, 58, 0.4);
+        }
+
+        .loading-spinner {
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--accent-blue);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tab-button {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab-button.active {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--bg-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0 8px 8px 8px;
+            padding: 1.5rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Glass effect for headers */
+        h1, h2, h3 {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Gradient text effects */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Enhanced scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-blue);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #005cbf;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <header class="header-section">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-6">
+                    <div>
+                        <h1 class="text-3xl font-bold gradient-text">🚀 MesChain Enterprise Dashboard</h1>
+                        <div class="flex items-center space-x-4 mt-1">
+                            <span class="text-sm text-gray-400">Port 4500 • Real-time Monitoring</span>
+                            <div id="connection-status" class="flex items-center">
+                                <span class="status-indicator status-unknown"></span>
+                                <span class="text-sm">Connecting...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <div class="text-sm text-gray-400">Last Update</div>
+                        <span id="last-update" class="text-sm font-mono">--:--</span>
+                    </div>
+                    <button onclick="refreshSystemData()" class="btn-primary">
+                        <i class="ph ph-arrows-clockwise"></i> Refresh
+                    </button>
+                    <button onclick="openSuperAdmin()" class="btn-primary">
+                        <i class="ph ph-crown"></i> Super Admin
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="p-6">
+            <!-- System Overview -->
+            <section class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">📊 System Overview</h2>
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                    <div class="metric-card">
+                        <div class="text-sm text-gray-400 mb-1">Total Services</div>
+                        <div class="text-2xl font-bold" id="total-services">--</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-sm text-gray-400 mb-1">Healthy Services</div>
+                        <div class="text-2xl font-bold text-green-500" id="healthy-services">--</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-sm text-gray-400 mb-1">System Health</div>
+                        <div class="text-2xl font-bold" id="system-health">--%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-sm text-gray-400 mb-1">Fixed Errors</div>
+                        <div class="text-2xl font-bold text-blue-500" id="fixed-errors">12</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-sm text-gray-400 mb-1">Current Issues</div>
+                        <div class="text-2xl font-bold text-yellow-500" id="current-issues">3</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-sm text-gray-400 mb-1">Success Rate</div>
+                        <div class="text-2xl font-bold text-green-500" id="success-rate">95%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Error & Fix Statistics -->
+            <section class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">🔧 Error & Fix Statistics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Error Resolution Chart -->
+                    <div class="metric-card col-span-2">
+                        <h3 class="font-semibold mb-4">📈 Error Resolution Timeline</h3>
+                        <div id="error-chart" class="h-64">
+                            <canvas id="errorChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Current Issues Panel -->
+                    <div class="metric-card">
+                        <h3 class="font-semibold mb-4 text-yellow-500">⚠️ Current Issues</h3>
+                        <div id="current-issues-list" class="space-y-3">
+                            <div class="p-3 bg-yellow-900/30 border border-yellow-500/30 rounded">
+                                <div class="font-medium text-yellow-400">UI Enhancement Needed</div>
+                                <div class="text-sm text-gray-400">Dashboard needs more visual appeal</div>
+                                <div class="text-xs text-gray-500 mt-1">Priority: Medium</div>
+                            </div>
+                            <div class="p-3 bg-blue-900/30 border border-blue-500/30 rounded">
+                                <div class="font-medium text-blue-400">Feature Request</div>
+                                <div class="text-sm text-gray-400">Real-time error notifications</div>
+                                <div class="text-xs text-gray-500 mt-1">Priority: Low</div>
+                            </div>
+                            <div class="p-3 bg-orange-900/30 border border-orange-500/30 rounded">
+                                <div class="font-medium text-orange-400">Documentation</div>
+                                <div class="text-sm text-gray-400">API documentation update needed</div>
+                                <div class="text-xs text-gray-500 mt-1">Priority: Low</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Fixes Panel -->
+            <section class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">✅ Recently Fixed Issues</h2>
+                <div class="metric-card">
+                    <div id="recent-fixes" class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-green-900/20 border border-green-500/30 rounded">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                                <div>
+                                    <div class="font-medium">Express 404 Error Handling</div>
+                                    <div class="text-sm text-gray-400">Standardized across all backend services</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-400">June 13, 2025</div>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-green-900/20 border border-green-500/30 rounded">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                                <div>
+                                    <div class="font-medium">Security Framework Crypto Fix</div>
+                                    <div class="text-sm text-gray-400">Replaced deprecated crypto methods</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-400">June 13, 2025</div>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-green-900/20 border border-green-500/30 rounded">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                                <div>
+                                    <div class="font-medium">Dashboard Route Correction</div>
+                                    <div class="text-sm text-gray-400">Fixed /dashboard.html routing issue</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-400">June 13, 2025</div>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-green-900/20 border border-green-500/30 rounded">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                                <div>
+                                    <div class="font-medium">Service Health Monitoring</div>
+                                    <div class="text-sm text-gray-400">Implemented comprehensive health checks</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-400">June 13, 2025</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Service Tabs -->
+            <section class="mb-8">
+                <div class="flex space-x-2 mb-4">
+                    <button class="tab-button active" onclick="switchTab('critical')">
+                        🎯 Critical Services
+                    </button>
+                    <button class="tab-button" onclick="switchTab('frontend')">
+                        🖥️ Frontend Services
+                    </button>
+                    <button class="tab-button" onclick="switchTab('coordination')">
+                        ⚡ Task Coordination
+                    </button>
+                    <button class="tab-button" onclick="switchTab('security')">
+                        🔒 Security Status
+                    </button>
+                    <button class="tab-button" onclick="switchTab('performance')">
+                        📈 Performance Metrics
+                    </button>
+                </div>
+
+                <!-- Critical Services Tab -->
+                <div id="critical-tab" class="tab-content active">
+                    <h3 class="text-lg font-semibold mb-4">🎯 Critical Backend Services</h3>
+                    <div id="critical-services" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="text-center py-8 text-gray-400">
+                            <div class="loading-spinner"></div>
+                            Loading critical services...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Frontend Services Tab -->
+                <div id="frontend-tab" class="tab-content">
+                    <h3 class="text-lg font-semibold mb-4">🖥️ Frontend & Dashboard Services</h3>
+                    <div id="frontend-services" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="text-center py-8 text-gray-400">
+                            <div class="loading-spinner"></div>
+                            Loading frontend services...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task Coordination Tab -->
+                <div id="coordination-tab" class="tab-content">
+                    <h3 class="text-lg font-semibold mb-4">⚡ VSCode Atomic Task Coordination</h3>
+                    <div id="coordination-data" class="space-y-4">
+                        <div class="text-center py-8 text-gray-400">
+                            <div class="loading-spinner"></div>
+                            Loading coordination data...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Status Tab -->
+                <div id="security-tab" class="tab-content">
+                    <h3 class="text-lg font-semibold mb-4">🔒 Security Framework Status</h3>
+                    <div id="security-data" class="space-y-4">
+                        <div class="text-center py-8 text-gray-400">
+                            <div class="loading-spinner"></div>
+                            Loading security data...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics Tab -->
+                <div id="performance-tab" class="tab-content">
+                    <h3 class="text-lg font-semibold mb-4">📈 Quantum Performance Metrics</h3>
+                    <div id="performance-data" class="space-y-4">
+                        <div class="text-center py-8 text-gray-400">
+                            <div class="loading-spinner"></div>
+                            Loading performance data...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Real-time Activity Log -->
+            <section>
+                <h2 class="text-xl font-semibold mb-4">📝 Real-time Activity Log</h2>
+                <div class="metric-card">
+                    <div id="activity-log" class="h-64 overflow-y-auto space-y-2">
+                        <div class="text-gray-400">Activity log will appear here...</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Global variables
+        let ws = null;
+        let currentTab = 'critical';
+        let systemData = {};
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWebSocket();
+            loadSystemData();
+            initializeErrorChart();
+            setInterval(loadSystemData, 15000); // Refresh every 15 seconds
+        });
+
+        // WebSocket connection
+        function initializeWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.hostname}:4500/dashboard-ws`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = function() {
+                updateConnectionStatus('connected');
+                addActivityLog('WebSocket connected to dashboard', 'success');
+            };
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+            
+            ws.onclose = function() {
+                updateConnectionStatus('disconnected');
+                addActivityLog('WebSocket connection lost', 'error');
+                // Attempt reconnection after 5 seconds
+                setTimeout(initializeWebSocket, 5000);
+            };
+            
+            ws.onerror = function(error) {
+                updateConnectionStatus('error');
+                addActivityLog('WebSocket error: ' + error.message, 'error');
+            };
+        }
+
+        // Handle WebSocket messages
+        function handleWebSocketMessage(data) {
+            switch(data.type) {
+                case 'system_status_update':
+                    systemData = data.data;
+                    updateUI();
+                    addActivityLog('System status updated', 'info');
+                    break;
+                case 'connection':
+                    addActivityLog(data.message, 'success');
+                    break;
+                default:
+                    console.log('Received:', data);
+            }
+        }
+
+        // Load system data via API
+        async function loadSystemData() {
+            try {
+                const [systemResponse, errorResponse] = await Promise.all([
+                    fetch('/api/system/overview'),
+                    fetch('/api/errors/statistics')
+                ]);
+                
+                const systemData = await systemResponse.json();
+                const errorData = await errorResponse.json();
+                
+                // Update system overview
+                updateSystemOverview(systemData);
+                
+                // Update error statistics
+                updateErrorStatistics(errorData);
+                
+                // Load services data
+                const servicesResponse = await fetch('/api/system/status');
+                const servicesData = await servicesResponse.json();
+                updateServices(servicesData);
+                
+                updateLastUpdateTime();
+            } catch (error) {
+                console.error('Failed to load system data:', error);
+                addActivityLog('Failed to load system data', 'error');
+            }
+        }
+
+        // Update system overview metrics
+        function updateSystemOverview(data) {
+            document.getElementById('total-services').textContent = data.totalServices || '--';
+            document.getElementById('healthy-services').textContent = data.healthyServices || '--';
+            document.getElementById('system-health').textContent = (data.healthPercentage || 0) + '%';
+            
+            // Update health percentage color
+            const healthElement = document.getElementById('system-health');
+            const healthPercentage = data.healthPercentage || 0;
+            if (healthPercentage >= 80) {
+                healthElement.className = 'text-2xl font-bold text-green-500';
+            } else if (healthPercentage >= 60) {
+                healthElement.className = 'text-2xl font-bold text-yellow-500';
+            } else {
+                healthElement.className = 'text-2xl font-bold text-red-500';
+            }
+        }
+
+        // Update Error Statistics
+        function updateErrorStatistics(data) {
+            document.getElementById('fixed-errors').textContent = data.totalFixed || 0;
+            document.getElementById('current-issues').textContent = data.currentIssues || 0;
+            document.getElementById('success-rate').textContent = (data.successRate || 0) + '%';
+            
+            // Update chart if available
+            if (window.errorChart && data.chartData) {
+                window.errorChart.data.datasets[0].data = data.chartData.fixedErrors;
+                window.errorChart.data.datasets[1].data = data.chartData.newIssues;
+                window.errorChart.data.datasets[2].data = data.chartData.criticalErrors;
+                window.errorChart.update('none');
+            }
+            
+            // Update current issues list
+            if (data.currentIssuesList) {
+                updateCurrentIssuesList(data.currentIssuesList);
+            }
+            
+            // Update recent fixes
+            if (data.recentFixes) {
+                updateRecentFixes(data.recentFixes);
+            }
+        }
+
+        // Update current issues list
+        function updateCurrentIssuesList(issues) {
+            const container = document.getElementById('current-issues-list');
+            if (!container) return;
+            
+            container.innerHTML = issues.map(issue => {
+                const colorClass = getIssueTypeColor(issue.type);
+                return `
+                    <div class="p-3 ${colorClass.bg} border ${colorClass.border} rounded">
+                        <div class="font-medium ${colorClass.text}">${issue.title}</div>
+                        <div class="text-sm text-gray-400">${issue.description}</div>
+                        <div class="text-xs text-gray-500 mt-1">Priority: ${issue.priority}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update recent fixes
+        function updateRecentFixes(fixes) {
+            const container = document.getElementById('recent-fixes');
+            if (!container) return;
+            
+            container.innerHTML = fixes.map(fix => `
+                <div class="flex items-center justify-between p-4 bg-green-900/20 border border-green-500/30 rounded">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                        <div>
+                            <div class="font-medium">${fix.title}</div>
+                            <div class="text-sm text-gray-400">${fix.description}</div>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-400">${fix.date}</div>
+                </div>
+            `).join('');
+        }
+
+        // Get issue type color
+        function getIssueTypeColor(type) {
+            switch(type) {
+                case 'enhancement':
+                    return {
+                        bg: 'bg-yellow-900/30',
+                        border: 'border-yellow-500/30',
+                        text: 'text-yellow-400'
+                    };
+                case 'feature':
+                    return {
+                        bg: 'bg-blue-900/30',
+                        border: 'border-blue-500/30',
+                        text: 'text-blue-400'
+                    };
+                case 'documentation':
+                    return {
+                        bg: 'bg-orange-900/30',
+                        border: 'border-orange-500/30',
+                        text: 'text-orange-400'
+                    };
+                default:
+                    return {
+                        bg: 'bg-gray-900/30',
+                        border: 'border-gray-500/30',
+                        text: 'text-gray-400'
+                    };
+            }
+        }
+
+        // Initialize Error Chart
+        function initializeErrorChart() {
+            const ctx = document.getElementById('errorChart').getContext('2d');
+            
+            window.errorChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['June 10', 'June 11', 'June 12', 'June 13', 'Today'],
+                    datasets: [
+                        {
+                            label: 'Fixed Errors',
+                            data: [2, 5, 3, 8, 12],
+                            borderColor: '#30d158',
+                            backgroundColor: 'rgba(48, 209, 88, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'New Issues',
+                            data: [5, 3, 4, 2, 3],
+                            borderColor: '#ffd60a',
+                            backgroundColor: 'rgba(255, 214, 10, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Critical Errors',
+                            data: [1, 2, 1, 0, 0],
+                            borderColor: '#ff453a',
+                            backgroundColor: 'rgba(255, 69, 58, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#d1d1d6'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#8e8e93'
+                            },
+                            grid: {
+                                color: 'rgba(142, 142, 147, 0.3)'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#8e8e93'
+                            },
+                            grid: {
+                                color: 'rgba(142, 142, 147, 0.3)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update Error Statistics
+        function updateErrorStats() {
+            // This function is now handled by loadSystemData()
+            // Real-time updates come from the API
+        }
+
+        // Update services display
+        function updateServices(servicesData) {
+            if (servicesData.criticalServices) {
+                updateServiceGrid('critical-services', servicesData.criticalServices);
+            }
+            if (servicesData.frontendServices) {
+                updateServiceGrid('frontend-services', servicesData.frontendServices);
+            }
+        }
+
+        // Update service grid
+        function updateServiceGrid(containerId, services) {
+            const container = document.getElementById(containerId);
+            if (!container || !services) return;
+
+            container.innerHTML = services.map(service => `
+                <div class="service-card ${service.status}">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="font-semibold text-sm">${service.name}</h4>
+                        <span class="status-indicator status-${service.status}"></span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Port:</span>
+                            <span>${service.port}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Status:</span>
+                            <span class="capitalize ${getStatusColor(service.status)}">${service.status}</span>
+                        </div>
+                        ${service.responseTime ? `
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Response:</span>
+                            <span>${service.responseTime}</span>
+                        </div>
+                        ` : ''}
+                        ${service.lastCheck ? `
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Last Check:</span>
+                            <span>${new Date(service.lastCheck).toLocaleTimeString()}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="mt-3 flex space-x-2">
+                        <button onclick="openService(${service.port})" class="btn-primary text-xs">
+                            <i class="ph ph-arrow-square-out"></i> Open
+                        </button>
+                        <button onclick="restartService(${service.port})" class="btn-danger">
+                            <i class="ph ph-arrow-clockwise"></i> Restart
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get status color class
+        function getStatusColor(status) {
+            switch(status) {
+                case 'healthy': return 'text-green-500';
+                case 'unhealthy': return 'text-red-500';
+                default: return 'text-yellow-500';
+            }
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            currentTab = tabName;
+            
+            // Load tab-specific data
+            loadTabData(tabName);
+        }
+
+        // Load tab-specific data
+        async function loadTabData(tabName) {
+            switch(tabName) {
+                case 'coordination':
+                    loadCoordinationData();
+                    break;
+                case 'security':
+                    loadSecurityData();
+                    break;
+                case 'performance':
+                    loadPerformanceData();
+                    break;
+            }
+        }
+
+        // Load coordination data
+        async function loadCoordinationData() {
+            try {
+                const response = await fetch('/api/coordination/tasks');
+                const data = await response.json();
+                const container = document.getElementById('coordination-data');
+                
+                if (data.atomicTasks) {
+                    container.innerHTML = Object.entries(data.atomicTasks).map(([taskId, task]) => `
+                        <div class="service-card">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-semibold">${task.name}</h4>
+                                <span class="px-2 py-1 rounded text-xs ${getTaskStatusColor(task.status)}">${task.status}</span>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div><span class="text-gray-400">Task ID:</span> ${taskId}</div>
+                                <div><span class="text-gray-400">Priority:</span> ${task.priority}</div>
+                                <div><span class="text-gray-400">Progress:</span> ${task.progress}%</div>
+                                <div><span class="text-gray-400">Description:</span> ${task.description}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="text-gray-400">No coordination data available</div>';
+                }
+            } catch (error) {
+                document.getElementById('coordination-data').innerHTML = '<div class="text-red-500">Failed to load coordination data</div>';
+            }
+        }
+
+        // Load security data
+        async function loadSecurityData() {
+            try {
+                const response = await fetch('/api/security/status');
+                const data = await response.json();
+                const container = document.getElementById('security-data');
+                
+                if (data.securityMetrics) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="metric-card">
+                                <div class="text-sm text-gray-400 mb-1">Security Score</div>
+                                <div class="text-2xl font-bold text-green-500">${data.securityMetrics.securityScore}%</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="text-sm text-gray-400 mb-1">Threats Blocked</div>
+                                <div class="text-2xl font-bold">${data.securityMetrics.threatsBlocked}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="text-sm text-gray-400 mb-1">Encryption Level</div>
+                                <div class="text-lg font-semibold text-blue-500">${data.securityConfig?.encryptionLevel || 'N/A'}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="text-sm text-gray-400 mb-1">Compliance Level</div>
+                                <div class="text-lg font-semibold">${data.securityMetrics.complianceLevel}%</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<div class="text-gray-400">No security data available</div>';
+                }
+            } catch (error) {
+                document.getElementById('security-data').innerHTML = '<div class="text-red-500">Failed to load security data</div>';
+            }
+        }
+
+        // Load performance data
+        async function loadPerformanceData() {
+            try {
+                const response = await fetch('/api/performance/metrics');
+                const data = await response.json();
+                const container = document.getElementById('performance-data');
+                
+                if (data.quantumMetrics) {
+                    const metrics = data.quantumMetrics;
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="metric-card">
+                                <div class="text-sm text-gray-400 mb-1">API Response Time</div>
+                                <div class="text-xl font-bold">${metrics.apiResponseTime?.current || 0}ms</div>
+                                <div class="text-xs text-gray-400">Target: ${metrics.apiResponseTime?.target}ms</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="text-sm text-gray-400 mb-1">Database Query Time</div>
+                                <div class="text-xl font-bold">${metrics.databaseQueryTime?.current || 0}ms</div>
+                                <div class="text-xs text-gray-400">Target: ${metrics.databaseQueryTime?.target}ms</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="text-sm text-gray-400 mb-1">Throughput RPS</div>
+                                <div class="text-xl font-bold">${metrics.throughputRPS?.current || 0}</div>
+                                <div class="text-xs text-gray-400">Target: ${metrics.throughputRPS?.target}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<div class="text-gray-400">No performance data available</div>';
+                }
+            } catch (error) {
+                document.getElementById('performance-data').innerHTML = '<div class="text-red-500">Failed to load performance data</div>';
+            }
+        }
+
+        // Utility functions
+        function getTaskStatusColor(status) {
+            switch(status) {
+                case 'COMPLETED': return 'bg-green-500 text-white';
+                case 'ACTIVE': return 'bg-blue-500 text-white';
+                case 'PENDING': return 'bg-yellow-500 text-white';
+                default: return 'bg-gray-500 text-white';
+            }
+        }
+
+        function updateConnectionStatus(status) {
+            const statusElement = document.getElementById('connection-status');
+            const indicator = statusElement.querySelector('.status-indicator');
+            const text = statusElement.querySelector('span:last-child');
+            
+            switch(status) {
+                case 'connected':
+                    indicator.className = 'status-indicator status-healthy';
+                    text.textContent = 'Connected';
+                    break;
+                case 'disconnected':
+                    indicator.className = 'status-indicator status-unhealthy';
+                    text.textContent = 'Disconnected';
+                    break;
+                case 'error':
+                    indicator.className = 'status-indicator status-unhealthy';
+                    text.textContent = 'Connection Error';
+                    break;
+            }
+        }
+
+        function updateLastUpdateTime() {
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+        }
+
+        function addActivityLog(message, type = 'info') {
+            const logContainer = document.getElementById('activity-log');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const colors = {
+                success: 'text-green-500',
+                error: 'text-red-500',
+                warning: 'text-yellow-500',
+                info: 'text-blue-500'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = 'text-sm';
+            logEntry.innerHTML = `
+                <span class="text-gray-400">[${timestamp}]</span>
+                <span class="${colors[type] || colors.info}">${message}</span>
+            `;
+            
+            logContainer.insertBefore(logEntry, logContainer.firstChild);
+            
+            // Keep only last 50 entries
+            while (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+
+        function refreshSystemData() {
+            addActivityLog('Manual refresh triggered', 'info');
+            loadSystemData();
+            loadTabData(currentTab);
+        }
+
+        function openService(port) {
+            window.open(`http://localhost:${port}`, '_blank');
+        }
+
+        async function restartService(port) {
+            if (!confirm(`Are you sure you want to restart the service on port ${port}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/services/restart/${port}`, { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    addActivityLog(`Service on port ${port} restart initiated`, 'success');
+                } else {
+                    addActivityLog(`Failed to restart service on port ${port}`, 'error');
+                }
+            } catch (error) {
+                addActivityLog(`Error restarting service on port ${port}: ${error.message}`, 'error');
+            }
+        }
+
+        function openSuperAdmin() {
+            window.open('http://localhost:3023/meschain_sync_super_admin.html', '_blank');
+        }
+    </script>
+</body>
+</html>
