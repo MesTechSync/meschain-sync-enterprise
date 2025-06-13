@@ -2140,16 +2140,10 @@
             
             <!-- Right Side - System Status and Profile -->
             <div class="flex items-center space-x-3">
-                <!-- SignalR Connection Status -->
-                <div id="signalr-status" class="flex items-center space-x-1.5 bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg px-3 py-1.5">
-                    <div class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse"></div>
-                    <span class="text-amber-700 dark:text-amber-300 font-medium text-xs">Connecting...</span>
-                </div>
-                
-                <!-- System Health Indicator -->
-                <div class="flex items-center space-x-1.5 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg px-3 py-1.5">
-                    <div class="w-2.5 h-2.5 bg-green-500 rounded-full status-indicator-live"></div>
-                    <span class="text-green-700 dark:text-green-300 font-medium text-xs">System Healthy</span>
+                <!-- Dynamic System Health Indicator -->
+                <div id="system-health-indicator" class="flex items-center space-x-1.5 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg px-3 py-1.5 transition-all duration-300">
+                    <div id="health-status-dot" class="w-2.5 h-2.5 bg-green-500 rounded-full status-indicator-live"></div>
+                    <span id="health-status-text" class="text-green-700 dark:text-green-300 font-medium text-xs">System Healthy</span>
                 </div>
 
                 <!-- Language Selector with Flag -->
@@ -6401,6 +6395,12 @@
             
             // Initialize sidebar functionality
             initializeSidebar();
+            
+            // Start system health monitoring
+            checkSystemHealth();
+            
+            // Periodically check system health every 30 seconds
+            setInterval(checkSystemHealth, 30000);
         });
         
         function initializeSidebar() {
@@ -6696,6 +6696,10 @@
             
             // Setup enhanced language dropdown
             setupLanguageDropdown();
+
+            // Start dynamic system health monitoring
+            checkSystemHealth();
+            setInterval(checkSystemHealth, 30000); // Check every 30 seconds
             
             console.log('✅ Multi-language and theme system initialized');
             console.log(`🌍 Current language: ${currentLanguage}`);
@@ -6865,6 +6869,89 @@
     <script src="meschain_sync_super_admin.js"></script>
     
     <script>
+        /**
+         * 🔥 DYNAMIC SYSTEM HEALTH MONITORING
+         */
+        function checkSystemHealth() {
+            const healthIndicator = document.getElementById('system-health-indicator');
+            const healthDot = document.getElementById('health-status-dot');
+            const healthText = document.getElementById('health-status-text');
+            
+            if (!healthIndicator || !healthDot || !healthText) {
+                console.warn('⚠️ Health indicator elements not found');
+                return;
+            }
+
+            // Test critical marketplace ports
+            const criticalPorts = [
+                { port: 3007, name: 'Inventory' },
+                { port: 3010, name: 'Hepsiburada' },
+                { port: 3011, name: 'Amazon' },
+                { port: 3012, name: 'Trendyol' },
+                { port: 3014, name: 'N11' }
+            ];
+
+            let healthyPorts = 0;
+            let totalChecks = criticalPorts.length;
+
+            criticalPorts.forEach(({ port, name }) => {
+                fetch(`http://localhost:${port}/health`)
+                    .then(response => {
+                        if (response.ok) {
+                            healthyPorts++;
+                            console.log(`✅ ${name} (${port}): Healthy`);
+                        } else {
+                            console.warn(`⚠️ ${name} (${port}): Unhealthy - Status ${response.status}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`❌ ${name} (${port}): Offline - ${error.message}`);
+                    })
+                    .finally(() => {
+                        // Update UI when all checks complete
+                        setTimeout(() => {
+                            updateHealthUI(healthyPorts, totalChecks);
+                        }, 1000);
+                    });
+            });
+        }
+
+        function updateHealthUI(healthyPorts, totalChecks) {
+            const healthIndicator = document.getElementById('system-health-indicator');
+            const healthDot = document.getElementById('health-status-dot');
+            const healthText = document.getElementById('health-status-text');
+            
+            const healthPercentage = (healthyPorts / totalChecks) * 100;
+            
+            // Remove existing classes
+            healthIndicator.className = healthIndicator.className.replace(/bg-\w+-\d+/g, '').replace(/border-\w+-\d+/g, '');
+            healthDot.className = healthDot.className.replace(/bg-\w+-\d+/g, '');
+            healthText.className = healthText.className.replace(/text-\w+-\d+/g, '');
+            
+            if (healthPercentage >= 80) {
+                // System Healthy - Green
+                healthIndicator.classList.add('bg-green-100', 'dark:bg-green-900/30', 'border-green-200', 'dark:border-green-700');
+                healthDot.classList.add('bg-green-500');
+                healthText.classList.add('text-green-700', 'dark:text-green-300');
+                healthText.textContent = 'System Healthy';
+            } else if (healthPercentage >= 60) {
+                // System Warning - Yellow
+                healthIndicator.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30', 'border-yellow-200', 'dark:border-yellow-700');
+                healthDot.classList.add('bg-yellow-500');
+                healthText.classList.add('text-yellow-700', 'dark:text-yellow-300');
+                healthText.textContent = 'System Warning';
+            } else {
+                // System Critical - Red
+                healthIndicator.classList.add('bg-red-100', 'dark:bg-red-900/30', 'border-red-200', 'dark:border-red-700');
+                healthDot.classList.add('bg-red-500');
+                healthText.classList.add('text-red-700', 'dark:text-red-300');
+                healthText.textContent = 'System Critical';
+                healthDot.classList.add('animate-pulse'); // Add pulse animation for critical state
+            }
+            
+            console.log(`🔄 System Health Updated: ${healthyPorts}/${totalChecks} services healthy (${healthPercentage.toFixed(1)}%)`);
+        }
+
         // FINAL SOLUTION: Define toggleSidebarSection here
         window.toggleSidebarSection = function(header) {
             console.log('🎯 FINAL toggleSidebarSection called!', header);
@@ -7293,30 +7380,55 @@
 
             const url = marketplaceUrls[marketplace];
             
-            if (url) {
-                // Show notification
-                if (typeof showNotification === 'function') {
-                    showNotification(`🚀 Opening ${marketplace.charAt(0).toUpperCase() + marketplace.slice(1)} Dashboard...\n\n🌐 URL: ${url}\n⏱️ Loading...`, 'info');
-                }
-                
-                // Open in new tab
-                window.open(url, '_blank');
-                
-                // Log the action
-                console.log(`📊 Marketplace opened: ${marketplace} → ${url}`);
-                
-                // Add to activity log if available
-                if (typeof addTrendyolLogEntry === 'function') {
-                    addTrendyolLogEntry(`Opened ${marketplace} dashboard via port integration`, 'INFO');
-                }
-            } else {
+            if (!url) {
                 // Handle unknown marketplace
                 if (typeof showNotification === 'function') {
-                    showNotification(`❌ Marketplace "${marketplace}" not found!\n\nAvailable marketplaces:\n• Trendyol (Port 3012)\n• Amazon (Port 3011)\n• N11 (Port 3014)\n• Hepsiburada (Port 3010)\n• eBay (Port 3015)\n• Cross-Platform (Port 3009)`, 'error');
+                    showNotification(`❌ Marketplace "${marketplace}" not found!\n\nAvailable marketplaces:\n• Trendyol (Port 3012)\n• Amazon (Port 3011)\n• N11 (Port 3014)\n• Hepsiburada (Port 3010)\n• eBay (Port 3015)\n• GittiGidiyor (Port 3013)\n• Cross-Platform (Port 3009)`, 'error');
                 } else {
                     alert(`Marketplace "${marketplace}" not configured!`);
                 }
                 console.error(`❌ Unknown marketplace: ${marketplace}`);
+                return;
+            }
+
+            // Show loading notification
+            if (typeof showNotification === 'function') {
+                showNotification(`🚀 Opening ${marketplace.charAt(0).toUpperCase() + marketplace.slice(1)} Dashboard...\n\n🌐 URL: ${url}\n⏱️ Checking service status...`, 'info');
+            }
+
+            // First check if the service is running
+            fetch(url + '/health')
+                .then(response => {
+                    if (response.ok) {
+                        // Service is healthy, open it
+                        window.open(url, '_blank');
+                        
+                        if (typeof showNotification === 'function') {
+                            showNotification(`✅ ${marketplace.charAt(0).toUpperCase() + marketplace.slice(1)} Dashboard opened successfully!\n\n🌐 URL: ${url}\n✨ Service is running and healthy`, 'success');
+                        }
+                        
+                        console.log(`📊 Marketplace opened: ${marketplace} → ${url} (✅ Healthy)`);
+                    } else {
+                        throw new Error(`Service returned status ${response.status}`);
+                    }
+                })
+                .catch(error => {
+                    // Service is not available, show helpful message
+                    console.warn(`⚠️ ${marketplace} service check failed:`, error.message);
+                    
+                    if (typeof showNotification === 'function') {
+                        showNotification(`⚠️ ${marketplace.charAt(0).toUpperCase() + marketplace.slice(1)} service is not running!\n\n🔧 To start the service:\n1. Open terminal\n2. Navigate to project directory\n3. Run: node port_${url.split(':')[2].split('/')[0]}_*_server.js\n\n💡 Or use the service management panel`, 'warning');
+                    } else {
+                        const shouldTry = confirm(`⚠️ ${marketplace} service appears to be offline.\n\nWould you like to try opening it anyway?`);
+                        if (shouldTry) {
+                            window.open(url, '_blank');
+                        }
+                    }
+                });
+                
+            // Add to activity log if available
+            if (typeof addTrendyolLogEntry === 'function') {
+                addTrendyolLogEntry(`Attempted to open ${marketplace} dashboard via smart navigation`, 'INFO');
             }
         }
 
