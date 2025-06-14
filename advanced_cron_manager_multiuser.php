@@ -446,6 +446,8 @@ class AdvancedCronManagerMultiUser {
         }
         
         return false;
+    }
+    
     /**
      * Get dependency graph for visualization
      */
@@ -588,50 +590,6 @@ class AdvancedCronManagerMultiUser {
         return true;
     }
 
-    /**
-     * Multi-user dashboard data
-     */
-    public function getMultiUserDashboardData($user_id = null) {
-        $where_clause = $user_id ? ['user_id' => $user_id] : [];
-        
-        // Get active jobs
-        $active_jobs = $this->db->select('cron_jobs_advanced', $where_clause + ['status' => 'active']);
-        
-        // Get recent executions
-        $recent_executions = $this->db->query("
-            SELECT cja.*, ceh.execution_time, ceh.status as exec_status, ceh.output
-            FROM cron_jobs_advanced cja
-            LEFT JOIN cron_execution_history ceh ON cja.id = ceh.job_id
-            WHERE ceh.executed_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-            ORDER BY ceh.executed_at DESC
-            LIMIT 50
-        ");
-        
-        // Get dependency graph
-        $dependencies = $this->getDependencyGraph($user_id);
-        
-        // Calculate statistics
-        $stats = $this->calculateJobStatistics($user_id);
-        
-        return [
-            'active_jobs' => count($active_jobs),
-            'total_executions_24h' => count($recent_executions),
-            'success_rate' => $stats['success_rate'],
-            'average_execution_time' => $stats['avg_execution_time'],
-            'jobs' => $active_jobs,
-            'recent_executions' => $recent_executions,
-            'dependency_graph' => $dependencies,
-            'real_time_status' => $this->getRealTimeJobStatus()
-        ];
-    }
-        } catch (Exception $e) {
-            $this->logger->error("Job execution failed", [
-                'job_id' => $job_id,
-                'error' => $e->getMessage()
-            ]);
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
     
     /**
      * Update execution history for job
@@ -784,6 +742,27 @@ class AdvancedCronManagerMultiUser {
      * Auto-scaling cron worker management
      */
     public function manageAutoScaling() {
+        try {
+            $current_load = $this->getCurrentCronLoad();
+            $current_workers = $this->getCurrentWorkerCount();
+            
+            // Scale up if load is high
+            if ($current_load > 80 && $current_workers < 10) {
+                $this->scaleUpWorkers();
+            }
+            // Scale down if load is low
+            else if ($current_load < 20 && $current_workers > 2) {
+                $this->scaleDownWorkers();
+            }
+            
+            // Update metrics
+            $this->updateScalingMetrics($current_load, $current_workers);
+            
+        } catch (Exception $e) {
+            $this->logger->error("Auto-scaling failed", ['error' => $e->getMessage()]);
+        }
+    }
+    
     /**
      * Estimate job runtime
      */
@@ -1168,6 +1147,102 @@ class AdvancedQueueManager {
             $current_usage['cpu'] < $this->resource_limits['cpu'] &&
             $current_usage['disk'] < 0.9 * $this->parseDiskLimit($this->resource_limits['disk_space'])
         );
+    }
+    
+    /**
+     * Get resource requirements for job
+     */
+    private function getResourceRequirements($job) {
+        return [
+            'memory' => '128M', // Default memory requirement
+            'cpu' => 25, // Default CPU percentage
+            'disk' => '100M' // Default disk space
+        ];
+    }
+    
+    /**
+     * Estimate job runtime
+     */
+    private function estimateRuntime($job) {
+        // Get historical execution times for this job
+        $history = $this->db->select('cron_execution_history', 
+            ['job_id' => $job['id']], 
+            ['executed_at' => 'DESC'], 
+            5
+        );
+        
+        if (empty($history)) {
+            return 60; // Default 1 minute estimate
+        }
+        
+        $times = array_column($history, 'execution_time');
+        return array_sum($times) / count($times);
+    }
+    
+    /**
+     * Update queue metrics
+     */
+    private function updateQueueMetrics($priority, $count) {
+        $this->redis->hincrby('cron:queue_metrics', "{$priority}_priority", $count);
+        $this->redis->hincrby('cron:queue_metrics', 'total_queued', $count);
+    }
+    
+    /**
+     * Get current resource usage
+     */
+    private function getCurrentResourceUsage() {
+        return [
+            'memory' => memory_get_usage(true),
+            'cpu' => sys_getloadavg()[0] * 100, // Convert to percentage
+            'disk' => disk_free_space('/') // Free disk space
+        ];
+    }
+    
+    /**
+     * Parse memory limit string to bytes
+     */
+    private function parseMemoryLimit($limit) {
+        $unit = strtolower(substr($limit, -1));
+        $value = (int)substr($limit, 0, -1);
+        
+        switch ($unit) {
+            case 'g': return $value * 1024 * 1024 * 1024;
+            case 'm': return $value * 1024 * 1024;
+            case 'k': return $value * 1024;
+            default: return $value;
+        }
+    }
+    
+    /**
+     * Parse disk limit string to bytes
+     */
+    private function parseDiskLimit($limit) {
+        return $this->parseMemoryLimit($limit);
+    }
+    
+    /**
+     * Get total queued jobs across all priorities
+     */
+    private function getTotalQueuedJobs() {
+        return $this->redis->llen('high_priority_queue') + 
+               $this->redis->llen('medium_priority_queue') + 
+               $this->redis->llen('low_priority_queue');
+    }
+    
+    /**
+     * Get available workers count
+     */
+    private function getAvailableWorkers() {
+        $total_workers = $this->getCurrentWorkerCount();
+        $busy_workers = $this->redis->scard('cron:busy_workers');
+        return max(0, $total_workers - $busy_workers);
+    }
+    
+    /**
+     * Get current worker count
+     */
+    private function getCurrentWorkerCount() {
+        return (int) $this->redis->get('cron:worker_count') ?: 2;
     }
     
     /**
