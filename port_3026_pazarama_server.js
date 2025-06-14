@@ -350,13 +350,13 @@ app.post('/api/sync/orders', (req, res) => {
 
 // Server startup
 app.listen(PORT, () => {
-    console.log(`🛒 ═══════════════════════════════════════════════════════════════`);
-    console.log(`🛒    PAZARAMA MARKETPLACE INTEGRATION SERVER STARTED            🛒`);
-    console.log(`🛒 ═══════════════════════════════════════════════════════════════`);
+    console.log('🛒 ═══════════════════════════════════════════════════════════════');
+    console.log('🛒    PAZARAMA MARKETPLACE INTEGRATION SERVER STARTED            🛒');
+    console.log('🛒 ═══════════════════════════════════════════════════════════════');
     console.log(`🚀 Server running on: http://localhost:${PORT}`);
-    console.log(`🔗 Pazarama API Integration: ACTIVE`);
+    console.log('🔗 Pazarama API Integration: ACTIVE');
     console.log(`📊 Total Products: ${pazaramaData.stats.totalProducts}`);
     console.log(`💰 Monthly Revenue: ₺${pazaramaData.stats.monthlyRevenue.toLocaleString('tr-TR')}`);
     console.log(`⭐ Average Rating: ${pazaramaData.stats.avgRating}/5.0`);
-    console.log(`🛒 ═══════════════════════════════════════════════════════════════`);
+    console.log('🛒 ═══════════════════════════════════════════════════════════════');
 });

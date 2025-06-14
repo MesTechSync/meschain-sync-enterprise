@@ -422,14 +422,14 @@ app.post('/api/cargo/track', (req, res) => {
 
 // Server startup
 app.listen(PORT, () => {
-    console.log(`🚚 ═══════════════════════════════════════════════════════════════`);
-    console.log(`🚚    PTTAVM MARKETPLACE INTEGRATION SERVER STARTED              🚚`);
-    console.log(`🚚 ═══════════════════════════════════════════════════════════════`);
+    console.log('🚚 ═══════════════════════════════════════════════════════════════');
+    console.log('🚚    PTTAVM MARKETPLACE INTEGRATION SERVER STARTED              🚚');
+    console.log('🚚 ═══════════════════════════════════════════════════════════════');
     console.log(`🚀 Server running on: http://localhost:${PORT}`);
-    console.log(`🔗 PttAVM API Integration: ACTIVE`);
+    console.log('🔗 PttAVM API Integration: ACTIVE');
     console.log(`📊 Total Products: ${pttavmData.stats.totalProducts}`);
     console.log(`💰 Monthly Revenue: ₺${pttavmData.stats.monthlyRevenue.toLocaleString('tr-TR')}`);
     console.log(`🚚 PTT Cargo Points: ${pttavmData.pttServices.pickupPoints}`);
     console.log(`📦 Delivery Success: ${pttavmData.pttServices.deliverySuccess}%`);
-    console.log(`🚚 ═══════════════════════════════════════════════════════════════`);
+    console.log('🚚 ═══════════════════════════════════════════════════════════════');
 });

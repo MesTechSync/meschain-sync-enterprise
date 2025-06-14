@@ -3,15 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 🛡️ Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <title data-tr="🔗 MesChain-Sync Süper Admin Panel - Enterprise v5.0" data-en="🔗 MesChain-Sync Super Admin Panel - Enterprise v5.0">🔗 MesChain-Sync Super Admin Panel - Enterprise v5.0</title>
+    
+    <script>
+        // 🔧 MesChain Debug Configuration
+        const MESCHAIN_DEBUG = false; // Production: false, Development: true
+        const debugLog = (...args) => MESCHAIN_DEBUG && console.log(...args);
+        const debugError = (...args) => console.error(...args); // Always log errors
+        const debugWarn = (...args) => MESCHAIN_DEBUG && console.warn(...args);
+    </script>
     
     <!-- MesChain-Sync Design System Integration -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <!-- Azure Fluent UI Icons -->
-    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css">
-    
     <!-- Azure Fluent UI Icons -->
     <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css">
     
@@ -2405,6 +2414,11 @@
                                 <i class="ph ph-truck w-4 h-4 mr-3"></i>
                                 <span data-tr="PttAVM" data-en="PttAVM">PttAVM</span>
                                 <span class="text-xs text-blue-500 ml-auto">YENİ</span>
+                            </a>
+                            <a href="javascript:void(0)" class="meschain-nav-link" onclick="openMarketplaceService('dropshipping')" data-service="dropshipping">
+                                <i class="ph ph-airplane-takeoff w-4 h-4 mr-3"></i>
+                                <span data-tr="Dropshipping" data-en="Dropshipping">Dropshipping Engine</span>
+                                <span class="text-xs text-purple-500 ml-auto">YENİ</span>
                             </a>
                             <a href="#marketplace-integrations" class="meschain-nav-link" data-section="marketplace-integrations">
                                 <i class="ph ph-link w-4 h-4 mr-3"></i>
@@ -6290,7 +6304,7 @@
                 this.detectSystemTheme();
                 this.setupEventListeners();
                 this.applyInitialTheme();
-                console.log('🎨 MesChain Theme Manager initialized');
+                debugLog('🎨 MesChain Theme Manager initialized');
             }
             
             getSystemTheme() {
@@ -6316,7 +6330,7 @@
                 this.saveTheme(theme);
                 this.updateThemeIcon(theme);
                 this.closeThemeSelector();
-                console.log(`🎨 Theme switched to: ${theme}`);
+                debugLog(`🎨 Theme switched to: ${theme}`);
             }
             
             closeThemeSelector() {
@@ -6360,7 +6374,7 @@
                     localStorage.setItem('meschain-theme', theme);
                     currentTheme = theme; // Update global variable
                 } catch (error) {
-                    console.warn('Could not save theme preference');
+                    debugWarn('Could not save theme preference');
                 }
             }
             
@@ -6460,10 +6474,10 @@
         });
         
         function initializeSidebar() {
-            console.log('🎛️ Initializing sidebar (SIMPLE)...');
+            debugLog('🎛️ Initializing sidebar (SIMPLE)...');
             
             const sidebarSections = document.querySelectorAll('.sidebar-section');
-            console.log(`📂 Found ${sidebarSections.length} sidebar sections`);
+            debugLog(`📂 Found ${sidebarSections.length} sidebar sections`);
             
             // Ensure all dropdowns are closed initially
             sidebarSections.forEach((section, index) => {
@@ -6481,11 +6495,11 @@
                         arrow.style.transform = 'rotate(0deg)';
                     }
                     
-                    console.log(`✅ Section ${index + 1} initialized`);
+                    debugLog(`✅ Section ${index + 1} initialized`);
                 }
             });
             
-            console.log('🎉 Sidebar initialization complete!');
+            debugLog('🎉 Sidebar initialization complete!');
         }
 
         // Language functions
@@ -6551,12 +6565,6 @@
         function toggleTheme() {
             if (window.themeManager) {
                 window.themeManager.toggleTheme();
-            }
-        }
-        
-        function setTheme(theme) {
-            if (window.themeManager) {
-                window.themeManager.setTheme(theme);
             }
         }
         
@@ -6682,7 +6690,7 @@
             const languageDropdown = document.querySelector('.language-dropdown');
             
             if (languageDropdown && languageMenu && languageToggle) {
-                console.log('🌍 Setting up language dropdown');
+                debugLog('🌍 Setting up language dropdown');
                 
                 // Remove hidden class initially if it exists
                 languageMenu.classList.remove('hidden');
@@ -6757,24 +6765,24 @@
             checkSystemHealth();
             setInterval(checkSystemHealth, 30000); // Check every 30 seconds
             
-            console.log('✅ Multi-language and theme system initialized');
-            console.log(`🌍 Current language: ${currentLanguage}`);
-            console.log(`🎨 Current theme: ${currentTheme}`);
+            debugLog('✅ Multi-language and theme system initialized');
+            debugLog(`🌍 Current language: ${currentLanguage}`);
+            debugLog(`🎨 Current theme: ${currentTheme}`);
             
             // TEST: Verify toggleSidebarSection function
-            console.log('🔍 Testing toggleSidebarSection availability:');
-            console.log('window.toggleSidebarSection:', typeof window.toggleSidebarSection);
-            console.log('toggleSidebarSection:', typeof toggleSidebarSection);
+            debugLog('🔍 Testing toggleSidebarSection availability:');
+            debugLog('window.toggleSidebarSection:', typeof window.toggleSidebarSection);
+            debugLog('toggleSidebarSection:', typeof toggleSidebarSection);
             
             // Verify sidebar elements
             const testHeaders = document.querySelectorAll('.sidebar-section-header');
-            console.log(`📊 Found ${testHeaders.length} sidebar headers`);
+            debugLog(`📊 Found ${testHeaders.length} sidebar headers`);
             
             // 🚀 PRODUCTION READY - MesChain-Sync Super Admin Panel v4.1
-            console.log('🚀 MesChain-Sync Super Admin Panel v4.1 - PRODUCTION READY');
-            console.log('📋 VSCode Team Task Completed Successfully');
-            console.log('🔐 Official Authentication Gateway');
-            console.log('⚡ All systems operational');
+            debugLog('🚀 MesChain-Sync Super Admin Panel v4.1 - PRODUCTION READY');
+            debugLog('📋 VSCode Team Task Completed Successfully');
+            debugLog('🔐 Official Authentication Gateway');
+            debugLog('⚡ All systems operational');
         });
 
         // Additional utility functions
@@ -6815,7 +6823,7 @@
         // Sidebar section toggle function - SUPER SIMPLE VERSION
         function toggleSidebarSection(header) {
             try {
-                console.log('🔧 [SIMPLE] Toggling sidebar section:', header);
+                debugLog('🔧 [SIMPLE] Toggling sidebar section:', header);
                 
                 if (!header) {
                     console.error('❌ Header element is null!');
@@ -6847,7 +6855,7 @@
                 
                 // Toggle current dropdown
                 const isOpen = dropdown.style.display === 'block';
-                console.log('🎯 Currently open:', isOpen);
+                debugLog('🎯 Currently open:', isOpen);
                 
                 if (isOpen) {
                     // Close
@@ -6858,7 +6866,7 @@
                     const arrow = header.querySelector('.ph-caret-down');
                     if (arrow) arrow.style.transform = 'rotate(0deg)';
                     
-                    console.log('✅ Section closed');
+                    debugLog('✅ Section closed');
                 } else {
                     // Open with all styles
                     dropdown.style.cssText = `
@@ -6883,7 +6891,7 @@
                     const arrow = header.querySelector('.ph-caret-down');
                     if (arrow) arrow.style.transform = 'rotate(180deg)';
                     
-                    console.log('✅ Section opened');
+                    debugLog('✅ Section opened');
                 }
             } catch (error) {
                 console.error('❌ Error in toggleSidebarSection:', error);
@@ -6901,7 +6909,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.querySelector('nav');
             const sidebarSections = document.querySelectorAll('.sidebar-section');
-            console.log(`🎛️ Found ${sidebarSections.length} sidebar sections - Click only mode`);
+            debugLog(`🎛️ Found ${sidebarSections.length} sidebar sections - Click only mode`);
             
             // Tüm inline onmouseenter eventlerini kaldır
             document.querySelectorAll('.sidebar-section-header[onmouseenter]').forEach(header => {
@@ -6918,10 +6926,32 @@
                 }
             });
             
-            console.log('✅ Click-only sidebar mode activated - No hover auto-open');
+            debugLog('✅ Click-only sidebar mode activated - No hover auto-open');
         });
     </script>
 
+    <!-- 🚀 MesChain Resource Optimization -->
+    <script>
+        // Prevent duplicate resource loading
+        (function() {
+            const loadedScripts = new Set();
+            const originalCreateElement = document.createElement;
+            
+            document.createElement = function(tagName) {
+                const element = originalCreateElement.call(this, tagName);
+                
+                if (tagName.toLowerCase() === 'script' && element.src) {
+                    if (loadedScripts.has(element.src)) {
+                        debugWarn('🔄 Duplicate script prevented:', element.src);
+                        return document.createDocumentFragment();
+                    }
+                    loadedScripts.add(element.src);
+                }
+                
+                return element;
+            };
+        })();
+    </script>
     <script src="meschain_sync_super_admin.js"></script>
     
     <script>
@@ -6934,7 +6964,7 @@
             const healthText = document.getElementById('health-status-text');
             
             if (!healthIndicator || !healthDot || !healthText) {
-                console.warn('⚠️ Health indicator elements not found');
+                debugWarn('⚠️ Health indicator elements not found');
                 return;
             }
 
@@ -6955,9 +6985,9 @@
                     .then(response => {
                         if (response.ok) {
                             healthyPorts++;
-                            console.log(`✅ ${name} (${port}): Healthy`);
+                            debugLog(`✅ ${name} (${port}): Healthy`);
                         } else {
-                            console.warn(`⚠️ ${name} (${port}): Unhealthy - Status ${response.status}`);
+                            debugWarn(`⚠️ ${name} (${port}): Unhealthy - Status ${response.status}`);
                         }
                     })
                     .catch(error => {
@@ -7005,12 +7035,12 @@
                 healthDot.classList.add('animate-pulse'); // Add pulse animation for critical state
             }
             
-            console.log(`🔄 System Health Updated: ${healthyPorts}/${totalChecks} services healthy (${healthPercentage.toFixed(1)}%)`);
+            debugLog(`🔄 System Health Updated: ${healthyPorts}/${totalChecks} services healthy (${healthPercentage.toFixed(1)}%)`);
         }
 
         // FINAL SOLUTION: Define toggleSidebarSection here
         window.toggleSidebarSection = function(header) {
-            console.log('🎯 FINAL toggleSidebarSection called!', header);
+            debugLog('🎯 FINAL toggleSidebarSection called!', header);
             
             if (!header) return;
             
@@ -7058,23 +7088,23 @@
             }
         };
         
-                 console.log('✅ FINAL toggleSidebarSection defined!');
+                 debugLog('✅ FINAL toggleSidebarSection defined!');
          
          // Fix onClick handlers after page loads
          document.addEventListener('DOMContentLoaded', function() {
-             console.log('🔧 Fixing sidebar click handlers...');
+             debugLog('🔧 Fixing sidebar click handlers...');
              
              // Add click handlers to all sidebar headers
              document.querySelectorAll('.sidebar-section-header').forEach(header => {
                  header.addEventListener('click', function(e) {
                      e.preventDefault();
                      e.stopPropagation();
-                     console.log('📍 Sidebar header clicked!');
+                     debugLog('📍 Sidebar header clicked!');
                      window.toggleSidebarSection(this);
                  });
              });
              
-             console.log('✅ Click handlers added to all sidebar headers');
+             debugLog('✅ Click handlers added to all sidebar headers');
              
              // Convert all menu texts to title case (capitalize)
              document.querySelectorAll('.sidebar-section-header span').forEach(span => {
@@ -7093,7 +7123,7 @@
                  }
              });
              
-             console.log('✅ Menu texts converted to title case (capitalize)');
+             debugLog('✅ Menu texts converted to title case (capitalize)');
          });
     </script>
     
@@ -7124,7 +7154,7 @@
                 }
             `;
             document.head.appendChild(style);
-            console.log('✅ Hover dropdown effects loaded');
+            debugLog('✅ Hover dropdown effects loaded');
         });
     </script>
 
@@ -7141,7 +7171,7 @@
             const targetSection = document.getElementById(`${sectionName}-section`);
             if (targetSection) {
                 targetSection.classList.remove('hidden');
-                console.log(`✅ Section ${sectionName} is now visible`);
+                debugLog(`✅ Section ${sectionName} is now visible`);
             } else {
                 console.error(`❌ Section ${sectionName}-section not found`);
             }
@@ -7164,13 +7194,13 @@
                         document.querySelectorAll('.meschain-nav-link').forEach(l => l.classList.remove('active'));
                         this.classList.add('active');
                         
-                        console.log(`🎯 Switched to section: ${sectionName}`);
+                        debugLog(`🎯 Switched to section: ${sectionName}`);
                     }
                 });
             });
             
-            console.log('✅ Navigation link handlers added for section switching');
-            console.log('🛒 Trendyol Production Management section ready!');
+            debugLog('✅ Navigation link handlers added for section switching');
+            debugLog('🛒 Trendyol Production Management section ready!');
         });
     </script>
 
@@ -7318,8 +7348,8 @@
             showNotification('📊 Generating report...\n\n📈 Sales analysis\n📦 Product performance\n🔄 Sync statistics\n📧 Will be sent via email', 'info');
         }
 
-        console.log('🛒 Trendyol Admin Panel functions loaded successfully!');
-        console.log('🔧 API Management, Category Mapping & Product Sync ready!');
+        debugLog('🛒 Trendyol Admin Panel functions loaded successfully!');
+        debugLog('🔧 API Management, Category Mapping & Product Sync ready!');
     </script>
 
     <!-- Marketplace Integration Links -->
@@ -7412,14 +7442,14 @@
                             showNotification(`✅ ${service.icon} ${service.name} başarıyla açıldı!\n\n🌐 URL: ${service.url}\n✨ Servis çalışıyor ve sağlıklı`, 'success');
                         }
                         
-                        console.log(`📊 Reporting service opened: ${reportType} → ${service.url} (✅ Healthy)`);
+                        debugLog(`📊 Reporting service opened: ${reportType} → ${service.url} (✅ Healthy)`);
                     } else {
                         throw new Error(`Service returned status ${response.status}`);
                     }
                 })
                 .catch(error => {
                     // Service is not available, show helpful message
-                    console.warn(`⚠️ ${service.name} service check failed:`, error.message);
+                    debugWarn(`⚠️ ${service.name} service check failed:`, error.message);
                     
                     if (typeof showNotification === 'function') {
                         showNotification(`⚠️ ${service.icon} ${service.name} servisi çalışmıyor!\n\n🔧 Servisi başlatmak için:\n1. Terminal açın\n2. Proje dizinine gidin\n3. Çalıştırın: node port_${service.port}_*_server.js\n\n💡 Veya servis yönetim panelini kullanın`, 'warning');
@@ -7655,14 +7685,14 @@
                             showNotification(`✅ ${marketplace.charAt(0).toUpperCase() + marketplace.slice(1)} Dashboard opened successfully!\n\n🌐 URL: ${url}\n✨ Service is running and healthy`, 'success');
                         }
                         
-                        console.log(`📊 Marketplace opened: ${marketplace} → ${url} (✅ Healthy)`);
+                        debugLog(`📊 Marketplace opened: ${marketplace} → ${url} (✅ Healthy)`);
                     } else {
                         throw new Error(`Service returned status ${response.status}`);
                     }
                 })
                 .catch(error => {
                     // Service is not available, show helpful message
-                    console.warn(`⚠️ ${marketplace} service check failed:`, error.message);
+                    debugWarn(`⚠️ ${marketplace} service check failed:`, error.message);
                     
                     if (typeof showNotification === 'function') {
                         showNotification(`⚠️ ${marketplace.charAt(0).toUpperCase() + marketplace.slice(1)} service is not running!\n\n🔧 To start the service:\n1. Open terminal\n2. Navigate to project directory\n3. Run: node port_${url.split(':')[2].split('/')[0]}_*_server.js\n\n💡 Or use the service management panel`, 'warning');
@@ -7692,6 +7722,70 @@
          */
         function openCrossMarketplace() {
             openMarketplace('cross-marketplace');
+        }
+
+        /**
+         * 🚀 Enhanced Marketplace Service Opening with Health Check
+         */
+        function openMarketplaceService(service) {
+            const serviceUrls = {
+                'pazarama': 'http://localhost:3026',
+                'pttavm': 'http://localhost:3027',
+                'dropshipping': 'http://localhost:3028'
+            };
+
+            const url = serviceUrls[service];
+            
+            if (!url) {
+                if (typeof showNotification === 'function') {
+                    showNotification(`❌ Service "${service}" not found!\n\nAvailable services:\n• Pazarama (Port 3026)\n• PttAVM (Port 3027)\n• Dropshipping Engine (Port 3028)`, 'error');
+                } else {
+                    alert(`Service "${service}" not configured!`);
+                }
+                console.error(`❌ Unknown service: ${service}`);
+                return;
+            }
+
+            // Show loading notification
+            if (typeof showNotification === 'function') {
+                showNotification(`🚀 Opening ${service.charAt(0).toUpperCase() + service.slice(1)} Service...\n\n🌐 URL: ${url}\n⏱️ Checking service health...`, 'info');
+            }
+
+            // Check service health first
+            fetch(url + '/health')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'healthy') {
+                        // Service is healthy, open it
+                        window.open(url, '_blank');
+                        
+                        if (typeof showNotification === 'function') {
+                            showNotification(`✅ ${service.charAt(0).toUpperCase() + service.slice(1)} Service opened successfully!\n\n🌐 URL: ${url}\n✨ Service: ${data.service}\n⚡ Version: ${data.version}\n🕐 Uptime: ${Math.floor(data.uptime / 60)}m ${Math.floor(data.uptime % 60)}s`, 'success');
+                        }
+                        
+                        debugLog(`📊 Service opened: ${service} → ${url} (✅ Healthy - ${data.service})`);
+                    } else {
+                        throw new Error(`Service status: ${data.status}`);
+                    }
+                })
+                .catch(error => {
+                    // Service is not available, show helpful message
+                    debugWarn(`⚠️ ${service} service check failed:`, error.message);
+                    
+                    if (typeof showNotification === 'function') {
+                        showNotification(`⚠️ ${service.charAt(0).toUpperCase() + service.slice(1)} service is not running!\n\n🔧 To start the service:\n1. Open terminal\n2. Navigate to project directory\n3. Run: node port_${url.split(':')[2]}_${service}_server.js\n\n💡 Service may need to be started manually`, 'warning');
+                    } else {
+                        const shouldTry = confirm(`⚠️ ${service} service appears to be offline.\n\nWould you like to try opening it anyway?`);
+                        if (shouldTry) {
+                            window.open(url, '_blank');
+                        }
+                    }
+                });
+                
+            // Add to activity log if available
+            if (typeof addTrendyolLogEntry === 'function') {
+                addTrendyolLogEntry(`Attempted to open ${service} service via smart navigation`, 'INFO');
+            }
         }
 
         /**
@@ -7762,7 +7856,7 @@
                     this.updateAllMarketplaceHealth();
                 }, 30000);
                 
-                console.log('🏥 Marketplace Health Monitor started - updating every 30 seconds');
+                debugLog('🏥 Marketplace Health Monitor started - updating every 30 seconds');
             }
 
             /**
@@ -8071,7 +8165,7 @@
                 if (this.updateInterval) {
                     clearInterval(this.updateInterval);
                     this.updateInterval = null;
-                    console.log('🛑 Marketplace Health Monitor stopped');
+                    debugLog('🛑 Marketplace Health Monitor stopped');
                 }
             }
         }
@@ -8085,7 +8179,7 @@
             // Wait a moment for page to fully load
             setTimeout(() => {
                 marketplaceHealthMonitor = new MarketplaceHealthMonitor();
-                console.log('🏥 Marketplace Health Monitor initialized');
+                debugLog('🏥 Marketplace Health Monitor initialized');
             }, 2000);
         });
 
@@ -8101,7 +8195,7 @@
             }
         }
 
-        console.log('🏪 MesChain-Sync Marketplace Integration Ready!');
+        debugLog('🏪 MesChain-Sync Marketplace Integration Ready!');
         console.log('🚀 Available marketplaces: Trendyol, Amazon, N11, Hepsiburada, eBay, Ozon, GittiGidiyor');
         console.log('⌨️  Keyboard shortcuts: Ctrl/Cmd + Alt + [T|A|N|H|E|M|C]');
         console.log('🌐 Marketplace Hub: http://localhost:3003');
@@ -8337,13 +8431,148 @@
 
         // 🚀 INITIALIZE ON PAGE LOAD
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 MesChain-Sync Service Navigation System Loading...');
+            debugLog('🚀 MesChain-Sync Service Navigation System Loading...');
             
             setTimeout(() => {
                 initializeServiceNavigation();
                 showNotification('✅ MesChain Navigation System Ready!', 'success');
             }, 1000);
         });
+
+        // 🛡️ PERFORMANCE OPTIMIZATION & ERROR BOUNDARY SYSTEM
+        // GitLens-Style Error Handling and Performance Monitoring
+        (function() {
+            'use strict';
+            
+            // Performance monitoring
+            const perfMonitor = {
+                startTime: performance.now(),
+                memoryUsage: null,
+                errorCount: 0,
+                
+                init() {
+                    this.setupErrorBoundary();
+                    this.setupPerformanceMonitoring();
+                    this.setupMemoryMonitoring();
+                    this.setupNetworkOptimization();
+                    debugLog('🛡️ Performance Monitor & Error Boundary initialized');
+                },
+                
+                setupErrorBoundary() {
+                    // Global error handler
+                    window.addEventListener('error', (event) => {
+                        this.errorCount++;
+                        debugError('🚨 Global Error:', {
+                            message: event.message,
+                            filename: event.filename,
+                            lineno: event.lineno,
+                            colno: event.colno,
+                            error: event.error
+                        });
+                        
+                        // Show user-friendly error
+                        if (typeof showNotification === 'function') {
+                            showNotification('⚠️ Bir hata oluştu. Sayfa yenileniyor...', 'warning');
+                            // Auto-reload if too many errors
+                            if (this.errorCount > 5) {
+                                setTimeout(() => window.location.reload(), 2000);
+                            }
+                        }
+                    });
+                    
+                    // Promise rejection handler
+                    window.addEventListener('unhandledrejection', (event) => {
+                        debugError('🚨 Unhandled Promise Rejection:', event.reason);
+                        event.preventDefault();
+                    });
+                },
+                
+                setupPerformanceMonitoring() {
+                    // Monitor page load performance
+                    window.addEventListener('load', () => {
+                        const loadTime = performance.now() - this.startTime;
+                        debugLog(`⚡ Page loaded in ${loadTime.toFixed(2)}ms`);
+                        
+                        // Performance API check
+                        if ('performance' in window && 'navigation' in performance) {
+                            const perfData = performance.getEntriesByType('navigation')[0];
+                            debugLog('📊 Performance metrics:', {
+                                domContentLoaded: perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart,
+                                pageLoad: perfData.loadEventEnd - perfData.loadEventStart,
+                                dns: perfData.domainLookupEnd - perfData.domainLookupStart,
+                                connect: perfData.connectEnd - perfData.connectStart
+                            });
+                        }
+                    });
+                },
+                
+                setupMemoryMonitoring() {
+                    if ('memory' in performance) {
+                        setInterval(() => {
+                            const memory = performance.memory;
+                            this.memoryUsage = {
+                                used: Math.round(memory.usedJSHeapSize / 1024 / 1024),
+                                total: Math.round(memory.totalJSHeapSize / 1024 / 1024),
+                                limit: Math.round(memory.jsHeapSizeLimit / 1024 / 1024)
+                            };
+                            
+                            // Warn if memory usage is high
+                            if (this.memoryUsage.used > this.memoryUsage.limit * 0.8) {
+                                debugWarn('⚠️ High memory usage detected:', this.memoryUsage);
+                            }
+                        }, 30000); // Check every 30 seconds
+                    }
+                },
+                
+                setupNetworkOptimization() {
+                    // Preload critical resources
+                    const criticalResources = [
+                        'https://cdn.tailwindcss.com',
+                        'https://fonts.googleapis.com',
+                        'https://cdn.jsdelivr.net/npm/apexcharts',
+                        'https://unpkg.com/@phosphor-icons/web'
+                    ];
+                    
+                    criticalResources.forEach(url => {
+                        const link = document.createElement('link');
+                        link.rel = 'preconnect';
+                        link.href = new URL(url).origin;
+                        document.head.appendChild(link);
+                    });
+                },
+                
+                getStats() {
+                    return {
+                        uptime: performance.now() - this.startTime,
+                        errorCount: this.errorCount,
+                        memoryUsage: this.memoryUsage,
+                        userAgent: navigator.userAgent,
+                        connection: navigator.connection ? {
+                            effectiveType: navigator.connection.effectiveType,
+                            downlink: navigator.connection.downlink,
+                            rtt: navigator.connection.rtt
+                        } : null
+                    };
+                }
+            };
+            
+            // Initialize performance monitor
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => perfMonitor.init());
+            } else {
+                perfMonitor.init();
+            }
+            
+            // Expose to window for debugging
+            window.meshainPerf = perfMonitor;
+            
+            // Cleanup on page unload
+            window.addEventListener('beforeunload', () => {
+                debugLog('🧹 Cleaning up resources before page unload');
+                // Clear any intervals, remove event listeners, etc.
+            });
+            
+        })();
     </script>
 </body>
 </html>

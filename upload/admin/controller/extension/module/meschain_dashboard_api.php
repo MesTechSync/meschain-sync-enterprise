@@ -130,49 +130,6 @@ class ControllerExtensionModuleMeschainDashboardApi extends Controller {
             $this->sendResponse(null, 500, 'Internal server error: ' . $e->getMessage());
         }
     }
-            $this->load->model('extension/module/meschain_sync');
-            $this->load->model('setting/setting');
-            
-            // Get comprehensive dashboard metrics
-            $metrics = $this->getDashboardMetrics();
-            $performance = $this->getPerformanceMetrics();
-            $marketplace_status = $this->getMarketplaceStatus();
-            $real_time_data = $this->getRealTimeData();
-            
-            $data = [
-                'metrics' => $metrics,
-                'performance' => $performance,
-                'marketplace_status' => $marketplace_status,
-                'real_time' => $real_time_data,
-                'chartjs_data' => $this->getChartJSData(),
-                'summary_cards' => $this->getSummaryCards()
-            ];
-            
-            // Log performance metrics
-            if ($this->performance_monitor) {
-                $this->performance_monitor->logMetric('api_response_time', 
-                    (microtime(true) - $start_time) * 1000);
-            }
-            
-            // Format success response
-            $response = $this->response_formatter->formatSuccessResponse(
-                $data,
-                'Dashboard metrics retrieved successfully'
-            );
-            
-            $this->sendResponse($response);
-            
-        } catch (Exception $e) {
-            // Handle error with new error handler
-            $error_response = $this->error_handler->handleException($e, [
-                'endpoint' => 'dashboard_metrics',
-                'request_data' => $this->request->get,
-                'user_ip' => $this->request->server['REMOTE_ADDR'] ?? 'unknown'
-            ]);
-            
-            $this->sendResponse($error_response);
-        }
-    }
     
     /**
      * Real-time status endpoint
