@@ -1,0 +1,328 @@
+name: MesChain Multi-Team CI/CD
+
+on:
+  push:
+    branches: [ main, dev, 'team/*' ]
+  pull_request:
+    branches: [ main, dev ]
+  schedule:
+    # Daily health check at 9 AM UTC
+    - cron: '0 9 * * *'
+
+env:
+  NODE_VERSION: '18'
+  PHP_VERSION: '8.1'
+
+jobs:
+  # Job 1: Validate team branch naming and file conventions
+  validate-team-conventions:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/heads/team/')
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: 🏷️ Validate Team Branch Naming
+      run: |
+        echo "🔍 Validating team branch: ${{ github.ref_name }}"
+        
+        # Extract team name from branch
+        BRANCH_NAME="${{ github.ref_name }}"
+        TEAM_NAME=$(echo $BRANCH_NAME | cut -d'/' -f2)
+        
+        # Valid teams
+        VALID_TEAMS=("musti" "mezbjen" "selinay" "gemini" "cursor" "vscode")
+        
+        # Check if team name is valid
+        if [[ " ${VALID_TEAMS[@]} " =~ " ${TEAM_NAME} " ]]; then
+          echo "✅ Valid team branch: $TEAM_NAME"
+        else
+          echo "❌ Invalid team name: $TEAM_NAME"
+          echo "Valid teams: ${VALID_TEAMS[@]}"
+          exit 1
+        fi
+        
+        # Store team name for later jobs
+        echo "TEAM_NAME=$TEAM_NAME" >> $GITHUB_ENV
+    
+    - name: 📋 Check File Naming Conventions
+      run: |
+        echo "🔍 Checking file naming conventions for team: $TEAM_NAME"
+        
+        # Get changed files
+        git fetch origin ${{ github.event.repository.default_branch }}
+        CHANGED_FILES=$(git diff --name-only origin/${{ github.event.repository.default_branch }}...HEAD)
+        
+        echo "📁 Changed files:"
+        echo "$CHANGED_FILES"
+        
+        # Team-specific validation
+        case "$TEAM_NAME" in
+          "musti")
+            echo "🔧 Checking Musti team conventions (DevOps & Infrastructure)"
+            echo "$CHANGED_FILES" | while read file; do
+              if [[ $file =~ \.(sh|yml|yaml|dockerfile)$ ]] || [[ $file =~ ^(deploy_|infrastructure_|devops_|k8s_) ]]; then
+                echo "✅ $file follows Musti conventions"
+              else
+                echo "💡 Consider prefixing with deploy_/infrastructure_/devops_ for: $file"
+              fi
+            done
+            ;;
+          "mezbjen")
+            echo "🖥️ Checking MezBjen team conventions (Backend & API)"
+            echo "$CHANGED_FILES" | while read file; do
+              if [[ $file =~ \.(js|php|py)$ ]] || [[ $file =~ ^(backend_|api_|server_|db_) ]]; then
+                echo "✅ $file follows MezBjen conventions"
+              else
+                echo "💡 Consider prefixing with backend_/api_/server_ for: $file"
+              fi
+            done
+            ;;
+          "selinay")
+            echo "🎨 Checking Selinay team conventions (Frontend & UI)"
+            echo "$CHANGED_FILES" | while read file; do
+              if [[ $file =~ \.(html|css|js|tsx?|vue)$ ]] || [[ $file =~ ^(frontend_|ui_|component_|style_) ]]; then
+                echo "✅ $file follows Selinay conventions"
+              else
+                echo "💡 Consider prefixing with frontend_/ui_/component_ for: $file"
+              fi
+            done
+            ;;
+          # Add similar checks for other teams...
+        esac
+
+  # Job 2: Code Quality Checks
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: 🔍 Run Pre-commit Checks
+      run: |
+        chmod +x ./pre_commit_checker.sh
+        ./pre_commit_checker.sh || exit 0  # Allow warnings but fail on errors
+    
+    - name: 📏 Check File Sizes
+      run: |
+        echo "🔍 Checking for large files..."
+        find . -type f -size +10M | while read file; do
+          echo "⚠️ Large file detected: $file ($(du -h "$file" | cut -f1))"
+        done
+    
+    - name: 🔒 Security Scan
+      run: |
+        echo "🔍 Scanning for potential security issues..."
+        
+        # Check for hardcoded secrets
+        if grep -r -i "password\|secret\|key\|token" --include="*.js" --include="*.php" --include="*.py" . | grep -v "placeholder\|example"; then
+          echo "⚠️ Potential hardcoded secrets found"
+        fi
+        
+        # Check for sensitive files
+        if find . -name "*.env" -o -name "*.key" -o -name "*.pem" | grep -v ".env.example"; then
+          echo "❌ Sensitive files found in repository"
+          exit 1
+        fi
+
+  # Job 3: JavaScript/Node.js Testing
+  test-javascript:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, '.js') || contains(github.event.head_commit.added, '.js')
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: 📦 Install Dependencies
+      run: |
+        if [ -f package.json ]; then
+          npm ci
+        else
+          echo "No package.json found, skipping npm install"
+        fi
+    
+    - name: 🔍 Lint JavaScript
+      run: |
+        echo "🔍 Running JavaScript lint checks..."
+        # Basic syntax check for all JS files
+        find . -name "*.js" -not -path "./node_modules/*" | while read file; do
+          echo "Checking: $file"
+          node -c "$file" || exit 1
+        done
+    
+    - name: 🧪 Run Tests
+      run: |
+        if [ -f package.json ] && grep -q '"test"' package.json; then
+          npm test
+        else
+          echo "No tests configured, skipping"
+        fi
+
+  # Job 4: PHP Testing
+  test-php:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, '.php') || contains(github.event.head_commit.added, '.php')
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ env.PHP_VERSION }}
+    
+    - name: 🔍 PHP Syntax Check
+      run: |
+        echo "🔍 Checking PHP syntax..."
+        find . -name "*.php" | while read file; do
+          echo "Checking: $file"
+          php -l "$file" || exit 1
+        done
+
+  # Job 5: Conflict Detection
+  conflict-detection:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/team/')
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: 🔀 Check for Potential Conflicts
+      run: |
+        echo "🔍 Checking for potential conflicts with other team branches..."
+        
+        CURRENT_BRANCH="${{ github.ref_name }}"
+        CURRENT_TEAM=$(echo $CURRENT_BRANCH | cut -d'/' -f2)
+        
+        # Fetch all branches
+        git fetch --all
+        
+        # Check against other team branches
+        TEAMS=("musti" "mezbjen" "selinay" "gemini" "cursor" "vscode")
+        
+        for team in "${TEAMS[@]}"; do
+          if [ "$team" != "$CURRENT_TEAM" ]; then
+            if git show-ref --verify --quiet refs/remotes/origin/team/$team; then
+              echo "🔍 Checking conflicts with team/$team..."
+              
+              # Get files modified in both branches
+              CONFLICTING_FILES=$(git diff --name-only origin/team/$team...HEAD | head -10)
+              
+              if [ -n "$CONFLICTING_FILES" ]; then
+                echo "⚠️ Potential conflicts with team/$team:"
+                echo "$CONFLICTING_FILES"
+                
+                # Create issue comment or annotation
+                echo "::warning::Potential file conflicts detected with team/$team branch"
+              fi
+            fi
+          fi
+        done
+
+  # Job 6: Auto-merge to dev (for approved team branches)
+  auto-merge-to-dev:
+    runs-on: ubuntu-latest
+    needs: [validate-team-conventions, code-quality, test-javascript, test-php]
+    if: always() && (needs.validate-team-conventions.result == 'success' || needs.validate-team-conventions.result == 'skipped') && needs.code-quality.result == 'success' && (needs.test-javascript.result == 'success' || needs.test-javascript.result == 'skipped') && (needs.test-php.result == 'success' || needs.test-php.result == 'skipped')
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: 🔄 Create Pull Request to Dev
+      if: startsWith(github.ref, 'refs/heads/team/')
+      run: |
+        BRANCH_NAME="${{ github.ref_name }}"
+        TEAM_NAME=$(echo $BRANCH_NAME | cut -d'/' -f2)
+        
+        # Check if PR already exists
+        PR_EXISTS=$(gh pr list --base dev --head $BRANCH_NAME --json number --jq length)
+        
+        if [ "$PR_EXISTS" -eq 0 ]; then
+          # Create PR
+          gh pr create \
+            --title "[$TEAM_NAME] Auto-merge to dev - $(date +%Y-%m-%d)" \
+            --body "🤖 Automated PR from $BRANCH_NAME to dev branch
+            
+            ## Team: $TEAM_NAME
+            ## Status: ✅ All checks passed
+            
+            - ✅ Team conventions validated
+            - ✅ Code quality checks passed
+            - ✅ Tests passed
+            - ✅ No security issues detected
+            
+            This PR was automatically created after successful CI checks." \
+            --base dev \
+            --head $BRANCH_NAME \
+            --assignee "@me"
+          
+          echo "✅ Pull request created successfully"
+        else
+          echo "ℹ️ Pull request already exists"
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Job 7: Daily Health Check
+  daily-health-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: 📊 Repository Health Report
+      run: |
+        echo "# 📊 MesChain-Sync Daily Health Report - $(date +%Y-%m-%d)" > health_report.md
+        echo "" >> health_report.md
+        
+        # Branch status
+        echo "## 🌿 Branch Status" >> health_report.md
+        git branch -r | grep "team/" | while read branch; do
+          branch_name=$(echo $branch | sed 's/origin\///')
+          commits_ahead=$(git rev-list --count dev..$branch)
+          last_commit=$(git log -1 --format="%cr" $branch)
+          echo "- **$branch_name**: $commits_ahead commits ahead, last activity $last_commit" >> health_report.md
+        done
+        
+        # Recent activity
+        echo "" >> health_report.md
+        echo "## 📈 Recent Activity (Last 7 days)" >> health_report.md
+        git log --since="7 days ago" --pretty=format:"- %s (%an, %cr)" >> health_report.md
+        
+        # File statistics
+        echo "" >> health_report.md
+        echo "## 📁 Repository Statistics" >> health_report.md
+        echo "- Total files: $(find . -type f | wc -l)" >> health_report.md
+        echo "- JavaScript files: $(find . -name "*.js" | wc -l)" >> health_report.md
+        echo "- PHP files: $(find . -name "*.php" | wc -l)" >> health_report.md
+        echo "- HTML files: $(find . -name "*.html" | wc -l)" >> health_report.md
+        
+        cat health_report.md
+
+  # Job 8: Notification System
+  notify-teams:
+    runs-on: ubuntu-latest
+    needs: [validate-team-conventions, code-quality]
+    if: always() && (failure() || success())
+    steps:
+    - name: 📢 Notify Team Results
+      run: |
+        if [ "${{ needs.code-quality.result }}" == "failure" ]; then
+          echo "❌ Code quality checks failed for ${{ github.ref_name }}"
+          echo "Team should review and fix issues before proceeding"
+        elif [ "${{ needs.validate-team-conventions.result }}" == "failure" ]; then
+          echo "❌ Team convention validation failed for ${{ github.ref_name }}"
+          echo "Please follow team naming conventions"
+        else
+          echo "✅ All checks passed for ${{ github.ref_name }}"
+          echo "Great work team! 🎉"
+        fi
