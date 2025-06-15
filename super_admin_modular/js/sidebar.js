@@ -1,111 +1,63 @@
 /**
  * MesChain-Sync Super Admin Panel - Sidebar Management Module
- * Version: 4.1
+ * Version: 5.0 - ÇÖZÜLMÜŞ 3023 PORTINDAN AKTARILDI
  * Description: Sidebar navigation and dropdown management
  */
 
-// Sidebar initialization function
+// Sidebar section toggle function - 3023 PORTUNDAN ÇALIŞAN ÇÖZÜM
+function toggleSidebarSection(header) {
+    console.log('🔧 Toggling sidebar section:', header);
+    const section = header.parentElement;
+    const allSections = document.querySelectorAll('.sidebar-section');
+    
+    // Close all other sections first (accordion behavior)
+    allSections.forEach(s => {
+        if (s !== section) {
+            s.classList.remove('active');
+            s.classList.remove('hovering');
+        }
+    });
+    
+    // Toggle current section
+    const isCurrentlyActive = section.classList.contains('active');
+    if (isCurrentlyActive) {
+        section.classList.remove('active');
+        console.log('✅ Section closed');
+    } else {
+        section.classList.add('active');
+        console.log('✅ Section opened');
+    }
+    
+    // Force CSS update
+    section.offsetHeight;
+}
+
+// Sidebar initialization function - IMPROVED VERSION
 function initializeSidebar() {
     const sidebarSections = document.querySelectorAll('.sidebar-section');
+    console.log(`🎛️ Found ${sidebarSections.length} sidebar sections - Click only mode`);
+    
+    // Tüm inline onmouseenter eventlerini kaldır
+    document.querySelectorAll('.sidebar-section-header[onmouseenter]').forEach(header => {
+        header.removeAttribute('onmouseenter');
+    });
     
     // Ensure all dropdowns are closed initially
     sidebarSections.forEach((section, index) => {
-        const dropdown = section.querySelector('.sidebar-dropdown-menu');
-        const header = section.querySelector('.sidebar-section-header');
-        
-        if (dropdown && header) {
-            // Simple initial closed state
-            section.classList.remove('active');
-            dropdown.style.display = 'none';
-            
-            // Reset arrow
-            const arrow = header.querySelector('.ph-caret-down');
-            if (arrow) {
-                arrow.style.transform = 'rotate(0deg)';
-            }
-        }
+        section.classList.remove('active');
+        section.classList.remove('hovering');
     });
     
     // Setup click handlers
     setupSidebarClickHandlers();
     
+    // Setup hover effects
+    setupSidebarHoverEffects();
+    
     // Setup text capitalization
     setupTextCapitalization();
-}
-
-// Sidebar section toggle function
-function toggleSidebarSection(header) {
-    try {
-        if (!header) {
-            return;
-        }
-        
-        const section = header.parentElement;
-        if (!section) {
-            return;
-        }
-        
-        const dropdown = section.querySelector('.sidebar-dropdown-menu');
-        if (!dropdown) {
-            return;
-        }
-        
-        // Close all other dropdowns (accordion behavior)
-        document.querySelectorAll('.sidebar-dropdown-menu').forEach(menu => {
-            if (menu !== dropdown) {
-                menu.style.display = 'none';
-                menu.parentElement.classList.remove('active');
-                // Reset arrow
-                const arrow = menu.parentElement.querySelector('.ph-caret-down');
-                if (arrow) {
-                    arrow.style.transform = 'rotate(0deg)';
-                }
-            }
-        });
-        
-        // Toggle current dropdown
-        const isOpen = dropdown.style.display === 'block';
-        
-        if (isOpen) {
-            // Close
-            dropdown.style.display = 'none';
-            section.classList.remove('active');
-            
-            // Rotate arrow back
-            const arrow = header.querySelector('.ph-caret-down');
-            if (arrow) {
-                arrow.style.transform = 'rotate(0deg)';
-            }
-        } else {
-            // Open with enhanced styles
-            dropdown.style.cssText = `
-                display: block !important;
-                max-height: 500px !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-                transform: translateY(0) !important;
-                pointer-events: auto !important;
-                overflow: visible !important;
-                margin-top: 16px !important;
-                margin-left: 20px !important;
-                background: var(--bg-primary, #ffffff) !important;
-                border: 1px solid var(--border-color, #dee2e6) !important;
-                border-radius: 8px !important;
-                box-shadow: 0 4px 12px var(--shadow-color, rgba(0, 0, 0, 0.1)) !important;
-                padding: 8px !important;
-                transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-            `;
-            section.classList.add('active');
-            
-            // Rotate arrow
-            const arrow = header.querySelector('.ph-caret-down');
-            if (arrow) {
-                arrow.style.transform = 'rotate(180deg)';
-            }
-        }
-    } catch (error) {
-        // Silently handle errors
-    }
+    
+    console.log('✅ Click-only sidebar mode activated - No hover auto-open');
 }
 
 // Setup click handlers for sidebar sections
@@ -123,6 +75,28 @@ function setupSidebarClickHandlers() {
     });
 }
 
+// Setup hover effects - SADECE GÖRSEL EFEKTLER
+function setupSidebarHoverEffects() {
+    const sidebarSections = document.querySelectorAll('.sidebar-section');
+    
+    // Sadece visual hover efektleri için
+    sidebarSections.forEach(section => {
+        const header = section.querySelector('.sidebar-section-header');
+        
+        if (header) {
+            // Sadece görsel hover efekti
+            header.addEventListener('mouseenter', function() {
+                const parentSection = this.parentElement;
+                parentSection.classList.add('hovering');
+            });
+            
+            header.addEventListener('mouseleave', function() {
+                const parentSection = this.parentElement;
+                parentSection.classList.remove('hovering');
+            });
+        }
+    });
+}
 // Setup text capitalization for menu items
 function setupTextCapitalization() {
     // Convert all menu texts to title case (capitalize)
@@ -143,37 +117,6 @@ function setupTextCapitalization() {
     });
 }
 
-// Sidebar hover effects (optional, can be disabled)
-function setupSidebarHoverEffects() {
-    const style = document.createElement('style');
-    style.innerHTML = `
-        /* Sidebar Hover Effects */
-        .sidebar-section-header:hover {
-            background: rgba(139, 92, 246, 0.1) !important;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .meschain-nav-link:hover {
-            background: rgba(139, 92, 246, 0.1) !important;
-            border-radius: 8px;
-            transform: translateX(4px);
-            transition: all 0.3s ease;
-        }
-        
-        /* Smooth dropdown animations */
-        .sidebar-dropdown-menu {
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-        }
-        
-        /* Arrow rotation animation */
-        .sidebar-section-header .ph-caret-down {
-            transition: transform 0.3s ease !important;
-        }
-    `;
-    document.head.appendChild(style);
-}
-
 // Sidebar utility functions
 function collapseSidebar() {
     const sidebar = document.querySelector('nav');
@@ -181,9 +124,9 @@ function collapseSidebar() {
         sidebar.classList.add('collapsed');
         
         // Close all dropdowns when collapsing
-        document.querySelectorAll('.sidebar-dropdown-menu').forEach(dropdown => {
-            dropdown.style.display = 'none';
-            dropdown.parentElement.classList.remove('active');
+        document.querySelectorAll('.sidebar-section').forEach(section => {
+            section.classList.remove('active');
+            section.classList.remove('hovering');
         });
     }
 }
@@ -229,13 +172,21 @@ function setupSidebarSearch() {
 // Initialize all sidebar functionality
 function initializeSidebarComplete() {
     initializeSidebar();
-    setupSidebarHoverEffects();
     setupSidebarSearch();
 }
 
 // Make functions globally available
 window.toggleSidebarSection = toggleSidebarSection;
 window.initializeSidebar = initializeSidebar;
+window.initializeSidebarComplete = initializeSidebarComplete;
 window.collapseSidebar = collapseSidebar;
 window.expandSidebar = expandSidebar;
 window.toggleSidebarCollapse = toggleSidebarCollapse;
+
+// DOM ready initialization
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSidebar();
+    console.log('✅ Sidebar initialized with working 3023 solution');
+});
+
+console.log('🎯 Sidebar.js loaded - Version 5.0 with fixed 3023 solution');
