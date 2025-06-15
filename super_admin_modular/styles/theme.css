@@ -1,0 +1,237 @@
+/* 🌙 ADVANCED THEME SYSTEM - CURSOR TEAM IMPLEMENTATION 
+   ✨ Light/Dark mode support with CSS custom properties
+   🎨 Enterprise-grade theme switching */
+
+/* ============================================
+   🎨 CSS CUSTOM PROPERTIES - THEME VARIABLES
+   ============================================ */
+:root {
+    /* Light Theme Variables */
+    --bg-primary-light: #ffffff;
+    --bg-secondary-light: #f8f9fa;
+    --bg-tertiary-light: #e9ecef;
+    --text-primary-light: #212529;
+    --text-secondary-light: #6c757d;
+    --border-light: #dee2e6;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    
+    /* Dark Theme Variables */
+    --bg-primary-dark: #1a1a1a;
+    --bg-secondary-dark: #2d2d30;
+    --bg-tertiary-dark: #3e3e42;
+    --text-primary-dark: #ffffff;
+    --text-secondary-dark: #cccccc;
+    --border-dark: #484848;
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+    
+    /* Theme Transition */
+    --theme-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* MesChain-Sync Design System - Light Mode */
+    --bg-primary: #f1f5f9;
+    --bg-secondary: #ffffff;
+    --bg-gradient-start: #ffffff;
+    --bg-gradient-end: #f1f5f9;
+    --sidebar-bg: rgba(255, 255, 255, 0.6);
+    --card-bg: rgba(255, 255, 255, 0.5);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
+    
+    --border-primary: rgba(0, 0, 0, 0.1);
+    --border-secondary: #e2e8f0;
+
+    --accent-primary: #6d28d9;
+    --accent-secondary: #8b5cf6;
+    --accent-glow: rgba(109, 40, 217, 0.1);
+
+    --sidebar-link-active-bg: linear-gradient(90deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.0) 100%);
+    --sidebar-link-active-border: #8b5cf6;
+    --sidebar-link-active-text: #6d28d9;
+    --sidebar-link-hover-bg: rgba(139, 92, 246, 0.05);
+    --sidebar-link-hover-text: #7c3aed;
+
+    --status-green-bg: #ecfdf5;
+    --status-green-text: #065f46;
+    --status-green-border: #a7f3d0;
+    --status-amber-bg: #fffbeb;
+    --status-amber-text: #b45309;
+    --status-amber-border: #fcd34d;
+    --status-red-bg: #fff1f2;
+    --status-red-text: #9f1239;
+    --status-red-border: #fca5a5;
+
+    /* MesChain-Sync Specific */
+    --meschain-primary: #2563eb;
+    --meschain-secondary: #3b82f6;
+    --meschain-accent: #1d4ed8;
+    --meschain-glow: rgba(37, 99, 235, 0.15);
+    
+    /* Light mode shadows */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   🌑 LIGHT THEME ACTIVE STATE
+   ============================================ */
+[data-theme="light"] {
+    --bg-primary: var(--bg-primary-light);
+    --bg-secondary: var(--bg-secondary-light);
+    --bg-tertiary: var(--bg-tertiary-light);
+    --text-primary: var(--text-primary-light);
+    --text-secondary: var(--text-secondary-light);
+    --border-color: var(--border-light);
+    --shadow-color: var(--shadow-light);
+}
+
+/* ============================================
+   🌙 DARK THEME ACTIVE STATE
+   ============================================ */
+[data-theme="dark"] {
+    --bg-primary: var(--bg-primary-dark);
+    --bg-secondary: var(--bg-secondary-dark);
+    --bg-tertiary: var(--bg-tertiary-dark);
+    --text-primary: var(--text-primary-dark);
+    --text-secondary: var(--text-secondary-dark);
+    --border-color: var(--border-dark);
+    --shadow-color: var(--shadow-dark);
+}
+
+/* Dark Mode - MesChain-Sync Theme */
+.dark {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-gradient-start: #0f172a;
+    --bg-gradient-end: #1e293b;
+    --sidebar-bg: rgba(15, 23, 42, 0.8);
+    --card-bg: rgba(30, 41, 59, 0.6);
+    
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-tertiary: #64748b;
+    
+    --border-primary: rgba(255, 255, 255, 0.1);
+    --border-secondary: #334155;
+
+    --accent-primary: #8b5cf6;
+    --accent-secondary: #a78bfa;
+    --accent-glow: rgba(139, 92, 246, 0.2);
+
+    --sidebar-link-active-bg: linear-gradient(90deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.0) 100%);
+    --sidebar-link-active-border: #a78bfa;
+    --sidebar-link-active-text: #c4b5fd;
+    --sidebar-link-hover-bg: rgba(139, 92, 246, 0.1);
+    --sidebar-link-hover-text: #a78bfa;
+
+    --status-green-bg: #064e3b;
+    --status-green-text: #86efac;
+    --status-green-border: #059669;
+    --status-amber-bg: #92400e;
+    --status-amber-text: #fcd34d;
+    --status-amber-border: #d97706;
+    --status-red-bg: #7f1d1d;
+    --status-red-text: #fca5a5;
+    --status-red-border: #dc2626;
+
+    /* MesChain-Sync Specific Dark */
+    --meschain-primary: #60a5fa;
+    --meschain-secondary: #93c5fd;
+    --meschain-accent: #3b82f6;
+    --meschain-glow: rgba(96, 165, 250, 0.25);
+
+    /* Dark mode shadows */
+    --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+   🎛️ THEME TOGGLE BUTTON
+   ============================================ */
+.theme-toggle {
+    background: var(--bg-secondary, #f8f9fa);
+    color: var(--text-primary, #212529);
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: var(--theme-transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    background: var(--bg-tertiary, #e9ecef);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--shadow-color, rgba(0, 0, 0, 0.1));
+}
+
+.theme-toggle-icon {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover .theme-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.meschain-theme-toggle {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.meschain-theme-toggle:hover {
+    background: var(--accent-glow);
+    border-color: var(--accent-secondary);
+}
+
+/* ============================================
+   🌑 DARK MODE TEXT IMPROVEMENTS
+   ============================================ */
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-gray-900 {
+    color: #f3f4f6 !important;
+}
+
+[data-theme="dark"] .text-gray-700 {
+    color: #d1d5db !important;
+}
+
+[data-theme="dark"] .text-gray-600 {
+    color: #9ca3af !important;
+}
+
+[data-theme="dark"] .text-gray-500 {
+    color: #6b7280 !important;
+}
+
+/* Dark mode for cards and panels */
+[data-theme="dark"] .bg-white {
+    background-color: var(--bg-secondary, #2d2d30) !important;
+}
+
+[data-theme="dark"] .bg-gray-50 {
+    background-color: var(--bg-tertiary, #3e3e42) !important;
+}
+
+[data-theme="dark"] .bg-gray-100 {
+    background-color: var(--bg-secondary, #2d2d30) !important;
+}
+
+/* Dark mode borders */
+[data-theme="dark"] .border-gray-200 {
+    border-color: var(--border-color, #484848) !important;
+}
+
+[data-theme="dark"] .border-gray-300 {
+    border-color: var(--border-color, #484848) !important;
+}

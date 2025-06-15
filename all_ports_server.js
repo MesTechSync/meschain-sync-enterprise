@@ -1,21 +1,21 @@
 const http = require('http');
 
-// Port tanımları ve renkleri
+// Port tanımları ve renkleri - 60xx serisine taşındı
 const ports = {
-    3000: { name: 'Dashboard', color: '#667eea', description: '📊 Ana Dashboard Sistemi' },
-    3001: { name: 'Frontend Components', color: '#f093fb', description: '🎨 Frontend Bileşenleri' },
-    3002: { name: 'Super Admin', color: '#4facfe', description: '👑 Süper Admin Paneli' },
-    3003: { name: 'Marketplace Hub', color: '#43e97b', description: '🏪 Marketplace Merkezi' },
-    3006: { name: 'Order Management', color: '#fa709a', description: '📋 Sipariş Yönetimi' },
-    3007: { name: 'Inventory Management', color: '#ffecd2', description: '📦 Stok Yönetimi' },
-    3009: { name: 'Cross Marketplace Admin', color: '#a8edea', description: '🔄 Çapraz Market Yönetimi' },
-    3010: { name: 'Hepsiburada Specialist', color: '#fed6e3', description: '🛍️ Hepsiburada Uzmanı' },
-    3011: { name: 'Amazon Seller', color: '#ff9a9e', description: '📦 Amazon Satıcı Sistemi' },
-    3012: { name: 'Trendyol Seller', color: '#fecfef', description: '🛒 Trendyol Satıcı Sistemi' },
-    3013: { name: 'GittiGidiyor Manager', color: '#ffecd2', description: '🎯 GittiGidiyor Yöneticisi' },
-    3014: { name: 'N11 Management', color: '#c471f5', description: '🏢 N11 Yönetim Sistemi' },
-    3015: { name: 'eBay Integration', color: '#12c2e9', description: '🌐 eBay Entegrasyonu' },
-    3016: { name: 'Trendyol Advanced Testing', color: '#f64f59', description: '🧪 Trendyol İleri Testler' }
+    6000: { name: 'Dashboard', color: '#667eea', description: '📊 Ana Dashboard Sistemi' },
+    6001: { name: 'Frontend Components', color: '#f093fb', description: '🎨 Frontend Bileşenleri' },
+    6002: { name: 'Super Admin', color: '#4facfe', description: '👑 Süper Admin Paneli' },
+    6003: { name: 'Marketplace Hub', color: '#43e97b', description: '🏪 Marketplace Merkezi' },
+    6006: { name: 'Order Management', color: '#fa709a', description: '📋 Sipariş Yönetimi' },
+    6007: { name: 'Inventory Management', color: '#ffecd2', description: '📦 Stok Yönetimi' },
+    6009: { name: 'Cross Marketplace Admin', color: '#a8edea', description: '🔄 Çapraz Market Yönetimi' },
+    6010: { name: 'Hepsiburada Specialist', color: '#fed6e3', description: '🛍️ Hepsiburada Uzmanı' },
+    6011: { name: 'Amazon Seller', color: '#ff9a9e', description: '📦 Amazon Satıcı Sistemi' },
+    6012: { name: 'Trendyol Seller', color: '#fecfef', description: '🛒 Trendyol Satıcı Sistemi' },
+    6013: { name: 'GittiGidiyor Manager', color: '#ffecd2', description: '🎯 GittiGidiyor Yöneticisi' },
+    6014: { name: 'N11 Management', color: '#c471f5', description: '🏢 N11 Yönetim Sistemi' },
+    6015: { name: 'eBay Integration', color: '#12c2e9', description: '🌐 eBay Entegrasyonu' },
+    6016: { name: 'Trendyol Advanced Testing', color: '#f64f59', description: '🧪 Trendyol İleri Testler' }
 };
 
 // Her port için server oluştur
@@ -129,10 +129,10 @@ Object.entries(ports).forEach(([port, config]) => {
                     <div class="info">🌐 URL: http://localhost:${port}</div>
                     
                     <div class="links">
-                        <a href="http://localhost:3000" class="link-button">🏠 Dashboard</a>
-                        <a href="http://localhost:3001" class="link-button">🎨 Components</a>
-                        <a href="http://localhost:3002" class="link-button">👑 Admin</a>
-                        <a href="http://localhost:3003" class="link-button">🏪 Hub</a>
+                        <a href="http://localhost:6000" class="link-button">🏠 Dashboard</a>
+                        <a href="http://localhost:6001" class="link-button">🎨 Components</a>
+                        <a href="http://localhost:6002" class="link-button">👑 Admin</a>
+                        <a href="http://localhost:6003" class="link-button">🏪 Hub</a>
                     </div>
                 </div>
             </div>
@@ -154,23 +154,23 @@ console.log(`
 🔥              MESCHAIN-SYNC TÜM PORTLAR AKTİF!               🔥
 🎯 ═══════════════════════════════════════════════════════════════
 
-🚀 Aktif Portlar:
-   • 3000 - Dashboard
-   • 3001 - Frontend Components  
-   • 3002 - Super Admin
-   • 3003 - Marketplace Hub
-   • 3006 - Order Management
-   • 3007 - Inventory Management
-   • 3009 - Cross Marketplace Admin
-   • 3010 - Hepsiburada Specialist
-   • 3011 - Amazon Seller
-   • 3012 - Trendyol Seller
-   • 3013 - GittiGidiyor Manager
-   • 3014 - N11 Management
-   • 3015 - eBay Integration
-   • 3016 - Trendyol Advanced Testing
+🚀 Aktif 6000 Serisi Sistem Portları:
+   • 6000 - Dashboard
+   • 6001 - Frontend Components  
+   • 6002 - Super Admin
+   • 6003 - Marketplace Hub
+   • 6006 - Order Management
+   • 6007 - Inventory Management
+   • 6009 - Cross Marketplace Admin
+   • 6010 - Hepsiburada Specialist
+   • 6011 - Amazon Seller
+   • 6012 - Trendyol Seller
+   • 6013 - GittiGidiyor Manager
+   • 6014 - N11 Management
+   • 6015 - eBay Integration
+   • 6016 - Trendyol Advanced Testing
 
-💡 Tüm portları görüntülemek için tarayıcınızda http://localhost:3000-3016 adreslerini ziyaret edin!
+💡 Tüm sistem portlarını görüntülemek için tarayıcınızda http://localhost:6000-6016 adreslerini ziyaret edin!
 🛑 Durdurmak için Ctrl+C tuşlayın.
 
 🎯 ═══════════════════════════════════════════════════════════════

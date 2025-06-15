@@ -1,0 +1,363 @@
+/* 🎭 ANIMATIONS & EFFECTS
+   ✨ Keyframes, transitions, hover effects
+   🎨 Performance-optimized CSS animations */
+
+/* ============================================
+   🔄 CORE ANIMATIONS
+   ============================================ */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes meschain-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes meschain-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+.meschain-animate-pulse {
+    animation: meschain-pulse 2s ease-in-out infinite;
+}
+
+.meschain-animate-bounce {
+    animation: meschain-bounce 1s ease-in-out infinite;
+}
+
+/* ============================================
+   📈 FADE IN ANIMATIONS
+   ============================================ */
+.fade-in-up {
+    animation: fadeInUpMesChain 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeInUpMesChain {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ============================================
+   ✨ HEADER DROPDOWN HOVER EFFECTS
+   ============================================ */
+.notification-dropdown:hover .notification-menu,
+.settings-dropdown:hover .settings-menu,
+.language-dropdown:hover #languageMenu,
+.theme-dropdown:hover #themeSelector,
+.quick-access-dropdown:hover #quickAccessMenu,
+.relative:hover #languageMenu,
+.relative:hover #themeSelector,
+.relative:hover #quickAccessMenu {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) scale(1) !important;
+}
+
+.notification-menu, .settings-menu, #languageMenu, #themeSelector, #quickAccessMenu {
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), 
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset !important;
+}
+
+.dark .notification-menu, 
+.dark .settings-menu, 
+.dark #languageMenu, 
+.dark #themeSelector, 
+.dark #quickAccessMenu {
+    background: rgba(30, 41, 59, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Enhanced Language Menu Fixes */
+.language-dropdown {
+    position: relative;
+}
+
+.language-dropdown:hover #languageMenu,
+.language-dropdown:focus-within #languageMenu,
+#languageToggle:hover + #languageMenu,
+#languageMenu:hover,
+.language-dropdown #languageMenu:hover {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    transition-delay: 0ms !important;
+}
+
+#languageMenu {
+    transition: all 0.2s ease !important;
+    transition-delay: 100ms;
+}
+
+.language-dropdown:hover #languageMenu {
+    transition-delay: 0ms !important;
+}
+
+/* ============================================
+   🔔 STATUS INDICATOR ANIMATIONS
+   ============================================ */
+.status-indicator-live {
+    position: relative;
+}
+
+.status-indicator-live::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+    75%, 100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   🤖 AI PROCESSING INDICATOR
+   ============================================ */
+.ai-processing-indicator {
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-processing-indicator::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(139, 92, 246, 0.4), 
+        transparent
+    );
+    animation: aiSweep 2s ease-in-out infinite;
+}
+
+@keyframes aiSweep {
+    0% {
+        left: -100%;
+    }
+    50% {
+        left: 100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* ============================================
+   🏆 ACHIEVEMENT BADGE STYLES
+   ============================================ */
+.achievement-badge.success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.achievement-badge.warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.achievement-badge.critical {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* ============================================
+   💳 SERVICES MAP HOVER EFFECTS
+   ============================================ */
+.achievement-card .p-4:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.text-center.p-4 {
+    transition: all 0.3s ease;
+}
+
+.text-center.p-4:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   🎯 SYSTEM LOG ENTRY ANIMATION
+   ============================================ */
+.system-log-entry {
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* ============================================
+   📡 NETWORK METRIC CARD ANIMATIONS
+   ============================================ */
+.network-metric-card {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.network-metric-card:hover {
+    transform: translateY(-4px);
+}
+
+.network-metric-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        var(--accent-primary), 
+        var(--accent-secondary)
+    );
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.network-metric-card:hover::before {
+    transform: scaleX(1);
+}
+
+/* ============================================
+   💻 INFRASTRUCTURE CARD HOVER
+   ============================================ */
+.infrastructure-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.infrastructure-card:hover {
+    transform: translateX(8px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.performance-metric {
+    transition: all 0.2s ease;
+}
+
+.performance-metric:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    position: relative;
+}
+
+/* ============================================
+   📚 SYSTEM STATUS CARD ENHANCEMENTS
+   ============================================ */
+.system-status-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.system-status-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        rgba(34, 197, 94, 0.8), 
+        rgba(16, 185, 129, 0.6), 
+        rgba(6, 182, 212, 0.8)
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.system-status-card:hover::before {
+    opacity: 1;
+}
+
+.system-health-indicator {
+    position: relative;
+    display: inline-block;
+}
+
+.system-health-indicator::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -8px;
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.system-alert-warning .system-health-indicator::after {
+    background: #f59e0b;
+}
+
+.system-alert-critical .system-health-indicator::after {
+    background: #ef4444;
+}
+
+/* ============================================
+   🖥️ RESPONSIVE SIDEBAR ANIMATION
+   ============================================ */
+@media (max-width: 768px) {
+    .meschain-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .meschain-sidebar.open {
+        transform: translateX(0);
+    }
+}

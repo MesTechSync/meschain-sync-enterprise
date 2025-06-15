@@ -3,7 +3,7 @@ const path = require('path');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3009;
+const PORT = 6009;
 
 // CORS ve JSON middleware
 app.use(cors());
@@ -88,8 +88,8 @@ app.get('/api/cross-marketplace-overview', (req, res) => {
             totalMonthlyOrders: 2133,
             totalMonthlySales: {
                 try: 192109, // TRY
-                usd: 21401,   // USD
-                rub: 234567   // RUB
+                usd: 21401, // USD
+                rub: 234567 // RUB
             },
             averageRating: 4.6,
             growthRate: '+13.2%',
@@ -284,25 +284,7 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`\n🚀 Advanced Cross-Marketplace Admin Panel Server başlatıldı!`);
-    console.log(`📊 Port: ${PORT}`);
-    console.log(`🌐 URL: http://localhost:${PORT}`);
-    console.log(`📱 Panel Özellikleri:`);
-    console.log(`   ✅ Mavi tema üzerine roket logosu`);
-    console.log(`   ✅ Büyük A harfi ve admin/süper admin yazıları`);
-    console.log(`   ✅ Cross-Marketplace Dashboard`);
-    console.log(`   ✅ 6 marketplace bilgileri`);
-    console.log(`   ✅ Gelişmiş grafikler ve barlar`);
-    console.log(`   ✅ Real-time güncellemeler`);
-    console.log(`\n📋 Mevcut API Endpoint'leri:`);
-    console.log(`   GET  /api/marketplace-stats`);
-    console.log(`   GET  /api/cross-marketplace-overview`);
-    console.log(`   GET  /api/performance-metrics`);
-    console.log(`   POST /api/sync-all-marketplaces`);
-    console.log(`   POST /api/bulk-order-import`);
-    console.log(`   GET  /api/system-health`);
-    console.log(`   GET  /api/notifications`);
-    console.log(`\n🎯 İstediğiniz tüm özellikler aktif!`);
+    // Server started successfully
 });
 
 module.exports = app;

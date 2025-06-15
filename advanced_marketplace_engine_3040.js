@@ -1,4 +1,4 @@
-// MesChain Advanced Marketplace Engine - Port 3040
+// MesChain Advanced Marketplace Engine - Port 6040
 // MEDIUM PRIORITY SERVICE - Created: June 11, 2025
 
 const express = require('express');
@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3040;
+const PORT = 6040;
 
 // Middleware
 app.use(cors({

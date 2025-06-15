@@ -1,0 +1,266 @@
+/* 🧭 MESCHAIN-SYNC SIDEBAR & NAVIGATION STYLES
+   ✨ 3D icons, animated dropdowns, search functionality
+   🎨 Azure Fluent design inspired */
+
+/* ============================================
+   🎛️ SIDEBAR BASE STYLES
+   ============================================ */
+.meschain-sidebar {
+    background: var(--sidebar-bg);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border-primary);
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(100vh - 64px); /* 64px header yüksekliği */
+    padding-top: 0 !important; /* Padding offset sorununu düzelt */
+}
+
+/* ============================================
+   📜 CUSTOM SCROLLBAR STYLING
+   ============================================ */
+.meschain-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.meschain-sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.meschain-sidebar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.meschain-sidebar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+/* Firefox scrollbar */
+.meschain-sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-primary) rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   🔍 ENHANCED SEARCH BAR
+   ============================================ */
+.sidebar-search {
+    position: relative;
+    margin: 16px;
+    margin-bottom: 24px;
+}
+
+.sidebar-search input {
+    width: 100%;
+    padding: 12px 16px 12px 48px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.sidebar-search input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+}
+
+.sidebar-search i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 20px;
+    transition: color 0.3s ease;
+}
+
+.sidebar-search input:focus + i {
+    color: var(--accent-primary);
+}
+
+/* ============================================
+   🧭 NAVIGATION LINKS - COMPACT AZURE STYLE
+   ============================================ */
+.meschain-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px; /* Reduced padding */
+    margin: 2px 8px; /* Reduced margin */
+    border-radius: 8px; /* Smaller border radius */
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    font-size: 13px; /* Smaller font */
+    font-weight: 500;
+}
+
+.meschain-nav-link:hover {
+    background: var(--sidebar-link-hover-bg);
+    color: var(--sidebar-link-hover-text);
+    transform: translateX(3px); /* Reduced transform */
+}
+
+.meschain-nav-link.active {
+    background: var(--sidebar-link-active-bg);
+    color: var(--sidebar-link-active-text);
+    border-left: 2px solid var(--sidebar-link-active-border); /* Thinner border */
+}
+
+.meschain-nav-link span {
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    text-transform: capitalize !important;
+    letter-spacing: 0.2px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 140px;
+}
+
+/* ============================================
+   📦 COMPACT SECTION HEADERS
+   ============================================ */
+.nav-section-header {
+    font-size: 10px; /* Smaller headers */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    padding: 0 12px;
+}
+
+/* ============================================
+   🎨 3D SIDEBAR ICONS
+   ============================================ */
+.sidebar-icon-3d {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    border-radius: 12px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3),
+                0 2px 5px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    margin-right: 12px;
+}
+
+.sidebar-icon-3d:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.sidebar-icon-3d i {
+    font-size: 20px;
+    color: white;
+    position: relative;
+    z-index: 1;
+}
+
+.meschain-nav-link:hover .sidebar-icon-3d {
+    transform: rotateY(-15deg) translateZ(10px) scale(1.1);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4),
+                0 4px 10px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   📁 SIDEBAR DROPDOWN SECTIONS
+   ============================================ */
+.sidebar-section {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.sidebar-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    padding: 12px 16px;
+    margin: 4px 0;
+    border-radius: 12px;
+    transition: background-color 0.5s ease, transform 0.3s ease;
+    will-change: background-color, transform;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-section-header:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: var(--accent-primary);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.sidebar-section.hovering .sidebar-section-header:before {
+    transform: scaleY(1);
+}
+
+.sidebar-section-header i.ph-caret-down {
+    transition: transform 0.3s ease;
+}
+
+.sidebar-section.active .sidebar-section-header i.ph-caret-down {
+    transform: rotate(180deg);
+}
+
+/* Enhanced Menu Text Styling - TITLE CASE */
+.sidebar-section-header span {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: capitalize !important;
+    letter-spacing: 0.3px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 160px;
+    color: var(--text-primary) !important;
+}
+
+/* SUPER SIMPLE Sidebar Dropdown - NO CONFLICTS */
+.sidebar-dropdown-menu {
+    /* Initial state - completely removed */
+    display: none;
+}
+
+/* ============================================
+   ✨ SIDEBAR HOVER ENHANCEMENT - GLOW EFFECT
+   ============================================ */
+.sidebar-section.hovering .sidebar-section-header {
+    background: rgba(139, 92, 246, 0.15);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+}
+
+.sidebar-section.hovering .sidebar-icon-3d {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+}
+
+/* Enhanced hover feedback */
+.sidebar-section.hovering:not(.active) .sidebar-dropdown-menu {
+    border-left: 2px solid rgba(139, 92, 246, 0.3);
+    background: rgba(139, 92, 246, 0.05);
+}

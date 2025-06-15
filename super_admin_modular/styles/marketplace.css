@@ -1,0 +1,452 @@
+/* 🏪 MARKETPLACE SPECIFIC STYLES
+   ✨ Platform buttons, health cards, performance indicators
+   🎨 Brand-specific hover effects and animations */
+
+/* ============================================
+   🚀 MARKETPLACE QUICK ACCESS TOOLBAR
+   ============================================ */
+.marketplace-quick-btn {
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(229, 231, 235, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.marketplace-quick-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.marketplace-quick-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* ============================================
+   🏪 PLATFORM-SPECIFIC HOVER EFFECTS
+   ============================================ */
+.trendyol-btn:hover {
+    box-shadow: 0 8px 25px rgba(249, 115, 22, 0.2);
+    border-color: rgba(249, 115, 22, 0.3);
+}
+
+.amazon-btn:hover {
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.n11-btn:hover {
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.hepsiburada-btn:hover {
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.ebay-btn:hover {
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.cross-btn:hover {
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+/* ============================================
+   📊 MARKETPLACE STATISTICS BAR
+   ============================================ */
+.marketplace-stats-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.stat-value.updated {
+    animation: statUpdate 0.6s ease-in-out;
+}
+
+@keyframes statUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); color: #8b5cf6; }
+    100% { transform: scale(1); }
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   🌐 NETWORK TOPOLOGY VISUALIZATION
+   ============================================ */
+.network-topology {
+    position: relative;
+    height: 120px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+    border-radius: 12px;
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.network-node {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    animation: networkPulse 3s infinite;
+}
+
+.network-connection {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.3));
+    animation: dataFlow 2s infinite;
+}
+
+@keyframes networkPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.7; }
+}
+
+@keyframes dataFlow {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
+
+/* ============================================
+   📈 PERFORMANCE INDICATORS
+   ============================================ */
+.performance-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    margin: 2px;
+}
+
+.performance-indicator.excellent {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.performance-indicator.good {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.performance-indicator.poor {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* ============================================
+   📊 MINI HEALTH TREND CHARTS
+   ============================================ */
+.health-trend {
+    display: flex;
+    align-items: end;
+    gap: 2px;
+    height: 20px;
+    margin: 8px 0;
+}
+
+.trend-bar {
+    width: 3px;
+    background: linear-gradient(to top, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.8));
+    border-radius: 1px;
+    animation: trendGrow 0.8s ease-out;
+}
+
+@keyframes trendGrow {
+    from { height: 0; }
+    to { height: var(--bar-height, 10px); }
+}
+
+/* ============================================
+   💬 MARKETPLACE NOTIFICATION SYSTEM
+   ============================================ */
+.marketplace-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    max-width: 300px;
+    transform: translateX(350px);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 9999;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.marketplace-notification.show {
+    transform: translateX(0);
+}
+
+[data-theme="dark"] .marketplace-notification {
+    background: rgba(45, 45, 48, 0.95);
+    border-color: rgba(139, 92, 246, 0.3);
+    color: #f3f4f6;
+}
+
+/* ============================================
+   🏥 MARKETPLACE HEALTH CARDS
+   ============================================ */
+.marketplace-health-card {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(20px);
+}
+
+.marketplace-health-card:hover {
+    transform: translateY(-6px) scale(1.05);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    border-color: rgba(139, 92, 246, 0.3);
+    animation: marketplaceGlow 0.6s ease-in-out;
+}
+
+.marketplace-health-card:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.8s ease;
+}
+
+.marketplace-health-card:hover:before {
+    left: 100%;
+}
+
+/* Real-time status indicator animations */
+.marketplace-health-card .status-indicator {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 10;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: statusPulse 2s infinite;
+}
+
+.status-dot.online {
+    background-color: #10b981;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.status-dot.warning {
+    background-color: #f59e0b;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.status-dot.error {
+    background-color: #ef4444;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.status-dot.sync {
+    background-color: #8b5cf6;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+@keyframes statusPulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.2); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* ============================================
+   ⏱️ API RESPONSE TIME INDICATORS
+   ============================================ */
+.api-response-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.api-response-indicator.fast {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.api-response-indicator.medium {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.api-response-indicator.slow {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+/* ============================================
+   📊 HEALTH SCORE ANIMATIONS
+   ============================================ */
+.health-score {
+    position: relative;
+    overflow: hidden;
+}
+
+.health-score:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: scoreUpdate 2s ease-in-out;
+}
+
+.marketplace-health-card[data-updated="true"] .health-score:after {
+    animation: scoreUpdate 1s ease-in-out;
+}
+
+@keyframes scoreUpdate {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+@keyframes marketplaceGlow {
+    0% { box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1); }
+    25% { box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2); }
+    50% { box-shadow: 0 12px 40px rgba(139, 92, 246, 0.3); }
+    75% { box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2); }
+    100% { box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1); }
+}
+
+/* Connection pulse for marketplace icons */
+.marketplace-icon-container {
+    position: relative;
+}
+
+.connection-pulse {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    animation: connectionPulse 3s infinite;
+}
+
+@keyframes connectionPulse {
+    0% { opacity: 0; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 0; transform: scale(1.2); }
+}
+
+/* Updated card animation */
+.marketplace-health-card.updated {
+    animation: cardUpdate 1s ease-in-out;
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+@keyframes cardUpdate {
+    0% { transform: scale(1); box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1); }
+    25% { transform: scale(1.02); box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3); }
+    50% { transform: scale(1.03); box-shadow: 0 12px 40px rgba(139, 92, 246, 0.4); }
+    75% { transform: scale(1.01); box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3); }
+    100% { transform: scale(1); box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1); }
+}
+
+/* ============================================
+   🔄 REFRESH BUTTON ENHANCEMENT
+   ============================================ */
+.refresh-health-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.refresh-health-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.refresh-health-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* ============================================
+   🔴 REAL-TIME INDICATOR
+   ============================================ */
+.live-indicator {
+    position: relative;
+}
+
+.live-indicator::before {
+    content: '●';
+    color: #10b981;
+    font-size: 8px;
+    animation: livePulse 2s infinite;
+    margin-right: 4px;
+}
+
+@keyframes livePulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Toolbar animation */
+#marketplaceToolbar.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}

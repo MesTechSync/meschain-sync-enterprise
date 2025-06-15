@@ -11,9 +11,6 @@
  */
 // Ozon modülünün veritabanı işlemleri için model dosyası
 
-// ... OpenCart model fonksiyonları buraya eklenecek ... 
-
-<?php
 /**
  * Ozon Marketplace Model
  * MesChain-Sync entegrasyonu için Ozon pazaryeri model sınıfı.
@@ -539,4 +536,4 @@ class ModelExtensionModuleOzon extends Model {
         
         return $query->rows;
     }
-} 
+}

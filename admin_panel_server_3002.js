@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3002;
+const PORT = 6002;
 
 // Middleware
 app.use(express.static(__dirname));
@@ -62,12 +62,12 @@ app.get('/', (req, res) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-    res.json({ 
-        status: 'OK', 
-        port: PORT, 
+    res.json({
+        status: 'OK',
+        port: PORT,
         panel: 'MesChain Admin Panel',
         azureFunctions: 'Ready',
-        timestamp: new Date().toISOString() 
+        timestamp: new Date().toISOString()
     });
 });
 
@@ -105,8 +105,8 @@ app.get('/api/azure/health', (req, res) => {
 });
 
 app.get('/api/azure/negotiate', (req, res) => {
-    res.json({ 
-        status: 'OK', 
+    res.json({
+        status: 'OK',
         service: 'SignalR Negotiate Mock',
         connectionInfo: { url: 'mock://signalr', accessToken: 'mock-token' }
     });
