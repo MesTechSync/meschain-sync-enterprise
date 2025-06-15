@@ -6,7 +6,6 @@
 
 // Sidebar section toggle function - 3023 PORTUNDAN ÇALIŞAN ÇÖZÜM
 function toggleSidebarSection(header) {
-    console.log('🔧 Toggling sidebar section:', header);
     const section = header.parentElement;
     const allSections = document.querySelectorAll('.sidebar-section');
     
@@ -22,10 +21,8 @@ function toggleSidebarSection(header) {
     const isCurrentlyActive = section.classList.contains('active');
     if (isCurrentlyActive) {
         section.classList.remove('active');
-        console.log('✅ Section closed');
     } else {
         section.classList.add('active');
-        console.log('✅ Section opened');
     }
     
     // Force CSS update
@@ -37,42 +34,32 @@ function initializeSidebar() {
     const sidebarSections = document.querySelectorAll('.sidebar-section');
     console.log(`🎛️ Found ${sidebarSections.length} sidebar sections - Click only mode`);
     
-    // Tüm inline onmouseenter eventlerini kaldır
+    // Tüm inline onmouseenter eventlerini kaldır (eğer varsa)
     document.querySelectorAll('.sidebar-section-header[onmouseenter]').forEach(header => {
         header.removeAttribute('onmouseenter');
     });
     
     // Ensure all dropdowns are closed initially
-    sidebarSections.forEach((section, index) => {
+    sidebarSections.forEach((section) => {
         section.classList.remove('active');
         section.classList.remove('hovering');
     });
     
-    // Setup click handlers
-    setupSidebarClickHandlers();
-    
-    // Setup hover effects
+    // ONCLICK attribute'leri zaten HTML'de var, addEventListener kullanmayalım
+    // Setup hover effects only
     setupSidebarHoverEffects();
     
     // Setup text capitalization
     setupTextCapitalization();
     
-    console.log('✅ Click-only sidebar mode activated - No hover auto-open');
+    console.log('✅ Click-only sidebar mode activated - Using HTML onclick attributes');
 }
 
-// Setup click handlers for sidebar sections
+// Setup click handlers for sidebar sections - KAPALI (onclick attribute kullanıyoruz)
 function setupSidebarClickHandlers() {
-    // Add click handlers to all sidebar headers
-    document.querySelectorAll('.sidebar-section-header').forEach(header => {
-        // Remove any existing hover attributes to prevent conflicts
-        header.removeAttribute('onmouseenter');
-        
-        header.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleSidebarSection(this);
-        });
-    });
+    // Bu fonksiyon artık kullanılmıyor çünkü HTML'de onclick var
+    // Çifte event problemi yaratmasını önlemek için kapatıldı
+    console.log('⚠️ setupSidebarClickHandlers deactivated - using HTML onclick attributes');
 }
 
 // Setup hover effects - SADECE GÖRSEL EFEKTLER
