@@ -1,0 +1,265 @@
+<!-- 🎯 MESCHAIN-SYNC MODULAR HEADER COMPONENT -->
+<!-- Enhanced MesChain-Sync Header with Advanced Features -->
+<header class="meschain-glass fixed top-0 left-0 right-0 z-50 h-16 shadow-lg">
+    <div class="flex items-center justify-between h-full px-8">
+        <!-- Left Side - Logo and Navigation -->
+        <div class="flex items-center space-x-6">
+            <button id="meschainSidebarToggle" class="md:hidden p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <i class="ph ph-list text-xl"></i>
+            </button>
+            <div class="flex items-center space-x-4">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                    <i class="ph ph-link text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-gray-900 dark:text-white">MesChain-Sync</h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Super Admin v5.0 - Enterprise</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Center - Quick Access Menu -->
+        <div class="hidden lg:flex items-center space-x-3">
+            <div class="relative">
+                <button onclick="toggleQuickAccess()" class="flex items-center space-x-1.5 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-lg px-3 py-1.5 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
+                    <i class="ph ph-lightning text-base"></i>
+                    <span class="font-medium text-sm">Quick Access</span>
+                    <i class="ph ph-caret-down text-xs"></i>
+                </button>
+                <div id="quickAccessMenu" class="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 opacity-0 invisible z-50">
+                    <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Quick Actions</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="openUsageGuide()" class="flex items-center space-x-2 p-3 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
+                            <i class="ph ph-book-open text-blue-600 text-lg"></i>
+                            <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Usage Guide</span>
+                        </button>
+                        <button onclick="openTechnicalManual()" class="flex items-center space-x-2 p-3 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors">
+                            <i class="ph ph-file-code text-purple-600 text-lg"></i>
+                            <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Tech Manual</span>
+                        </button>
+                        <button onclick="generateSystemReport()" class="flex items-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors">
+                            <i class="ph ph-chart-line text-green-600 text-lg"></i>
+                            <span class="text-sm font-medium text-green-700 dark:text-green-300">System Report</span>
+                        </button>
+                        <button onclick="openBackupManager()" class="flex items-center space-x-2 p-3 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg transition-colors">
+                            <i class="ph ph-database text-orange-600 text-lg"></i>
+                            <span class="text-sm font-medium text-orange-700 dark:text-orange-300">Backup Manager</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 🏪 MARKETPLACE QUICK ACCESS TOOLBAR -->
+            <div class="relative">
+                <button onclick="toggleMarketplaceToolbar()" class="flex items-center space-x-1.5 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-600/30 dark:to-blue-600/30 backdrop-blur-lg border border-purple-300/30 dark:border-purple-400/30 rounded-lg px-3 py-1.5 hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-300 transform hover:scale-105">
+                    <i class="ph ph-storefront text-base text-purple-600 dark:text-purple-400"></i>
+                    <span class="font-medium text-sm text-purple-700 dark:text-purple-300">Marketplaces</span>
+                    <i class="ph ph-caret-down text-xs text-purple-600 dark:text-purple-400"></i>
+                </button>
+                <div id="marketplaceToolbar" class="absolute top-full left-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 opacity-0 invisible z-50 transform translate-y-2 transition-all duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-gray-800 dark:text-white flex items-center">
+                            <i class="ph ph-storefront text-purple-600 mr-2"></i>
+                            Marketplace Hub
+                        </h3>
+                        <div class="text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-2 py-1 rounded-full">
+                            7 Active
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Trendyol -->
+                        <button onclick="openMarketplace('trendyol')" class="marketplace-quick-btn trendyol-btn group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">T</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Trendyol</div>
+                                    <div class="text-xs text-orange-600 dark:text-orange-400">Port 3012</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-orange-600 transition-colors"></i>
+                        </button>
+
+                        <!-- Amazon -->
+                        <button onclick="openMarketplace('amazon')" class="marketplace-quick-btn amazon-btn group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">A</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Amazon</div>
+                                    <div class="text-xs text-yellow-600 dark:text-yellow-400">Port 3002</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-yellow-600 transition-colors"></i>
+                        </button>
+
+                        <!-- N11 -->
+                        <button onclick="openMarketplace('n11')" class="marketplace-quick-btn n11-btn group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">N</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">N11</div>
+                                    <div class="text-xs text-blue-600 dark:text-blue-400">Port 3018</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-blue-600 transition-colors"></i>
+                        </button>
+
+                        <!-- HepsiBurada -->
+                        <button onclick="openMarketplace('hepsiburada')" class="marketplace-quick-btn hepsi-btn group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">H</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">HepsiBurada</div>
+                                    <div class="text-xs text-green-600 dark:text-green-400">Port 3019</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-green-600 transition-colors"></i>
+                        </button>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <button onclick="openMarketplaceManager()" class="w-full flex items-center justify-center space-x-2 p-2 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors">
+                            <i class="ph ph-gear text-purple-600"></i>
+                            <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Manage All</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Controls -->
+        <div class="flex items-center space-x-3">
+            <!-- Health Status Indicator -->
+            <div class="relative">
+                <div id="healthIndicator" class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <div class="absolute -inset-1 bg-green-400 rounded-full animate-ping opacity-75"></div>
+            </div>
+
+            <!-- Language Selector -->
+            <div class="relative">
+                <button onclick="toggleLanguage()" class="flex items-center space-x-1.5 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-lg px-3 py-1.5 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
+                    <i class="ph ph-globe text-base"></i>
+                    <span id="currentLanguage" class="font-medium text-sm">TR</span>
+                    <i class="ph ph-caret-down text-xs"></i>
+                </button>
+                <div id="languageMenu" class="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-2 opacity-0 invisible z-50">
+                    <button onclick="setLanguage('tr')" class="flex items-center space-x-3 w-full p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <span class="text-lg">🇹🇷</span>
+                        <span class="font-medium">Türkçe</span>
+                    </button>
+                    <button onclick="setLanguage('en')" class="flex items-center space-x-3 w-full p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <span class="text-lg">🇺🇸</span>
+                        <span class="font-medium">English</span>
+                    </button>
+                    <button onclick="setLanguage('de')" class="flex items-center space-x-3 w-full p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <span class="text-lg">🇩🇪</span>
+                        <span class="font-medium">Deutsch</span>
+                    </button>
+                    <button onclick="setLanguage('fr')" class="flex items-center space-x-3 w-full p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <span class="text-lg">🇫🇷</span>
+                        <span class="font-medium">Français</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button onclick="toggleTheme()" class="theme-toggle">
+                <i id="themeIcon" class="ph ph-moon theme-toggle-icon"></i>
+                <span id="themeText">Dark</span>
+            </button>
+
+            <!-- Notifications -->
+            <div class="relative">
+                <button onclick="toggleNotifications()" class="flex items-center space-x-1.5 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-lg p-2 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
+                    <i class="ph ph-bell text-base"></i>
+                    <span id="notificationBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">3</span>
+                </button>
+                <div id="notificationMenu" class="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 opacity-0 invisible z-50">
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="font-semibold text-gray-800 dark:text-white">Notifications</h3>
+                    </div>
+                    <div class="max-h-64 overflow-y-auto">
+                        <div class="p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">System Update Available</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">New features and security improvements</p>
+                                    <span class="text-xs text-gray-400 dark:text-gray-500">2 min ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">Trendyol Sync Completed</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">1,247 products synchronized successfully</p>
+                                    <span class="text-xs text-gray-400 dark:text-gray-500">5 min ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">Performance Alert</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">High API response time detected</p>
+                                    <span class="text-xs text-gray-400 dark:text-gray-500">10 min ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                        <button class="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                            View All Notifications
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="relative">
+                <button onclick="toggleSettings()" class="flex items-center space-x-1.5 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-lg p-2 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
+                    <i class="ph ph-gear text-base"></i>
+                </button>
+                <div id="settingsMenu" class="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 opacity-0 invisible z-50">
+                    <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Settings</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">Auto-sync</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">Notifications</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">Debug Mode</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

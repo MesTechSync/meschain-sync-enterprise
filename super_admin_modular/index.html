@@ -82,20 +82,26 @@
         });
         
         async function loadComponents() {
-            // This will load HTML components dynamically
-            await loadComponent('header', 'components/header.html');
-            await loadComponent('sidebar', 'components/sidebar.html');
-            await loadComponent('mainContent', 'components/main-content.html');
-            await loadComponent('modals', 'components/modals.html');
+            // Load HTML components dynamically from server routes
+            await loadComponent('header', '/components/header.html');
+            await loadComponent('sidebar', '/components/sidebar.html');
+            await loadComponent('mainContent', '/components/main-content.html');
+            await loadComponent('modals', '/components/modals.html');
         }
         
         async function loadComponent(containerId, componentPath) {
             try {
                 const response = await fetch(componentPath);
-                const html = await response.text();
-                document.getElementById(containerId + 'Container').innerHTML = html;
+                if (response.ok) {
+                    const html = await response.text();
+                    document.getElementById(containerId + 'Container').innerHTML = html;
+                    console.log(`✅ ${containerId} component loaded successfully`);
+                } else {
+                    console.warn(`⚠️ Failed to load ${containerId}: ${response.status}`);
+                    loadFallbackContent(containerId);
+                }
             } catch (error) {
-                console.error(`Error loading ${componentPath}:`, error);
+                console.error(`❌ Error loading ${componentPath}:`, error);
                 // Fallback to inline content if component files don't exist
                 loadFallbackContent(containerId);
             }

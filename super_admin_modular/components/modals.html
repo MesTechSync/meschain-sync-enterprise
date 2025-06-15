@@ -1,0 +1,187 @@
+<!-- 🎯 MESCHAIN-SYNC MODULAR MODALS COMPONENT -->
+
+<!-- Service Instructions Modal -->
+<div id="serviceInstructionsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4">
+        <h3 class="text-lg font-bold mb-4" id="serviceModalTitle">🔧 Service Instructions</h3>
+        <p class="text-gray-600 dark:text-gray-300 mb-4" id="serviceModalContent">
+            Service instructions will appear here.
+        </p>
+        <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg mb-4">
+            <code class="text-sm">Terminal'de çalıştırın:</code><br>
+            <code class="text-blue-600 font-mono" id="serviceCommand">node service.js</code>
+        </div>
+        <div class="flex space-x-2">
+            <button onclick="closeServiceModal()" 
+                    class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                Tamam
+            </button>
+            <button onclick="tryOpenService()" 
+                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                Yine de Dene
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Usage Guide Modal -->
+<div id="usageGuideModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-2xl mx-4 max-h-90vh overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">📖 MesChain-Sync Usage Guide</h3>
+            <button onclick="closeUsageGuide()" class="text-gray-400 hover:text-gray-600">
+                <i class="ph ph-x text-2xl"></i>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <h4 class="font-bold text-blue-800 dark:text-blue-200 mb-2">Quick Start</h4>
+                <p class="text-blue-700 dark:text-blue-300">1. Navigate through sections using the sidebar</p>
+                <p class="text-blue-700 dark:text-blue-300">2. Monitor system health in real-time</p>
+                <p class="text-blue-700 dark:text-blue-300">3. Use marketplace integrations for sync operations</p>
+            </div>
+            <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                <h4 class="font-bold text-green-800 dark:text-green-200 mb-2">Key Features</h4>
+                <p class="text-green-700 dark:text-green-300">• Multi-marketplace synchronization</p>
+                <p class="text-green-700 dark:text-green-300">• Real-time analytics and monitoring</p>
+                <p class="text-green-700 dark:text-green-300">• Advanced automation workflows</p>
+                <p class="text-green-700 dark:text-green-300">• AI-powered insights and predictions</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Technical Manual Modal -->
+<div id="technicalManualModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-4xl mx-4 max-h-90vh overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">⚙️ Technical Manual</h3>
+            <button onclick="closeTechnicalManual()" class="text-gray-400 hover:text-gray-600">
+                <i class="ph ph-x text-2xl"></i>
+            </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+                <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                    <h4 class="font-bold text-purple-800 dark:text-purple-200 mb-2">API Endpoints</h4>
+                    <p class="text-purple-700 dark:text-purple-300 text-sm">GET /api/status - System status</p>
+                    <p class="text-purple-700 dark:text-purple-300 text-sm">GET /api/health - Health check</p>
+                    <p class="text-purple-700 dark:text-purple-300 text-sm">GET /api/marketplaces - Marketplace data</p>
+                </div>
+                <div class="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg">
+                    <h4 class="font-bold text-amber-800 dark:text-amber-200 mb-2">System Requirements</h4>
+                    <p class="text-amber-700 dark:text-amber-300 text-sm">Node.js 18+ required</p>
+                    <p class="text-amber-700 dark:text-amber-300 text-sm">Minimum 4GB RAM</p>
+                    <p class="text-amber-700 dark:text-amber-300 text-sm">Port 3024 for modular system</p>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-teal-50 dark:bg-teal-900/20 p-4 rounded-lg">
+                    <h4 class="font-bold text-teal-800 dark:text-teal-200 mb-2">Configuration</h4>
+                    <p class="text-teal-700 dark:text-teal-300 text-sm">Environment variables in .env</p>
+                    <p class="text-teal-700 dark:text-teal-300 text-sm">Database settings in config/</p>
+                    <p class="text-teal-700 dark:text-teal-300 text-sm">Marketplace API keys setup</p>
+                </div>
+                <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                    <h4 class="font-bold text-red-800 dark:text-red-200 mb-2">Troubleshooting</h4>
+                    <p class="text-red-700 dark:text-red-300 text-sm">Check logs in /logs directory</p>
+                    <p class="text-red-700 dark:text-red-300 text-sm">Verify API connections</p>
+                    <p class="text-red-700 dark:text-red-300 text-sm">Monitor system resources</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Report Modal -->
+<div id="systemReportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-3xl mx-4 max-h-90vh overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">📊 System Report</h3>
+            <button onclick="closeSystemReport()" class="text-gray-400 hover:text-gray-600">
+                <i class="ph ph-x text-2xl"></i>
+            </button>
+        </div>
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600">99.98%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">System Uptime</div>
+                </div>
+                <div class="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <div class="text-2xl font-bold text-blue-600">6</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">Active Services</div>
+                </div>
+                <div class="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                    <div class="text-2xl font-bold text-purple-600">₺2.847M</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">Revenue Impact</div>
+                </div>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <h4 class="font-bold mb-2">Recent Performance Metrics</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span>CPU Usage:</span>
+                        <span class="text-green-600">23%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Memory Usage:</span>
+                        <span class="text-blue-600">67%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Network I/O:</span>
+                        <span class="text-purple-600">34MB/s</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Active Connections:</span>
+                        <span class="text-amber-600">1,247</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Backup Manager Modal -->
+<div id="backupManagerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-2xl mx-4 max-h-90vh overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">💾 Backup Manager</h3>
+            <button onclick="closeBackupManager()" class="text-gray-400 hover:text-gray-600">
+                <i class="ph ph-x text-2xl"></i>
+            </button>
+        </div>
+        <div class="space-y-6">
+            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <h4 class="font-bold text-blue-800 dark:text-blue-200 mb-2">Recent Backups</h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">meschain_sync_super_admin_backup_20250615.html</span>
+                        <span class="text-xs text-gray-500">Today, 13:00</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">YEDEK_meschain_sync_super_admin_20250614.html</span>
+                        <span class="text-xs text-gray-500">Yesterday, 16:50</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">modular_system_backup_20250613.zip</span>
+                        <span class="text-xs text-gray-500">2 days ago</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <button class="flex-1 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                    Create New Backup
+                </button>
+                <button class="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                    Schedule Backup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Global Notification Container -->
+<div id="notificationContainer" class="fixed top-20 right-4 z-50 space-y-2">
+    <!-- Notifications will be dynamically inserted here -->
+</div>

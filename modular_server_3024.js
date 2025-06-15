@@ -113,6 +113,23 @@ app.use((err, req, res, next) => {
     });
 });
 
+// HTML Component routes
+app.get('/components/header.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'super_admin_modular', 'components', 'header.html'));
+});
+
+app.get('/components/sidebar.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'super_admin_modular', 'components', 'sidebar.html'));
+});
+
+app.get('/components/main-content.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'super_admin_modular', 'components', 'main-content.html'));
+});
+
+app.get('/components/modals.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'super_admin_modular', 'components', 'modals.html'));
+});
+
 // 404 handler
 app.use((req, res) => {
     res.status(404).json({
@@ -125,7 +142,11 @@ app.use((req, res) => {
             '/health',
             '/api/status',
             '/api/components',
-            '/api/marketplaces'
+            '/api/marketplaces',
+            '/components/header.html',
+            '/components/sidebar.html',
+            '/components/main-content.html',
+            '/components/modals.html'
         ]
     });
 });

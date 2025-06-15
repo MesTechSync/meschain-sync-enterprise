@@ -1,0 +1,407 @@
+<!-- 🎯 MESCHAIN-SYNC MODULAR SIDEBAR COMPONENT -->
+<!-- MesChain-Sync Sidebar -->
+<nav id="meschainSidebar" class="meschain-sidebar fixed left-0 top-16 bottom-0 w-64 z-40">
+    <div class="pt-4 px-6 pb-6">
+        <!-- Enhanced Search Bar - Isolated from sections -->
+        <div class="sidebar-search mb-4 md:mb-6 lg:mb-8" style="position: relative; z-index: 10;">
+            <input type="text" placeholder="Ara..." class="w-full px-12 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-sm focus:outline-none focus:border-purple-400 focus:bg-white/20 transition-all duration-300" id="sidebarSearch">
+            <i class="ph ph-magnifying-glass absolute left-4 top-3.5 text-gray-400 pointer-events-none"></i>
+        </div>
+        
+        <!-- Menu container with proper spacing -->
+        <div class="space-y-1 mt-2">
+            <!-- 1. Ana Yönetim (Core Management) -->
+            <div class="mb-4 sidebar-section">
+                <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
+                    <div class="flex items-center">
+                        <div class="sidebar-icon-3d">
+                            <i class="ph ph-squares-four"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300" data-tr="ana yönetim" data-en="core management">Ana Yönetim</span>
+                    </div>
+                    <i class="ph ph-caret-down text-xs transition-transform"></i>
+                </div>
+                <!-- Dropdown Content -->
+                <div class="sidebar-dropdown-menu">
+                    <a href="#dashboard" class="meschain-nav-link active" data-section="dashboard">
+                        <i class="ph ph-squares-four w-4 h-4 mr-3"></i>
+                        <span data-tr="Dashboard" data-en="Dashboard">Dashboard</span>
+                    </a>
+                    <a href="#analytics" class="meschain-nav-link" data-section="analytics">
+                        <i class="ph ph-chart-line w-4 h-4 mr-3"></i>
+                        <span data-tr="Analitik" data-en="Analytics">Analytics</span>
+                    </a>
+                    <a href="#team" class="meschain-nav-link" data-section="team">
+                        <i class="ph ph-users w-4 h-4 mr-3"></i>
+                        <span data-tr="Takım Performansı" data-en="Team Performance">Team Performance</span>
+                    </a>
+                    <a href="#systems" class="meschain-nav-link" data-section="systems">
+                        <i class="ph ph-gear w-4 h-4 mr-3"></i>
+                        <span data-tr="Sistem Durumu" data-en="System Status">System Status</span>
+                    </a>
+                    <a href="#performance" class="meschain-nav-link" data-section="performance">
+                        <i class="ph ph-lightning w-4 h-4 mr-3"></i>
+                        <span data-tr="Performans İzleme" data-en="Performance Monitoring">Performance Monitoring</span>
+                    </a>
+                    <a href="#chain-sync" class="meschain-nav-link" data-section="chain-sync">
+                        <i class="ph ph-link-simple w-4 h-4 mr-3"></i>
+                        <span data-tr="Zincir Senkronizasyonu" data-en="Chain Synchronization">Chain Synchronization</span>
+                    </a>
+                    <a href="#mesh-network" class="meschain-nav-link" data-section="mesh-network">
+                        <i class="ph ph-network w-4 h-4 mr-3"></i>
+                        <span data-tr="Mesh Ağ Yönetimi" data-en="Mesh Network Management">Mesh Network Management</span>
+                    </a>
+                    <a href="#real-time-monitor" class="meschain-nav-link" data-section="real-time-monitor">
+                        <i class="ph ph-monitor-play w-4 h-4 mr-3"></i>
+                        <span data-tr="Gerçek Zamanlı İzleme" data-en="Real-time Monitoring">Real-time Monitoring</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. Marketplace Bölümü -->
+            <div class="mb-6 sidebar-section">
+                <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
+                    <div class="flex items-center">
+                        <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            <i class="ph ph-storefront"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300" data-tr="marketplace" data-en="marketplace">Marketplace</span>
+                    </div>
+                    <i class="ph ph-caret-down text-xs transition-transform"></i>
+                </div>
+                <div class="sidebar-dropdown-menu">
+                    <a href="#marketplace-overview" class="meschain-nav-link" data-section="marketplace-overview">
+                        <i class="ph ph-storefront w-4 h-4 mr-3"></i>
+                        <span data-tr="Marketplace Genel Bakış" data-en="Marketplace Overview">Marketplace Genel Bakış</span>
+                    </a>
+                    <a href="#marketplace-health" class="meschain-nav-link" data-section="marketplace-health">
+                        <i class="ph ph-heart w-4 h-4 mr-3"></i>
+                        <span data-tr="Marketplace Sağlık" data-en="Marketplace Health">Marketplace Sağlık</span>
+                    </a>
+                    <a href="#trendyol" class="meschain-nav-link" data-section="trendyol">
+                        <i class="ph ph-shopping-cart w-4 h-4 mr-3"></i>
+                        <span data-tr="Trendyol" data-en="Trendyol">Trendyol</span>
+                    </a>
+                    <a href="#amazon" class="meschain-nav-link" data-section="amazon">
+                        <i class="ph ph-package w-4 h-4 mr-3"></i>
+                        <span data-tr="Amazon" data-en="Amazon">Amazon</span>
+                    </a>
+                    <a href="#n11" class="meschain-nav-link" data-section="n11">
+                        <i class="ph ph-shopping-bag w-4 h-4 mr-3"></i>
+                        <span data-tr="N11" data-en="N11">N11</span>
+                    </a>
+                    <a href="#hepsiburada" class="meschain-nav-link" data-section="hepsiburada">
+                        <i class="ph ph-bag w-4 h-4 mr-3"></i>
+                        <span data-tr="Hepsiburada" data-en="Hepsiburada">Hepsiburada</span>
+                    </a>
+                    <a href="#ebay" class="meschain-nav-link" data-section="ebay">
+                        <i class="ph ph-auction w-4 h-4 mr-3"></i>
+                        <span data-tr="eBay" data-en="eBay">eBay</span>
+                    </a>
+                    <a href="#ozon" class="meschain-nav-link" data-section="ozon">
+                        <i class="ph ph-globe w-4 h-4 mr-3"></i>
+                        <span data-tr="Ozon" data-en="Ozon">Ozon</span>
+                    </a>
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openMarketplaceService('pazarama')" data-service="pazarama">
+                        <i class="ph ph-shopping-cart-simple w-4 h-4 mr-3"></i>
+                        <span data-tr="Pazarama" data-en="Pazarama">Pazarama</span>
+                        <span class="text-xs text-green-500 ml-auto">AKTIF</span>
+                    </a>
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openMarketplaceService('pttavm')" data-service="pttavm">
+                        <i class="ph ph-truck w-4 h-4 mr-3"></i>
+                        <span data-tr="PttAVM" data-en="PttAVM">PttAVM</span>
+                        <span class="text-xs text-blue-500 ml-auto">YENİ</span>
+                    </a>
+                    <a href="#marketplace-integrations" class="meschain-nav-link" data-section="marketplace-integrations">
+                        <i class="ph ph-link w-4 h-4 mr-3"></i>
+                        <span data-tr="Marketplace Entegrasyonlar" data-en="Marketplace Integrations">Marketplace Entegrasyonlar</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. Envanter Yönetimi -->
+            <div class="mb-6 sidebar-section">
+                <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
+                    <div class="flex items-center">
+                        <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                            <i class="ph ph-package"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300" data-tr="envanter" data-en="inventory">Envanter</span>
+                    </div>
+                    <i class="ph ph-caret-down text-xs transition-transform"></i>
+                </div>
+                <div class="sidebar-dropdown-menu">
+                    <a href="#inventory-overview" class="meschain-nav-link" data-section="inventory-overview">
+                        <i class="ph ph-package w-4 h-4 mr-3"></i>
+                        <span data-tr="Envanter Genel Bakış" data-en="Inventory Overview">Envanter Genel Bakış</span>
+                    </a>
+                    <a href="#stock-management" class="meschain-nav-link" data-section="stock-management">
+                        <i class="ph ph-stack w-4 h-4 mr-3"></i>
+                        <span data-tr="Stok Yönetimi" data-en="Stock Management">Stok Yönetimi</span>
+                    </a>
+                    <a href="#product-catalog" class="meschain-nav-link" data-section="product-catalog">
+                        <i class="ph ph-list w-4 h-4 mr-3"></i>
+                        <span data-tr="Ürün Kataloğu" data-en="Product Catalog">Ürün Kataloğu</span>
+                    </a>
+                    <a href="#warehouse-management" class="meschain-nav-link" data-section="warehouse-management">
+                        <i class="ph ph-warehouse w-4 h-4 mr-3"></i>
+                        <span data-tr="Depo Yönetimi" data-en="Warehouse Management">Depo Yönetimi</span>
+                    </a>
+                    <a href="#low-stock-alerts" class="meschain-nav-link" data-section="low-stock-alerts">
+                        <i class="ph ph-warning w-4 h-4 mr-3"></i>
+                        <span data-tr="Düşük Stok Uyarıları" data-en="Low Stock Alerts">Düşük Stok Uyarıları</span>
+                    </a>
+                    <a href="#inventory-sync" class="meschain-nav-link" data-section="inventory-sync">
+                        <i class="ph ph-arrows-clockwise w-4 h-4 mr-3"></i>
+                        <span data-tr="Envanter Senkronizasyonu" data-en="Inventory Sync">Envanter Senkronizasyonu</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 4. Raporlama -->
+            <div class="mb-6 sidebar-section">
+                <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
+                    <div class="flex items-center">
+                        <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+                            <i class="ph ph-chart-bar"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300" data-tr="raporlama" data-en="reporting">Raporlama</span>
+                    </div>
+                    <i class="ph ph-caret-down text-xs transition-transform"></i>
+                </div>
+                <div class="sidebar-dropdown-menu">
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('sales')" data-service="sales-reports">
+                        <i class="ph ph-chart-line w-4 h-4 mr-3"></i>
+                        <span data-tr="Satış Raporları" data-en="Sales Reports">Satış Raporları</span>
+                        <span class="text-xs text-gray-500 ml-auto">:3018</span>
+                    </a>
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('financial')" data-service="financial-reports">
+                        <i class="ph ph-currency-circle-dollar w-4 h-4 mr-3"></i>
+                        <span data-tr="Mali Raporlar" data-en="Financial Reports">Mali Raporlar</span>
+                        <span class="text-xs text-gray-500 ml-auto">:3019</span>
+                    </a>
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('performance')" data-service="performance-reports">
+                        <i class="ph ph-chart-pie w-4 h-4 mr-3"></i>
+                        <span data-tr="Performans Raporları" data-en="Performance Reports">Performans Raporları</span>
+                        <span class="text-xs text-gray-500 ml-auto">:3020</span>
+                    </a>
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('inventory')" data-service="inventory-reports">
+                        <i class="ph ph-package w-4 h-4 mr-3"></i>
+                        <span data-tr="Envanter Raporları" data-en="Inventory Reports">Envanter Raporları</span>
+                        <span class="text-xs text-gray-500 ml-auto">:3021</span>
+                    </a>
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('custom')" data-service="custom-reports">
+                        <i class="ph ph-gear w-4 h-4 mr-3"></i>
+                        <span data-tr="Özel Raporlar" data-en="Custom Reports">Özel Raporlar</span>
+                        <span class="text-xs text-gray-500 ml-auto">:3022</span>
+                    </a>
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openReportingService('export')" data-service="export-data">
+                        <i class="ph ph-download w-4 h-4 mr-3"></i>
+                        <span data-tr="Veri Dışa Aktarma" data-en="Export Data">Veri Dışa Aktarma</span>
+                        <span class="text-xs text-gray-500 ml-auto">:3025</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 5. Sistem Araçları - YENİ EKLENEN BÖLÜM -->
+            <div class="mb-6 sidebar-section">
+                <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
+                    <div class="flex items-center">
+                        <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                            <i class="ph ph-wrench"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300" data-tr="sistem-araclari" data-en="system-tools">Sistem Araçları</span>
+                    </div>
+                    <i class="ph ph-caret-down text-xs transition-transform"></i>
+                </div>
+                <div class="sidebar-dropdown-menu">
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openSystemTool('code-fixer')" data-service="code-quality">
+                        <i class="ph ph-bug w-4 h-4 mr-3"></i>
+                        <span data-tr="Kod Düzeltici" data-en="Code Fixer">Kod Düzeltici (2100+ Hata)</span>
+                        <span class="text-xs text-red-500 ml-auto">:4500</span>
+                    </a>
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openSystemTool('backup-manager')" data-service="backup-system">
+                        <i class="ph ph-hard-drives w-4 h-4 mr-3"></i>
+                        <span data-tr="Yedekleme Sistemi" data-en="Backup System">Yedekleme Sistemi</span>
+                        <span class="text-xs text-blue-500 ml-auto">:3024</span>
+                    </a>
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openSystemTool('log-viewer')" data-service="log-management">
+                        <i class="ph ph-file-text w-4 h-4 mr-3"></i>
+                        <span data-tr="Log İzleyici" data-en="Log Viewer">Log İzleyici & Diagnostics</span>
+                        <span class="text-xs text-green-500 ml-auto">:4500</span>
+                    </a>
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openSystemTool('health-monitor')" data-service="system-health">
+                        <i class="ph ph-heart-straight w-4 h-4 mr-3"></i>
+                        <span data-tr="Sistem Sağlık İzleyici" data-en="System Health Monitor">Sistem Sağlık İzleyici</span>
+                        <span class="text-xs text-purple-500 ml-auto">:4500</span>
+                    </a>
+                    <a href="javascript:void(0)" class="meschain-nav-link" onclick="openSystemTool('performance-optimizer')" data-service="performance-tools">
+                        <i class="ph ph-rocket-launch w-4 h-4 mr-3"></i>
+                        <span data-tr="Performans Optimize Edici" data-en="Performance Optimizer">Performans Optimize Edici</span>
+                        <span class="text-xs text-yellow-500 ml-auto">:4500</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 6. Otomasyon -->
+            <div class="mb-6 sidebar-section">
+                <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
+                    <div class="flex items-center">
+                        <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <i class="ph ph-robot"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300" data-tr="otomasyon" data-en="automation">Otomasyon</span>
+                    </div>
+                    <i class="ph ph-caret-down text-xs transition-transform"></i>
+                </div>
+                <div class="sidebar-dropdown-menu">
+                    <a href="#automation-overview" class="meschain-nav-link" data-section="automation-overview">
+                        <i class="ph ph-robot w-4 h-4 mr-3"></i>
+                        <span data-tr="Otomasyon Genel Bakış" data-en="Automation Overview">Otomasyon Genel Bakış</span>
+                    </a>
+                    <a href="#workflows" class="meschain-nav-link" data-section="workflows">
+                        <i class="ph ph-flow-arrow w-4 h-4 mr-3"></i>
+                        <span data-tr="İş Akışları" data-en="Workflows">İş Akışları</span>
+                    </a>
+                    <a href="#auto-pricing" class="meschain-nav-link" data-section="auto-pricing">
+                        <i class="ph ph-currency-dollar w-4 h-4 mr-3"></i>
+                        <span data-tr="Otomatik Fiyatlandırma" data-en="Auto Pricing">Otomatik Fiyatlandırma</span>
+                    </a>
+                    <a href="#auto-listing" class="meschain-nav-link" data-section="auto-listing">
+                        <i class="ph ph-list-plus w-4 h-4 mr-3"></i>
+                        <span data-tr="Otomatik Listeleme" data-en="Auto Listing">Otomatik Listeleme</span>
+                    </a>
+                    <a href="#scheduled-tasks" class="meschain-nav-link" data-section="scheduled-tasks">
+                        <i class="ph ph-clock w-4 h-4 mr-3"></i>
+                        <span data-tr="Zamanlanmış Görevler" data-en="Scheduled Tasks">Zamanlanmış Görevler</span>
+                    </a>
+                    <a href="#automation-rules" class="meschain-nav-link" data-section="automation-rules">
+                        <i class="ph ph-gear-six w-4 h-4 mr-3"></i>
+                        <span data-tr="Otomasyon Kuralları" data-en="Automation Rules">Otomasyon Kuralları</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 7. Servis Yönetimi -->
+            <div class="mb-6 sidebar-section">
+                <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
+                    <div class="flex items-center">
+                        <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <i class="ph ph-circles-four"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300" data-tr="servis yönetimi" data-en="service management">Servis Yönetimi</span>
+                    </div>
+                    <i class="ph ph-caret-down text-xs transition-transform"></i>
+                </div>
+                <div class="sidebar-dropdown-menu">
+                    <a href="#services" class="meschain-nav-link" data-section="services">
+                        <i class="ph ph-circles-four w-4 h-4 mr-3"></i>
+                        <span data-tr="Tüm Servisler" data-en="All Services">Tüm Servisler</span>
+                    </a>
+                    <a href="#integrations" class="meschain-nav-link" data-section="integrations">
+                        <i class="ph ph-link w-4 h-4 mr-3"></i>
+                        <span data-tr="Entegrasyonlar" data-en="Integrations">Entegrasyonlar</span>
+                    </a>
+                    <a href="#automation" class="meschain-nav-link" data-section="automation">
+                        <i class="ph ph-robot w-4 h-4 mr-3"></i>
+                        <span data-tr="Otomasyon" data-en="Automation">Otomasyon</span>
+                    </a>
+                    <a href="#workflows" class="meschain-nav-link" data-section="workflows">
+                        <i class="ph ph-flow-arrow w-4 h-4 mr-3"></i>
+                        <span data-tr="İş Akışları" data-en="Workflows">İş Akışları</span>
+                    </a>
+                    <a href="#api-management" class="meschain-nav-link" data-section="api-management">
+                        <i class="ph ph-brackets-curly w-4 h-4 mr-3"></i>
+                        <span data-tr="API Yönetimi" data-en="API Management">API Yönetimi</span>
+                    </a>
+                    <a href="#webhook-management" class="meschain-nav-link" data-section="webhook-management">
+                        <i class="ph ph-webhook w-4 h-4 mr-3"></i>
+                        <span data-tr="Webhook Yönetimi" data-en="Webhook Management">Webhook Yönetimi</span>
+                    </a>
+                    <a href="#service-health" class="meschain-nav-link" data-section="service-health">
+                        <i class="ph ph-heart w-4 h-4 mr-3"></i>
+                        <span data-tr="Servis Sağlığı" data-en="Service Health">Servis Sağlığı</span>
+                    </a>
+                    <a href="#micro-services" class="meschain-nav-link" data-section="micro-services">
+                        <i class="ph ph-puzzle-piece w-4 h-4 mr-3"></i>
+                        <span data-tr="Mikroservisler" data-en="Microservices">Mikroservisler</span>
+                    </a>
+                    <a href="#load-balancer" class="meschain-nav-link" data-section="load-balancer">
+                        <i class="ph ph-scales w-4 h-4 mr-3"></i>
+                        <span data-tr="Yük Dengeleyici" data-en="Load Balancer">Yük Dengeleyici</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 8. Documentation & Guides -->
+            <div class="mb-6 sidebar-section">
+                <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
+                    <div class="flex items-center">
+                        <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                            <i class="ph ph-book-open"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300">Dokümantasyon</span>
+                    </div>
+                    <i class="ph ph-caret-down text-xs transition-transform"></i>
+                </div>
+                <div class="sidebar-dropdown-menu">
+                    <a href="#usage-guide" class="meschain-nav-link" data-section="usage-guide">
+                        <i class="ph ph-book-open w-4 h-4 mr-3"></i>
+                        <span data-tr="Kullanım Kılavuzu" data-en="Usage Guide">Kullanım Kılavuzu</span>
+                    </a>
+                    <a href="#technical-manual" class="meschain-nav-link" data-section="technical-manual">
+                        <i class="ph ph-file-code w-4 h-4 mr-3"></i>
+                        <span data-tr="Teknik Kılavuz" data-en="Technical Manual">Teknik Kılavuz</span>
+                    </a>
+                    <a href="#api-docs" class="meschain-nav-link" data-section="api-docs">
+                        <i class="ph ph-brackets-curly w-4 h-4 mr-3"></i>
+                        <span data-tr="API Dokümantasyonu" data-en="API Documentation">API Dokümantasyonu</span>
+                    </a>
+                    <a href="#video-tutorials" class="meschain-nav-link" data-section="video-tutorials">
+                        <i class="ph ph-play-circle w-4 h-4 mr-3"></i>
+                        <span data-tr="Video Eğitimler" data-en="Video Tutorials">Video Eğitimler</span>
+                    </a>
+                    <a href="#faq" class="meschain-nav-link" data-section="faq">
+                        <i class="ph ph-question w-4 h-4 mr-3"></i>
+                        <span data-tr="Sık Sorulan Sorular" data-en="FAQ">Sık Sorulan Sorular</span>
+                    </a>
+                    <a href="#changelog" class="meschain-nav-link" data-section="changelog">
+                        <i class="ph ph-list-checks w-4 h-4 mr-3"></i>
+                        <span data-tr="Değişiklik Günlüğü" data-en="Changelog">Değişiklik Günlüğü</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 9. Advanced Features -->
+            <div class="mb-6 sidebar-section">
+                <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
+                    <div class="flex items-center">
+                        <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            <i class="ph ph-rocket"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300">Gelişmiş Özellikler</span>
+                    </div>
+                    <i class="ph ph-caret-down text-xs transition-transform"></i>
+                </div>
+                <div class="sidebar-dropdown-menu">
+                    <a href="#revenue" class="meschain-nav-link" data-section="revenue">
+                        <i class="ph ph-trend-up w-4 h-4 mr-3"></i>
+                        <span data-tr="Gelir Analitiği" data-en="Revenue Analytics">Gelir Analitiği</span>
+                    </a>
+                    <a href="#monitoring" class="meschain-nav-link" data-section="monitoring">
+                        <i class="ph ph-monitor w-4 h-4 mr-3"></i>
+                        <span data-tr="Sistem İzleme" data-en="System Monitoring">Sistem İzleme</span>
+                    </a>
+                    <a href="#security" class="meschain-nav-link" data-section="security">
+                        <i class="ph ph-shield w-4 h-4 mr-3"></i>
+                        <span data-tr="Güvenlik Merkezi" data-en="Security Center">Güvenlik Merkezi</span>
+                    </a>
+                    <a href="#backup" class="meschain-nav-link" data-section="backup">
+                        <i class="ph ph-database w-4 h-4 mr-3"></i>
+                        <span data-tr="Yedekleme & Kurtarma" data-en="Backup & Recovery">Yedekleme & Kurtarma</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
