@@ -3,6 +3,27 @@
    🎨 Azure Fluent design inspired */
 
 /* ============================================
+   🔧 SIDEBAR DROPDOWN FORCE VISIBLE - DEBUG
+   ============================================ */
+.sidebar-section.active .sidebar-dropdown-menu {
+    display: block !important;
+    max-height: 500px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    transition-delay: 0s !important;
+    pointer-events: auto !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Force override any conflicting styles */
+.sidebar-dropdown-menu {
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+/* ============================================
    🎛️ SIDEBAR BASE STYLES
    ============================================ */
 .meschain-sidebar {
@@ -271,6 +292,7 @@
 
 /* Active efekti - kalıcı açılma */
 .sidebar-section.active .sidebar-dropdown-menu {
+    display: block !important;
     max-height: 500px !important;
     opacity: 1 !important;
     visibility: visible !important;
