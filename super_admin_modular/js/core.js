@@ -610,7 +610,7 @@ async function loadSystemStatusEngineContent() {
 }
 
 // ============================================
-// 🎯 ENHANCED SECTION NAVIGATION WITH CONTENT LOADING
+// 🎯 ENHANCED SECTION NAVIGATION SYSTEM
 // ============================================
 
 // Enhanced showSection function with content loading
@@ -876,3 +876,217 @@ function setupWarningsMenu() {
         console.warn('⚠️ Warnings menu elements not found');
     }
 }
+
+// ============================================
+// 🎯 ALERTS & EXTENSIONS MENU FUNCTIONALITY
+// ============================================
+
+// Switch between alerts and extensions tabs
+function switchAlertsTab(tabType) {
+    const alertsTab = document.getElementById('alertsTab');
+    const extensionsTab = document.getElementById('extensionsTab');
+    const alertsContent = document.getElementById('alertsContent');
+    const extensionsContent = document.getElementById('extensionsContent');
+    
+    if (tabType === 'alerts') {
+        // Activate alerts tab
+        alertsTab.classList.add('bg-red-100', 'dark:bg-red-900/30', 'text-red-700', 'dark:text-red-300');
+        alertsTab.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-400');
+        
+        // Deactivate extensions tab
+        extensionsTab.classList.remove('bg-green-100', 'dark:bg-green-900/30', 'text-green-700', 'dark:text-green-300');
+        extensionsTab.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-400');
+        
+        // Show/hide content
+        alertsContent.classList.remove('hidden');
+        extensionsContent.classList.add('hidden');
+        
+        console.log('🚨 Switched to alerts tab');
+    } else if (tabType === 'extensions') {
+        // Activate extensions tab
+        extensionsTab.classList.add('bg-green-100', 'dark:bg-green-900/30', 'text-green-700', 'dark:text-green-300');
+        extensionsTab.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-400');
+        
+        // Deactivate alerts tab
+        alertsTab.classList.remove('bg-red-100', 'dark:bg-red-900/30', 'text-red-700', 'dark:text-red-300');
+        alertsTab.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-400');
+        
+        // Show/hide content
+        extensionsContent.classList.remove('hidden');
+        alertsContent.classList.add('hidden');
+        
+        console.log('🧩 Switched to extensions tab');
+    }
+}
+
+// Toggle extension on/off
+function toggleExtension(extensionId) {
+    const extension = document.querySelector(`[onclick="toggleExtension('${extensionId}')"]`);
+    const statusBadge = extension.parentElement.querySelector('.text-xs.px-2.py-1.rounded');
+    
+    if (extension) {
+        const isActive = extension.classList.contains('bg-green-500');
+        
+        if (isActive) {
+            // Deactivate extension
+            extension.classList.remove('bg-green-500');
+            extension.classList.add('bg-gray-400');
+            
+            // Move toggle to left
+            const toggleBall = extension.querySelector('div');
+            toggleBall.classList.remove('right-0.5');
+            toggleBall.classList.add('left-0.5');
+            
+            // Update status badge
+            statusBadge.textContent = 'DEVRE DIŞI';
+            statusBadge.className = 'text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded';
+            
+            console.log(`🔴 Extension ${extensionId} deactivated`);
+            
+            if (typeof showNotification === 'function') {
+                showNotification('🔴', `${extensionId} eklentisi devre dışı bırakıldı`, 'warning');
+            }
+        } else {
+            // Activate extension
+            extension.classList.remove('bg-gray-400');
+            extension.classList.add('bg-green-500');
+            
+            // Move toggle to right
+            const toggleBall = extension.querySelector('div');
+            toggleBall.classList.remove('left-0.5');
+            toggleBall.classList.add('right-0.5');
+            
+            // Update status badge
+            statusBadge.textContent = 'AKTİF';
+            statusBadge.className = 'text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded';
+            
+            console.log(`🟢 Extension ${extensionId} activated`);
+            
+            if (typeof showNotification === 'function') {
+                showNotification('🟢', `${extensionId} eklentisi etkinleştirildi`, 'success');
+            }
+        }
+    }
+}
+
+// Toggle all alerts and extensions
+function toggleAllAlertsExtensions() {
+    const currentTab = document.getElementById('alertsContent').classList.contains('hidden') ? 'extensions' : 'alerts';
+    
+    if (currentTab === 'extensions') {
+        // Toggle all extensions
+        const extensionToggles = document.querySelectorAll('[onclick*="toggleExtension"]');
+        let activeCount = 0;
+        let totalCount = extensionToggles.length;
+        
+        // Count active extensions
+        extensionToggles.forEach(toggle => {
+            if (toggle.classList.contains('bg-green-500')) {
+                activeCount++;
+            }
+        });
+        
+        // If more than half are active, turn all off; otherwise, turn all on
+        const shouldActivate = activeCount < totalCount / 2;
+        
+        extensionToggles.forEach(toggle => {
+            const extensionId = toggle.getAttribute('onclick').match(/toggleExtension\('(.+)'\)/)[1];
+            const isCurrentlyActive = toggle.classList.contains('bg-green-500');
+            
+            if (shouldActivate && !isCurrentlyActive) {
+                toggleExtension(extensionId);
+            } else if (!shouldActivate && isCurrentlyActive) {
+                toggleExtension(extensionId);
+            }
+        });
+        
+        const action = shouldActivate ? 'etkinleştirildi' : 'devre dışı bırakıldı';
+        if (typeof showNotification === 'function') {
+            showNotification('🔄', `Tüm eklentiler ${action}`, 'info');
+        }
+        
+    } else {
+        // For alerts, show a notification that they cannot be toggled
+        if (typeof showNotification === 'function') {
+            showNotification('ℹ️', 'Sistem uyarıları otomatik olarak yönetilir', 'info');
+        }
+    }
+}
+
+// Add missing alert/extension functions
+function toggleAlertsMenu() {
+    const alertsMenu = document.getElementById('alertsMenu');
+    if (alertsMenu) {
+        toggleDropdown(alertsMenu);
+    }
+}
+
+// Extension specific functions
+function openSystemDiagnostics() {
+    console.log('🔍 Opening system diagnostics...');
+    if (typeof showNotification === 'function') {
+        showNotification('🔍', 'Sistem tanılama açılıyor...', 'info');
+    }
+    // Implementation for system diagnostics
+}
+
+function runAutoFix() {
+    console.log('🔧 Running auto-fix...');
+    if (typeof showNotification === 'function') {
+        showNotification('🔧', 'Otomatik düzeltme başlatılıyor...', 'info');
+    }
+    // Implementation for auto-fix functionality
+}
+
+function viewAllAlerts() {
+    console.log('📦 Opening extension store...');
+    if (typeof showNotification === 'function') {
+        showNotification('📦', 'Eklenti mağazası açılıyor...', 'info');
+    }
+    // Implementation for extension store
+}
+
+// Enhanced alerts dropdown initialization
+function initializeAlertsDropdownEnhanced() {
+    const alertsButton = document.querySelector('[onclick="toggleAlertsMenu()"]');
+    const alertsMenu = document.getElementById('alertsMenu');
+    
+    if (alertsButton && alertsMenu) {
+        // Click handler
+        alertsButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleDropdown(alertsMenu);
+        });
+        
+        // Hover handlers
+        alertsButton.addEventListener('mouseenter', () => {
+            showDropdown(alertsMenu);
+        });
+        
+        alertsButton.parentElement.addEventListener('mouseleave', () => {
+            hideDropdown(alertsMenu);
+        });
+        
+        console.log('🎯 Enhanced alerts dropdown initialized');
+    }
+}
+
+// Update the initializeDropdowns function to include enhanced alerts
+const originalInitializeDropdowns = initializeDropdowns;
+initializeDropdowns = function() {
+    originalInitializeDropdowns();
+    initializeAlertsDropdownEnhanced();
+};
+
+// ============================================
+// 🎯 ENHANCED INITIALIZATION
+// ============================================
+
+// Call enhanced initialization on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for all elements to be fully loaded
+    setTimeout(() => {
+        initializeDropdowns();
+        console.log('🚀 Enhanced alerts & extensions system initialized');
+    }, 100);
+});

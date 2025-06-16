@@ -177,17 +177,26 @@
                     <span class="font-medium text-sm text-red-700 dark:text-red-300">Uyarılar & Eklentiler</span>
                     <i class="ph ph-caret-down text-xs text-red-600 dark:text-red-400"></i>
                 </button>
-                <div id="alertsMenu" class="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 opacity-0 invisible z-50 transform translate-y-2 transition-all duration-300">
+                <div id="alertsMenu" class="absolute top-full left-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 opacity-0 invisible z-50 transform translate-y-2 transition-all duration-300">
+                    <!-- Tabs for switching between Alerts and Extensions -->
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-gray-800 dark:text-white flex items-center">
-                            <i class="ph ph-warning text-red-600 mr-2"></i>
-                            Sistem Uyarıları
-                        </h3>
-                        <div class="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-1 rounded-full">
-                            12 Aktif
+                        <div class="flex space-x-4">
+                            <button id="alertsTab" onclick="switchAlertsTab('alerts')" class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 font-medium text-sm">
+                                <i class="ph ph-warning"></i>
+                                <span>Uyarılar</span>
+                                <span class="text-xs bg-red-200 dark:bg-red-800 px-2 py-1 rounded-full">12</span>
+                            </button>
+                            <button id="extensionsTab" onclick="switchAlertsTab('extensions')" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 font-medium text-sm">
+                                <i class="ph ph-puzzle-piece"></i>
+                                <span>Eklentiler</span>
+                                <span class="text-xs bg-green-200 dark:bg-green-800 px-2 py-1 rounded-full">8</span>
+                            </button>
                         </div>
+                        <button onclick="toggleAllAlertsExtensions()" class="text-xs text-blue-600 hover:text-blue-700 font-medium">Tümünü Aç/Kapat</button>
                     </div>
-                    <div class="space-y-3 max-h-96 overflow-y-auto">
+                    
+                    <!-- Alerts Content -->
+                    <div id="alertsContent" class="space-y-3 max-h-96 overflow-y-auto">
                         <!-- Kod Düzeltici Uyarısı -->
                         <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors cursor-pointer">
                             <div class="flex items-center space-x-2 mb-2">
@@ -249,12 +258,151 @@
                         </div>
                     </div>
                     
+                    <!-- Extensions Content -->
+                    <div id="extensionsContent" class="space-y-3 max-h-96 overflow-y-auto hidden">
+                        <!-- Marketplace Manager Eklentisi -->
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-storefront text-blue-600"></i>
+                                    <span class="font-medium text-blue-700 dark:text-blue-300">Marketplace Manager</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('marketplace')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">7 marketplace entegrasyonu yönetimi</p>
+                        </div>
+
+                        <!-- Real-time Analytics Eklentisi -->
+                        <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-chart-line text-purple-600"></i>
+                                    <span class="font-medium text-purple-700 dark:text-purple-300">Real-time Analytics</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('analytics')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Canlı performans ve satış analizi</p>
+                        </div>
+
+                        <!-- Security Monitor Eklentisi -->
+                        <div class="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-shield-check text-indigo-600"></i>
+                                    <span class="font-medium text-indigo-700 dark:text-indigo-300">Security Monitor</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('security')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Güvenlik tehdidi izleme ve korunma</p>
+                        </div>
+
+                        <!-- Automated Backup Eklentisi -->
+                        <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-hard-drives text-green-600"></i>
+                                    <span class="font-medium text-green-700 dark:text-green-300">Automated Backup</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('backup')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Otomatik günlük ve haftalık yedekleme</p>
+                        </div>
+
+                        <!-- AI Assistant Eklentisi -->
+                        <div class="p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg hover:bg-cyan-100 dark:hover:bg-cyan-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-brain text-cyan-600"></i>
+                                    <span class="font-medium text-cyan-700 dark:text-cyan-300">AI Assistant</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-orange-200 dark:bg-orange-800 text-orange-700 dark:text-orange-300 px-2 py-1 rounded">BETA</span>
+                                    <button onclick="toggleExtension('ai')" class="w-8 h-4 bg-orange-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Akıllı öneri ve otomatizasyon sistemi</p>
+                        </div>
+
+                        <!-- Mobile App Connector Eklentisi -->
+                        <div class="p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-device-mobile text-pink-600"></i>
+                                    <span class="font-medium text-pink-700 dark:text-pink-300">Mobile App Connector</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('mobile')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">iOS ve Android app senkronizasyonu</p>
+                        </div>
+
+                        <!-- API Manager Eklentisi -->
+                        <div class="p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-code text-teal-600"></i>
+                                    <span class="font-medium text-teal-700 dark:text-teal-300">API Manager</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('api')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">RESTful API yönetimi ve dokümantasyon</p>
+                        </div>
+
+                        <!-- Custom Dashboard Builder Eklentisi -->
+                        <div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-layout text-amber-600"></i>
+                                    <span class="font-medium text-amber-700 dark:text-amber-300">Dashboard Builder</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">DEVRE DIŞI</span>
+                                    <button onclick="toggleExtension('dashboard')" class="w-8 h-4 bg-gray-400 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Özelleştirilebilir dashboard oluşturucu</p>
+                        </div>
+                    </div>
+                    
                     <!-- Quick Actions -->
                     <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex justify-between text-xs">
                             <button onclick="openSystemDiagnostics()" class="text-red-600 hover:text-red-700 font-medium">Sistem Tanılama</button>
                             <button onclick="runAutoFix()" class="text-blue-600 hover:text-blue-700 font-medium">Otomatik Düzelt</button>
-                            <button onclick="viewAllAlerts()" class="text-purple-600 hover:text-purple-700 font-medium">Tümünü Görüntüle</button>
+                            <button onclick="viewAllAlerts()" class="text-purple-600 hover:text-purple-700 font-medium">Eklenti Mağazası</button>
                         </div>
                     </div>
                 </div>
