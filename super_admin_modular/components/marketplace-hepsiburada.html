@@ -1,0 +1,460 @@
+<!-- 🎯 HEPSIBURADA MARKETPLACE INTEGRATION MODULE -->
+<!-- MesChain-Sync Hepsiburada Integration Panel -->
+
+<div id="marketplace-hepsiburada-content" class="content-section hidden">
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1 class="page-title">
+                    <i class="ph ph-storefront text-2xl mr-3"></i>
+                    Hepsiburada Marketplace
+                </h1>
+                <p class="page-subtitle">Hepsiburada entegrasyonu ve ürün yönetimi</p>
+            </div>
+            <div class="header-right">
+                <div class="connection-status">
+                    <div class="status-indicator status-warning" id="hepsiburadaStatus"></div>
+                    <span class="status-text" id="hepsiburadaStatusText">Yapılandırma Gerekli</span>
+                </div>
+                <button class="btn btn-primary" onclick="setupHepsiburada()">
+                    <i class="ph ph-gear mr-2"></i>
+                    Kurulum Başlat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Banner -->
+    <div class="alert alert-warning mb-6">
+        <div class="alert-content">
+            <i class="ph ph-warning-circle alert-icon"></i>
+            <div>
+                <h4 class="alert-title">Kurulum Gerekli</h4>
+                <p class="alert-message">Hepsiburada API entegrasyonu için partner onayı ve API kurulumu gereklidir.</p>
+            </div>
+        </div>
+        <button class="alert-close" onclick="this.parentElement.style.display='none'">
+            <i class="ph ph-x"></i>
+        </button>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="stat-card opacity-50">
+            <div class="stat-icon bg-orange-500">
+                <i class="ph ph-package text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value" id="hepsiburadaTotalProducts">0</h3>
+                <p class="stat-label">Toplam Ürün</p>
+                <span class="stat-change neutral">Beklemede</span>
+            </div>
+        </div>
+
+        <div class="stat-card opacity-50">
+            <div class="stat-icon bg-green-500">
+                <i class="ph ph-shopping-cart text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value" id="hepsiburadaTotalOrders">0</h3>
+                <p class="stat-label">Bekleyen Siparişler</p>
+                <span class="stat-change neutral">Bağlantı Yok</span>
+            </div>
+        </div>
+
+        <div class="stat-card opacity-50">
+            <div class="stat-icon bg-blue-500">
+                <i class="ph ph-currency-circle-dollar text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">₺0</h3>
+                <p class="stat-label">Aylık Gelir</p>
+                <span class="stat-change neutral">Henüz Yok</span>
+            </div>
+        </div>
+
+        <div class="stat-card opacity-50">
+            <div class="stat-icon bg-purple-500">
+                <i class="ph ph-chart-line text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">-/-</h3>
+                <p class="stat-label">Ortalama Rating</p>
+                <span class="stat-change neutral">Veri Yok</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - Setup Process -->
+        <div class="lg:col-span-2">
+            <div class="card mb-8">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-rocket mr-2"></i>
+                        Hepsiburada Entegrasyon Kurulumu
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="badge badge-orange">Setup Required</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Setup Steps -->
+                    <div class="setup-steps">
+                        <div class="setup-step completed" data-step="1">
+                            <div class="step-icon">
+                                <i class="ph ph-check"></i>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">Ön Hazırlık</h4>
+                                <p class="step-description">MesChain sistemi hazır ve aktif</p>
+                            </div>
+                        </div>
+
+                        <div class="setup-step active" data-step="2">
+                            <div class="step-icon">
+                                <i class="ph ph-handshake"></i>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">Partner Başvurusu</h4>
+                                <p class="step-description">Hepsiburada partner onayı için başvuru yapın</p>
+                                <button class="btn btn-sm btn-primary mt-2" onclick="openPartnerApplication()">
+                                    <i class="ph ph-external-link mr-1"></i>
+                                    Partner Başvurusu
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="setup-step pending" data-step="3">
+                            <div class="step-icon">
+                                <i class="ph ph-key"></i>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">API Kimlik Bilgileri</h4>
+                                <p class="step-description">Partner onayı sonrası API bilgilerini girin</p>
+                            </div>
+                        </div>
+
+                        <div class="setup-step pending" data-step="4">
+                            <div class="step-icon">
+                                <i class="ph ph-plugs-connected"></i>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">Bağlantı Testi</h4>
+                                <p class="step-description">API bağlantısını test edin</p>
+                            </div>
+                        </div>
+
+                        <div class="setup-step pending" data-step="5">
+                            <div class="step-icon">
+                                <i class="ph ph-rocket"></i>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">Entegrasyon Aktif</h4>
+                                <p class="step-description">Ürün senkronizasyonu başlatın</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Configuration (Disabled until partner approval) -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-gear mr-2"></i>
+                        API Yapılandırması
+                    </h3>
+                    <span class="badge badge-gray">Partner Onayı Gerekli</span>
+                </div>
+                <div class="card-body">
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <label class="input-label">Client ID</label>
+                            <div class="input-wrapper">
+                                <input type="text" class="form-input" id="hepsiburadaClientId" placeholder="Hepsiburada Client ID" disabled>
+                                <div class="input-addon">
+                                    <i class="ph ph-lock text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Client Secret</label>
+                            <div class="input-wrapper">
+                                <input type="password" class="form-input" id="hepsiburadaClientSecret" placeholder="Hepsiburada Client Secret" disabled>
+                                <div class="input-addon">
+                                    <i class="ph ph-lock text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Mağaza ID</label>
+                            <input type="text" class="form-input" id="hepsiburadaStoreId" placeholder="Hepsiburada Mağaza ID" value="meschain-tr" disabled>
+                        </div>
+
+                        <div class="flex space-x-4">
+                            <button class="btn btn-gray flex-1" disabled>
+                                <i class="ph ph-floppy-disk mr-2"></i>
+                                Ayarları Kaydet
+                            </button>
+                            <button class="btn btn-gray flex-1" disabled>
+                                <i class="ph ph-plugs-connected mr-2"></i>
+                                Bağlantıyı Test Et
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="info-box mt-6">
+                        <div class="info-content">
+                            <i class="ph ph-info-circle info-icon"></i>
+                            <div>
+                                <h4 class="info-title">Partner Onayı Hakkında</h4>
+                                <p class="info-text">
+                                    Hepsiburada API'sini kullanabilmek için öncelikle partner olmanız gerekir. 
+                                    Partner başvurunuz onaylandıktan sonra API kimlik bilgilerinizi alabilirsiniz.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Documentation & Resources -->
+        <div class="lg:col-span-1">
+            <div class="card mb-6">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-book mr-2"></i>
+                        Kurulum Kaynakları
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="space-y-4">
+                        <div class="resource-item">
+                            <div class="resource-icon bg-blue-100">
+                                <i class="ph ph-file-text text-blue-600"></i>
+                            </div>
+                            <div class="resource-content">
+                                <h4 class="resource-title">Partner Başvuru Rehberi</h4>
+                                <p class="resource-desc">Adım adım partner başvuru süreci</p>
+                                <button class="resource-link" onclick="openPartnerGuide()">
+                                    <i class="ph ph-external-link mr-1"></i>
+                                    Rehberi Görüntüle
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="resource-item">
+                            <div class="resource-icon bg-green-100">
+                                <i class="ph ph-code text-green-600"></i>
+                            </div>
+                            <div class="resource-content">
+                                <h4 class="resource-title">API Dokümantasyonu</h4>
+                                <p class="resource-desc">Hepsiburada API kullanım kılavuzu</p>
+                                <button class="resource-link" onclick="openApiDocs()">
+                                    <i class="ph ph-external-link mr-1"></i>
+                                    Dokümana Git
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="resource-item">
+                            <div class="resource-icon bg-purple-100">
+                                <i class="ph ph-question text-purple-600"></i>
+                            </div>
+                            <div class="resource-content">
+                                <h4 class="resource-title">SSS & Destek</h4>
+                                <p class="resource-desc">Sık sorulan sorular ve destek</p>
+                                <button class="resource-link" onclick="openSupport()">
+                                    <i class="ph ph-external-link mr-1"></i>
+                                    Destek Al
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setup Progress -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-progress mr-2"></i>
+                        Kurulum İlerlemesi
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="progress-info mb-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium">Toplam İlerleme</span>
+                            <span class="text-sm text-gray-500">20%</span>
+                        </div>
+                        <div class="progress-bar mt-2">
+                            <div class="progress-fill" style="width: 20%"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-steps">
+                        <div class="progress-step completed">
+                            <i class="ph ph-check"></i>
+                            <span>Ön Hazırlık</span>
+                        </div>
+                        <div class="progress-step active">
+                            <i class="ph ph-handshake"></i>
+                            <span>Partner Başvurusu</span>
+                        </div>
+                        <div class="progress-step">
+                            <i class="ph ph-key"></i>
+                            <span>API Kurulumu</span>
+                        </div>
+                        <div class="progress-step">
+                            <i class="ph ph-plugs-connected"></i>
+                            <span>Test</span>
+                        </div>
+                        <div class="progress-step">
+                            <i class="ph ph-rocket"></i>
+                            <span>Aktifleştirme</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Hepsiburada Marketplace Integration Functions
+function setupHepsiburada() {
+    showNotification('Hepsiburada kurulum sürecine yönlendiriliyorsunuz...', 'info');
+    // This would typically redirect to setup flow or modal
+    setTimeout(() => {
+        showNotification('Kurulum rehberi açılıyor...', 'info');
+        openPartnerGuide();
+    }, 1000);
+}
+
+function openPartnerApplication() {
+    showNotification('Hepsiburada partner başvuru sayfası açılıyor...', 'info');
+    // In real implementation, this would open partner application
+    setTimeout(() => {
+        showNotification('Partner başvuru formu dış linkten açılacak', 'info');
+        // window.open('https://partner.hepsiburada.com', '_blank');
+    }, 500);
+}
+
+function openPartnerGuide() {
+    showNotification('Partner başvuru rehberi yükleniyor...', 'info');
+    // This would open documentation or guide modal
+}
+
+function openApiDocs() {
+    showNotification('API dokümantasyonu açılıyor...', 'info');
+    // window.open('https://developer.hepsiburada.com', '_blank');
+}
+
+function openSupport() {
+    showNotification('Destek sayfası açılıyor...', 'info');
+    // This would open support portal or contact form
+}
+
+function enableApiConfiguration() {
+    // This function would be called after partner approval
+    const inputs = document.querySelectorAll('#marketplace-hepsiburada-content input');
+    const buttons = document.querySelectorAll('#marketplace-hepsiburada-content button[disabled]');
+    
+    inputs.forEach(input => input.disabled = false);
+    buttons.forEach(button => button.disabled = false);
+    
+    // Update step status
+    document.querySelector('[data-step="2"]').classList.remove('active');
+    document.querySelector('[data-step="2"]').classList.add('completed');
+    document.querySelector('[data-step="3"]').classList.add('active');
+    
+    showNotification('API yapılandırması aktifleştirildi!', 'success');
+}
+
+function saveHepsiburadaConfig() {
+    const config = {
+        clientId: document.getElementById('hepsiburadaClientId').value,
+        clientSecret: document.getElementById('hepsiburadaClientSecret').value,
+        storeId: document.getElementById('hepsiburadaStoreId').value
+    };
+    
+    if (!config.clientId || !config.clientSecret) {
+        showNotification('Lütfen tüm gerekli alanları doldurun!', 'error');
+        return;
+    }
+    
+    localStorage.setItem('hepsiburadaConfig', JSON.stringify(config));
+    showNotification('Hepsiburada ayarları kaydedildi!', 'success');
+}
+
+function testHepsiburadaConnection() {
+    showNotification('Hepsiburada API bağlantısı test ediliyor...', 'info');
+    
+    setTimeout(() => {
+        const clientId = document.getElementById('hepsiburadaClientId').value;
+        const clientSecret = document.getElementById('hepsiburadaClientSecret').value;
+        
+        if (!clientId || !clientSecret) {
+            showNotification('API bilgileri eksik!', 'error');
+            return;
+        }
+        
+        // Simulate API test
+        showNotification('Hepsiburada API bağlantısı başarılı!', 'success');
+        
+        // Update status indicators
+        document.getElementById('hepsiburadaStatus').className = 'status-indicator status-success';
+        document.getElementById('hepsiburadaStatusText').textContent = 'Bağlı';
+        
+        // Enable stats cards
+        document.querySelectorAll('#marketplace-hepsiburada-content .stat-card').forEach(card => {
+            card.classList.remove('opacity-50');
+        });
+        
+    }, 2000);
+}
+
+// Demo function to simulate partner approval
+function simulatePartnerApproval() {
+    showNotification('Demo: Partner onayı simülasyonu başlatılıyor...', 'info');
+    
+    setTimeout(() => {
+        enableApiConfiguration();
+        showNotification('Partner onayınız tamamlandı! API kurulumuna geçebilirsiniz.', 'success');
+    }, 2000);
+}
+
+// Initialize Hepsiburada module
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved configuration if available
+    const savedConfig = localStorage.getItem('hepsiburadaConfig');
+    if (savedConfig) {
+        const config = JSON.parse(savedConfig);
+        document.getElementById('hepsiburadaClientId').value = config.clientId || '';
+        document.getElementById('hepsiburadaClientSecret').value = config.clientSecret || '';
+        document.getElementById('hepsiburadaStoreId').value = config.storeId || 'meschain-tr';
+    }
+});
+
+// Add demo button for testing (remove in production)
+if (window.location.hostname === 'localhost' || window.location.hostname.includes('dev')) {
+    setTimeout(() => {
+        const demoButton = document.createElement('button');
+        demoButton.innerHTML = '<i class="ph ph-play mr-2"></i>Demo: Partner Onayı Simüle Et';
+        demoButton.className = 'btn btn-warning btn-sm';
+        demoButton.onclick = simulatePartnerApproval;
+        
+        const header = document.querySelector('#marketplace-hepsiburada-content .header-right');
+        if (header) {
+            header.appendChild(demoButton);
+        }
+    }, 1000);
+}
+</script>

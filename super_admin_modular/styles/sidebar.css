@@ -24,9 +24,17 @@
 }
 
 /* ============================================
-   🎛️ SIDEBAR BASE STYLES
+   🎛️ SIDEBAR BASE STYLES & POSITIONING
    ============================================ */
 .meschain-sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 64px !important; /* Header height */
+    bottom: 0 !important;
+    width: 256px !important; /* w-64 = 256px */
+    z-index: 40 !important;
+    transform: translateX(0) !important;
+    margin-left: 0 !important;
     background: var(--sidebar-bg);
     backdrop-filter: blur(20px);
     border-right: 1px solid var(--border-primary);
@@ -269,54 +277,93 @@
 }
 
 /* ============================================
-   ✨ SIDEBAR DROPDOWN MENU - ÇALIŞAN 3023 ÇÖZÜMÜ
+   ✨ SIDEBAR DROPDOWN MENU - ENHANCED ANIMATION SYSTEM
    ============================================ */
 .sidebar-dropdown-menu {
-    max-height: 0 !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: translateY(-10px) !important;
-    transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-    overflow: hidden !important;
-    margin-top: 8px !important;
-    margin-left: 48px !important;
-    transition-delay: 0.1s !important;
-    pointer-events: none !important;
-    display: block !important; /* Her zaman block olarak görünsün */
-    position: relative !important;
-    z-index: 100 !important;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Enhanced easing for more natural feel */
+    overflow: hidden;
+    margin-top: 8px;
+    margin-left: 48px;
+    pointer-events: none;
+    display: block; /* Always display as block for animation */
+    position: relative;
+    z-index: 100;
+    will-change: transform, opacity; /* GPU acceleration hint */
+    transform-origin: top center; /* Animation originates from top */
+    border-left: 2px solid transparent;
+    transition-property: max-height, opacity, visibility, transform, border-left, background;
 }
 
-/* Hover efekti - SADECE GÖRSEL GLOW */
+/* Hover effect - ENHANCED VISUAL FEEDBACK */
 .sidebar-section.hovering .sidebar-dropdown-menu {
-    border-left: 2px solid rgba(139, 92, 246, 0.3);
-    background: rgba(139, 92, 246, 0.05);
+    border-left: 2px solid rgba(139, 92, 246, 0.6); /* More visible border */
+    background: rgba(139, 92, 246, 0.08); /* Slightly more visible background */
+    box-shadow: -3px 0 12px -5px rgba(139, 92, 246, 0.2); /* Subtle inner glow */
+    transform: translateY(-5px); /* Slight float effect */
 }
 
-/* Active efekti - kalıcı açılma - SÜPER GÜÇLÜ */
+/* Active effect - ENHANCED OPENING ANIMATION */
 .sidebar-section.active .sidebar-dropdown-menu {
-    display: block !important;
-    max-height: 500px !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-    transition-delay: 0s !important;
-    pointer-events: auto !important;
-    position: relative !important;
-    z-index: 100 !important;
-    background: var(--bg-primary, #ffffff) !important;
-    border: 1px solid var(--border-color, #dee2e6) !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 12px var(--shadow-color, rgba(0, 0, 0, 0.1)) !important;
-    padding: 8px !important;
+    display: block;
+    max-height: 800px; /* Increased for larger dropdowns */
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); /* Smoother activation curve */
+    pointer-events: auto;
+    position: relative;
+    z-index: 100;
+    background: var(--bg-primary, #ffffff);
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: 10px; /* Slightly rounder corners */
+    box-shadow: 
+        0 4px 12px var(--shadow-color, rgba(0, 0, 0, 0.08)),
+        0 2px 4px rgba(139, 92, 246, 0.12);
+    padding: 10px;
+    border-left: 2px solid rgba(139, 92, 246, 0.8); /* Accent border */
+    animation: sidebarPulse 1.5s ease-out; /* Subtle pulse on activation */
 }
 
-/* Closing animation - smooth */
+/* Closing animation - enhanced smooth closing */
 .sidebar-section.closing .sidebar-dropdown-menu {
-    transition: all 0.3s ease-out !important;
-    max-height: 0 !important;
-    opacity: 0 !important;
-    transform: translateY(-5px) !important;
+    transition: all 0.4s cubic-bezier(0.6, -0.28, 0.74, 0.05);
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-5px);
+}
+
+/* Sidebar Pulse Animation */
+@keyframes sidebarPulse {
+    0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+}
+
+/* Enhanced animations for specific sections */
+.sidebar-section[data-section="ana-yonetim"] .sidebar-dropdown-menu {
+    transition-duration: 0.65s;
+}
+
+.sidebar-section[data-section="marketplace"] .sidebar-dropdown-menu {
+    transition-timing-function: cubic-bezier(0.34, 1.61, 0.7, 1); /* Bounce effect */
+}
+
+.sidebar-section[data-section="envanter"] .sidebar-dropdown-menu {
+    transition-delay: 0.05s;
+    transform-origin: top left;
+}
+
+.sidebar-section[data-section="raporlama"] .sidebar-dropdown-menu {
+    transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.sidebar-section[data-section="sistem-araclari"] .sidebar-dropdown-menu {
+    transition-duration: 0.7s;
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1); /* Exponential ease out */
 }
 
 /* ============================================
@@ -335,4 +382,465 @@
 .sidebar-section.hovering:not(.active) .sidebar-dropdown-menu {
     border-left: 2px solid rgba(139, 92, 246, 0.3);
     background: rgba(139, 92, 246, 0.05);
+}
+
+/* ============================================
+   🎯 SIDEBAR DROPDOWN ANIMATIONS (3023 FEATURE PARITY)
+   ============================================ */
+
+/* Hover-based dropdown reveal - 3023 style */
+.sidebar-section {
+    position: relative;
+}
+
+.sidebar-section.hovering:not(.active) .sidebar-dropdown-menu {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(0) !important;
+    pointer-events: auto !important;
+}
+
+.sidebar-dropdown-menu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    min-width: 280px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15),
+                0 4px 12px rgba(139, 92, 246, 0.1);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-20px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+}
+
+/* Dark theme dropdown */
+.dark .sidebar-dropdown-menu {
+    background: rgba(31, 41, 55, 0.95);
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+                0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+/* Dropdown header */
+.sidebar-dropdown-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(139, 92, 246, 0.1);
+}
+
+.sidebar-dropdown-header i {
+    font-size: 24px;
+    color: var(--accent-primary);
+    margin-right: 12px;
+}
+
+.sidebar-dropdown-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* Dropdown items */
+.sidebar-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-dropdown-item:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    transition: width 0.3s ease;
+    z-index: -1;
+}
+
+.sidebar-dropdown-item:hover {
+    color: white;
+    background: rgba(139, 92, 246, 0.1);
+    transform: translateX(8px);
+}
+
+.sidebar-dropdown-item:hover:before {
+    width: 100%;
+}
+
+.sidebar-dropdown-item i {
+    font-size: 18px;
+    margin-right: 12px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.sidebar-dropdown-item .dropdown-item-info {
+    flex: 1;
+}
+
+.sidebar-dropdown-item .dropdown-item-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.sidebar-dropdown-item .dropdown-item-desc {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Dropdown status badges */
+.sidebar-dropdown-badge {
+    background: var(--accent-primary);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-left: 8px;
+}
+
+.sidebar-dropdown-badge.new {
+    background: #10B981;
+    animation: pulse 2s infinite;
+}
+
+.sidebar-dropdown-badge.active {
+    background: #F59E0B;
+}
+
+/* Responsive dropdown positioning */
+@media (max-width: 1200px) {
+    .sidebar-dropdown-menu {
+        left: auto;
+        right: 100%;
+        transform: translateX(20px);
+    }
+    
+    .sidebar-section.hovering:not(.active) .sidebar-dropdown-menu {
+        transform: translateX(0) !important;
+    }
+}
+
+/* ============================================
+   🎨 SIDEBAR HOVER EFFECTS ENHANCEMENT
+   ============================================ */
+
+.meschain-nav-link {
+    position: relative;
+    overflow: hidden;
+}
+
+.meschain-nav-link:before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 0;
+    background: linear-gradient(to bottom, var(--accent-primary), var(--accent-secondary));
+    border-radius: 2px 0 0 2px;
+    transition: height 0.3s ease;
+    z-index: 1;
+}
+
+.meschain-nav-link:hover:before,
+.meschain-nav-link.active:before {
+    height: 60%;
+}
+
+/* Enhanced glow effect on hover */
+.meschain-nav-link:hover {
+    background: rgba(139, 92, 246, 0.1);
+    box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.1);
+}
+
+.dark .meschain-nav-link:hover {
+    background: rgba(139, 92, 246, 0.15);
+    box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+/* ============================================
+   🔥 MEGA MENU SYSTEM (FOR COMPLEX DROPDOWNS)
+   ============================================ */
+
+.sidebar-mega-menu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    width: 480px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15),
+                0 8px 20px rgba(139, 92, 246, 0.1);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-30px) scale(0.95);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+}
+
+.sidebar-section.hovering .sidebar-mega-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0) scale(1);
+    pointer-events: auto;
+}
+
+.dark .sidebar-mega-menu {
+    background: rgba(31, 41, 55, 0.98);
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4),
+                0 8px 20px rgba(139, 92, 246, 0.2);
+}
+
+.mega-menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.mega-menu-section {
+    background: rgba(139, 92, 246, 0.05);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+.mega-menu-section h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent-primary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.mega-menu-section h4 i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.mega-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 4px;
+}
+
+.mega-menu-item:hover {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--accent-primary);
+    transform: translateX(4px);
+}
+
+.mega-menu-item i {
+    font-size: 14px;
+    margin-right: 8px;
+    min-width: 16px;
+}
+
+/* ============================================
+   🎯 ENHANCED NAVIGATION STATES
+   ============================================ */
+
+.nav-item-with-badge {
+    position: relative;
+}
+
+.nav-item-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #EF4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 16px;
+    text-align: center;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-4px); }
+    60% { transform: translateY(-2px); }
+}
+
+/* Loading states for dynamic content */
+.sidebar-loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-loading:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(139, 92, 246, 0.1), 
+        transparent
+    );
+    animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* ============================================
+   📐 LAYOUT ADJUSTMENTS FOR SIDEBAR
+   ============================================ */
+
+/* Main content area should have left margin for sidebar */
+main.flex-1 {
+    margin-left: 256px !important; /* w-64 = 256px sidebar width */
+    transition: margin-left 0.3s ease !important;
+}
+
+/* Ensure sidebar doesn't interfere with content */
+.meschain-sidebar + main,
+main[style*="padding-left"] {
+    margin-left: 256px !important;
+    padding-left: 24px !important; /* Reduce excessive padding */
+    padding-right: 24px !important;
+}
+
+/* Responsive sidebar positioning */
+@media (max-width: 1024px) {
+    .meschain-sidebar {
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s ease !important;
+    }
+    
+    .meschain-sidebar.open {
+        transform: translateX(0) !important;
+    }
+    
+    main.flex-1 {
+        margin-left: 0 !important;
+    }
+}
+
+/* Fix any conflicting styles */
+.sidebar-section,
+.sidebar-dropdown-menu {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+}
+
+/* ============================================
+   🏷️ STATUS BADGES IN SIDEBAR
+   ============================================ */
+.meschain-nav-link .text-xs {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.meschain-nav-link .text-yellow-500 {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.meschain-nav-link .text-orange-500 {
+    background: rgba(249, 115, 22, 0.2);
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.meschain-nav-link .text-green-500 {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.meschain-nav-link .text-blue-500 {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.meschain-nav-link .text-gray-500 {
+    background: rgba(107, 114, 128, 0.2);
+    color: #6b7280;
+    border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.meschain-nav-link .text-red-500 {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.meschain-nav-link .text-purple-500 {
+    background: rgba(168, 85, 247, 0.2);
+    color: #a855f7;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+/* Hover effects for status badges */
+.meschain-nav-link:hover .text-xs {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+/* Animated pulse effect for active status */
+.meschain-nav-link .text-green-500 {
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% { 
+        background: rgba(34, 197, 94, 0.2);
+        box-shadow: 0 0 5px rgba(34, 197, 94, 0.3);
+    }
+    50% { 
+        background: rgba(34, 197, 94, 0.3);
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    }
 }

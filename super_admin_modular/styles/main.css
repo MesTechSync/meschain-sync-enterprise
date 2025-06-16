@@ -4,6 +4,24 @@
    🎨 Azure-inspired design system */
 
 /* ============================================
+   🖥️ MAIN CONTENT LAYOUT
+   ============================================ */
+.main-content {
+    margin-left: 256px; /* Sidebar width */
+    padding: 24px;
+    min-height: calc(100vh - 64px); /* Header height */
+    transition: margin-left 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: 16px;
+    }
+}
+
+/* ============================================
    📱 MARKETPLACE CARD STYLES
    ============================================ */
 .marketplace-card {
@@ -89,4 +107,73 @@
 .marketplace-quick-action span {
     font-size: 0.75rem;
     font-weight: 500;
+}
+
+/* ============================================
+   🚥 STATUS INDICATORS
+   ============================================ */
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    margin-right: 8px;
+}
+
+.status-indicator.status-active {
+    background: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    animation: pulse-green 2s infinite;
+}
+
+.status-indicator.status-paused {
+    background: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+    animation: pulse-orange 2s infinite;
+}
+
+.status-indicator.status-warning {
+    background: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    animation: pulse-blue 2s infinite;
+}
+
+.status-indicator.status-error {
+    background: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-orange {
+    0%, 100% { 
+        background: #f97316;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+    }
+    50% { 
+        background: #fb923c;
+        box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.4);
+    }
+}
+
+@keyframes pulse-blue {
+    0%, 100% { 
+        background: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    50% { 
+        background: #60a5fa;
+        box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.4);
+    }
+}
+
+@keyframes pulse-red {
+    0%, 100% { 
+        background: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+    50% { 
+        background: #f87171;
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.4);
+    }
 }

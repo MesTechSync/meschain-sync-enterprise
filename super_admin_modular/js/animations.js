@@ -304,45 +304,90 @@ class AnimationController {
     }
 }
 
+// Track currently active dropdown
+let activeDropdown = null;
+
+// Create backdrop overlay for dropdowns
+function createBackdrop() {
+    // Create backdrop if it doesn't exist
+    if (!document.getElementById('dropdown-backdrop')) {
+        const backdrop = document.createElement('div');
+        backdrop.id = 'dropdown-backdrop';
+        backdrop.className = 'dropdown-backdrop';
+        backdrop.addEventListener('click', closeAllDropdowns);
+        document.body.appendChild(backdrop);
+    }
+}
+
+// Close all open dropdowns
+function closeAllDropdowns() {
+    // Hide backdrop
+    const backdrop = document.getElementById('dropdown-backdrop');
+    if (backdrop) backdrop.classList.remove('show');
+    
+    // Hide all dropdowns
+    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+        menu.classList.remove('show');
+    });
+    
+    activeDropdown = null;
+}
+
+// Toggle dropdown with animation
+function toggleDropdown(elementId) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    // If already showing this dropdown, close it
+    if (element.classList.contains('show')) {
+        element.classList.remove('show');
+        document.getElementById('dropdown-backdrop').classList.remove('show');
+        activeDropdown = null;
+        return;
+    }
+    
+    // Close any other open dropdown
+    closeAllDropdowns();
+    
+    // Show backdrop
+    document.getElementById('dropdown-backdrop').classList.add('show');
+    
+    // Show dropdown with animation
+    setTimeout(() => {
+        element.classList.add('show');
+        activeDropdown = elementId;
+    }, 10);
+}
+
 // 🚀 Global functions for header interactions
 function toggleSecurityMenu() {
-    const securityMenu = document.getElementById('securityMenu');
-    if (securityMenu) {
-        securityMenu.classList.toggle('show');
-        console.log('🛡️ Security menu toggled');
-    }
+    toggleDropdown('securityMenu');
+    console.log('🛡️ Security menu toggled');
 }
 
 function toggleNotifications() {
-    const notificationMenu = document.getElementById('notificationMenu');
-    if (notificationMenu) {
-        notificationMenu.classList.toggle('show');
-        console.log('🔔 Notifications menu toggled');
-    }
+    toggleDropdown('notificationMenu');
+    console.log('🔔 Notifications menu toggled');
 }
 
-function toggleLanguageMenu() {
-    const languageMenu = document.getElementById('languageMenu');
-    if (languageMenu) {
-        languageMenu.classList.toggle('show');
-        console.log('🌐 Language menu toggled');
-    }
+function toggleLanguage() {
+    toggleDropdown('languageMenu');
+    console.log('🌐 Language menu toggled');
 }
 
 function toggleQuickAccess() {
-    const quickAccessMenu = document.getElementById('quickAccessMenu');
-    if (quickAccessMenu) {
-        quickAccessMenu.classList.toggle('show');
-        console.log('⚡ Quick access menu toggled');
-    }
+    toggleDropdown('quickAccessMenu');
+    console.log('⚡ Quick access menu toggled');
 }
 
 function toggleMarketplaceToolbar() {
-    const marketplaceToolbar = document.getElementById('marketplaceToolbar');
-    if (marketplaceToolbar) {
-        marketplaceToolbar.classList.toggle('show');
-        console.log('🏪 Marketplace toolbar toggled');
-    }
+    toggleDropdown('marketplaceToolbar');
+    console.log('🏪 Marketplace toolbar toggled');
+}
+
+function toggleSettings() {
+    toggleDropdown('settingsMenu');
+    console.log('⚙️ Settings menu toggled');
 }
 
 function toggleSidebarSection(element) {
@@ -355,6 +400,12 @@ function toggleSidebarSection(element) {
 
 // 🎯 Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    // Set up dropdown classes
+    initializeDropdownAnimations();
+    
+    // Set up keyboard handlers for dropdowns
+    setupDropdownKeyboardHandlers();
+    
     // Wait for other modules to load
     setTimeout(() => {
         window.animationController = new AnimationController();
@@ -370,6 +421,48 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 });
+
+// Initialize dropdown animations by adding required classes
+function initializeDropdownAnimations() {
+    // Add dropdown-menu class to all dropdown menus
+    const allDropdowns = [
+        'securityMenu', 'notificationMenu', 'languageMenu', 
+        'quickAccessMenu', 'marketplaceToolbar', 'settingsMenu'
+    ];
+    
+    allDropdowns.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.classList.add('dropdown-menu');
+        }
+    });
+    
+    // Add hover effect to dropdown items
+    document.querySelectorAll('.dropdown-menu button, .dropdown-menu a').forEach(item => {
+        item.classList.add('dropdown-item-hover');
+    });
+    
+    // Create backdrop if needed
+    createBackdrop();
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        if (activeDropdown && !event.target.closest('.dropdown-menu') && 
+            !event.target.closest('button[onclick*="toggle"]')) {
+            closeAllDropdowns();
+        }
+    });
+}
+
+// Set up keyboard handlers for dropdown accessibility
+function setupDropdownKeyboardHandlers() {
+    // ESC key to close dropdowns
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && activeDropdown) {
+            closeAllDropdowns();
+        }
+    });
+}
 
 // 🔄 Export for module usage
 if (typeof module !== 'undefined' && module.exports) {

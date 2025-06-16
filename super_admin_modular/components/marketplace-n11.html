@@ -1,0 +1,419 @@
+<!-- 🎯 N11 MARKETPLACE INTEGRATION MODULE -->
+<!-- MesChain-Sync N11 Integration Panel -->
+
+<div id="marketplace-n11-content" class="content-section hidden">
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1 class="page-title">
+                    <i class="ph ph-storefront text-2xl mr-3"></i>
+                    N11 Marketplace
+                </h1>
+                <p class="page-subtitle">N11 entegrasyonu ve ürün yönetimi</p>
+            </div>
+            <div class="header-right">
+                <div class="connection-status">
+                    <div class="status-indicator status-paused" id="n11Status"></div>
+                    <span class="status-text" id="n11StatusText">Bağlantı Duraklatıldı</span>
+                </div>
+                <button class="btn btn-primary" onclick="connectN11()">
+                    <i class="ph ph-link mr-2"></i>
+                    Yeniden Bağlan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="stat-card">
+            <div class="stat-icon bg-blue-500">
+                <i class="ph ph-package text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value" id="n11TotalProducts">445</h3>
+                <p class="stat-label">Toplam Ürün</p>
+                <span class="stat-change positive">+12 bu hafta</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-green-500">
+                <i class="ph ph-shopping-cart text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value" id="n11TotalOrders">23</h3>
+                <p class="stat-label">Bekleyen Siparişler</p>
+                <span class="stat-change neutral">Güncel</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-yellow-500">
+                <i class="ph ph-currency-circle-dollar text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">₺12,450</h3>
+                <p class="stat-label">Aylık Gelir</p>
+                <span class="stat-change positive">+8.2%</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-purple-500">
+                <i class="ph ph-chart-line text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">4.2/5</h3>
+                <p class="stat-label">Ortalama Rating</p>
+                <span class="stat-change positive">+0.3 puan</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - N11 API Configuration -->
+        <div class="lg:col-span-2">
+            <div class="card mb-8">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-gear mr-2"></i>
+                        N11 API Yapılandırması
+                    </h3>
+                    <button class="btn btn-sm btn-outline" onclick="testN11Connection()">
+                        <i class="ph ph-plugs-connected mr-1"></i>
+                        Bağlantıyı Test Et
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <label class="input-label">API Key</label>
+                            <div class="input-wrapper">
+                                <input type="password" class="form-input" id="n11ApiKey" placeholder="N11 API Key girin">
+                                <button class="input-addon" onclick="togglePassword('n11ApiKey')">
+                                    <i class="ph ph-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Secret Key</label>
+                            <div class="input-wrapper">
+                                <input type="password" class="form-input" id="n11SecretKey" placeholder="N11 Secret Key girin">
+                                <button class="input-addon" onclick="togglePassword('n11SecretKey')">
+                                    <i class="ph ph-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Mağaza ID</label>
+                            <input type="text" class="form-input" id="n11StoreId" placeholder="N11 Mağaza ID" value="meschain-tr">
+                        </div>
+
+                        <div class="flex space-x-4">
+                            <button class="btn btn-primary flex-1" onclick="saveN11Config()">
+                                <i class="ph ph-floppy-disk mr-2"></i>
+                                Ayarları Kaydet
+                            </button>
+                            <button class="btn btn-success flex-1" onclick="activateN11()">
+                                <i class="ph ph-play mr-2"></i>
+                                Entegrasyonu Aktifleştir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Management -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-package mr-2"></i>
+                        Ürün Yönetimi
+                    </h3>
+                    <div class="flex space-x-2">
+                        <button class="btn btn-sm btn-success" onclick="syncN11Products()">
+                            <i class="ph ph-arrow-clockwise mr-1"></i>
+                            Senkronize Et
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="bulkUploadN11()">
+                            <i class="ph ph-upload mr-1"></i>
+                            Toplu Yükle
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Ürün</th>
+                                    <th>SKU</th>
+                                    <th>Kategori</th>
+                                    <th>Fiyat</th>
+                                    <th>Stok</th>
+                                    <th>Durum</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="n11ProductsTable">
+                                <tr>
+                                    <td>
+                                        <div class="product-info">
+                                            <img src="/images/placeholder-product.jpg" alt="Product" class="w-10 h-10 rounded">
+                                            <div>
+                                                <div class="font-medium">Samsung Galaxy A54</div>
+                                                <div class="text-sm text-gray-500">Electronics</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><code>SGX-A54-128</code></td>
+                                    <td><span class="badge badge-blue">Telefon</span></td>
+                                    <td>₺8,999.00</td>
+                                    <td><span class="stock-badge in-stock">15</span></td>
+                                    <td><span class="status-badge active">Aktif</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-action" title="Düzenle">
+                                                <i class="ph ph-pencil"></i>
+                                            </button>
+                                            <button class="btn-action text-red-500" title="Sil">
+                                                <i class="ph ph-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- More products will be loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Real-time Status & Logs -->
+        <div class="lg:col-span-1">
+            <div class="card mb-6">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-activity mr-2"></i>
+                        Canlı Durum
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="space-y-4">
+                        <div class="status-item">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">API Bağlantısı</span>
+                                <div class="status-indicator status-error"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">Son kontrol: 2 dakika önce</div>
+                        </div>
+
+                        <div class="status-item">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">Ürün Senkronizasyonu</span>
+                                <div class="status-indicator status-warning"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">Son sync: 1 saat önce</div>
+                        </div>
+
+                        <div class="status-item">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">Sipariş İşleme</span>
+                                <div class="status-indicator status-success"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">Gerçek zamanlı</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Log -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-clock-clockwise mr-2"></i>
+                        Son Aktiviteler
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="activity-log" id="n11ActivityLog">
+                        <div class="activity-item slide-in-right">
+                            <div class="activity-time">14:23</div>
+                            <div class="activity-content">
+                                <div class="activity-title">API bağlantısı kesildi</div>
+                                <div class="activity-desc">Authentication hatası</div>
+                            </div>
+                            <div class="activity-status error">
+                                <i class="ph ph-x-circle"></i>
+                            </div>
+                        </div>
+
+                        <div class="activity-item slide-in-right">
+                            <div class="activity-time">13:45</div>
+                            <div class="activity-content">
+                                <div class="activity-title">12 ürün güncellendi</div>
+                                <div class="activity-desc">Fiyat ve stok bilgileri</div>
+                            </div>
+                            <div class="activity-status success">
+                                <i class="ph ph-check-circle"></i>
+                            </div>
+                        </div>
+
+                        <div class="activity-item slide-in-right">
+                            <div class="activity-time">12:30</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Yeni sipariş alındı</div>
+                                <div class="activity-desc">Order #N11-789456</div>
+                            </div>
+                            <div class="activity-status info">
+                                <i class="ph ph-info-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// N11 Marketplace Integration Functions
+function connectN11() {
+    showNotification('N11 bağlantısı başlatılıyor...', 'info');
+    
+    // Simulate connection process
+    setTimeout(() => {
+        document.getElementById('n11Status').className = 'status-indicator status-loading';
+        document.getElementById('n11StatusText').textContent = 'Bağlanıyor...';
+        
+        setTimeout(() => {
+            document.getElementById('n11Status').className = 'status-indicator status-success';
+            document.getElementById('n11StatusText').textContent = 'Bağlı';
+            showNotification('N11 bağlantısı başarıyla kuruldu!', 'success');
+            addN11ActivityLog('N11 bağlantısı başarıyla yenilendi', 'success');
+        }, 2000);
+    }, 500);
+}
+
+function testN11Connection() {
+    showNotification('N11 API bağlantısı test ediliyor...', 'info');
+    
+    // Simulate API test
+    setTimeout(() => {
+        const apiKey = document.getElementById('n11ApiKey').value;
+        const secretKey = document.getElementById('n11SecretKey').value;
+        
+        if (!apiKey || !secretKey) {
+            showNotification('API bilgileri eksik!', 'error');
+            return;
+        }
+        
+        showNotification('N11 API bağlantısı başarılı!', 'success');
+        addN11ActivityLog('API bağlantı testi başarılı', 'success');
+    }, 1500);
+}
+
+function saveN11Config() {
+    const config = {
+        apiKey: document.getElementById('n11ApiKey').value,
+        secretKey: document.getElementById('n11SecretKey').value,
+        storeId: document.getElementById('n11StoreId').value
+    };
+    
+    if (!config.apiKey || !config.secretKey) {
+        showNotification('Lütfen tüm gerekli alanları doldurun!', 'error');
+        return;
+    }
+    
+    // Save configuration
+    localStorage.setItem('n11Config', JSON.stringify(config));
+    showNotification('N11 ayarları kaydedildi!', 'success');
+    addN11ActivityLog('Yapılandırma ayarları güncellendi', 'info');
+}
+
+function activateN11() {
+    showNotification('N11 entegrasyonu aktifleştiriliyor...', 'info');
+    
+    setTimeout(() => {
+        document.getElementById('n11Status').className = 'status-indicator status-success';
+        document.getElementById('n11StatusText').textContent = 'Aktif';
+        showNotification('N11 entegrasyonu aktifleştirildi!', 'success');
+        addN11ActivityLog('N11 entegrasyonu aktifleştirildi', 'success');
+    }, 1000);
+}
+
+function syncN11Products() {
+    showNotification('N11 ürünleri senkronize ediliyor...', 'info');
+    
+    setTimeout(() => {
+        // Update product count
+        document.getElementById('n11TotalProducts').textContent = parseInt(document.getElementById('n11TotalProducts').textContent) + Math.floor(Math.random() * 5);
+        showNotification('Ürün senkronizasyonu tamamlandı!', 'success');
+        addN11ActivityLog(`${Math.floor(Math.random() * 20) + 5} ürün senkronize edildi`, 'success');
+    }, 2000);
+}
+
+function bulkUploadN11() {
+    showNotification('Toplu ürün yükleme başlatılıyor...', 'info');
+    addN11ActivityLog('Toplu ürün yükleme işlemi başlatıldı', 'info');
+}
+
+function addN11ActivityLog(message, type) {
+    const log = document.getElementById('n11ActivityLog');
+    const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    
+    const activityItem = document.createElement('div');
+    activityItem.className = 'activity-item slide-in-right';
+    
+    const statusIcon = type === 'success' ? 'check-circle' : 
+                      type === 'error' ? 'x-circle' : 'info-circle';
+    
+    activityItem.innerHTML = `
+        <div class="activity-time">${time}</div>
+        <div class="activity-content">
+            <div class="activity-title">${message}</div>
+            <div class="activity-desc">N11 Marketplace</div>
+        </div>
+        <div class="activity-status ${type}">
+            <i class="ph ph-${statusIcon}"></i>
+        </div>
+    `;
+    
+    log.insertBefore(activityItem, log.firstChild);
+    
+    // Keep only last 10 items
+    while (log.children.length > 10) {
+        log.removeChild(log.lastChild);
+    }
+}
+
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = input.nextElementSibling.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'ph ph-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'ph ph-eye';
+    }
+}
+
+// Initialize N11 module when loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved configuration
+    const savedConfig = localStorage.getItem('n11Config');
+    if (savedConfig) {
+        const config = JSON.parse(savedConfig);
+        document.getElementById('n11ApiKey').value = config.apiKey || '';
+        document.getElementById('n11SecretKey').value = config.secretKey || '';
+        document.getElementById('n11StoreId').value = config.storeId || 'meschain-tr';
+    }
+});
+</script>

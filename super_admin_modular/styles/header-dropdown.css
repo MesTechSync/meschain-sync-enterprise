@@ -1,0 +1,122 @@
+/* 
+ * 🔽 MESCHAIN-SYNC HEADER DROPDOWN ANIMATIONS
+ * Smooth, visually appealing dropdown animations for header components
+ * Sprint 2 - UI/UX Enhancement
+ */
+
+/* Base dropdown styling for all header menus */
+.dropdown-menu {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+}
+
+/* Active state for dropdowns */
+.dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Premium entrance animation with slight bounce */
+.dropdown-menu.premium-animation {
+  transition: opacity 0.35s cubic-bezier(0.25, 1, 0.5, 1.3), 
+              visibility 0.35s cubic-bezier(0.25, 1, 0.5, 1), 
+              transform 0.35s cubic-bezier(0.25, 1, 0.5, 1.2);
+}
+
+/* Specific styling for user dropdown */
+#userProfileMenu.dropdown-menu {
+  transform-origin: top right;
+}
+
+/* Settings dropdown specific animations */
+#settingsMenu.dropdown-menu {
+  transform-origin: top right;
+  transition-delay: 0.05s;
+}
+
+/* Security menu with alert effect */
+#securityMenu.dropdown-menu {
+  transform-origin: top right;
+}
+
+#securityMenu.dropdown-menu.show-alert {
+  animation: pulse-border 1.5s ease infinite;
+}
+
+/* Notifications with indicator animation */
+#notificationMenu.dropdown-menu {
+  transform-origin: top right;
+}
+
+/* Quick access menu with fade-slide effect */
+#quickAccessMenu.dropdown-menu {
+  transform-origin: top left;
+}
+
+/* Marketplace toolbar with scale effect */
+#marketplaceToolbar.dropdown-menu {
+  transform-origin: top left;
+}
+
+/* Language selector with fade-in effect */
+#languageMenu.dropdown-menu {
+  transform-origin: top right;
+}
+
+/* Backdrop overlay for larger dropdowns */
+.dropdown-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 40;
+  background-color: rgba(0, 0, 0, 0);
+  visibility: hidden;
+  opacity: 0;
+  transition: background-color 0.3s ease, visibility 0.3s ease, opacity 0.3s ease;
+}
+
+.dropdown-backdrop.show {
+  visibility: visible;
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Premium animations for notification badge */
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+/* Premium animations for dropdown highlights */
+.dropdown-item-hover {
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dropdown-item-hover::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  transition: width 0.3s ease;
+}
+
+.dropdown-item-hover:hover::after {
+  width: 100%;
+}

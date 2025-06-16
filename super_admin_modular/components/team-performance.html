@@ -1,0 +1,562 @@
+<!-- 🎯 TEAM PERFORMANCE DASHBOARD MODULE -->
+<!-- MesChain-Sync Team Performance & Analytics Panel -->
+
+<div id="team-performance-content" class="content-section hidden">
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1 class="page-title">
+                    <i class="ph ph-users text-2xl mr-3"></i>
+                    Team Performance Dashboard
+                </h1>
+                <p class="page-subtitle">Takım performansı, görevler ve analitik</p>
+            </div>
+            <div class="header-right">
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="exportTeamReport()">
+                        <i class="ph ph-export mr-2"></i>
+                        Rapor İndir
+                    </button>
+                    <button class="btn btn-primary" onclick="scheduleTeamMeeting()">
+                        <i class="ph ph-calendar-plus mr-2"></i>
+                        Toplantı Planla
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Performance Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="stat-card">
+            <div class="stat-icon bg-blue-500">
+                <i class="ph ph-users text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value" id="totalTeamMembers">12</h3>
+                <p class="stat-label">Aktif Takım Üyesi</p>
+                <span class="stat-change positive">+2 bu ay</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-green-500">
+                <i class="ph ph-check-circle text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value" id="completedTasks">147</h3>
+                <p class="stat-label">Tamamlanan Görevler</p>
+                <span class="stat-change positive">+23 bu hafta</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-yellow-500">
+                <i class="ph ph-clock text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value" id="activeTasks">34</h3>
+                <p class="stat-label">Devam Eden Görevler</p>
+                <span class="stat-change neutral">Güncel</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-purple-500">
+                <i class="ph ph-trend-up text-white"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">92%</h3>
+                <p class="stat-label">Takım Performansı</p>
+                <span class="stat-change positive">+5% bu ay</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - Team Members & Tasks -->
+        <div class="lg:col-span-2">
+            <!-- Team Members Grid -->
+            <div class="card mb-8">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-users-three mr-2"></i>
+                        Takım Üyeleri
+                    </h3>
+                    <div class="flex space-x-2">
+                        <button class="btn btn-sm btn-outline" onclick="addTeamMember()">
+                            <i class="ph ph-user-plus mr-1"></i>
+                            Üye Ekle
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="refreshTeamData()">
+                            <i class="ph ph-arrow-clockwise mr-1"></i>
+                            Yenile
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="team-grid" id="teamMembersGrid">
+                        <!-- Team Member Cards -->
+                        <div class="team-member-card">
+                            <div class="member-avatar">
+                                <img src="/images/avatars/avatar-1.jpg" alt="Team Member" class="w-12 h-12 rounded-full">
+                                <div class="member-status online"></div>
+                            </div>
+                            <div class="member-info">
+                                <h4 class="member-name">Ali Kaya</h4>
+                                <p class="member-role">Full Stack Developer</p>
+                                <div class="member-stats">
+                                    <span class="stat-item">
+                                        <i class="ph ph-check text-green-500"></i>
+                                        12 görev
+                                    </span>
+                                    <span class="stat-item">
+                                        <i class="ph ph-clock text-yellow-500"></i>
+                                        3 aktif
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="member-actions">
+                                <button class="btn-action" onclick="viewMemberDetails('ali-kaya')" title="Detaylar">
+                                    <i class="ph ph-eye"></i>
+                                </button>
+                                <button class="btn-action" onclick="assignTask('ali-kaya')" title="Görev Ata">
+                                    <i class="ph ph-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="team-member-card">
+                            <div class="member-avatar">
+                                <img src="/images/avatars/avatar-2.jpg" alt="Team Member" class="w-12 h-12 rounded-full">
+                                <div class="member-status online"></div>
+                            </div>
+                            <div class="member-info">
+                                <h4 class="member-name">Zeynep Demir</h4>
+                                <p class="member-role">UI/UX Designer</p>
+                                <div class="member-stats">
+                                    <span class="stat-item">
+                                        <i class="ph ph-check text-green-500"></i>
+                                        8 görev
+                                    </span>
+                                    <span class="stat-item">
+                                        <i class="ph ph-clock text-yellow-500"></i>
+                                        2 aktif
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="member-actions">
+                                <button class="btn-action" onclick="viewMemberDetails('zeynep-demir')" title="Detaylar">
+                                    <i class="ph ph-eye"></i>
+                                </button>
+                                <button class="btn-action" onclick="assignTask('zeynep-demir')" title="Görev Ata">
+                                    <i class="ph ph-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="team-member-card">
+                            <div class="member-avatar">
+                                <img src="/images/avatars/avatar-3.jpg" alt="Team Member" class="w-12 h-12 rounded-full">
+                                <div class="member-status away"></div>
+                            </div>
+                            <div class="member-info">
+                                <h4 class="member-name">Mehmet Çelik</h4>
+                                <p class="member-role">DevOps Engineer</p>
+                                <div class="member-stats">
+                                    <span class="stat-item">
+                                        <i class="ph ph-check text-green-500"></i>
+                                        15 görev
+                                    </span>
+                                    <span class="stat-item">
+                                        <i class="ph ph-clock text-yellow-500"></i>
+                                        5 aktif
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="member-actions">
+                                <button class="btn-action" onclick="viewMemberDetails('mehmet-celik')" title="Detaylar">
+                                    <i class="ph ph-eye"></i>
+                                </button>
+                                <button class="btn-action" onclick="assignTask('mehmet-celik')" title="Görev Ata">
+                                    <i class="ph ph-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="team-member-card">
+                            <div class="member-avatar">
+                                <img src="/images/avatars/avatar-4.jpg" alt="Team Member" class="w-12 h-12 rounded-full">
+                                <div class="member-status online"></div>
+                            </div>
+                            <div class="member-info">
+                                <h4 class="member-name">Fatma Yılmaz</h4>
+                                <p class="member-role">QA Engineer</p>
+                                <div class="member-stats">
+                                    <span class="stat-item">
+                                        <i class="ph ph-check text-green-500"></i>
+                                        9 görev
+                                    </span>
+                                    <span class="stat-item">
+                                        <i class="ph ph-clock text-yellow-500"></i>
+                                        1 aktif
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="member-actions">
+                                <button class="btn-action" onclick="viewMemberDetails('fatma-yilmaz')" title="Detaylar">
+                                    <i class="ph ph-eye"></i>
+                                </button>
+                                <button class="btn-action" onclick="assignTask('fatma-yilmaz')" title="Görev Ata">
+                                    <i class="ph ph-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Tasks -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-list-checks mr-2"></i>
+                        Aktif Görevler
+                    </h3>
+                    <div class="flex space-x-2">
+                        <button class="btn btn-sm btn-success" onclick="createNewTask()">
+                            <i class="ph ph-plus mr-1"></i>
+                            Yeni Görev
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="task-list" id="activeTasksList">
+                        <div class="task-item">
+                            <div class="task-priority high"></div>
+                            <div class="task-content">
+                                <h4 class="task-title">N11 API Entegrasyon Tamamlama</h4>
+                                <p class="task-description">N11 marketplace API entegrasyonunu tamamla ve test et</p>
+                                <div class="task-meta">
+                                    <span class="task-assignee">
+                                        <img src="/images/avatars/avatar-1.jpg" alt="Assignee" class="w-6 h-6 rounded-full">
+                                        Ali Kaya
+                                    </span>
+                                    <span class="task-due">16 Haziran 2025</span>
+                                    <span class="task-status in-progress">Devam Ediyor</span>
+                                </div>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn-action" onclick="editTask('task-1')" title="Düzenle">
+                                    <i class="ph ph-pencil"></i>
+                                </button>
+                                <button class="btn-action text-green-500" onclick="completeTask('task-1')" title="Tamamla">
+                                    <i class="ph ph-check"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="task-item">
+                            <div class="task-priority medium"></div>
+                            <div class="task-content">
+                                <h4 class="task-title">Dashboard UI Geliştirmeleri</h4>
+                                <p class="task-description">Analytics dashboard görsel geliştirmeleri</p>
+                                <div class="task-meta">
+                                    <span class="task-assignee">
+                                        <img src="/images/avatars/avatar-2.jpg" alt="Assignee" class="w-6 h-6 rounded-full">
+                                        Zeynep Demir
+                                    </span>
+                                    <span class="task-due">18 Haziran 2025</span>
+                                    <span class="task-status in-progress">Devam Ediyor</span>
+                                </div>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn-action" onclick="editTask('task-2')" title="Düzenle">
+                                    <i class="ph ph-pencil"></i>
+                                </button>
+                                <button class="btn-action text-green-500" onclick="completeTask('task-2')" title="Tamamla">
+                                    <i class="ph ph-check"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="task-item">
+                            <div class="task-priority low"></div>
+                            <div class="task-content">
+                                <h4 class="task-title">Test Otomasyon Scriptleri</h4>
+                                <p class="task-description">Otomatik test scriptlerinin geliştirilmesi</p>
+                                <div class="task-meta">
+                                    <span class="task-assignee">
+                                        <img src="/images/avatars/avatar-4.jpg" alt="Assignee" class="w-6 h-6 rounded-full">
+                                        Fatma Yılmaz
+                                    </span>
+                                    <span class="task-due">20 Haziran 2025</span>
+                                    <span class="task-status review">İnceleme</span>
+                                </div>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn-action" onclick="editTask('task-3')" title="Düzenle">
+                                    <i class="ph ph-pencil"></i>
+                                </button>
+                                <button class="btn-action text-green-500" onclick="completeTask('task-3')" title="Tamamla">
+                                    <i class="ph ph-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Performance Analytics & Activity -->
+        <div class="lg:col-span-1">
+            <!-- Performance Chart -->
+            <div class="card mb-6">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-chart-line mr-2"></i>
+                        Haftalık Performans
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="teamPerformanceChart">
+                        <!-- Chart placeholder -->
+                        <div class="chart-placeholder">
+                            <i class="ph ph-chart-line text-4xl text-gray-400 mb-2"></i>
+                            <p class="text-sm text-gray-500">Performance Chart</p>
+                            <p class="text-xs text-gray-400">Chart.js entegrasyonu gerekli</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Performance Metrics -->
+                    <div class="performance-metrics mt-4">
+                        <div class="metric-item">
+                            <div class="metric-label">Görev Tamamlama</div>
+                            <div class="metric-value">94%</div>
+                            <div class="metric-bar">
+                                <div class="metric-fill" style="width: 94%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-item">
+                            <div class="metric-label">Zamanında Teslimat</div>
+                            <div class="metric-value">87%</div>
+                            <div class="metric-bar">
+                                <div class="metric-fill" style="width: 87%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-item">
+                            <div class="metric-label">Kod Kalitesi</div>
+                            <div class="metric-value">91%</div>
+                            <div class="metric-bar">
+                                <div class="metric-fill" style="width: 91%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Activity Feed -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ph ph-activity mr-2"></i>
+                        Son Aktiviteler
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="activity-feed" id="teamActivityFeed">
+                        <div class="activity-item slide-in-right">
+                            <div class="activity-avatar">
+                                <img src="/images/avatars/avatar-1.jpg" alt="User" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Ali Kaya</strong> N11 API entegrasyonunu tamamladı
+                                </div>
+                                <div class="activity-time">2 dakika önce</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item slide-in-right">
+                            <div class="activity-avatar">
+                                <img src="/images/avatars/avatar-2.jpg" alt="User" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Zeynep Demir</strong> yeni UI mockupları paylaştı
+                                </div>
+                                <div class="activity-time">15 dakika önce</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item slide-in-right">
+                            <div class="activity-avatar">
+                                <img src="/images/avatars/avatar-3.jpg" alt="User" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Mehmet Çelik</strong> production deployment başlattı
+                                </div>
+                                <div class="activity-time">1 saat önce</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item slide-in-right">
+                            <div class="activity-avatar">
+                                <img src="/images/avatars/avatar-4.jpg" alt="User" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Fatma Yılmaz</strong> 5 test senaryosu başarıyla geçti
+                                </div>
+                                <div class="activity-time">2 saat önce</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Team Performance Dashboard Functions
+function exportTeamReport() {
+    showNotification('Takım performans raporu hazırlanıyor...', 'info');
+    
+    setTimeout(() => {
+        showNotification('Rapor başarıyla oluşturuldu!', 'success');
+        addTeamActivity('Sistem', 'Takım performans raporu oluşturuldu', 'info');
+    }, 2000);
+}
+
+function scheduleTeamMeeting() {
+    showNotification('Takım toplantısı planlama modalı açılıyor...', 'info');
+    // This would open a meeting scheduling modal
+}
+
+function addTeamMember() {
+    showNotification('Yeni takım üyesi ekleme formu açılıyor...', 'info');
+    // This would open a team member addition modal
+}
+
+function refreshTeamData() {
+    showNotification('Takım verileri güncelleniyor...', 'info');
+    
+    setTimeout(() => {
+        // Update stats with random changes
+        updateTeamStats();
+        showNotification('Takım verileri güncellendi!', 'success');
+        addTeamActivity('Sistem', 'Takım verileri güncellendi', 'info');
+    }, 1500);
+}
+
+function viewMemberDetails(memberId) {
+    showNotification(`${memberId} üye detayları açılıyor...`, 'info');
+    // This would open member details modal
+}
+
+function assignTask(memberId) {
+    showNotification(`${memberId} için yeni görev atama formu açılıyor...`, 'info');
+    // This would open task assignment modal
+}
+
+function createNewTask() {
+    showNotification('Yeni görev oluşturma formu açılıyor...', 'info');
+    // This would open new task creation modal
+}
+
+function editTask(taskId) {
+    showNotification(`${taskId} görevi düzenleme formu açılıyor...`, 'info');
+    // This would open task editing modal
+}
+
+function completeTask(taskId) {
+    if (confirm('Bu görevi tamamlandı olarak işaretlemek istediğinizden emin misiniz?')) {
+        showNotification('Görev tamamlandı olarak işaretlendi!', 'success');
+        addTeamActivity('Sistem', 'Görev tamamlandı olarak işaretlendi', 'success');
+        
+        // Update completed tasks count
+        const completedTasksElement = document.getElementById('completedTasks');
+        const currentCount = parseInt(completedTasksElement.textContent);
+        completedTasksElement.textContent = currentCount + 1;
+        
+        // Update active tasks count
+        const activeTasksElement = document.getElementById('activeTasks');
+        const activeCount = parseInt(activeTasksElement.textContent);
+        activeTasksElement.textContent = activeCount - 1;
+    }
+}
+
+function updateTeamStats() {
+    // Simulate real-time updates
+    const stats = {
+        totalMembers: Math.floor(Math.random() * 3) + 11,
+        completedTasks: Math.floor(Math.random() * 10) + 145,
+        activeTasks: Math.floor(Math.random() * 8) + 30
+    };
+    
+    document.getElementById('totalTeamMembers').textContent = stats.totalMembers;
+    document.getElementById('completedTasks').textContent = stats.completedTasks;
+    document.getElementById('activeTasks').textContent = stats.activeTasks;
+}
+
+function addTeamActivity(user, action, type = 'info') {
+    const feed = document.getElementById('teamActivityFeed');
+    const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    
+    const activityItem = document.createElement('div');
+    activityItem.className = 'activity-item slide-in-right';
+    
+    // Get appropriate avatar for system messages
+    const avatarSrc = user === 'Sistem' ? '/images/system-avatar.jpg' : `/images/avatars/avatar-${Math.floor(Math.random() * 4) + 1}.jpg`;
+    
+    activityItem.innerHTML = `
+        <div class="activity-avatar">
+            <img src="${avatarSrc}" alt="User" class="w-8 h-8 rounded-full">
+        </div>
+        <div class="activity-content">
+            <div class="activity-text">
+                <strong>${user}</strong> ${action}
+            </div>
+            <div class="activity-time">Az önce</div>
+        </div>
+    `;
+    
+    feed.insertBefore(activityItem, feed.firstChild);
+    
+    // Keep only last 10 activities
+    while (feed.children.length > 10) {
+        feed.removeChild(feed.lastChild);
+    }
+}
+
+// Initialize team performance chart (placeholder for Chart.js integration)
+function initTeamPerformanceChart() {
+    // This would initialize Chart.js chart
+    console.log('Team performance chart initialization placeholder');
+    // Example: new Chart(ctx, { type: 'line', data: chartData, options: chartOptions });
+}
+
+// Auto-refresh team data every 5 minutes
+setInterval(() => {
+    if (document.getElementById('team-performance-content').classList.contains('active')) {
+        updateTeamStats();
+        addTeamActivity('Sistem', 'Otomatik veri güncelleme', 'info');
+    }
+}, 300000); // 5 minutes
+
+// Initialize module
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize chart when team performance section is loaded
+    setTimeout(initTeamPerformanceChart, 1000);
+    
+    // Add initial activity
+    setTimeout(() => {
+        addTeamActivity('Sistem', 'Team Performance Dashboard başlatıldı', 'success');
+    }, 2000);
+});
+</script>

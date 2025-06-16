@@ -40,7 +40,152 @@
             </div>
         </div>
         
-        <!-- Center - Session Timer & Security Monitoring -->
+        <!-- Center - Quick Access Menu -->
+        <div class="hidden lg:flex items-center space-x-3">
+            <div class="relative">
+                <button onclick="toggleQuickAccess()" class="flex items-center space-x-1.5 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-lg px-3 py-1.5 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
+                    <i class="ph ph-lightning text-base"></i>
+                    <span class="font-medium text-sm">Quick Access</span>
+                    <i class="ph ph-caret-down text-xs"></i>
+                </button>
+                <div id="quickAccessMenu" class="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 opacity-0 invisible z-50">
+                    <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Quick Actions</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="openUsageGuide()" class="flex items-center space-x-2 p-3 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
+                            <i class="ph ph-book-open text-blue-600 text-lg"></i>
+                            <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Usage Guide</span>
+                        </button>
+                        <button onclick="openTechnicalManual()" class="flex items-center space-x-2 p-3 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors">
+                            <i class="ph ph-file-code text-purple-600 text-lg"></i>
+                            <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Tech Manual</span>
+                        </button>
+                        <button onclick="generateSystemReport()" class="flex items-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors">
+                            <i class="ph ph-chart-line text-green-600 text-lg"></i>
+                            <span class="text-sm font-medium text-green-700 dark:text-green-300">System Report</span>
+                        </button>
+                        <button onclick="openBackupManager()" class="flex items-center space-x-2 p-3 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg transition-colors">
+                            <i class="ph ph-database text-orange-600 text-lg"></i>
+                            <span class="text-sm font-medium text-orange-700 dark:text-orange-300">Backup Manager</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🏪 MARKETPLACE QUICK ACCESS TOOLBAR -->
+            <div class="relative">
+                <button onclick="toggleMarketplaceToolbar()" class="flex items-center space-x-1.5 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-600/30 dark:to-blue-600/30 backdrop-blur-lg border border-purple-300/30 dark:border-purple-400/30 rounded-lg px-3 py-1.5 hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-300 transform hover:scale-105">
+                    <i class="ph ph-storefront text-base text-purple-600 dark:text-purple-400"></i>
+                    <span class="font-medium text-sm text-purple-700 dark:text-purple-300">Marketplaces</span>
+                    <i class="ph ph-caret-down text-xs text-purple-600 dark:text-purple-400"></i>
+                </button>
+                <div id="marketplaceToolbar" class="absolute top-full left-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 opacity-0 invisible z-50 transform translate-y-2 transition-all duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-gray-800 dark:text-white flex items-center">
+                            <i class="ph ph-storefront text-purple-600 mr-2"></i>
+                            Marketplace Hub
+                        </h3>
+                        <div class="text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-2 py-1 rounded-full">
+                            7 Active
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Trendyol -->
+                        <button onclick="openMarketplace('trendyol')" class="marketplace-quick-btn trendyol-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all duration-300">
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">T</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Trendyol</div>
+                                    <div class="text-xs text-orange-600 dark:text-orange-400">Port 3012</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-orange-600 transition-colors"></i>
+                        </button>
+
+                        <!-- Amazon -->
+                        <button onclick="openMarketplace('amazon')" class="marketplace-quick-btn amazon-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-all duration-300">
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">A</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Amazon</div>
+                                    <div class="text-xs text-yellow-600 dark:text-yellow-400">Port 3011</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-yellow-600 transition-colors"></i>
+                        </button>
+
+                        <!-- N11 -->
+                        <button onclick="openMarketplace('n11')" class="marketplace-quick-btn n11-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300">
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">N</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">N11</div>
+                                    <div class="text-xs text-orange-600 dark:text-orange-400">DURAKLATILDI</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-blue-600 transition-colors"></i>
+                        </button>
+
+                        <!-- Hepsiburada -->
+                        <button onclick="openMarketplace('hepsiburada')" class="marketplace-quick-btn hepsiburada-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300">
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">H</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Hepsiburada</div>
+                                    <div class="text-xs text-blue-600 dark:text-blue-400">KURULUM</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-red-600 transition-colors"></i>
+                        </button>
+
+                        <!-- eBay -->
+                        <button onclick="openMarketplace('ebay')" class="marketplace-quick-btn ebay-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-300">
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">E</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">eBay</div>
+                                    <div class="text-xs text-green-600 dark:text-green-400">AKTİF</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-green-600 transition-colors"></i>
+                        </button>
+
+                        <!-- Cross-Platform -->
+                        <button onclick="openMarketplace('cross-marketplace')" class="marketplace-quick-btn cross-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300">
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">∞</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Cross-Platform</div>
+                                    <div class="text-xs text-purple-600 dark:text-purple-400">AKTİF</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-purple-600 transition-colors"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between text-xs">
+                            <button onclick="openAllMarketplaces()" class="text-blue-600 hover:text-blue-700 font-medium">Open All</button>
+                            <button onclick="showMarketplaceStatus()" class="text-purple-600 hover:text-purple-700 font-medium">Status Check</button>
+                            <button onclick="refreshMarketplaces()" class="text-green-600 hover:text-green-700 font-medium">Refresh</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Session Timer & Security Monitoring -->
         <div class="hidden lg:flex items-center space-x-4">
             <!-- 🔥 Session Security Timer -->
             <div class="session-normal flex items-center space-x-2 bg-amber-500/20 dark:bg-amber-400/20 border border-amber-500/30 dark:border-amber-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm">
@@ -412,5 +557,154 @@
                 </div>
             </div>
         </div>
-    </div>
-</header>
+        
+        <!-- Right Side - System Status and Profile -->
+        <div class="flex items-center space-x-3">
+            <!-- Dynamic System Health Indicator -->
+            <div id="system-health-indicator" class="flex items-center space-x-1.5 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg px-3 py-1.5 transition-all duration-300">
+                <div id="health-status-dot" class="w-2.5 h-2.5 bg-green-500 rounded-full status-indicator-live"></div>
+                <span id="health-status-text" class="text-green-700 dark:text-green-300 font-medium text-xs">System Healthy</span>
+            </div>
+
+            <!-- Language Selector with Flag -->
+            <div class="relative language-dropdown">
+                <button id="languageToggle" class="flex items-center space-x-1.5 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Dil Seçimi / Language Selection">
+                    <span id="currentFlag" class="text-lg">🇹🇷</span>
+                    <span id="currentLanguage" class="text-xs font-medium hidden sm:inline">TR</span>
+                    <i class="ph ph-caret-down text-xs"></i>
+                </button>
+                <div id="languageMenu" class="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 opacity-0 invisible transition-all duration-300 z-50">
+                    <button onclick="setLanguage('tr')" class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+                        <span class="text-lg">🇹🇷</span>
+                        <div>
+                            <div class="font-medium">Türkçe</div>
+                            <div class="text-sm text-gray-500">Turkish</div>
+                        </div>
+                    </button>
+                    <button onclick="setLanguage('en')" class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+                        <span class="text-lg">🇺🇸</span>
+                        <div>
+                            <div class="font-medium">English</div>
+                            <div class="text-sm text-gray-500">İngilizce</div>
+                        </div>
+                    </button>
+                    <button onclick="setLanguage('de')" class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+                        <span class="text-lg">🇩🇪</span>
+                        <div>
+                            <div class="font-medium">Deutsch</div>
+                            <div class="text-sm text-gray-500">Almanca</div>
+                        </div>
+                    </button>
+                    <button onclick="setLanguage('fr')" class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+                        <span class="text-lg">🇫🇷</span>
+                        <div>
+                            <div class="font-medium">Français</div>
+                            <div class="text-sm text-gray-500">Fransızca</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Advanced Theme Toggle -->
+            <button id="themeToggle" class="theme-toggle flex items-center space-x-1.5 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300" title="Karanlık/Aydınlık Mod / Dark/Light Mode">
+                <i id="themeIcon" class="ph ph-sun text-lg text-yellow-500 dark:text-yellow-400"></i>
+                <span id="themeText" class="text-xs font-medium hidden sm:inline" data-tr="Aydınlık" data-en="Light">Aydınlık</span>
+            </button>
+
+            <!-- Notifications with Hover Dropdown -->
+            <div class="relative notification-dropdown">
+                <button class="relative p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <i class="ph ph-bell text-base"></i>
+                    <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
+                </button>
+                <!-- Notifications Dropdown Menu -->
+                <div class="absolute top-full right-0 mt-2 w-96 bg-white/95 dark:bg-gray-800/95 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 opacity-0 invisible transition-all duration-300 z-50 notification-menu backdrop-blur-xl" style="transform: translateY(-10px); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
+                                <i class="ph ph-bell text-white text-xl"></i>
+                            </div>
+                            <h3 class="font-bold text-xl text-gray-800 dark:text-white">Bildirimler</h3>
+                        </div>
+                        <span class="text-xs bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1.5 rounded-full font-semibold animate-pulse">3 Yeni</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-start space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors cursor-pointer">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <i class="ph ph-check text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-medium text-gray-800 dark:text-white">MesChain Sync Tamamlandı</h4>
+                                <p class="text-xs text-gray-600 dark:text-gray-300">Trendyol entegrasyonu başarıyla güncellendi</p>
+                                <span class="text-xs text-blue-600">2 dakika önce</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors cursor-pointer">
+                            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <i class="ph ph-chart-line text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-medium text-gray-800 dark:text-white">Performans Raporu</h4>
+                                <p class="text-xs text-gray-600 dark:text-gray-300">Günlük sistem performans raporu hazır</p>
+                                <span class="text-xs text-green-600">5 dakika önce</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors cursor-pointer">
+                            <div class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
+                                <i class="ph ph-warning text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-medium text-gray-800 dark:text-white">Sistem Uyarısı</h4>
+                                <p class="text-xs text-gray-600 dark:text-gray-300">N11 API yanıt süresi artmış</p>
+                                <span class="text-xs text-amber-600">8 dakika önce</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <button class="w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium">Tümünü Görüntüle</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings with Hover Dropdown -->
+            <div class="relative settings-dropdown">
+                <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <i class="ph ph-gear text-lg"></i>
+                </button>
+                <!-- Settings Dropdown Menu -->
+                <div class="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 opacity-0 invisible settings-menu transition-all duration-300 z-50">
+                    <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Hızlı Ayarlar</h3>
+                    <div class="space-y-3">
+                        <button class="w-full flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors text-left">
+                            <i class="ph ph-user text-blue-600"></i>
+                            <span class="text-sm font-medium text-gray-800 dark:text-white">Profil Ayarları</span>
+                        </button>
+                        <button class="w-full flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors text-left">
+                            <i class="ph ph-shield text-green-600"></i>
+                            <span class="text-sm font-medium text-gray-800 dark:text-white">Güvenlik</span>
+                        </button>
+                        <button class="w-full flex items-center space-x-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors text-left">
+                            <i class="ph ph-palette text-purple-600"></i>
+                            <span class="text-sm font-medium text-gray-800 dark:text-white">Tema Ayarları</span>
+                        </button>
+                        <button class="w-full flex items-center space-x-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors text-left">
+                            <i class="ph ph-bell text-amber-600"></i>
+                            <span class="text-sm font-medium text-gray-800 dark:text-white">Bildirim Ayarları</span>
+                        </button>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <button class="w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium">Tüm Ayarlar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Profile -->
+            <div class="flex items-center space-x-3 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-xl px-4 py-2">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                    SA
+                </div>
+                <div class="text-right hidden sm:block">
+                    <div class="text-sm font-semibold text-gray-800 dark:text-white">Super Admin</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400">Full Access v5.0</div>
+                </div>
+            </div>

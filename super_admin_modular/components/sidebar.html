@@ -11,7 +11,7 @@
         <!-- Menu container with proper spacing -->
         <div class="space-y-1 mt-2">
             <!-- 1. Ana Yönetim (Core Management) -->
-            <div class="mb-4 sidebar-section">
+            <div class="mb-4 sidebar-section" data-section="ana-yonetim">
                 <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
                     <div class="flex items-center">
                         <div class="sidebar-icon-3d">
@@ -59,7 +59,7 @@
             </div>
 
             <!-- 2. Marketplace Bölümü -->
-            <div class="mb-6 sidebar-section">
+            <div class="mb-6 sidebar-section" data-section="marketplace">
                 <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
                     <div class="flex items-center">
                         <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
@@ -86,13 +86,15 @@
                         <i class="ph ph-package w-4 h-4 mr-3"></i>
                         <span data-tr="Amazon" data-en="Amazon">Amazon</span>
                     </a>
-                    <a href="#n11" class="meschain-nav-link" data-section="n11">
-                        <i class="ph ph-shopping-bag w-4 h-4 mr-3"></i>
+                    <a href="#marketplace-n11" class="meschain-nav-link" data-section="marketplace-n11">
+                        <i class="ph ph-storefront w-4 h-4 mr-3"></i>
                         <span data-tr="N11" data-en="N11">N11</span>
+                        <span class="text-xs text-yellow-500 ml-auto">DURAKLATILDI</span>
                     </a>
-                    <a href="#hepsiburada" class="meschain-nav-link" data-section="hepsiburada">
-                        <i class="ph ph-bag w-4 h-4 mr-3"></i>
+                    <a href="#marketplace-hepsiburada" class="meschain-nav-link" data-section="marketplace-hepsiburada">
+                        <i class="ph ph-storefront w-4 h-4 mr-3"></i>
                         <span data-tr="Hepsiburada" data-en="Hepsiburada">Hepsiburada</span>
+                        <span class="text-xs text-orange-500 ml-auto">KURULUM</span>
                     </a>
                     <a href="#ebay" class="meschain-nav-link" data-section="ebay">
                         <i class="ph ph-auction w-4 h-4 mr-3"></i>
@@ -120,7 +122,7 @@
             </div>
 
             <!-- 3. Envanter Yönetimi -->
-            <div class="mb-6 sidebar-section">
+            <div class="mb-6 sidebar-section" data-section="envanter">
                 <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
                     <div class="flex items-center">
                         <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
@@ -158,8 +160,53 @@
                 </div>
             </div>
 
-            <!-- 4. Raporlama -->
-            <div class="mb-6 sidebar-section">
+            <!-- 4. Marketplace Entegrasyonları -->
+            <div class="mb-6 sidebar-section" data-section="marketplace">
+                <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
+                    <div class="flex items-center">
+                        <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            <i class="ph ph-storefront"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300" data-tr="marketplace entegrasyonları" data-en="marketplace integrations">Marketplace Entegrasyonları</span>
+                    </div>
+                    <i class="ph ph-caret-down text-xs transition-transform"></i>
+                </div>
+                <div class="sidebar-dropdown-menu">
+                    <a href="#n11" class="meschain-nav-link" data-section="n11">
+                        <i class="ph ph-building-office w-4 h-4 mr-3"></i>
+                        <span data-tr="N11 Entegrasyonu" data-en="N11 Integration">N11 Entegrasyonu</span>
+                        <span class="text-xs text-orange-500 ml-auto">DURAKLATILDI</span>
+                    </a>
+                    <a href="#hepsiburada" class="meschain-nav-link" data-section="hepsiburada">
+                        <i class="ph ph-bag w-4 h-4 mr-3"></i>
+                        <span data-tr="Hepsiburada Entegrasyonu" data-en="Hepsiburada Integration">Hepsiburada Entegrasyonu</span>
+                        <span class="text-xs text-blue-500 ml-auto">KURULUM</span>
+                    </a>
+                    <a href="#amazon" class="meschain-nav-link" data-section="amazon">
+                        <i class="ph ph-package w-4 h-4 mr-3"></i>
+                        <span data-tr="Amazon Entegrasyonu" data-en="Amazon Integration">Amazon Entegrasyonu</span>
+                        <span class="text-xs text-green-500 ml-auto">AKTİF</span>
+                    </a>
+                    <a href="#trendyol" class="meschain-nav-link" data-section="trendyol">
+                        <i class="ph ph-shopping-bag w-4 h-4 mr-3"></i>
+                        <span data-tr="Trendyol Entegrasyonu" data-en="Trendyol Integration">Trendyol Entegrasyonu</span>
+                        <span class="text-xs text-green-500 ml-auto">AKTİF</span>
+                    </a>
+                    <a href="#gittigidiyor" class="meschain-nav-link" data-section="gittigidiyor">
+                        <i class="ph ph-truck w-4 h-4 mr-3"></i>
+                        <span data-tr="GittiGidiyor Entegrasyonu" data-en="GittiGidiyor Integration">GittiGidiyor Entegrasyonu</span>
+                        <span class="text-xs text-gray-500 ml-auto">HAZIRLIK</span>
+                    </a>
+                    <a href="#ozon" class="meschain-nav-link" data-section="ozon">
+                        <i class="ph ph-globe w-4 h-4 mr-3"></i>
+                        <span data-tr="Ozon Entegrasyonu" data-en="Ozon Integration">Ozon Entegrasyonu</span>
+                        <span class="text-xs text-green-500 ml-auto">AKTİF</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 5. Raporlama -->
+            <div class="mb-6 sidebar-section" data-section="raporlama">
                 <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
                     <div class="flex items-center">
                         <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
@@ -204,7 +251,7 @@
             </div>
 
             <!-- 5. Sistem Araçları - YENİ EKLENEN BÖLÜM -->
-            <div class="mb-6 sidebar-section">
+            <div class="mb-6 sidebar-section" data-section="sistem-araclari">
                 <div class="sidebar-section-header" onclick="toggleSidebarSection(this)">
                     <div class="flex items-center">
                         <div class="sidebar-icon-3d" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">

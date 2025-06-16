@@ -1599,94 +1599,239 @@ html {
     animation: security-button-error 0.5s ease-in-out;
 }
 
-/* 🌊 Sidebar Security Section Enhancements */
-@keyframes sidebar-security-section-glow {
-    0%, 100% { 
-        box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.1);
-        border-left: 3px solid rgba(239, 68, 68, 0.3);
+/* ============================================
+   🚀 RIGHT-SIDE ANIMATIONS (3023 COMPATIBILITY)
+   ============================================ */
+
+/* Slide In Right Animation */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
     }
-    50% { 
-        box-shadow: inset 0 0 30px rgba(239, 68, 68, 0.2);
-        border-left: 3px solid rgba(239, 68, 68, 0.6);
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
 }
 
-.sidebar-security-section {
-    animation: sidebar-security-section-glow 4s ease-in-out infinite;
-}
-
-/* 📱 Mobile-Optimized Security Animations */
-@media (max-width: 768px) {
-    .threat-escalating,
-    .threat-de-escalating {
-        animation-duration: 1s;
+/* Slide In Right Fast */
+@keyframes slideInRightFast {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
     }
-    
-    .session-timer-emergency {
-        animation-duration: 0.8s;
-    }
-    
-    .security-event-notification {
-        animation-duration: 0.6s;
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
 }
 
-/* 🎭 Accessibility-Friendly Animations */
-@media (prefers-reduced-motion: reduce) {
-    .threat-escalating,
-    .threat-de-escalating,
-    .session-timer-emergency,
-    .security-event-pulse,
-    .user-status-expired .admin-profile-container {
-        animation: none !important;
+/* Slide Out Right */
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
     }
-    
-    .security-animation-optimized {
-        will-change: auto;
+    to {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+}
+
+/* Right Panel Slide */
+@keyframes rightPanelSlide {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Right Bounce */
+@keyframes rightBounce {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-5px);
+    }
+}
+
+/* Right Fade In */
+@keyframes rightFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(15px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
     }
 }
 
 /* ============================================
-   🌟 DEMO & TESTING ANIMATION TRIGGERS
-   💎 Cursor Team Real-time Testing System
+   🎯 RIGHT-SIDE ANIMATION CLASSES
    ============================================ */
 
-/* Demo Animation Classes for Real-time Testing */
-.demo-threat-escalation {
-    animation: threat-level-escalation 3s ease-in-out infinite;
+.slide-in-right {
+    animation: slideInRight 0.3s ease-out;
 }
 
-.demo-session-warning {
-    animation: session-timer-warning 2s ease-in-out infinite;
+.slide-in-right-fast {
+    animation: slideInRightFast 0.2s ease-out;
 }
 
-.demo-security-pulse {
-    animation: security-event-pulse 1.5s ease-in-out infinite;
+.slide-out-right {
+    animation: slideOutRight 0.3s ease-in;
 }
 
-.demo-ultra-secure-glow {
-    animation: ultra-secure-glow 4s ease-in-out infinite;
+.right-panel-slide {
+    animation: rightPanelSlide 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.demo-2fa-pulse {
-    animation: twofa-token-pulse 2s ease-in-out infinite;
+.right-bounce {
+    animation: rightBounce 0.6s ease-in-out;
 }
 
-.demo-premium-gradient {
-    animation: premium-security-gradient 6s ease infinite;
+.right-fade-in {
+    animation: rightFadeIn 0.4s ease-out;
 }
 
-/* Demo Button Triggers */
-.demo-animation-button {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    color: rgb(99, 102, 241);
-    transition: var(--transition-premium);
+/* Right-side Status Indicators */
+.status-indicator-right {
+    animation: rightFadeIn 0.5s ease-out;
 }
 
-.demo-animation-button:hover {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
-    border-color: rgba(99, 102, 241, 0.5);
+/* Right Panel Elements */
+.right-panel-element {
+    animation: slideInRight 0.3s ease-out;
+}
+
+.right-panel-element:nth-child(1) { animation-delay: 0.1s; }
+.right-panel-element:nth-child(2) { animation-delay: 0.2s; }
+.right-panel-element:nth-child(3) { animation-delay: 0.3s; }
+.right-panel-element:nth-child(4) { animation-delay: 0.4s; }
+.right-panel-element:nth-child(5) { animation-delay: 0.5s; }
+
+/* ============================================
+   🎨 ENHANCED RIGHT-SIDE EFFECTS
+   ============================================ */
+
+/* Right Hover Effect */
+.right-hover-effect:hover {
+    animation: rightBounce 0.6s ease-in-out;
+    transform: translateX(-2px);
+    box-shadow: 2px 0 10px rgba(139, 92, 246, 0.2);
+}
+
+/* Right Panel Blur Effect */
+.right-panel-blur {
+    backdrop-filter: blur(10px);
+    animation: rightPanelSlide 0.4s ease-out;
+}
+
+/* Right Side Glow */
+.right-glow {
+    box-shadow: -2px 0 20px rgba(139, 92, 246, 0.3);
+    animation: rightFadeIn 0.5s ease-out;
+}
+
+/* ============================================
+   🎯 HEADER DROPDOWN & MARKETPLACE STYLES  
+   ============================================ */
+
+/* Marketplace Quick Button Styles */
+.marketplace-quick-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+.marketplace-quick-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* Language Dropdown Styles */
+.language-dropdown:hover #languageMenu,
+.notification-dropdown:hover .notification-menu,
+.settings-dropdown:hover .settings-menu {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+
+/* System Health Indicator Animation */
+.status-indicator-live {
+    animation: pulse-live 2s infinite;
+}
+
+@keyframes pulse-live {
+    0%, 100% { 
+        background: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+    50% { 
+        background: #34d399;
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.4);
+    }
+}
+
+/* Theme Toggle Animation */
+.theme-toggle {
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.05);
+}
+
+/* Header Glass Effect Enhancement */
+.meschain-glass {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .meschain-glass {
+    background: rgba(17, 24, 39, 0.95);
+    border-bottom: 1px solid rgba(75, 85, 99, 0.2);
+}
+
+/* Quick Access Menu Animations */
+#quickAccessMenu,
+#marketplaceToolbar,
+#themeSelector {
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transform: translateY(-10px);
+}
+
+#quickAccessMenu.show,
+#marketplaceToolbar.show,
+#themeSelector.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+
+/* Profile Badge Styling */
+.admin-profile {
+    transition: all 0.3s ease;
+}
+
+.admin-profile:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
