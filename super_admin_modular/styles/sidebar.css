@@ -42,6 +42,7 @@
     overflow-x: hidden;
     max-height: calc(100vh - 64px); /* 64px header yüksekliği */
     padding-top: 0 !important; /* Padding offset sorununu düzelt */
+    padding-bottom: 30px; /* FOOTER İÇİN EKSTRA BOŞLUK */
 }
 
 /* ============================================
@@ -215,7 +216,9 @@
    ============================================ */
 .sidebar-section {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 8px; /* 3023 PORTUNA UYGUN AZALTILMIŞ ARALIK */
+    border-bottom: 1px solid rgba(139, 92, 246, 0.08); /* 3023 PORTUNA UYGUN AYIRICI ÇİZGİ */
+    padding-bottom: 2px; /* ANA BAŞLIKLAR ARASI AYIRICI BOŞLUK */
 }
 
 .sidebar-section-header {
@@ -224,10 +227,10 @@
     justify-content: space-between;
     cursor: pointer;
     user-select: none;
-    padding: 12px 16px;
-    margin: 4px 0;
-    border-radius: 12px;
-    transition: background-color 0.5s ease, transform 0.3s ease;
+    padding: 8px 12px; /* 3023 PORTUNA UYGUN AZALTILMIŞ PADDING */
+    margin: 2px 0; /* AZALTILMIŞ MARGIN */
+    border-radius: 8px; /* DAHA KÜÇÜK BORDER-RADIUS */
+    transition: background-color 0.3s ease, transform 0.2s ease;
     will-change: background-color, transform;
     position: relative;
     overflow: hidden;
@@ -265,14 +268,14 @@
 
 /* Enhanced Menu Text Styling */
 .sidebar-section-header span {
-    font-size: 11px !important;
+    font-size: 12px !important; /* 3023 PORTUNA UYGUN FONT-SIZE */
     font-weight: 600 !important;
     text-transform: capitalize !important;
-    letter-spacing: 0.8px !important;
+    letter-spacing: 0.5px !important; /* AZALTILMIŞ LETTER-SPACING */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 160px;
+    max-width: 180px; /* GENİŞLETİLMİŞ MAX-WIDTH */
     color: var(--text-primary) !important;
 }
 
@@ -283,57 +286,56 @@
     max-height: 0;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Enhanced easing for more natural feel */
+    transform: translateY(-5px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 3023 PORTUNA UYGUN DAHA HIZLI ANİMASYON */
     overflow: hidden;
-    margin-top: 8px;
-    margin-left: 48px;
+    margin-top: 4px; /* AZALTILMIŞ MARGIN */
+    margin-left: 32px; /* 3023 PORTUNA UYGUN AZALTILMIŞ INDENT */
     pointer-events: none;
     display: block; /* Always display as block for animation */
     position: relative;
     z-index: 100;
     will-change: transform, opacity; /* GPU acceleration hint */
     transform-origin: top center; /* Animation originates from top */
-    border-left: 2px solid transparent;
+    border-left: 1px solid transparent; /* DAHA İNCE BORDER */
     transition-property: max-height, opacity, visibility, transform, border-left, background;
 }
 
-/* Hover effect - ENHANCED VISUAL FEEDBACK */
+/* Hover effect - 3023 PORTUNA UYGUN */
 .sidebar-section.hovering .sidebar-dropdown-menu {
-    border-left: 2px solid rgba(139, 92, 246, 0.6); /* More visible border */
-    background: rgba(139, 92, 246, 0.08); /* Slightly more visible background */
-    box-shadow: -3px 0 12px -5px rgba(139, 92, 246, 0.2); /* Subtle inner glow */
-    transform: translateY(-5px); /* Slight float effect */
+    border-left: 1px solid rgba(139, 92, 246, 0.4); /* DAHA İNCE BORDER */
+    background: rgba(139, 92, 246, 0.05); /* DAHA HAFİF BACKGROUND */
+    box-shadow: -2px 0 8px -5px rgba(139, 92, 246, 0.15); /* AZALTILMIŞ GLOW */
+    transform: translateY(-2px); /* DAHA KÜÇÜK FLOAT */
 }
 
 /* Active effect - ENHANCED OPENING ANIMATION */
 .sidebar-section.active .sidebar-dropdown-menu {
-    display: block;
+    display: block !important; /* FORCE DISPLAY */
     max-height: 800px; /* Increased for larger dropdowns */
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); /* Smoother activation curve */
-    pointer-events: auto;
-    position: relative;
-    z-index: 100;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1); /* 3023 PORTUNA UYGUN DAHA HIZLI ANİMASYON */
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 100 !important;
     background: var(--bg-primary, #ffffff);
     border: 1px solid var(--border-color, #dee2e6);
-    border-radius: 10px; /* Slightly rounder corners */
+    border-radius: 8px; /* 3023 PORTUNA UYGUN KÜÇÜLTÜLMÜŞ BORDER-RADIUS */
     box-shadow: 
-        0 4px 12px var(--shadow-color, rgba(0, 0, 0, 0.08)),
-        0 2px 4px rgba(139, 92, 246, 0.12);
-    padding: 10px;
-    border-left: 2px solid rgba(139, 92, 246, 0.8); /* Accent border */
-    animation: sidebarPulse 1.5s ease-out; /* Subtle pulse on activation */
+        0 2px 8px var(--shadow-color, rgba(0, 0, 0, 0.08)),
+        0 1px 3px rgba(139, 92, 246, 0.12);
+    padding: 6px; /* 3023 PORTUNA UYGUN AZALTILMIŞ PADDING */
+    border-left: 1px solid rgba(139, 92, 246, 0.8); /* DAHA İNCE BORDER */
 }
 
-/* Closing animation - enhanced smooth closing */
+/* Closing animation - 3023 PORTUNA UYGUN */
 .sidebar-section.closing .sidebar-dropdown-menu {
-    transition: all 0.4s cubic-bezier(0.6, -0.28, 0.74, 0.05);
-    max-height: 0;
-    opacity: 0;
-    transform: translateY(-5px);
+    transition: all 0.2s cubic-bezier(0.6, -0.28, 0.74, 0.05); /* DAHA HIZLI ANİMASYON */
+    max-height: 0 !important;
+    opacity: 0 !important;
+    transform: translateY(-2px) !important; /* DAHA KÜÇÜK TRANSFORM */
 }
 
 /* Sidebar Pulse Animation */
