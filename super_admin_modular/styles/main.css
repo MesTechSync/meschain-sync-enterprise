@@ -4,20 +4,33 @@
    🎨 Azure-inspired design system */
 
 /* ============================================
-   🖥️ MAIN CONTENT LAYOUT
+   🖥️ MAIN CONTENT LAYOUT - 3023 REFERENCE SYNC
    ============================================ */
 .main-content {
-    margin-left: 256px; /* Sidebar width */
-    padding: 24px;
-    min-height: calc(100vh - 64px); /* Header height */
+    margin-left: 256px !important; /* Sidebar width - exact 3023 match */
+    padding-top: 88px !important; /* Header (64px) + spacing (24px) */
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+    padding-bottom: 24px !important;
+    min-height: calc(100vh - 64px) !important; /* Header height */
     transition: margin-left 0.3s ease;
+    width: calc(100% - 256px) !important; /* Sidebar düzeni için */
+    box-sizing: border-box !important;
+}
+
+/* 3023 Layout Container Fix */
+.flex.pt-16 {
+    display: flex !important;
+    padding-top: 64px !important; /* pt-16 = 64px */
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .main-content {
-        margin-left: 0;
-        padding: 16px;
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 80px !important;
+        width: 100% !important;
     }
 }
 

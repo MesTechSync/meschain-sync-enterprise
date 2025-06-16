@@ -24,25 +24,27 @@
 }
 
 /* ============================================
-   🎛️ SIDEBAR BASE STYLES & POSITIONING
+   🎛️ SIDEBAR BASE STYLES & POSITIONING - 3023 REFERENCE SYNC
    ============================================ */
 .meschain-sidebar {
     position: fixed !important;
     left: 0 !important;
-    top: 64px !important; /* Header height */
+    top: 64px !important; /* Header height - 3023 reference: top-16 */
     bottom: 0 !important;
-    width: 256px !important; /* w-64 = 256px */
+    width: 256px !important; /* w-64 = 256px - 3023 exact match */
     z-index: 40 !important;
     transform: translateX(0) !important;
     margin-left: 0 !important;
-    background: var(--sidebar-bg);
+    background: var(--sidebar-bg); /* 3023 reference: var(--sidebar-bg) */
     backdrop-filter: blur(20px);
-    border-right: 1px solid var(--border-primary);
+    border-right: 1px solid var(--border-primary); /* 3023 reference: var(--border-primary) */
     overflow-y: auto;
     overflow-x: hidden;
     max-height: calc(100vh - 64px); /* 64px header yüksekliği */
-    padding-top: 0 !important; /* Padding offset sorununu düzelt */
-    padding-bottom: 30px; /* FOOTER İÇİN EKSTRA BOŞLUK */
+    padding-top: 16px !important; /* 3023 reference: pt-4 = 16px */
+    padding-left: 24px !important; /* 3023 reference: px-6 = 24px */
+    padding-right: 24px !important; /* 3023 reference: px-6 = 24px */
+    padding-bottom: 24px !important; /* 3023 reference: pb-6 = 24px */
 }
 
 /* ============================================
@@ -169,7 +171,7 @@
 }
 
 /* ============================================
-   🎨 3D SIDEBAR ICONS
+   🎨 3D SIDEBAR ICONS - 3023 REFERENCE SYNC
    ============================================ */
 .sidebar-icon-3d {
     width: 36px;
@@ -177,7 +179,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
     border-radius: 12px;
     position: relative;
     transform-style: preserve-3d;
@@ -209,6 +211,77 @@
     box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4),
                 0 4px 10px rgba(0, 0, 0, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   🎚️ SIDEBAR SECTION HEADERS - 3023 REFERENCE SYNC
+   ============================================ */
+.sidebar-section {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.sidebar-section-header {
+    cursor: pointer;
+    user-select: none;
+    padding: 12px 16px;
+    margin: 4px 0;
+    border-radius: 12px;
+    transition: background-color 0.5s ease, transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    will-change: background-color, transform;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-section-header:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: #8b5cf6; /* var(--accent-primary) */
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.sidebar-section.hovering .sidebar-section-header:before {
+    transform: scaleY(1);
+}
+
+.sidebar-section-header i.ph-caret-down {
+    transition: transform 0.3s ease;
+}
+
+.sidebar-section.active .sidebar-section-header i.ph-caret-down {
+    transform: rotate(180deg);
+}
+
+/* Enhanced Menu Text Styling - 3023 REFERENCE */
+.sidebar-section-header span {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: capitalize !important;
+    letter-spacing: 0.3px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 160px;
+    color: #0f172a !important; /* var(--text-primary) */
+}
+
+.meschain-nav-link span {
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    text-transform: capitalize !important;
+    letter-spacing: 0.2px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 140px;
 }
 
 /* ============================================

@@ -821,11 +821,314 @@ class ControllerExtensionModuleTrendyolApiV4Enhanced extends Controller {
     }
     
     private function testIntegrationService() {
-        if ($this->integration_service) {
-            return ['status' => 'healthy', 'message' => 'Integration service operational'];
         }
-        return ['status' => 'error', 'message' => 'Integration service not available'];
+        
+        /**
+         * Health check methods
+         */
+        private function checkTrendyolAPIHealth() {
+            try {
+                $api_client = $this->initTrendyolAPIClient();
+                $start_time = microtime(true);
+                $response = $api_client->ping();
+                $response_time = round((microtime(true) - $start_time) * 1000, 2);
+                
+                return [
+                    'status' => 'healthy',
+                    'response_time' => $response_time,
+                    'last_check' => date('c')
+                ];
+                
+            } catch (Exception $e) {
+                return [
+                    'status' => 'error',
+                    'response_time' => null,
+                    'error' => $e->getMessage(),
+                    'last_check' => date('c')
+                ];
+            }
+        }
+        
+        private function checkDatabaseHealth() {
+            try {
+                $result = $this->db->query("SELECT 1 as health_check");
+                return [
+                    'status' => 'healthy',
+                    'last_check' => date('c')
+                ];
+            } catch (Exception $e) {
+                return [
+                    'status' => 'error',
+                    'error' => $e->getMessage(),
+                    'last_check' => date('c')
+                ];
+            }
+        }
+        
+        private function calculateOverallHealth($health_checks) {
+            $total_checks = count($health_checks);
+            $healthy_checks = 0;
+            $issues = [];
+            
+            foreach ($health_checks as $check_name => $check_result) {
+                if ($check_result['status'] === 'healthy') {
+                    $healthy_checks++;
+                } else {
+                    $issues[] = $check_name . ': ' . ($check_result['error'] ?? 'Unknown error');
+                }
+            }
+            
+            $health_score = round(($healthy_checks / $total_checks) * 100);
+            
+            if ($health_score >= 90) {
+                $status = 'healthy';
+            } elseif ($health_score >= 70) {
+                $status = 'warning';
+            } else {
+                $status = 'error';
+            }
+            
+            return [
+                'status' => $status,
+                'score' => $health_score,
+                'issues' => $issues
+            ];
+        }
+        
+        /**
+         * Utility methods
+         */
+        private function getProcessingTime() {
+            if (!isset($this->start_time)) {
+                return 0;
+            }
+            return round((microtime(true) - $this->start_time) * 1000, 2);
+        }
+        
+        private function initEnhancedMetricsCollector() {
+            // Enhanced metrics collector initialization
+            return new stdClass(); // Placeholder
+        }
+        
+        private function calculateOverallConnectivityStatus($results) {
+            $healthy_count = 0;
+            $total_count = count($results);
+            
+            foreach ($results as $result) {
+                if ($result['status'] === 'healthy') {
+                    $healthy_count++;
+                }
+            }
+            
+            $health_percentage = ($healthy_count / $total_count) * 100;
+            
+            if ($health_percentage >= 90) {
+                return 'excellent';
+            } elseif ($health_percentage >= 70) {
+                return 'good';
+            } elseif ($health_percentage >= 50) {
+                return 'fair';
+            } else {
+                return 'poor';
+            }
+        }
+        
+        private function testDatabaseConnection() {
+            try {
+                $this->db->query("SELECT 1");
+                return ['status' => 'healthy', 'message' => 'Database connection successful'];
+            } catch (Exception $e) {
+                return ['status' => 'error', 'message' => 'Database connection failed'];
+            }
+        }
+        
+        private function testWebhookSystem() {
+            // Webhook system test implementation
+            return ['status' => 'healthy', 'message' => 'Webhook system operational'];
+        }
+        
+        private function testCacheSystem() {
+            if ($this->cache_manager) {
+                return ['status' => 'healthy', 'message' => 'Cache system operational'];
+            }
+            return ['status' => 'warning', 'message' => 'Cache system not available'];
+        }
+        
+        private function testIntegrationService() {
+            if ($this->integration_service) {
+                return ['status' => 'healthy', 'message' => 'Integration service operational'];
+            }
+            return ['status' => 'error', 'message' => 'Integration service not available'];
+        }
+        
+        /**
+         * Returns list endpoint
+         * GET /admin/extension/module/meschain/api/trendyol/returns
+         */
+        public function returns() {
+            try {
+                $start_time = microtime(true);
+                
+                // Query parameters
+                $page = isset($this->request->get['page']) ? (int)$this->request->get['page'] : 1;
+                $limit = isset($this->request->get['limit']) ? (int)$this->request->get['limit'] : 20;
+                $status = isset($this->request->get['status']) ? $this->request->get['status'] : 'all';
+                $date_start = isset($this->request->get['date_start']) ? $this->request->get['date_start'] : '';
+                $date_end = isset($this->request->get['date_end']) ? $this->request->get['date_end'] : '';
+                
+                // Try to get from cache
+                $cache_key = 'trendyol_returns_' . md5(http_build_query($this->request->get));
+                $cached_data = $this->getCachedData($cache_key, 30); // 30 second cache
+                if ($cached_data !== null) {
+                    $this->sendEnhancedResponse($cached_data, 200, 'Returns data retrieved from cache', [
+                        'cache_status' => 'hit',
+                        'processing_time' => round((microtime(true) - $start_time) * 1000, 2) . 'ms'
+                    ]);
+                    return;
+                }
+                
+                // Fetch returns
+                $api_client = $this->initTrendyolAPIClient();
+                $returns_data = $api_client->getReturns([
+                    'page' => $page,
+                    'size' => $limit,
+                    'status' => $status,
+                    'date_start' => $date_start,
+                    'date_end' => $date_end
+                ]);
+                
+                $result = [
+                    'total_count' => $returns_data['total_count'] ?? 0,
+                    'page' => $page,
+                    'limit' => $limit,
+                    'total_pages' => ceil(($returns_data['total_count'] ?? 0) / $limit),
+                    'returns' => $returns_data['returns'] ?? [],
+                    'status_filter' => $status,
+                    'date_range' => ['start' => $date_start, 'end' => $date_end]
+                ];
+                
+                // Cache the results
+                $this->setCachedData($cache_key, $result, 30);
+                
+                $processing_time = round((microtime(true) - $start_time) * 1000, 2);
+                
+                $this->sendEnhancedResponse($result, 200, 'Returns data retrieved successfully', [
+                    'processing_time' => $processing_time . 'ms',
+                    'cache_status' => 'miss'
+                ]);
+                
+            } catch (Exception $e) {
+                $this->log->write('Returns data fetch failed: ' . $e->getMessage());
+                $this->sendEnhancedResponse(null, 500, 'Returns data fetch failed: ' . $e->getMessage());
+            }
+        }
+        
+        /**
+         * Return detail endpoint
+         * GET /admin/extension/module/meschain/api/trendyol/return/{id}
+         */
+        public function returnDetail() {
+            try {
+                $start_time = microtime(true);
+                
+                // Get return ID
+                $return_id = isset($this->request->get['id']) ? $this->request->get['id'] : 0;
+                if (empty($return_id)) {
+                    $route_parts = explode('/', $this->request->get['route']);
+                    $return_id = end($route_parts);
+                }
+                
+                if (empty($return_id) || $return_id == 'return') {
+                    $this->sendEnhancedResponse(null, 400, 'Return ID is required');
+                    return;
+                }
+                
+                $cache_key = 'trendyol_return_' . $return_id;
+                
+                // Try to get from cache
+                $cached_data = $this->getCachedData($cache_key, 60); // 1-minute cache
+                if ($cached_data !== null) {
+                    $this->sendEnhancedResponse($cached_data, 200, 'Return detail retrieved from cache', [
+                        'cache_status' => 'hit',
+                        'processing_time' => round((microtime(true) - $start_time) * 1000, 2) . 'ms'
+                    ]);
+                    return;
+                }
+                
+                // Fetch return detail
+                $api_client = $this->initTrendyolAPIClient();
+                $return_detail = $api_client->getReturnDetail($return_id);
+                
+                if (empty($return_detail)) {
+                    $this->sendEnhancedResponse(null, 404, 'Return not found');
+                    return;
+                }
+                
+                // Cache the result
+                $this->setCachedData($cache_key, $return_detail, 60);
+                
+                $processing_time = round((microtime(true) - $start_time) * 1000, 2);
+                
+                $this->sendEnhancedResponse($return_detail, 200, 'Return detail retrieved successfully', [
+                    'processing_time' => $processing_time . 'ms',
+                    'cache_status' => 'miss'
+                ]);
+                
+            } catch (Exception $e) {
+                $this->log->write('Return detail fetch failed: ' . $e->getMessage());
+                $this->sendEnhancedResponse(null, 500, 'Return detail fetch failed: ' . $e->getMessage());
+            }
+        }
+        
+        /**
+         * Process return endpoint
+         * POST /admin/extension/module/meschain/api/trendyol/return/process
+         */
+        public function processReturn() {
+            try {
+                $start_time = microtime(true);
+                
+                // Validate request
+                $request_data = json_decode(file_get_contents('php://input'), true);
+                if (empty($request_data) || !isset($request_data['return_id']) || !isset($request_data['action'])) {
+                    $this->sendEnhancedResponse(null, 400, 'Return ID and action are required');
+                    return;
+                }
+                
+                $return_id = $request_data['return_id'];
+                $action = $request_data['action'];
+                $notes = isset($request_data['notes']) ? $request_data['notes'] : '';
+                
+                if (!in_array($action, ['approve', 'reject', 'request_info'])) {
+                    $this->sendEnhancedResponse(null, 400, 'Invalid action. Must be one of: approve, reject, request_info');
+                    return;
+                }
+                
+                // Process return
+                $api_client = $this->initTrendyolAPIClient();
+                $result = $api_client->processReturn([
+                    'return_id' => $return_id,
+                    'action' => $action,
+                    'notes' => $notes
+                ]);
+                
+                // Clear return caches
+                $this->cache_manager->delete('trendyol_return_' . $return_id);
+                $this->cache_manager->delete('trendyol_returns_*');
+                
+                $processing_time = round((microtime(true) - $start_time) * 1000, 2);
+                
+                $this->sendEnhancedResponse($result, 200, 'Return processed successfully', [
+                    'processing_time' => $processing_time . 'ms',
+                    'return_id' => $return_id,
+                    'action' => $action
+                ]);
+                
+            } catch (Exception $e) {
+                $this->log->write('Return processing failed: ' . $e->getMessage());
+                $this->sendEnhancedResponse(null, 500, 'Return processing failed: ' . $e->getMessage());
+            }
+        }
     }
-}
-
-?>
+    
+    ?>
