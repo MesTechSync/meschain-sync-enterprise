@@ -4,7 +4,7 @@
  * Description: Sidebar navigation and dropdown management
  */
 
-// Sidebar section toggle function - 3023 PORTUNDAN ÇALIŞAN ÇÖZÜM
+// Sidebar section toggle function - DÜZELTILMIŞ VERSIYON
 function toggleSidebarSection(header) {
     const section = header.parentElement;
     const allSections = document.querySelectorAll('.sidebar-section');
@@ -14,15 +14,51 @@ function toggleSidebarSection(header) {
         if (s !== section) {
             s.classList.remove('active');
             s.classList.remove('hovering');
+            
+            // Make sure dropdown is visible/hidden by actually setting display
+            const dropdown = s.querySelector('.sidebar-dropdown-menu');
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
         }
     });
     
     // Toggle current section
     const isCurrentlyActive = section.classList.contains('active');
+    const dropdown = section.querySelector('.sidebar-dropdown-menu');
+    
     if (isCurrentlyActive) {
         section.classList.remove('active');
+        // Actually hide the dropdown
+        if (dropdown) {
+            dropdown.style.display = 'none';
+        }
     } else {
         section.classList.add('active');
+        // Actually show the dropdown
+        if (dropdown) {
+            dropdown.style.display = 'block';
+        } else {
+            // If dropdown doesn't exist yet, create it
+            const newDropdown = document.createElement('div');
+            newDropdown.className = 'sidebar-dropdown-menu';
+            newDropdown.style.display = 'block';
+            
+            // Add after header
+            header.insertAdjacentElement('afterend', newDropdown);
+            
+            // Populate with default content
+            const sectionName = section.getAttribute('data-section-name') || 
+                          section.querySelector('.sidebar-section-header span')?.textContent?.trim() || 
+                          'Menü Öğesi';
+                          
+            newDropdown.innerHTML = `<div class="p-2">Yükleniyor...</div>`;
+            
+            // Populate dropdown asynchronously
+            setTimeout(() => {
+                populateDropdownContent(section, newDropdown);
+            }, 50);
+        }
     }
     
     // Force CSS update

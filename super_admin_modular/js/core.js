@@ -832,10 +832,47 @@ function toggleDropdown(menu) {
 
 // Close dropdowns when clicking outside
 document.addEventListener('click', (e) => {
-    const dropdowns = document.querySelectorAll('[id$="Menu"]');
-    dropdowns.forEach(dropdown => {
-        if (!dropdown.parentElement.contains(e.target)) {
+    const dropdowns = document.querySelectorAll('[id$="Menu"], .notification-menu, .settings-menu, .warning-menu');
+    
+    // If click target is not inside any dropdown and not a dropdown toggle button
+    if (!e.target.closest('[id$="Menu"], .notification-menu, .settings-menu, .warning-menu, [onclick*="toggle"]')) {
+        // Hide all dropdowns
+        dropdowns.forEach(dropdown => {
             hideDropdown(dropdown);
-        }
-    });
+        });
+    }
 });
+
+// Add special handler for warnings dropdown
+function setupWarningsMenu() {
+    const warningsToggle = document.getElementById('warningsToggle');
+    const warningsMenu = document.getElementById('warningsMenu');
+    
+    if (warningsToggle && warningsMenu) {
+        warningsToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleDropdown(warningsMenu);
+        });
+        
+        // Add hover functionality as fallback
+        warningsToggle.addEventListener('mouseenter', function() {
+            showDropdown(warningsMenu);
+        });
+        
+        const warningsContainer = warningsToggle.closest('.relative');
+        if (warningsContainer) {
+            warningsContainer.addEventListener('mouseleave', function() {
+                setTimeout(() => {
+                    if (!warningsMenu.matches(':hover')) {
+                        hideDropdown(warningsMenu);
+                    }
+                }, 100);
+            });
+        }
+        
+        console.log('✅ Warnings menu initialized with both click and hover support');
+    } else {
+        console.warn('⚠️ Warnings menu elements not found');
+    }
+}
