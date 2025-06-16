@@ -38,9 +38,9 @@ class N11Integration {
             locale: 'tr-TR',
             timezone: 'Europe/Istanbul',
             brandColors: {
-                primary: '#6B2C91',
-                secondary: '#8A4FB1',
-                accent: '#B775D8'
+                primary: '#FF6000',       // Primary brand orange (updated according to design doc)
+                secondary: '#FF8533',     // Lighter orange for hover
+                accent: '#E55500'         // Darker orange for active
             },
             categories: [
                 'Bilgisayar', 'Cep Telefonu', 'Elektronik', 'Ev & Yaşam',
@@ -235,12 +235,12 @@ class N11Integration {
                     datasets: [{
                         label: 'N11 Satışları (₺)',
                         data: data.chart_data?.values || [1800, 2200, 1600, 2800, 2400, 3200, 2900],
-                        backgroundColor: 'rgba(107, 44, 145, 0.1)',
-                        borderColor: '#6B2C91',
+                        backgroundColor: 'rgba(255, 96, 0, 0.1)',
+                        borderColor: '#FF6000',
                         borderWidth: 3,
                         fill: true,
                         tension: 0.4,
-                        pointBackgroundColor: '#6B2C91',
+                        pointBackgroundColor: '#FF6000',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                         pointRadius: 6,
@@ -264,10 +264,10 @@ class N11Integration {
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(107, 44, 145, 0.9)',
+                            backgroundColor: 'rgba(255, 96, 0, 0.9)',
                             titleColor: 'white',
                             bodyColor: 'white',
-                            borderColor: '#6B2C91',
+                            borderColor: '#FF6000',
                             borderWidth: 1,
                             callbacks: {
                                 label: function(context) {
@@ -280,7 +280,7 @@ class N11Integration {
                         y: {
                             beginAtZero: true,
                             grid: {
-                                color: 'rgba(107, 44, 145, 0.1)'
+                                color: 'rgba(255, 96, 0, 0.1)'
                             },
                             ticks: {
                                 callback: function(value) {
@@ -290,7 +290,7 @@ class N11Integration {
                         },
                         x: {
                             grid: {
-                                color: 'rgba(107, 44, 145, 0.05)'
+                                color: 'rgba(255, 96, 0, 0.05)'
                             }
                         }
                     }

@@ -213,6 +213,46 @@
   transform: translateY(-50%) scale(1);
 }
 
+/* Enhanced Responsive Design Transitions */
+@media (max-width: 768px) {
+  /* Mobile-specific transitions: faster and more subtle */
+  .meschain-section {
+    transform: translateY(10px); /* Reduced distance for mobile */
+    transition: opacity 0.3s ease-out, transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  /* Adjust staggered content timing for mobile */
+  .content-section.active .card:nth-child(n+3),
+  .content-section.active .stats-card:nth-child(n+3),
+  .content-section.active .chart-container:nth-child(n+3),
+  .content-section.active .table-container:nth-child(n+3) {
+    transition-delay: 0.3s; /* Reduce max delay on mobile */
+  }
+
+  /* Optimize nav indicators for touch */
+  .nav-indicator {
+    width: 48px;
+    height: 48px; /* Larger touch target */
+  }
+
+  /* Optimize breadcrumb for mobile */
+  .breadcrumb-item.entering,
+  .breadcrumb-item.exiting {
+    transform: translateX(10px); /* Reduced animation distance */
+  }
+}
+
+/* Tablet-specific transitions */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Tablet optimized transitions */
+  .content-section.active .card,
+  .content-section.active .stats-card,
+  .content-section.active .chart-container,
+  .content-section.active .table-container {
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
 /* Reduced motion settings for accessibility */
 @media (prefers-reduced-motion: reduce) {
   .meschain-section,
@@ -228,5 +268,10 @@
   .page-loading-bar.loading {
     animation: none !important;
     width: 100%;
+  }
+  
+  .nav-indicator,
+  .theme-transition-overlay {
+    display: none !important; /* Hide unnecessary animations */
   }
 }
