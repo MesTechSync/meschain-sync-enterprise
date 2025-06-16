@@ -6,7 +6,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3012;
+const PORT = 3012; // Ana Trendyol entegrasyonu portu - port_3012_trendyol_seller_server PORT 6012'de çalışmakta
 
 app.use(cors());
 app.use(express.json());

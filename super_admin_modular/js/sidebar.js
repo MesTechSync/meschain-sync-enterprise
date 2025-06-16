@@ -4,65 +4,88 @@
  * Description: Sidebar navigation and dropdown management
  */
 
-// Sidebar section toggle function - DÜZELTILMIŞ VERSIYON
+// Sidebar section toggle function - 3023 PORTU İLE PARİTY SAĞLAYAN VERSİYON
 function toggleSidebarSection(header) {
-    const section = header.parentElement;
+    const currentSection = header.parentElement;
     const allSections = document.querySelectorAll('.sidebar-section');
+    const wasActive = currentSection.classList.contains('active');
     
-    // Close all other sections first (accordion behavior)
-    allSections.forEach(s => {
-        if (s !== section) {
-            s.classList.remove('active');
-            s.classList.remove('hovering');
-            
-            // Make sure dropdown is visible/hidden by actually setting display
-            const dropdown = s.querySelector('.sidebar-dropdown-menu');
-            if (dropdown) {
-                dropdown.style.display = 'none';
-            }
-        }
+    // 1. Close all sections first (accordion behavior)
+    allSections.forEach(section => {
+        // Önce tüm active classları kaldır
+        section.classList.remove('active');
+        
+        // Varsa açık dropdown menülerini kapat
+        const dropdowns = section.querySelectorAll('.sidebar-dropdown-menu');
+        dropdowns.forEach(menu => {
+            menu.style.maxHeight = '0px';
+            menu.style.opacity = '0';
+        });
     });
     
-    // Toggle current section
-    const isCurrentlyActive = section.classList.contains('active');
-    const dropdown = section.querySelector('.sidebar-dropdown-menu');
-    
-    if (isCurrentlyActive) {
-        section.classList.remove('active');
-        // Actually hide the dropdown
-        if (dropdown) {
-            dropdown.style.display = 'none';
-        }
-    } else {
-        section.classList.add('active');
-        // Actually show the dropdown
-        if (dropdown) {
-            dropdown.style.display = 'block';
-        } else {
-            // If dropdown doesn't exist yet, create it
-            const newDropdown = document.createElement('div');
-            newDropdown.className = 'sidebar-dropdown-menu';
-            newDropdown.style.display = 'block';
+    // 2. Toggle current section - only open if it wasn't active before
+    if (!wasActive) {
+        currentSection.classList.add('active');
+        console.log('🎯 Section opened:', currentSection.querySelector('.sidebar-section-header span')?.textContent || 'Unknown section');
+        
+        // Force a repaint to ensure CSS transitions work properly
+        currentSection.offsetHeight;
+        
+        // 3. Make sure dropdown content exists and is visible
+        let dropdown = currentSection.querySelector('.sidebar-dropdown-menu');
+        
+        // Create dropdown if it doesn't exist
+        if (!dropdown) {
+            dropdown = document.createElement('div');
+            dropdown.className = 'sidebar-dropdown-menu';
             
             // Add after header
-            header.insertAdjacentElement('afterend', newDropdown);
+            header.insertAdjacentElement('afterend', dropdown);
             
-            // Populate with default content
-            const sectionName = section.getAttribute('data-section-name') || 
-                          section.querySelector('.sidebar-section-header span')?.textContent?.trim() || 
+            // Populate with content
+            const sectionName = currentSection.getAttribute('data-section-name') || 
+                          currentSection.querySelector('.sidebar-section-header span')?.textContent?.trim() || 
                           'Menü Öğesi';
-                          
-            newDropdown.innerHTML = `<div class="p-2">Yükleniyor...</div>`;
             
-            // Populate dropdown asynchronously
+            // Asynchronously populate content
             setTimeout(() => {
-                populateDropdownContent(section, newDropdown);
-            }, 50);
+                populateDropdownContent(currentSection, dropdown);
+                
+                // Set animation properties after content is created
+                setTimeout(() => {
+                    dropdown.style.maxHeight = dropdown.scrollHeight + 'px';
+                    dropdown.style.opacity = '1';
+                }, 10);
+            }, 10);
+        } else {
+            // Show existing dropdown with animation
+            dropdown.style.display = 'block';
+            dropdown.style.maxHeight = dropdown.scrollHeight + 'px';
+            dropdown.style.opacity = '1';
         }
+    } else {
+        console.log('🎯 Section closed:', currentSection.querySelector('.sidebar-section-header span')?.textContent || 'Unknown section');
     }
     
-    // Force CSS update
-    section.offsetHeight;
+    // Ensure links in dropdown menus work properly
+    document.querySelectorAll('.sidebar-dropdown-menu a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Prevent default only if it's a placeholder link
+            if (this.getAttribute('href') === '#') {
+                e.preventDefault();
+            }
+            
+            const sectionName = this.querySelector('.dropdown-item-title')?.textContent || this.textContent;
+            console.log(`Navigating to: ${sectionName}`);
+            
+            // Close the dropdown after clicking
+            const parentSection = this.closest('.sidebar-section');
+            if (parentSection) {
+                // Keep the section active but optionally close other sections
+                // parentSection.classList.remove('active');
+            }
+        });
+    });
 }
 
 // Sidebar initialization function - IMPROVED VERSION

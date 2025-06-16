@@ -19,7 +19,7 @@ function initializeMesChainCore() {
     initializeNotificationSystem();
     initializeHealthMonitoring();
     initializeNavigation();
-    initializeDropdowns(); // Add this line
+    initializeDropdowns(); // Tüm dropdown menüleri için
     
     console.log('🚀 MesChain-Sync Super Admin Panel v4.1 - PRODUCTION READY');
     console.log('📋 VSCode Team Task Completed Successfully');
@@ -843,38 +843,72 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Add special handler for warnings dropdown
+// Add special handler for warnings dropdown - FIXED PARITY WITH 3023 VERSION
 function setupWarningsMenu() {
-    const warningsToggle = document.getElementById('warningsToggle');
-    const warningsMenu = document.getElementById('warningsMenu');
+    // Use more flexible selectors, as ids might have changed or not be consistent
+    const warningsToggle = document.querySelector('[data-dropdown="warnings"], #warningsToggle, .warnings-toggle');
+    const warningsMenu = document.querySelector('#warningsMenu, .warnings-menu, .warning-extensions-menu');
+    
+    console.log('🔍 Setting up warnings menu:', warningsToggle ? 'Toggle found' : 'Toggle missing', warningsMenu ? 'Menu found' : 'Menu missing');
     
     if (warningsToggle && warningsMenu) {
-        warningsToggle.addEventListener('click', function(e) {
+        // Remove any existing event listeners first to prevent duplicates
+        const newWarningsToggle = warningsToggle.cloneNode(true);
+        if (warningsToggle.parentNode) {
+            warningsToggle.parentNode.replaceChild(newWarningsToggle, warningsToggle);
+        }
+        
+        // Add click functionality - critical for mobile/touch
+        newWarningsToggle.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
+            console.log('🖱️ Warnings toggle clicked');
             toggleDropdown(warningsMenu);
         });
         
-        // Add hover functionality as fallback
-        warningsToggle.addEventListener('mouseenter', function() {
+        // Add hover functionality - better UX for desktop
+        newWarningsToggle.addEventListener('mouseenter', function() {
+            console.log('🖱️ Warnings toggle mouse enter');
             showDropdown(warningsMenu);
         });
         
-        const warningsContainer = warningsToggle.closest('.relative');
+        // Handle parent container for better hover behavior
+        const warningsContainer = newWarningsToggle.closest('.relative, .dropdown-container');
         if (warningsContainer) {
             warningsContainer.addEventListener('mouseleave', function() {
+                console.log('🖱️ Warnings container mouse leave');
                 setTimeout(() => {
                     if (!warningsMenu.matches(':hover')) {
                         hideDropdown(warningsMenu);
                     }
-                }, 100);
+                }, 200);
             });
         }
         
-        console.log('✅ Warnings menu initialized with both click and hover support');
+        // Make sure menu has mouseenter/leave handlers
+        warningsMenu.addEventListener('mouseenter', function() {
+            console.log('🖱️ Warnings menu mouse enter');
+            showDropdown(warningsMenu);
+        });
+        
+        warningsMenu.addEventListener('mouseleave', function() {
+            console.log('🖱️ Warnings menu mouse leave');
+            setTimeout(() => {
+                if (!newWarningsToggle.matches(':hover') && 
+                    (!warningsContainer || !warningsContainer.matches(':hover'))) {
+                    hideDropdown(warningsMenu);
+                }
+            }, 200);
+        });
+        
+        // Force menu visibility
+        warningsMenu.style.display = 'block';
+        
+        console.log('✅ Warnings menu initialized with robust click and hover support');
     } else {
         console.warn('⚠️ Warnings menu elements not found');
     }
+}
 }
 
 // ============================================
@@ -1013,11 +1047,40 @@ function toggleAllAlertsExtensions() {
     }
 }
 
-// Add missing alert/extension functions
+// Toggle alerts menu dropdown
 function toggleAlertsMenu() {
-    const alertsMenu = document.getElementById('alertsMenu');
+    const alertsMenu = document.getElementById('alertsExtensionsDropdown');
+    
     if (alertsMenu) {
-        toggleDropdown(alertsMenu);
+        // Check if the menu is currently visible
+        const isVisible = alertsMenu.classList.contains('show');
+        
+        // Close all other dropdowns
+        document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+            dropdown.classList.remove('show');
+            dropdown.style.opacity = '0';
+            dropdown.style.transform = 'translateY(10px)';
+            dropdown.style.pointerEvents = 'none';
+        });
+        
+        // Toggle current dropdown
+        if (isVisible) {
+            // Hide menu
+            alertsMenu.classList.remove('show');
+            alertsMenu.style.opacity = '0';
+            alertsMenu.style.transform = 'translateY(10px)';
+            alertsMenu.style.pointerEvents = 'none';
+        } else {
+            // Show menu
+            alertsMenu.classList.add('show');
+            alertsMenu.style.opacity = '1';
+            alertsMenu.style.transform = 'translateY(0)';
+            alertsMenu.style.pointerEvents = 'all';
+        }
+        
+        console.log(`Alerts menu toggled: ${!isVisible ? 'shown' : 'hidden'}`);
+    } else {
+        console.error('Alerts dropdown menu element not found!');
     }
 }
 
@@ -1048,34 +1111,116 @@ function viewAllAlerts() {
 
 // Enhanced alerts dropdown initialization
 function initializeAlertsDropdownEnhanced() {
-    const alertsButton = document.querySelector('[onclick="toggleAlertsMenu()"]');
-    const alertsMenu = document.getElementById('alertsMenu');
+    const alertsButton = document.querySelector('#alertsExtensionsButton');
+    const alertsMenu = document.getElementById('alertsExtensionsDropdown');
     
     if (alertsButton && alertsMenu) {
-        // Click handler
+        console.log('💡 Alert/extension menu components found, initializing events...');
+        
+        // Remove any existing onclick attribute if present and use proper event listener
+        if (alertsButton.hasAttribute('onclick')) {
+            alertsButton.removeAttribute('onclick');
+        }
+        
+        // Click handler - use proper toggleAlertsMenu function
         alertsButton.addEventListener('click', (e) => {
+            e.preventDefault();
             e.stopPropagation();
-            toggleDropdown(alertsMenu);
+            toggleAlertsMenu();
         });
         
-        // Hover handlers
-        alertsButton.addEventListener('mouseenter', () => {
-            showDropdown(alertsMenu);
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!alertsButton.contains(e.target) && !alertsMenu.contains(e.target)) {
+                if (alertsMenu.classList.contains('show')) {
+                    toggleAlertsMenu();
+                }
+            }
         });
         
-        alertsButton.parentElement.addEventListener('mouseleave', () => {
-            hideDropdown(alertsMenu);
-        });
+        // Initialize tab switchers within the dropdown
+        const tabButtons = alertsMenu.querySelectorAll('.alert-tab-button');
+        if (tabButtons.length > 0) {
+            tabButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tabType = button.getAttribute('data-tab');
+                    if (tabType) {
+                        switchAlertsTab(tabType);
+                    }
+                });
+            });
+        }
         
-        console.log('🎯 Enhanced alerts dropdown initialized');
+        console.log('✅ Alert/extension menu events initialized successfully');
+    } else {
+        console.warn('⚠️ Alert menu components not found: Button or dropdown is missing');
     }
 }
 
-// Update the initializeDropdowns function to include enhanced alerts
-const originalInitializeDropdowns = initializeDropdowns;
-initializeDropdowns = function() {
-    originalInitializeDropdowns();
+// Initialize all dropdown elements in the admin panel
+function initializeDropdowns() {
+    console.log('🔽 Initializing all dropdown menus...');
+    
+    // Initialize alerts/extensions dropdown
     initializeAlertsDropdownEnhanced();
+    
+    // Initialize other dropdown menus in the header
+    const dropdownButtons = document.querySelectorAll('.dropdown-button');
+    
+    dropdownButtons.forEach(button => {
+        const targetId = button.getAttribute('data-dropdown-target');
+        if (targetId) {
+            const dropdown = document.getElementById(targetId);
+            if (dropdown) {
+                // Remove any existing onclick attributes if present
+                if (button.hasAttribute('onclick')) {
+                    button.removeAttribute('onclick');
+                }
+                
+                // Set up click handler for this dropdown
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Check if currently shown
+                    const isVisible = dropdown.classList.contains('show');
+                    
+                    // Close all dropdowns first
+                    document.querySelectorAll('.dropdown-content').forEach(d => {
+                        d.classList.remove('show');
+                        d.style.opacity = '0';
+                        d.style.transform = 'translateY(10px)';
+                        d.style.pointerEvents = 'none';
+                    });
+                    
+                    // Toggle current dropdown
+                    if (!isVisible) {
+                        dropdown.classList.add('show');
+                        dropdown.style.opacity = '1';
+                        dropdown.style.transform = 'translateY(0)';
+                        dropdown.style.pointerEvents = 'all';
+                    }
+                });
+            }
+        }
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.matches('.dropdown-button') && 
+            !e.target.closest('.dropdown-content')) {
+            
+            document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                dropdown.classList.remove('show');
+                dropdown.style.opacity = '0';
+                dropdown.style.transform = 'translateY(10px)';
+                dropdown.style.pointerEvents = 'none';
+            });
+        }
+    });
+    
+    console.log('✅ All dropdown menus initialized successfully');
 };
 
 // ============================================
