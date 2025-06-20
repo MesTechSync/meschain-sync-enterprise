@@ -1,5 +1,5 @@
 # 🚀 GitHub Yedekleme ve Dosya Kurtarma Kılavuzu
-**MesChain-Sync Enterprise Projesi için**  
+**MesChain-Sync Enterprise Projesi için**
 **Tarih:** 18 Haziran 2025
 
 ## 📊 GitHub Sistem Durumu

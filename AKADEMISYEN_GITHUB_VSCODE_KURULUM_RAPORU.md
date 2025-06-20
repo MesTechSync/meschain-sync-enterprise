@@ -1,7 +1,7 @@
 # TEKNİK RAPOR: GITHUB REPOSİTORY ENTEGRASYONU VE VSCODE KURULUM DOKÜMANTASYONU
-**Hazırlayan:** MesChain-Sync Teknik Ekibi  
-**Tarih:** 18 Haziran 2025  
-**Döküman Versiyonu:** 1.0.0  
+**Hazırlayan:** MesChain-Sync Teknik Ekibi
+**Tarih:** 18 Haziran 2025
+**Döküman Versiyonu:** 1.0.0
 **Gizlilik Derecesi:** Düşük - Eğitim Amaçlı
 
 ---

@@ -1,0 +1,229 @@
+<!-- Marketplace Health Section -->
+<section id="marketplace-health" class="meschain-section hidden">
+    <div class="mb-4 md:mb-6 lg:mb-8">
+        <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            🩺 Marketplace Sağlık Durumu
+        </h2>
+        <p class="text-xl text-gray-600 dark:text-gray-300">Tüm pazar yerlerinin sağlık ve performans durumu</p>
+    </div>
+
+    <!-- Overall Health Status -->
+    <div class="grid grid-cols-1 mb-6 md:mb-8">
+        <div class="meschain-card">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div class="md:mb-0 mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Genel Sistem Durumu</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Tüm marketplace entegrasyonlarının genel sağlık durumu</p>
+                </div>
+                <div class="flex items-center">
+                    <div class="health-indicator healthy">
+                        <i class="ph ph-check-circle mr-2"></i>
+                        <span>Sağlıklı</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Status Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <!-- API Health -->
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-plug text-white text-xl"></i>
+                </div>
+                <span class="health-badge success">98.7% Uptime</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">API Bağlantı Durumu</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">Son 24 saat içinde tüm API bağlantıları aktif ve stabil çalışıyor.</p>
+            <div class="h-40">
+                <canvas id="apiHealthChart" width="400" height="160"></canvas>
+            </div>
+        </div>
+
+        <!-- Sync Performance -->
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-sync text-white text-xl"></i>
+                </div>
+                <span class="health-badge success">5 dk önce</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Senkronizasyon Performansı</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">Son senkronizasyon başarıyla tamamlandı. Ortalama senkronizasyon süresi 4.3 dk.</p>
+            <div class="h-40">
+                <canvas id="syncPerformanceChart" width="400" height="160"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Metrics Table -->
+    <div class="meschain-card mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Pazar Yeri Sağlık Metrikleri</h3>
+            <button class="btn-secondary">
+                <i class="ph ph-download mr-2"></i>
+                Rapor İndir
+            </button>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Pazar Yeri</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">API Durumu</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Son Sync</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Sync Başarı Oranı</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Response Süresi</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Durum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">Trendyol</td>
+                        <td class="py-3 px-4"><span class="status-dot green"></span> Aktif</td>
+                        <td class="py-3 px-4">5 dk önce</td>
+                        <td class="py-3 px-4">99.8%</td>
+                        <td class="py-3 px-4">235 ms</td>
+                        <td class="py-3 px-4"><span class="health-badge success">Sağlıklı</span></td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">Amazon Turkey</td>
+                        <td class="py-3 px-4"><span class="status-dot green"></span> Aktif</td>
+                        <td class="py-3 px-4">8 dk önce</td>
+                        <td class="py-3 px-4">99.5%</td>
+                        <td class="py-3 px-4">318 ms</td>
+                        <td class="py-3 px-4"><span class="health-badge success">Sağlıklı</span></td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">N11</td>
+                        <td class="py-3 px-4"><span class="status-dot green"></span> Aktif</td>
+                        <td class="py-3 px-4">12 dk önce</td>
+                        <td class="py-3 px-4">99.2%</td>
+                        <td class="py-3 px-4">276 ms</td>
+                        <td class="py-3 px-4"><span class="health-badge success">Sağlıklı</span></td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">Hepsiburada</td>
+                        <td class="py-3 px-4"><span class="status-dot green"></span> Aktif</td>
+                        <td class="py-3 px-4">18 dk önce</td>
+                        <td class="py-3 px-4">98.9%</td>
+                        <td class="py-3 px-4">289 ms</td>
+                        <td class="py-3 px-4"><span class="health-badge success">Sağlıklı</span></td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">eBay</td>
+                        <td class="py-3 px-4"><span class="status-dot green"></span> Aktif</td>
+                        <td class="py-3 px-4">22 dk önce</td>
+                        <td class="py-3 px-4">99.7%</td>
+                        <td class="py-3 px-4">245 ms</td>
+                        <td class="py-3 px-4"><span class="health-badge success">Sağlıklı</span></td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">Ozon</td>
+                        <td class="py-3 px-4"><span class="status-dot yellow"></span> Uyarı</td>
+                        <td class="py-3 px-4">35 dk önce</td>
+                        <td class="py-3 px-4">95.3%</td>
+                        <td class="py-3 px-4">478 ms</td>
+                        <td class="py-3 px-4"><span class="health-badge warning">Yavaş Response</span></td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">Pazarama</td>
+                        <td class="py-3 px-4"><span class="status-dot green"></span> Aktif</td>
+                        <td class="py-3 px-4">24 dk önce</td>
+                        <td class="py-3 px-4">99.1%</td>
+                        <td class="py-3 px-4">312 ms</td>
+                        <td class="py-3 px-4"><span class="health-badge success">Sağlıklı</span></td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">PttAVM</td>
+                        <td class="py-3 px-4"><span class="status-dot green"></span> Aktif</td>
+                        <td class="py-3 px-4">25 dk önce</td>
+                        <td class="py-3 px-4">98.6%</td>
+                        <td class="py-3 px-4">342 ms</td>
+                        <td class="py-3 px-4"><span class="health-badge success">Sağlıklı</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <button class="marketplace-action-btn">
+            <i class="ph ph-sync mr-2"></i>
+            Tüm Bağlantıları Test Et
+        </button>
+        <button class="marketplace-action-btn">
+            <i class="ph ph-note-pencil mr-2"></i>
+            Senkronizasyonu Başlat
+        </button>
+        <button class="marketplace-action-btn">
+            <i class="ph ph-chart-line mr-2"></i>
+            Detaylı Rapor
+        </button>
+    </div>
+
+    <!-- Recent Health Log -->
+    <div class="meschain-card">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Son Sağlık Kayıtları</h3>
+            <button class="btn-secondary">
+                <i class="ph ph-eye mr-2"></i>
+                Tüm Kayıtları Gör
+            </button>
+        </div>
+        <div class="space-y-4">
+            <div class="health-log-item">
+                <div class="flex items-start">
+                    <div class="health-log-icon success">
+                        <i class="ph ph-check-circle"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold text-gray-900 dark:text-white">Trendyol API Senkronizasyonu</p>
+                        <p class="text-gray-600 dark:text-gray-300">API bağlantısı başarılı. 3,245 ürün ve 152 sipariş senkronize edildi.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">5 dakika önce</p>
+                    </div>
+                </div>
+            </div>
+            <div class="health-log-item">
+                <div class="flex items-start">
+                    <div class="health-log-icon warning">
+                        <i class="ph ph-warning"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold text-gray-900 dark:text-white">Ozon API Uyarısı</p>
+                        <p class="text-gray-600 dark:text-gray-300">API yanıt süresi normalden yüksek. Ortalama yanıt süresi: 478ms</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">35 dakika önce</p>
+                    </div>
+                </div>
+            </div>
+            <div class="health-log-item">
+                <div class="flex items-start">
+                    <div class="health-log-icon success">
+                        <i class="ph ph-check-circle"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold text-gray-900 dark:text-white">Amazon Turkey API Senkronizasyonu</p>
+                        <p class="text-gray-600 dark:text-gray-300">API bağlantısı başarılı. 2,187 ürün ve 98 sipariş senkronize edildi.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">8 dakika önce</p>
+                    </div>
+                </div>
+            </div>
+            <div class="health-log-item">
+                <div class="flex items-start">
+                    <div class="health-log-icon success">
+                        <i class="ph ph-check-circle"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold text-gray-900 dark:text-white">N11 API Senkronizasyonu</p>
+                        <p class="text-gray-600 dark:text-gray-300">API bağlantısı başarılı. 1,956 ürün ve 73 sipariş senkronize edildi.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">12 dakika önce</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

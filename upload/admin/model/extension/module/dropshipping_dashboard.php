@@ -2,19 +2,19 @@
 /**
  * Dropshipping Dashboard Model
  * MesChain-Sync OpenCart Extension
- * 
+ *
  * @package MesChain-Sync
  * @version 3.0.4.0
  * @author MesChain Development Team
  */
 
 class ModelExtensionModuleDropshippingDashboard extends Model {
-    
+
     private $dropship_table = 'meschain_dropshipping';
     private $supplier_table = 'meschain_dropship_suppliers';
     private $order_table = 'meschain_dropship_orders';
     private $product_table = 'meschain_dropship_products';
-    
+
     /**
      * Initialize dropshipping tables
      *
@@ -42,7 +42,7 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
                 KEY `status` (`status`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ");
-        
+
         $this->db->query("
             CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . $this->product_table . "` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -68,7 +68,7 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
                 FOREIGN KEY (`supplier_id`) REFERENCES `" . DB_PREFIX . $this->supplier_table . "` (`id`) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ");
-        
+
         $this->db->query("
             CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . $this->order_table . "` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -95,7 +95,7 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
                 FOREIGN KEY (`supplier_id`) REFERENCES `" . DB_PREFIX . $this->supplier_table . "` (`id`) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ");
-        
+
         $this->db->query("
             CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . $this->dropship_table . "` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -109,62 +109,62 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ");
     }
-    
+
     /**
      * Get dashboard statistics
      *
      * @return array Dashboard statistics
      */
     public function getDashboardStats() {
-        $stats = [
-            'suppliers' => [
+        $stats = array(
+            'suppliers' => array(
                 'total' => 0,
                 'active' => 0,
                 'inactive' => 0
-            ],
-            'products' => [
+            ),
+            'products' => array(
                 'total' => 0,
                 'synced' => 0,
                 'pending' => 0,
                 'failed' => 0,
                 'low_stock' => 0
-            ],
-            'orders' => [
+            ),
+            'orders' => array(
                 'total' => 0,
                 'pending' => 0,
                 'processing' => 0,
                 'shipped' => 0,
                 'delivered' => 0,
                 'cancelled' => 0
-            ],
-            'revenue' => [
+            ),
+            'revenue' => array(
                 'total' => 0,
                 'this_month' => 0,
                 'last_month' => 0,
                 'total_profit' => 0,
                 'total_commission' => 0
-            ]
-        ];
-        
+            )
+        );
+
         // Supplier statistics
         $query = $this->db->query("
-            SELECT 
+            SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as active,
                 SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as inactive
             FROM " . DB_PREFIX . $this->supplier_table
         );
-        
+
         if ($query->num_rows) {
             $row = $query->row;
             $stats['suppliers']['total'] = (int)$row['total'];
             $stats['suppliers']['active'] = (int)$row['active'];
             $stats['suppliers']['inactive'] = (int)$row['inactive'];
         }
-        
+
         // Product statistics
         $query = $this->db->query("
-            SELECT 
+            SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN sync_status = 'synced' THEN 1 ELSE 0 END) as synced,
                 SUM(CASE WHEN sync_status = 'pending' THEN 1 ELSE 0 END) as pending,
@@ -172,7 +172,7 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
                 SUM(CASE WHEN stock_quantity <= min_stock_level THEN 1 ELSE 0 END) as low_stock
             FROM " . DB_PREFIX . $this->product_table
         );
-        
+
         if ($query->num_rows) {
             $row = $query->row;
             $stats['products']['total'] = (int)$row['total'];
@@ -181,10 +181,10 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
             $stats['products']['failed'] = (int)$row['failed'];
             $stats['products']['low_stock'] = (int)$row['low_stock'];
         }
-        
+
         // Order statistics
         $query = $this->db->query("
-            SELECT 
+            SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
                 SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) as processing,
@@ -193,7 +193,7 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
                 SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled
             FROM " . DB_PREFIX . $this->order_table
         );
-        
+
         if ($query->num_rows) {
             $row = $query->row;
             $stats['orders']['total'] = (int)$row['total'];
@@ -203,10 +203,10 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
             $stats['orders']['delivered'] = (int)$row['delivered'];
             $stats['orders']['cancelled'] = (int)$row['cancelled'];
         }
-        
+
         // Revenue statistics
         $query = $this->db->query("
-            SELECT 
+            SELECT
                 SUM(total_amount) as total_revenue,
                 SUM(profit_amount) as total_profit,
                 SUM(commission_amount) as total_commission,
@@ -215,7 +215,7 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
             FROM " . DB_PREFIX . $this->order_table . "
             WHERE status != 'cancelled'
         ");
-        
+
         if ($query->num_rows) {
             $row = $query->row;
             $stats['revenue']['total'] = (float)$row['total_revenue'];
@@ -224,145 +224,145 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
             $stats['revenue']['total_profit'] = (float)$row['total_profit'];
             $stats['revenue']['total_commission'] = (float)$row['total_commission'];
         }
-        
+
         return $stats;
     }
-    
+
     /**
      * Get suppliers list
      *
      * @param array $filters Filter options
      * @return array Suppliers data
      */
-    public function getSuppliers($filters = []) {
+    public function getSuppliers($filters = array()) {
         $sql = "SELECT * FROM " . DB_PREFIX . $this->supplier_table;
-        $where = [];
-        
+        $where = array();
+
         if (!empty($filters['status'])) {
             $where[] = "status = " . (int)$filters['status'];
         }
-        
+
         if (!empty($filters['marketplace'])) {
             $where[] = "marketplace = '" . $this->db->escape($filters['marketplace']) . "'";
         }
-        
+
         if (!empty($filters['search'])) {
             $where[] = "(name LIKE '%" . $this->db->escape($filters['search']) . "%' OR email LIKE '%" . $this->db->escape($filters['search']) . "%')";
         }
-        
+
         if (!empty($where)) {
             $sql .= " WHERE " . implode(" AND ", $where);
         }
-        
+
         $sql .= " ORDER BY name ASC";
-        
+
         if (isset($filters['limit']) && $filters['limit'] > 0) {
             $sql .= " LIMIT " . (int)$filters['limit'];
-            
+
             if (isset($filters['offset']) && $filters['offset'] > 0) {
                 $sql .= " OFFSET " . (int)$filters['offset'];
             }
         }
-        
+
         $query = $this->db->query($sql);
-        
+
         return $query->rows;
     }
-    
+
     /**
      * Get dropshipping products
      *
      * @param array $filters Filter options
      * @return array Products data
      */
-    public function getDropshippingProducts($filters = []) {
+    public function getDropshippingProducts($filters = array()) {
         $sql = "SELECT dp.*, s.name as supplier_name, p.name as product_name, p.model
                 FROM " . DB_PREFIX . $this->product_table . " dp
                 LEFT JOIN " . DB_PREFIX . $this->supplier_table . " s ON dp.supplier_id = s.id
                 LEFT JOIN " . DB_PREFIX . "product p ON dp.opencart_product_id = p.product_id";
-        
-        $where = [];
-        
+
+        $where = array();
+
         if (!empty($filters['supplier_id'])) {
             $where[] = "dp.supplier_id = " . (int)$filters['supplier_id'];
         }
-        
+
         if (!empty($filters['sync_status'])) {
             $where[] = "dp.sync_status = '" . $this->db->escape($filters['sync_status']) . "'";
         }
-        
+
         if (!empty($filters['low_stock'])) {
             $where[] = "dp.stock_quantity <= dp.min_stock_level";
         }
-        
+
         if (!empty($filters['search'])) {
             $where[] = "(p.name LIKE '%" . $this->db->escape($filters['search']) . "%' OR dp.supplier_sku LIKE '%" . $this->db->escape($filters['search']) . "%')";
         }
-        
+
         if (!empty($where)) {
             $sql .= " WHERE " . implode(" AND ", $where);
         }
-        
+
         $sql .= " ORDER BY dp.date_modified DESC";
-        
+
         if (isset($filters['limit']) && $filters['limit'] > 0) {
             $sql .= " LIMIT " . (int)$filters['limit'];
         }
-        
+
         $query = $this->db->query($sql);
-        
+
         return $query->rows;
     }
-    
+
     /**
      * Get dropshipping orders
      *
      * @param array $filters Filter options
      * @return array Orders data
      */
-    public function getDropshippingOrders($filters = []) {
+    public function getDropshippingOrders($filters = array()) {
         $sql = "SELECT do.*, s.name as supplier_name, o.firstname, o.lastname, o.email
                 FROM " . DB_PREFIX . $this->order_table . " do
                 LEFT JOIN " . DB_PREFIX . $this->supplier_table . " s ON do.supplier_id = s.id
                 LEFT JOIN " . DB_PREFIX . "order o ON do.opencart_order_id = o.order_id";
-        
-        $where = [];
-        
+
+        $where = array();
+
         if (!empty($filters['supplier_id'])) {
             $where[] = "do.supplier_id = " . (int)$filters['supplier_id'];
         }
-        
+
         if (!empty($filters['status'])) {
             $where[] = "do.status = '" . $this->db->escape($filters['status']) . "'";
         }
-        
+
         if (!empty($filters['shipping_status'])) {
             $where[] = "do.shipping_status = '" . $this->db->escape($filters['shipping_status']) . "'";
         }
-        
+
         if (!empty($filters['date_from'])) {
             $where[] = "do.date_added >= '" . $this->db->escape($filters['date_from']) . "'";
         }
-        
+
         if (!empty($filters['date_to'])) {
             $where[] = "do.date_added <= '" . $this->db->escape($filters['date_to']) . "'";
         }
-        
+
         if (!empty($where)) {
             $sql .= " WHERE " . implode(" AND ", $where);
         }
-        
+
         $sql .= " ORDER BY do.date_added DESC";
-        
+
         if (isset($filters['limit']) && $filters['limit'] > 0) {
             $sql .= " LIMIT " . (int)$filters['limit'];
         }
-        
+
         $query = $this->db->query($sql);
-        
+
         return $query->rows;
     }
-    
+
     /**
      * Get profit analysis
      *
@@ -370,77 +370,75 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
      * @return array Profit analysis data
      */
     public function getProfitAnalysis($days = 30) {
-        $analysis = [
-            'daily_profit' => [],
-            'supplier_profit' => [],
-            'product_profit' => [],
+        $analysis = array(
+            'daily_profit' => array(),
+            'supplier_profit' => array(),
+            'product_profit' => array(),
             'total_profit' => 0,
             'average_margin' => 0
-        ];
-        
+        );
+
         // Daily profit analysis
-        $query = $this->db->query("
-            SELECT 
-                DATE(date_added) as date,
-                SUM(profit_amount) as daily_profit,
-                COUNT(*) as order_count
-            FROM " . DB_PREFIX . $this->order_table . "
-            WHERE date_added >= DATE_SUB(CURDATE(), INTERVAL " . (int)$days . " DAY)
-            AND status != 'cancelled'
-            GROUP BY DATE(date_added)
-            ORDER BY date DESC
-        ");
-        
+        $sql = "SELECT
+                    DATE(date_added) as date,
+                    SUM(profit_amount) as daily_profit,
+                    COUNT(*) as order_count
+                FROM " . DB_PREFIX . $this->order_table . "
+                WHERE date_added >= DATE_SUB(CURDATE(), INTERVAL " . (int)$days . " DAY)
+                AND status != 'cancelled'
+                GROUP BY DATE(date_added)
+                ORDER BY date DESC";
+
+        $query = $this->db->query($sql);
+
         foreach ($query->rows as $row) {
-            $analysis['daily_profit'][] = [
+            $analysis['daily_profit'][] = array(
                 'date' => $row['date'],
                 'profit' => (float)$row['daily_profit'],
                 'orders' => (int)$row['order_count']
-            ];
+            );
             $analysis['total_profit'] += (float)$row['daily_profit'];
         }
-        
+
         // Supplier profit analysis
-        $query = $this->db->query("
-            SELECT 
-                s.name,
-                s.id,
-                SUM(do.profit_amount) as total_profit,
-                COUNT(do.id) as order_count,
-                AVG(dp.profit_margin) as avg_margin
-            FROM " . DB_PREFIX . $this->order_table . " do
-            LEFT JOIN " . DB_PREFIX . $this->supplier_table . " s ON do.supplier_id = s.id
-            LEFT JOIN " . DB_PREFIX . $this->product_table . " dp ON do.supplier_id = dp.supplier_id
-            WHERE do.date_added >= DATE_SUB(CURDATE(), INTERVAL " . (int)$days . " DAY)
-            AND do.status != 'cancelled'
-            GROUP BY s.id
-            ORDER BY total_profit DESC
-            LIMIT 10
-        ");
-        
+        $sql = "SELECT
+                    s.name,
+                    s.id,
+                    SUM(do.profit_amount) as total_profit,
+                    COUNT(do.id) as order_count,
+                    AVG(dp.profit_margin) as avg_margin
+                FROM " . DB_PREFIX . $this->order_table . " do
+                LEFT JOIN " . DB_PREFIX . $this->supplier_table . " s ON do.supplier_id = s.id
+                LEFT JOIN " . DB_PREFIX . $this->product_table . " dp ON do.supplier_id = dp.supplier_id
+                WHERE do.date_added >= DATE_SUB(CURDATE(), INTERVAL " . (int)$days . " DAY)
+                AND do.status != 'cancelled'
+                GROUP BY s.id
+                ORDER BY total_profit DESC
+                LIMIT 10";
+
+        $query = $this->db->query($sql);
+
         foreach ($query->rows as $row) {
-            $analysis['supplier_profit'][] = [
+            $analysis['supplier_profit'][] = array(
                 'supplier_id' => (int)$row['id'],
                 'supplier_name' => $row['name'],
                 'profit' => (float)$row['total_profit'],
                 'orders' => (int)$row['order_count'],
                 'avg_margin' => (float)$row['avg_margin']
-            ];
+            );
         }
-        
+
         // Calculate average margin
-        $query = $this->db->query("
-            SELECT AVG(profit_margin) as avg_margin
-            FROM " . DB_PREFIX . $this->product_table
-        ");
-        
+        $sql = "SELECT AVG(profit_margin) as avg_margin FROM " . DB_PREFIX . $this->product_table;
+        $query = $this->db->query($sql);
+
         if ($query->num_rows) {
             $analysis['average_margin'] = (float)$query->row['avg_margin'];
         }
-        
+
         return $analysis;
     }
-    
+
     /**
      * Update product stock from supplier
      *
@@ -455,16 +453,16 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
                 LEFT JOIN " . DB_PREFIX . $this->supplier_table . " s ON dp.supplier_id = s.id
                 WHERE dp.id = " . (int)$product_id
             );
-            
+
             if (!$query->num_rows) {
                 return false;
             }
-            
+
             $product = $query->row;
-            
+
             // Here you would implement actual API calls to suppliers
             // For now, we'll just mark as synced
-            
+
             $this->db->query("
                 UPDATE " . DB_PREFIX . $this->product_table . "
                 SET sync_status = 'synced',
@@ -472,9 +470,9 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
                     error_message = ''
                 WHERE id = " . (int)$product_id
             );
-            
+
             return true;
-            
+
         } catch (Exception $e) {
             $this->db->query("
                 UPDATE " . DB_PREFIX . $this->product_table . "
@@ -483,11 +481,11 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
                     error_message = '" . $this->db->escape($e->getMessage()) . "'
                 WHERE id = " . (int)$product_id
             );
-            
+
             return false;
         }
     }
-    
+
     /**
      * Create dropshipping order
      *
@@ -509,14 +507,14 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
                     '" . $this->db->escape(json_encode($order_data['product_data'])) . "'
                 )
             ");
-            
+
             return $this->db->getLastId();
-            
+
         } catch (Exception $e) {
             return false;
         }
     }
-    
+
     /**
      * Get low stock alerts
      *
@@ -532,7 +530,7 @@ class ModelExtensionModuleDropshippingDashboard extends Model {
             AND s.status = 1
             ORDER BY dp.stock_quantity ASC
         ");
-        
+
         return $query->rows;
     }
 }

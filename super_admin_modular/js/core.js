@@ -8,23 +8,64 @@
 let currentLanguage = localStorage.getItem('meschain-language') || 'tr';
 let currentTheme = localStorage.getItem('meschain-theme') || 'light';
 
-// Core initialization function
+// Core initialization function with proper error handling
 function initializeMesChainCore() {
     console.log('🚀 MesChain-Sync Core initialization starting...');
-    
-    // Initialize all core modules
-    initializeThemeSystem();
-    initializeLanguageSystem();
-    initializeSidebar();
-    initializeNotificationSystem();
-    initializeHealthMonitoring();
-    initializeNavigation();
-    initializeDropdowns(); // Tüm dropdown menüleri için
-    
-    console.log('🚀 MesChain-Sync Super Admin Panel v4.1 - PRODUCTION READY');
-    console.log('📋 VSCode Team Task Completed Successfully');
-    console.log('🔐 Official Authentication Gateway');
-    console.log('⚡ All systems operational');
+
+    try {
+        // Initialize all core modules with error checking
+        if (typeof initializeThemeSystem === 'function') {
+            initializeThemeSystem();
+        } else {
+            console.warn('⚠️ initializeThemeSystem not available');
+        }
+
+        if (typeof initializeLanguageSystem === 'function') {
+            initializeLanguageSystem();
+        } else {
+            console.warn('⚠️ initializeLanguageSystem not available');
+        }
+
+        if (typeof initializeSidebar === 'function') {
+            initializeSidebar();
+        } else if (typeof UltraSidebarManager !== 'undefined' && UltraSidebarManager.init) {
+            UltraSidebarManager.init();
+        } else {
+            console.warn('⚠️ No sidebar initialization function available');
+        }
+
+        if (typeof initializeNotificationSystem === 'function') {
+            initializeNotificationSystem();
+        } else {
+            console.warn('⚠️ initializeNotificationSystem not available');
+        }
+
+        if (typeof initializeHealthMonitoring === 'function') {
+            initializeHealthMonitoring();
+        } else {
+            console.warn('⚠️ initializeHealthMonitoring not available');
+        }
+
+        if (typeof initializeNavigation === 'function') {
+            initializeNavigation();
+        } else {
+            console.warn('⚠️ initializeNavigation not available');
+        }
+
+        if (typeof initializeDropdowns === 'function') {
+            initializeDropdowns();
+        } else {
+            console.warn('⚠️ initializeDropdowns not available');
+        }
+
+        console.log('🚀 MesChain-Sync Super Admin Panel v4.1 - PRODUCTION READY');
+        console.log('📋 VSCode Team Task Completed Successfully');
+        console.log('🔐 Official Authentication Gateway');
+        console.log('⚡ All systems operational');
+
+    } catch (error) {
+        console.error('❌ Error during core initialization:', error);
+    }
 }
 
 // Utility functions
@@ -54,7 +95,13 @@ function throttle(func, limit) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', initializeMesChainCore);
+document.addEventListener('DOMContentLoaded', () => {
+    // Start core initialization
+    initializeMesChainCore();
+
+    // Track initialization with log
+    console.log('💡 MesChain-Sync Super Admin Panel initialization complete');
+});
 
 // Make core functions globally available
 window.MesChain = {
@@ -79,27 +126,34 @@ function showSection(sectionId) {
         section.classList.add('hidden');
         section.classList.remove('active');
     });
-    
+
     // Show target section
     const targetSection = document.getElementById(`${sectionId}-section`);
     if (targetSection) {
         targetSection.classList.remove('hidden');
         targetSection.classList.add('active');
-        
+
+        // Initialize marketplace charts if marketplace overview section
+        if (sectionId === 'marketplace-overview') {
+            setTimeout(() => {
+                initializeMarketplaceCharts();
+            }, 100);
+        }
+
         // Add entrance animation
         targetSection.style.opacity = '0';
         targetSection.style.transform = 'translateY(20px)';
-        
+
         setTimeout(() => {
             targetSection.style.opacity = '1';
             targetSection.style.transform = 'translateY(0)';
             targetSection.style.transition = 'all 0.3s ease-out';
         }, 50);
     }
-    
+
     // Update active nav link
     updateActiveNavLink(sectionId);
-    
+
     // Log section change
     console.log(`🎯 Section changed to: ${sectionId}`);
 }
@@ -111,7 +165,7 @@ function updateActiveNavLink(sectionId) {
     allNavLinks.forEach(link => {
         link.classList.remove('active');
     });
-    
+
     // Add active to current section link
     const activeLink = document.querySelector(`[data-section="${sectionId}"]`);
     if (activeLink) {
@@ -122,7 +176,7 @@ function updateActiveNavLink(sectionId) {
 // Handle navigation clicks
 function handleNavigation() {
     const navLinks = document.querySelectorAll('.meschain-nav-link');
-    
+
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -137,10 +191,10 @@ function handleNavigation() {
 // Initialize navigation system
 function initializeNavigation() {
     handleNavigation();
-    
+
     // Show dashboard by default
     showSection('dashboard');
-    
+
     console.log('🎯 Navigation system initialized');
 }
 
@@ -157,12 +211,12 @@ const ContentCache = {
         misses: 0,
         requests: 0
     },
-    
+
     // Get content from cache or fetch if not available
     async get(key, fetchCallback) {
         this.metrics.requests++;
         const now = Date.now();
-        
+
         if (this.cache.has(key)) {
             const item = this.cache.get(key);
             if (now < item.expiry) {
@@ -170,30 +224,30 @@ const ContentCache = {
                 return item.data;
             }
         }
-        
+
         // Cache miss or expired
         this.metrics.misses++;
         console.log(`Content cache miss for: ${key}`);
-        
+
         try {
             // Add performance mark for tracking
             performance.mark(`content-fetch-start-${key}`);
-            
+
             const data = await fetchCallback();
-            
+
             performance.mark(`content-fetch-end-${key}`);
             performance.measure(
                 `content-fetch-${key}`,
                 `content-fetch-start-${key}`,
                 `content-fetch-end-${key}`
             );
-            
+
             // Store in cache
             this.cache.set(key, {
                 data,
                 expiry: now + this.ttl
             });
-            
+
             return data;
         } catch (error) {
             console.error(`Error fetching content for ${key}:`, error);
@@ -205,15 +259,15 @@ const ContentCache = {
             throw error;
         }
     },
-    
+
     // Manually invalidate cache item
     invalidate(key) {
         this.cache.delete(key);
     },
-    
+
     // Get cache hit rate
     getHitRate() {
-        return this.metrics.requests === 0 ? 0 : 
+        return this.metrics.requests === 0 ? 0 :
             Math.round((this.metrics.hits / this.metrics.requests) * 100);
     }
 };
@@ -222,7 +276,7 @@ const ContentCache = {
 async function fetchContent(url, options = {}) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), options.timeout || 5000);
-    
+
     try {
         const response = await fetch(url, {
             ...options,
@@ -232,13 +286,13 @@ async function fetchContent(url, options = {}) {
                 ...(options.headers || {})
             }
         });
-        
+
         clearTimeout(timeoutId);
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error: ${response.status}`);
         }
-        
+
         return await response.text();
     } catch (error) {
         clearTimeout(timeoutId);
@@ -252,12 +306,12 @@ async function loadSectionContent(sectionId) {
     try {
         // Show loading state instantly
         const section = document.getElementById(`${sectionId}-section`);
-        
+
         // Check if content already loaded
         if (section && section.dataset.loaded === 'true') {
             return;
         }
-        
+
         // Show loading skeleton
         if (section) {
             section.innerHTML = `<div class="content-skeleton">
@@ -267,12 +321,12 @@ async function loadSectionContent(sectionId) {
                 <div class="skeleton-text"></div>
             </div>`;
         }
-        
+
         // Set loading state
         if (typeof showNotification === 'function') {
             showNotification('⏳', `${sectionId} içeriği yükleniyor...`, 'info', 500);
         }
-        
+
         // Load content based on section with caching
         try {
             switch(sectionId) {
@@ -294,7 +348,7 @@ async function loadSectionContent(sectionId) {
                 default:
                     console.log(`No specific loader for section: ${sectionId}`);
             }
-            
+
             // Mark as loaded
             if (section) {
                 section.dataset.loaded = 'true';
@@ -309,7 +363,7 @@ async function loadSectionContent(sectionId) {
             if (typeof showNotification === 'function') {
                 showNotification('❌', `${sectionId} içeriği yüklenirken hata oluştu`, 'error');
             }
-            
+
             // Show error state in the section
             if (section) {
                 section.innerHTML = `
@@ -321,14 +375,14 @@ async function loadSectionContent(sectionId) {
                 </div>`;
             }
         }
-        
+
     } catch (error) {
         console.error(`Critical error loading section ${sectionId}:`, error);
     }
 async function loadAnalyticsContent() {
     const analyticsSection = document.getElementById('analytics-section');
     if (!analyticsSection) return;
-    
+
     try {
         // Use ContentCache to optimize API request with TTL of 5 minutes
         const data = await ContentCache.get('analytics-dashboard', async () => {
@@ -339,10 +393,10 @@ async function loadAnalyticsContent() {
             });
             return JSON.parse(response);
         }, 300000); // 5 minute TTL
-        
+
         // Progressive rendering - start with essential metrics first
         renderAnalyticsCharts(data);
-        
+
     } catch (error) {
         console.error('Error loading analytics content:', error);
         analyticsSection.innerHTML = `
@@ -360,7 +414,7 @@ async function loadAnalyticsContent() {
 async function loadSystemStatusContent() {
     const systemsSection = document.getElementById('systems-section');
     if (!systemsSection) return;
-    
+
     try {
         // Use a shorter TTL for system status (1 minute) as this is more time-sensitive
         const statusData = await ContentCache.get('systems-status', async () => {
@@ -370,9 +424,9 @@ async function loadSystemStatusContent() {
             });
             return JSON.parse(response);
         }, 60000); // 1 minute TTL
-        
+
         renderSystemStatus(statusData);
-        
+
     } catch (error) {
         console.error('Error loading systems status:', error);
         systemsSection.innerHTML = `
@@ -389,7 +443,7 @@ async function loadSystemStatusContent() {
 async function loadPerformanceContent() {
     const perfSection = document.getElementById('performance-section');
     if (!perfSection) return;
-    
+
     try {
         // Fetch data with parallel Promise.all pattern for reduced latency
         // Use ContentCache for both API requests
@@ -401,7 +455,7 @@ async function loadPerformanceContent() {
                 });
                 return JSON.parse(response);
             }, 120000), // 2 minute TTL
-            
+
             ContentCache.get('perf-history', async () => {
                 const response = await fetchContent('/api/performance/history', {
                     headers: { 'Accept': 'application/json' },
@@ -410,10 +464,10 @@ async function loadPerformanceContent() {
                 return JSON.parse(response);
             }, 300000) // 5 minute TTL for historical data (changes less frequently)
         ]);
-        
+
         // Progressive rendering - render metrics first, then add charts
         renderPerformanceMetrics(perfData, historyData);
-        
+
     } catch (error) {
         console.error('Error loading performance content:', error);
         perfSection.innerHTML = `
@@ -430,7 +484,7 @@ async function loadPerformanceContent() {
 async function loadChainSyncContent() {
     const syncSection = document.getElementById('chain-sync-section');
     if (!syncSection) return;
-    
+
     try {
         // Use ContentCache with 2 minute TTL
         const syncData = await ContentCache.get('chain-sync-status', async () => {
@@ -440,9 +494,9 @@ async function loadChainSyncContent() {
             });
             return JSON.parse(response);
         }, 120000); // 2 minute TTL
-        
+
         renderChainSyncStatus(syncData);
-        
+
     } catch (error) {
         console.error('Error loading chain sync content:', error);
         syncSection.innerHTML = `
@@ -459,14 +513,14 @@ async function loadChainSyncContent() {
 async function loadMeshNetworkContent() {
     const networkSection = document.getElementById('mesh-network-section');
     if (!networkSection) return;
-    
+
     // Show loading state for complex network topology
     networkSection.innerHTML = `
         <div class="loading-container">
             <div class="loading-spinner"></div>
             <p>Ağ topolojisi yükleniyor...</p>
         </div>`;
-    
+
     try {
         // The mesh network topology may be complex, so use a longer timeout
         // but shorter TTL since network state changes frequently
@@ -477,10 +531,10 @@ async function loadMeshNetworkContent() {
             });
             return JSON.parse(response);
         }, 90000); // 1.5 minute TTL
-        
+
         // Progressive rendering - first show summary, then render full topology
         renderMeshNetwork(networkData);
-        
+
         // For large networks, render in stages
         if (networkData.nodes && networkData.nodes.length > 50) {
             // For complex networks, first show summary stats
@@ -493,7 +547,7 @@ async function loadMeshNetworkContent() {
             // For smaller networks, render everything at once
             renderFullMeshVisualization(networkData);
         }
-        
+
     } catch (error) {
         console.error('Error loading mesh network content:', error);
         networkSection.innerHTML = `
@@ -621,7 +675,7 @@ async function showSectionWithContent(sectionId) {
         section.classList.add('hidden');
         section.classList.remove('active');
     });
-    
+
     // Load content based on section
     switch(sectionId) {
         case 'team':
@@ -640,27 +694,27 @@ async function showSectionWithContent(sectionId) {
             await loadSystemStatusEngineContent();
             break;
     }
-    
+
     // Show target section
     const targetSection = document.getElementById(`${sectionId}-section`);
     if (targetSection) {
         targetSection.classList.remove('hidden');
         targetSection.classList.add('active');
-        
+
         // Add entrance animation
         targetSection.style.opacity = '0';
         targetSection.style.transform = 'translateY(20px)';
-        
+
         setTimeout(() => {
             targetSection.style.opacity = '1';
             targetSection.style.transform = 'translateY(0)';
             targetSection.style.transition = 'all 0.3s ease-out';
         }, 50);
     }
-    
+
     // Update active nav link
     updateActiveNavLink(sectionId);
-    
+
     // Log section change
     console.log(`🎯 Section changed to: ${sectionId} with content loading`);
 }
@@ -674,32 +728,41 @@ window.showSection = showSectionWithContent;
 
 // Initialize dropdown system
 function initializeDropdowns() {
+    console.log('🔽 Initializing all dropdown menus...');
+
     // Add event listeners for all dropdowns
     initializeLanguageDropdown();
     initializeNotificationDropdown();
     initializeSettingsDropdown();
     initializeQuickAccessDropdown();
     initializeMarketplaceDropdown();
-    initializeAlertsDropdown();
+
+    // Initialize alerts/extensions dropdown with enhanced version
+    initializeAlertsDropdownEnhanced();
+
+    // Setup warnings menu with additional compatibility
+    setupWarningsMenu();
+
+    console.log('✅ All dropdown menus initialized successfully');
 }
 
 // Language dropdown
 function initializeLanguageDropdown() {
     const languageToggle = document.getElementById('languageToggle');
     const languageMenu = document.getElementById('languageMenu');
-    
+
     if (languageToggle && languageMenu) {
         // Click handler
         languageToggle.addEventListener('click', (e) => {
             e.stopPropagation();
             toggleDropdown(languageMenu);
         });
-        
+
         // Hover handlers
         languageToggle.addEventListener('mouseenter', () => {
             showDropdown(languageMenu);
         });
-        
+
         languageToggle.parentElement.addEventListener('mouseleave', () => {
             hideDropdown(languageMenu);
         });
@@ -710,19 +773,19 @@ function initializeLanguageDropdown() {
 function initializeNotificationDropdown() {
     const notificationButton = document.querySelector('.notification-dropdown button');
     const notificationMenu = document.querySelector('.notification-menu');
-    
+
     if (notificationButton && notificationMenu) {
         // Click handler
         notificationButton.addEventListener('click', (e) => {
             e.stopPropagation();
             toggleDropdown(notificationMenu);
         });
-        
+
         // Hover handlers
         notificationButton.addEventListener('mouseenter', () => {
             showDropdown(notificationMenu);
         });
-        
+
         notificationButton.parentElement.addEventListener('mouseleave', () => {
             hideDropdown(notificationMenu);
         });
@@ -733,19 +796,19 @@ function initializeNotificationDropdown() {
 function initializeSettingsDropdown() {
     const settingsButton = document.querySelector('.settings-dropdown button');
     const settingsMenu = document.querySelector('.settings-menu');
-    
+
     if (settingsButton && settingsMenu) {
         // Click handler
         settingsButton.addEventListener('click', (e) => {
             e.stopPropagation();
             toggleDropdown(settingsMenu);
         });
-        
+
         // Hover handlers
         settingsButton.addEventListener('mouseenter', () => {
             showDropdown(settingsMenu);
         });
-        
+
         settingsButton.parentElement.addEventListener('mouseleave', () => {
             hideDropdown(settingsMenu);
         });
@@ -756,13 +819,13 @@ function initializeSettingsDropdown() {
 function initializeQuickAccessDropdown() {
     const quickAccessButton = document.querySelector('[onclick="toggleQuickAccess()"]');
     const quickAccessMenu = document.getElementById('quickAccessMenu');
-    
+
     if (quickAccessButton && quickAccessMenu) {
         // Hover handlers
         quickAccessButton.addEventListener('mouseenter', () => {
             showDropdown(quickAccessMenu);
         });
-        
+
         quickAccessButton.parentElement.addEventListener('mouseleave', () => {
             hideDropdown(quickAccessMenu);
         });
@@ -773,13 +836,13 @@ function initializeQuickAccessDropdown() {
 function initializeMarketplaceDropdown() {
     const marketplaceButton = document.querySelector('[onclick="toggleMarketplaceToolbar()"]');
     const marketplaceMenu = document.getElementById('marketplaceToolbar');
-    
+
     if (marketplaceButton && marketplaceMenu) {
         // Hover handlers
         marketplaceButton.addEventListener('mouseenter', () => {
             showDropdown(marketplaceMenu);
         });
-        
+
         marketplaceButton.parentElement.addEventListener('mouseleave', () => {
             hideDropdown(marketplaceMenu);
         });
@@ -790,13 +853,13 @@ function initializeMarketplaceDropdown() {
 function initializeAlertsDropdown() {
     const alertsButton = document.querySelector('[onclick="toggleAlertsMenu()"]');
     const alertsMenu = document.getElementById('alertsMenu');
-    
+
     if (alertsButton && alertsMenu) {
         // Hover handlers
         alertsButton.addEventListener('mouseenter', () => {
             showDropdown(alertsMenu);
         });
-        
+
         alertsButton.parentElement.addEventListener('mouseleave', () => {
             hideDropdown(alertsMenu);
         });
@@ -833,7 +896,7 @@ function toggleDropdown(menu) {
 // Close dropdowns when clicking outside
 document.addEventListener('click', (e) => {
     const dropdowns = document.querySelectorAll('[id$="Menu"], .notification-menu, .settings-menu, .warning-menu');
-    
+
     // If click target is not inside any dropdown and not a dropdown toggle button
     if (!e.target.closest('[id$="Menu"], .notification-menu, .settings-menu, .warning-menu, [onclick*="toggle"]')) {
         // Hide all dropdowns
@@ -848,16 +911,16 @@ function setupWarningsMenu() {
     // Use more flexible selectors, as ids might have changed or not be consistent
     const warningsToggle = document.querySelector('[data-dropdown="warnings"], #warningsToggle, .warnings-toggle');
     const warningsMenu = document.querySelector('#warningsMenu, .warnings-menu, .warning-extensions-menu');
-    
+
     console.log('🔍 Setting up warnings menu:', warningsToggle ? 'Toggle found' : 'Toggle missing', warningsMenu ? 'Menu found' : 'Menu missing');
-    
+
     if (warningsToggle && warningsMenu) {
         // Remove any existing event listeners first to prevent duplicates
         const newWarningsToggle = warningsToggle.cloneNode(true);
         if (warningsToggle.parentNode) {
             warningsToggle.parentNode.replaceChild(newWarningsToggle, warningsToggle);
         }
-        
+
         // Add click functionality - critical for mobile/touch
         newWarningsToggle.addEventListener('click', function(e) {
             e.preventDefault();
@@ -865,13 +928,13 @@ function setupWarningsMenu() {
             console.log('🖱️ Warnings toggle clicked');
             toggleDropdown(warningsMenu);
         });
-        
+
         // Add hover functionality - better UX for desktop
         newWarningsToggle.addEventListener('mouseenter', function() {
             console.log('🖱️ Warnings toggle mouse enter');
             showDropdown(warningsMenu);
         });
-        
+
         // Handle parent container for better hover behavior
         const warningsContainer = newWarningsToggle.closest('.relative, .dropdown-container');
         if (warningsContainer) {
@@ -884,26 +947,26 @@ function setupWarningsMenu() {
                 }, 200);
             });
         }
-        
+
         // Make sure menu has mouseenter/leave handlers
         warningsMenu.addEventListener('mouseenter', function() {
             console.log('🖱️ Warnings menu mouse enter');
             showDropdown(warningsMenu);
         });
-        
+
         warningsMenu.addEventListener('mouseleave', function() {
             console.log('🖱️ Warnings menu mouse leave');
             setTimeout(() => {
-                if (!newWarningsToggle.matches(':hover') && 
+                if (!newWarningsToggle.matches(':hover') &&
                     (!warningsContainer || !warningsContainer.matches(':hover'))) {
                     hideDropdown(warningsMenu);
                 }
             }, 200);
         });
-        
+
         // Force menu visibility
         warningsMenu.style.display = 'block';
-        
+
         console.log('✅ Warnings menu initialized with robust click and hover support');
     } else {
         console.warn('⚠️ Warnings menu elements not found');
@@ -921,34 +984,34 @@ function switchAlertsTab(tabType) {
     const extensionsTab = document.getElementById('extensionsTab');
     const alertsContent = document.getElementById('alertsContent');
     const extensionsContent = document.getElementById('extensionsContent');
-    
+
     if (tabType === 'alerts') {
         // Activate alerts tab
         alertsTab.classList.add('bg-red-100', 'dark:bg-red-900/30', 'text-red-700', 'dark:text-red-300');
         alertsTab.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-400');
-        
+
         // Deactivate extensions tab
         extensionsTab.classList.remove('bg-green-100', 'dark:bg-green-900/30', 'text-green-700', 'dark:text-green-300');
         extensionsTab.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-400');
-        
+
         // Show/hide content
         alertsContent.classList.remove('hidden');
         extensionsContent.classList.add('hidden');
-        
+
         console.log('🚨 Switched to alerts tab');
     } else if (tabType === 'extensions') {
         // Activate extensions tab
         extensionsTab.classList.add('bg-green-100', 'dark:bg-green-900/30', 'text-green-700', 'dark:text-green-300');
         extensionsTab.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-400');
-        
+
         // Deactivate alerts tab
         alertsTab.classList.remove('bg-red-100', 'dark:bg-red-900/30', 'text-red-700', 'dark:text-red-300');
         alertsTab.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-400');
-        
+
         // Show/hide content
         extensionsContent.classList.remove('hidden');
         alertsContent.classList.add('hidden');
-        
+
         console.log('🧩 Switched to extensions tab');
     }
 }
@@ -957,26 +1020,26 @@ function switchAlertsTab(tabType) {
 function toggleExtension(extensionId) {
     const extension = document.querySelector(`[onclick="toggleExtension('${extensionId}')"]`);
     const statusBadge = extension.parentElement.querySelector('.text-xs.px-2.py-1.rounded');
-    
+
     if (extension) {
         const isActive = extension.classList.contains('bg-green-500');
-        
+
         if (isActive) {
             // Deactivate extension
             extension.classList.remove('bg-green-500');
             extension.classList.add('bg-gray-400');
-            
+
             // Move toggle to left
             const toggleBall = extension.querySelector('div');
             toggleBall.classList.remove('right-0.5');
             toggleBall.classList.add('left-0.5');
-            
+
             // Update status badge
             statusBadge.textContent = 'DEVRE DIŞI';
             statusBadge.className = 'text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded';
-            
+
             console.log(`🔴 Extension ${extensionId} deactivated`);
-            
+
             if (typeof showNotification === 'function') {
                 showNotification('🔴', `${extensionId} eklentisi devre dışı bırakıldı`, 'warning');
             }
@@ -984,18 +1047,18 @@ function toggleExtension(extensionId) {
             // Activate extension
             extension.classList.remove('bg-gray-400');
             extension.classList.add('bg-green-500');
-            
+
             // Move toggle to right
             const toggleBall = extension.querySelector('div');
             toggleBall.classList.remove('left-0.5');
             toggleBall.classList.add('right-0.5');
-            
+
             // Update status badge
             statusBadge.textContent = 'AKTİF';
             statusBadge.className = 'text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded';
-            
+
             console.log(`🟢 Extension ${extensionId} activated`);
-            
+
             if (typeof showNotification === 'function') {
                 showNotification('🟢', `${extensionId} eklentisi etkinleştirildi`, 'success');
             }
@@ -1006,39 +1069,39 @@ function toggleExtension(extensionId) {
 // Toggle all alerts and extensions
 function toggleAllAlertsExtensions() {
     const currentTab = document.getElementById('alertsContent').classList.contains('hidden') ? 'extensions' : 'alerts';
-    
+
     if (currentTab === 'extensions') {
         // Toggle all extensions
         const extensionToggles = document.querySelectorAll('[onclick*="toggleExtension"]');
         let activeCount = 0;
         let totalCount = extensionToggles.length;
-        
+
         // Count active extensions
         extensionToggles.forEach(toggle => {
             if (toggle.classList.contains('bg-green-500')) {
                 activeCount++;
             }
         });
-        
+
         // If more than half are active, turn all off; otherwise, turn all on
         const shouldActivate = activeCount < totalCount / 2;
-        
+
         extensionToggles.forEach(toggle => {
             const extensionId = toggle.getAttribute('onclick').match(/toggleExtension\('(.+)'\)/)[1];
             const isCurrentlyActive = toggle.classList.contains('bg-green-500');
-            
+
             if (shouldActivate && !isCurrentlyActive) {
                 toggleExtension(extensionId);
             } else if (!shouldActivate && isCurrentlyActive) {
                 toggleExtension(extensionId);
             }
         });
-        
+
         const action = shouldActivate ? 'etkinleştirildi' : 'devre dışı bırakıldı';
         if (typeof showNotification === 'function') {
             showNotification('🔄', `Tüm eklentiler ${action}`, 'info');
         }
-        
+
     } else {
         // For alerts, show a notification that they cannot be toggled
         if (typeof showNotification === 'function') {
@@ -1049,35 +1112,33 @@ function toggleAllAlertsExtensions() {
 
 // Toggle alerts menu dropdown
 function toggleAlertsMenu() {
-    const alertsMenu = document.getElementById('alertsExtensionsDropdown');
-    
+    const alertsMenu = document.getElementById('alertsMenu');
+
     if (alertsMenu) {
         // Check if the menu is currently visible
-        const isVisible = alertsMenu.classList.contains('show');
-        
+        const isVisible = alertsMenu.style.opacity === '1';
+
         // Close all other dropdowns
         document.querySelectorAll('.dropdown-content').forEach(dropdown => {
             dropdown.classList.remove('show');
             dropdown.style.opacity = '0';
-            dropdown.style.transform = 'translateY(10px)';
-            dropdown.style.pointerEvents = 'none';
+            dropdown.style.visibility = 'hidden';
+            dropdown.style.transform = 'translateY(-10px)';
         });
-        
+
         // Toggle current dropdown
         if (isVisible) {
             // Hide menu
-            alertsMenu.classList.remove('show');
             alertsMenu.style.opacity = '0';
-            alertsMenu.style.transform = 'translateY(10px)';
-            alertsMenu.style.pointerEvents = 'none';
+            alertsMenu.style.visibility = 'hidden';
+            alertsMenu.style.transform = 'translateY(-10px)';
         } else {
             // Show menu
-            alertsMenu.classList.add('show');
             alertsMenu.style.opacity = '1';
+            alertsMenu.style.visibility = 'visible';
             alertsMenu.style.transform = 'translateY(0)';
-            alertsMenu.style.pointerEvents = 'all';
         }
-        
+
         console.log(`Alerts menu toggled: ${!isVisible ? 'shown' : 'hidden'}`);
     } else {
         console.error('Alerts dropdown menu element not found!');
@@ -1111,63 +1172,65 @@ function viewAllAlerts() {
 
 // Enhanced alerts dropdown initialization
 function initializeAlertsDropdownEnhanced() {
-    const alertsButton = document.querySelector('#alertsExtensionsButton');
-    const alertsMenu = document.getElementById('alertsExtensionsDropdown');
-    
+    const alertsButton = document.querySelector('[onclick="toggleAlertsMenu()"]');
+    const alertsMenu = document.getElementById('alertsMenu');
+
     if (alertsButton && alertsMenu) {
         console.log('💡 Alert/extension menu components found, initializing events...');
-        
-        // Remove any existing onclick attribute if present and use proper event listener
-        if (alertsButton.hasAttribute('onclick')) {
-            alertsButton.removeAttribute('onclick');
-        }
-        
-        // Click handler - use proper toggleAlertsMenu function
-        alertsButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleAlertsMenu();
+
+        // Set up hover behavior to complement click behavior
+        alertsButton.addEventListener('mouseenter', () => {
+            showDropdown(alertsMenu);
         });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!alertsButton.contains(e.target) && !alertsMenu.contains(e.target)) {
-                if (alertsMenu.classList.contains('show')) {
-                    toggleAlertsMenu();
+
+        alertsButton.parentElement.addEventListener('mouseleave', () => {
+            setTimeout(() => {
+                if (!alertsMenu.matches(':hover')) {
+                    hideDropdown(alertsMenu);
                 }
-            }
+            }, 100);
         });
-        
+
+        alertsMenu.addEventListener('mouseenter', () => {
+            showDropdown(alertsMenu);
+        });
+
+        alertsMenu.addEventListener('mouseleave', () => {
+            hideDropdown(alertsMenu);
+        });
+
         // Initialize tab switchers within the dropdown
-        const tabButtons = alertsMenu.querySelectorAll('.alert-tab-button');
-        if (tabButtons.length > 0) {
-            tabButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const tabType = button.getAttribute('data-tab');
-                    if (tabType) {
-                        switchAlertsTab(tabType);
-                    }
-                });
+        const alertsTab = document.getElementById('alertsTab');
+        const extensionsTab = document.getElementById('extensionsTab');
+
+        if (alertsTab && extensionsTab) {
+            alertsTab.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchAlertsTab('alerts');
+            });
+
+            extensionsTab.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchAlertsTab('extensions');
             });
         }
-        
+
         console.log('✅ Alert/extension menu events initialized successfully');
     } else {
         console.warn('⚠️ Alert menu components not found: Button or dropdown is missing');
     }
 }
 
-// Initialize all dropdown elements in the admin panel
-function initializeDropdowns() {
-    console.log('🔽 Initializing all dropdown menus...');
-    
-    // Initialize alerts/extensions dropdown
-    initializeAlertsDropdownEnhanced();
-    
-    // Initialize other dropdown menus in the header
+// Initialize all dropdowns with a unified approach
+function initializeAllDropdowns() {
+    console.log('🔺 Initializing all admin dropdown menus with unified approach...');
+
+    // Initialize standard dropdowns
+    initializeDropdowns();
+
+    // Initialize other generic dropdown buttons in the header
     const dropdownButtons = document.querySelectorAll('.dropdown-button');
-    
+
     dropdownButtons.forEach(button => {
         const targetId = button.getAttribute('data-dropdown-target');
         if (targetId) {
@@ -1177,15 +1240,20 @@ function initializeDropdowns() {
                 if (button.hasAttribute('onclick')) {
                     button.removeAttribute('onclick');
                 }
-                
+
+                // Check if this is a header menu dropdown (not sidebar)
+                const isHeaderDropdown = button.closest('header') !== null ||
+                                      button.classList.contains('header-dropdown-button') ||
+                                      button.getAttribute('data-dropdown-type') === 'header';
+
                 // Set up click handler for this dropdown
                 button.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     // Check if currently shown
                     const isVisible = dropdown.classList.contains('show');
-                    
+
                     // Close all dropdowns first
                     document.querySelectorAll('.dropdown-content').forEach(d => {
                         d.classList.remove('show');
@@ -1193,35 +1261,83 @@ function initializeDropdowns() {
                         d.style.transform = 'translateY(10px)';
                         d.style.pointerEvents = 'none';
                     });
-                    
+
                     // Toggle current dropdown
                     if (!isVisible) {
-                        dropdown.classList.add('show');
-                        dropdown.style.opacity = '1';
-                        dropdown.style.transform = 'translateY(0)';
-                        dropdown.style.pointerEvents = 'all';
+                        showDropdown(dropdown);
                     }
                 });
+
+                // For header dropdowns ONLY - add hover behavior
+                if (isHeaderDropdown) {
+                    console.log(`👁️ Setting up hover behavior for header dropdown: ${targetId}`);
+
+                    // Add hover effect to open dropdown
+                    button.addEventListener('mouseenter', () => {
+                        showDropdown(dropdown);
+                    });
+
+                    // Handle mouseleave for the button
+                    button.addEventListener('mouseleave', (e) => {
+                        // Only hide if not hovering over the dropdown itself
+                        if (!dropdown.matches(':hover')) {
+                            setTimeout(() => {
+                                if (!dropdown.matches(':hover') && !button.matches(':hover')) {
+                                    hideDropdown(dropdown);
+                                }
+                            }, 100); // Small delay to allow moving mouse to dropdown
+                        }
+                    });
+
+                    // Handle dropdown hover effects
+                    dropdown.addEventListener('mouseenter', () => {
+                        showDropdown(dropdown);
+                    });
+
+                    dropdown.addEventListener('mouseleave', (e) => {
+                        // Only hide if not hovering over the button
+                        if (!button.matches(':hover')) {
+                            setTimeout(() => {
+                                if (!dropdown.matches(':hover') && !button.matches(':hover')) {
+                                    hideDropdown(dropdown);
+                                }
+                            }, 100); // Small delay to prevent flickering
+                        }
+                    });
+                }
             }
         }
     });
-    
+
     // Close dropdowns when clicking outside
     document.addEventListener('click', (e) => {
-        if (!e.target.matches('.dropdown-button') && 
+        if (!e.target.matches('.dropdown-button') &&
             !e.target.closest('.dropdown-content')) {
-            
+
             document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-                dropdown.classList.remove('show');
-                dropdown.style.opacity = '0';
-                dropdown.style.transform = 'translateY(10px)';
-                dropdown.style.pointerEvents = 'none';
+                hideDropdown(dropdown);
             });
         }
     });
-    
-    console.log('✅ All dropdown menus initialized successfully');
+
+    console.log('✅ All dropdown menus initialized successfully - Header dropdowns: hover, Sidebar: click-only');
 };
+
+// Helper function to show dropdown
+function showDropdown(dropdown) {
+    dropdown.classList.add('show');
+    dropdown.style.opacity = '1';
+    dropdown.style.transform = 'translateY(0)';
+    dropdown.style.pointerEvents = 'all';
+}
+
+// Helper function to hide dropdown
+function hideDropdown(dropdown) {
+    dropdown.classList.remove('show');
+    dropdown.style.opacity = '0';
+    dropdown.style.transform = 'translateY(10px)';
+    dropdown.style.pointerEvents = 'none';
+}
 
 // ============================================
 // 🎯 ENHANCED INITIALIZATION
@@ -1235,3 +1351,92 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('🚀 Enhanced alerts & extensions system initialized');
     }, 100);
 });
+
+// Initialize marketplace charts if in marketplace overview section
+function initializeMarketplaceCharts() {
+    try {
+        // Order Chart
+        const orderCtx = document.getElementById('marketplaceOrderChart');
+        if (orderCtx) {
+            new Chart(orderCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Amazon', 'N11', 'Hepsiburada', 'GittiGidiyor', 'Trendyol'],
+                    datasets: [{
+                        label: 'Günlük Sipariş',
+                        data: [247, 156, 189, 94, 567],
+                        backgroundColor: [
+                            'rgba(255, 153, 0, 0.7)',
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(234, 88, 12, 0.7)',
+                            'rgba(239, 68, 68, 0.7)',
+                            'rgba(249, 115, 22, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 153, 0, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(234, 88, 12, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(249, 115, 22, 1)'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Günlük Sipariş Karşılaştırması'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Revenue Chart
+        const revenueCtx = document.getElementById('marketplaceRevenueChart');
+        if (revenueCtx) {
+            new Chart(revenueCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Amazon', 'N11', 'Hepsiburada', 'GittiGidiyor', 'Trendyol'],
+                    datasets: [{
+                        data: [35, 20, 15, 8, 22],
+                        backgroundColor: [
+                            'rgba(255, 153, 0, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(234, 88, 12, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(249, 115, 22, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Gelir Dağılımı (%)'
+                        }
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.warn('Chart.js not available for marketplace charts');
+    }
+}

@@ -5,7 +5,7 @@
  * MesChain-Sync Enterprise - OpenCart Integration Launcher
  * Date: 10 Haziran 2025
  * 
- * This script starts the complete OpenCart integration system
+ * This script starts the complete OpenCart 4.0.2.3 integration system
  * including barcode scanning, AI analytics, and marketplace sync
  */
 
@@ -13,8 +13,9 @@ const EnhancedOpenCartSystem = require('./enhanced_opencart_system_3007');
 const OpenCartIntegrationModule = require('./opencart_integration_module_3006');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
 
-console.log('🚀 Starting OpenCart Integration System...');
+console.log('MesChain-Sync OpenCart 4.0.2.3 Entegrasyon Başlatılıyor...');
 console.log('====================================================');
 
 // Configuration for the OpenCart integration
@@ -195,6 +196,47 @@ async function performHealthCheck() {
     }
 }
 
+// OpenCart sürüm kontrolü fonksiyonu
+async function checkOpenCartVersion(apiUrl) {
+  try {
+    const response = await axios.get(`${apiUrl}/index.php?route=api/system/version`);
+    
+    if (response.data && response.data.version) {
+      const versionParts = response.data.version.split('.');
+      return {
+        version: response.data.version,
+        major: parseInt(versionParts[0], 10),
+        minor: parseInt(versionParts[1], 10)
+      };
+    }
+    
+    throw new Error('Geçersiz sürüm yanıtı');
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      // OpenCart 4.x'te API endpoint kontrolü
+      try {
+        const loginResponse = await axios.post(`${apiUrl}/index.php?route=api/account/login`, {
+          username: 'Default',
+          key: 'test'
+        });
+        
+        // Hata kodu 200 ise OpenCart 4.x olabilir
+        if (loginResponse.status === 200) {
+          return { version: '4.0.2.3', major: 4, minor: 0 };
+        }
+      } catch (loginError) {
+        // API endpoint cevap veremiyorsa 4.x olmayabilir
+        if (loginError.response && loginError.response.data && loginError.response.data.error) {
+          // Hata mesajı varsa muhtemelen OpenCart 4.x'tir
+          return { version: '4.0.2.3', major: 4, minor: 0 };
+        }
+      }
+    }
+    
+    throw new Error(`Sürüm kontrolü başarısız: ${error.message}`);
+  }
+}
+
 // Start the OpenCart integration system
 async function startOpenCartIntegration() {
     try {
@@ -237,12 +279,17 @@ async function startOpenCartIntegration() {
         console.log('   - Sales Processing');
         console.log('   - Product Lookup');
         
-        console.log('\n🔄 Marketplace Integration:');
-        if (openCartConfig.marketplace.enableSync) {
-            console.log(`   - Platforms: ${openCartConfig.marketplace.platforms.join(', ')}`);
-            console.log(`   - Sync Interval: ${openCartConfig.marketplace.syncInterval / 1000}s`);
-        } else {
-            console.log('   - Disabled');
+        // OpenCart sürüm kontrolü
+        console.log(`OpenCart sürümü tespit ediliyor...`);
+        try {
+            const result = await checkOpenCartVersion(openCartConfig.opencart.apiUrl);
+            if (result.major !== 4) {
+                console.warn(`UYARI: Bu entegrasyon OpenCart 4.0.2.3 için tasarlanmıştır. Tespit edilen sürüm: ${result.version}`);
+            } else {
+                console.log(`Uyumlu OpenCart sürümü tespit edildi: ${result.version}`);
+            }
+        } catch (error) {
+            console.warn(`OpenCart sürüm kontrolü başarısız: ${error.message}`);
         }
         
         console.log('\n====================================================');

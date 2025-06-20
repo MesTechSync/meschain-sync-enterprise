@@ -15,7 +15,7 @@ Tüm MesChain sistemlerinin çalıştırılması işlemi tamamlandı. VS Code ta
 "Start All MesChain Systems" görevi çalıştırılarak aşağıdaki tüm marketplace sistemleri başlatıldı:
 
 - ✅ **Amazon TR (Port 3002)** - `amazon_admin_server_3002.js`
-- ✅ **N11 (Port 3003)** - `n11_server_3003.js` 
+- ✅ **N11 (Port 3003)** - `n11_server_3003.js`
 - ✅ **Hepsiburada Main (Port 3007)** - `hepsiburada_server_3007.js`
 - ✅ **GittiGidiyor Main (Port 3008)** - `gittigidiyor_server_3008.js`
 - ✅ **Trendyol Advanced (Port 3011)** - `trendyol_server_3011.js`
@@ -40,7 +40,7 @@ Tüm MesChain sistemlerinin çalıştırılması işlemi tamamlandı. VS Code ta
 
 ### 🏪 Marketplace Panelleri
 - **Amazon TR**: http://localhost:3002
-- **N11**: http://localhost:3003  
+- **N11**: http://localhost:3003
 - **Hepsiburada**: http://localhost:3007
 - **GittiGidiyor**: http://localhost:3008
 - **Trendyol Gelişmiş**: http://localhost:3011/trendyol-admin.html

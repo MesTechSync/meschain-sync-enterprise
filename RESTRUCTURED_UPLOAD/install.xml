@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>MesChain-Sync Enterprise</name>
+    <code>meschain_sync_enterprise</code>
+    <version>3.0.0</version>
+    <author>MesTech Development Team</author>
+    <link>https://meschain.com</link>
+    <description><![CDATA[
+        Enterprise marketplace integration for OpenCart 4.0+
+
+        • Multi-marketplace sync (7+ platforms supported)
+        • Real-time inventory and order management
+        • AI-powered price optimization
+        • Advanced analytics and reporting
+        • Performance optimization engine
+        • Secure API endpoints
+        • Automated order processing
+        • Real-time monitoring
+
+        Documentation: https://docs.meschain.com
+        Support: support@meschain.com
+    ]]></description>
+
+    <!-- Admin Menu Integration -->
+    <file path="admin/view/template/common/column_left.twig">
+        <operation>
+            <search><![CDATA[<li><a href="{{ marketplace }}">{{ text_marketplace }}</a></li>]]></search>
+            <add position="after"><![CDATA[
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-sync"></i> MesChain Sync <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ meschain_dashboard }}">Dashboard</a></li>
+                    <li><a href="{{ meschain_marketplaces }}">Marketplaces</a></li>
+                    <li><a href="{{ meschain_analytics }}">Analytics</a></li>
+                    <li><a href="{{ meschain_settings }}">Settings</a></li>
+                </ul>
+            </li>
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Product Form Integration -->
+    <file path="admin/view/template/catalog/product_form.twig">
+        <operation>
+            <search><![CDATA[<ul class="nav nav-tabs">]]></search>
+            <add position="after"><![CDATA[
+            <li><a href="#tab-meschain" data-toggle="tab">MesChain Sync</a></li>
+            ]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[<div class="tab-content">]]></search>
+            <add position="after"><![CDATA[
+            <div class="tab-pane" id="tab-meschain">
+                {% if meschain_sync_form %}
+                    {{ meschain_sync_form }}
+                {% else %}
+                    <div class="alert alert-info">
+                        MesChain Sync needs configuration. Go to Extensions > Modules > MesChain Sync.
+                    </div>
+                {% endif %}
+            </div>
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Order Info Enhancement -->
+    <file path="admin/view/template/sale/order_info.twig">
+        <operation>
+            <search><![CDATA[<div class="card-body">]]></search>
+            <add position="after"><![CDATA[
+            {% if meschain_order_info %}
+            <div class="alert alert-primary">
+                <div class="row">
+                    <div class="col-md-2">
+                        <i class="fas fa-store fa-2x"></i>
+                    </div>
+                    <div class="col-md-10">
+                        <h5><i class="fas fa-sync-alt"></i> {{ text_marketplace_order|default('Marketplace Order') }}</h5>
+                        <p><strong>{{ text_marketplace|default('Marketplace') }}:</strong> {{ meschain_order_info.marketplace }}</p>
+                        {% if meschain_order_info.marketplace_order_id %}
+                        <p><strong>{{ text_marketplace_order_id|default('Marketplace Order ID') }}:</strong>
+                           <code>{{ meschain_order_info.marketplace_order_id }}</code></p>
+                        {% endif %}
+                        {% if meschain_order_info.commission %}
+                        <p><strong>{{ text_commission|default('Commission') }}:</strong> {{ meschain_order_info.commission }}%</p>
+                        {% endif %}
+                        {% if meschain_order_info.sync_status %}
+                        <p><strong>{{ text_sync_status|default('Sync Status') }}:</strong>
+                           <span class="badge badge-{{ meschain_order_info.sync_status == 'synced' ? 'success' : 'warning' }}">
+                               {{ meschain_order_info.sync_status }}
+                           </span></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Dashboard Widget Integration -->
+    <file path="admin/view/template/common/dashboard.twig">
+        <operation>
+            <search><![CDATA[<div class="row">]]></search>
+            <add position="after"><![CDATA[
+            {% if meschain_dashboard_widgets %}
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-sync-alt"></i> {{ heading_meschain_overview|default('MesChain Sync Overview') }}
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {{ meschain_dashboard_widgets }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Extension List Enhancement -->
+    <file path="admin/view/template/marketplace/extension.twig">
+        <operation>
+            <search><![CDATA[<div class="alert alert-info">]]></search>
+            <add position="before"><![CDATA[
+            {% if meschain_extension_info %}
+            <div class="alert alert-success">
+                <div class="row">
+                    <div class="col-md-1">
+                        <i class="fas fa-sync-alt fa-2x text-success"></i>
+                    </div>
+                    <div class="col-md-11">
+                        <h4>{{ text_meschain_active|default('MesChain Sync Enterprise Active') }}</h4>
+                        <p>{{ text_meschain_description|default('Multi-marketplace integration with AI-powered optimization') }}</p>
+                        <p><strong>{{ text_version|default('Version') }}:</strong> {{ meschain_extension_info.version }}</p>
+                        <p><strong>{{ text_status|default('Status') }}:</strong>
+                           <span class="badge badge-success">{{ text_active|default('Active') }}</span></p>
+                        <a href="{{ meschain_settings_url }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-cog"></i> {{ button_configure|default('Configure') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Language File Injection Points -->
+    <file path="admin/language/en-gb/common/column_left.php">
+        <operation>
+            <search><![CDATA[$_['text_marketplace']]]></search>
+            <add position="after"><![CDATA[
+$_['text_meschain_sync'] = 'MesChain Sync';
+$_['text_dashboard'] = 'Dashboard';
+$_['text_marketplaces'] = 'Marketplaces';
+$_['text_analytics'] = 'Analytics';
+$_['text_settings'] = 'Settings';
+]]></add>
+        </operation>
+    </file>
+
+    <!-- User Permissions for MesChain -->
+    <file path="admin/controller/user/user_permission.php">
+        <operation>
+            <search><![CDATA[if (isset($this->request->post['user_group_permission'])) {]]></search>
+            <add position="before"><![CDATA[
+        // MesChain Sync permissions
+        $meschain_permissions = [
+            'access' => [
+                'extension/module/meschain/dashboard',
+                'extension/module/meschain/trendyol',
+                'extension/module/meschain/hepsiburada',
+                'extension/module/meschain/amazon',
+                'extension/module/meschain/ebay',
+                'extension/module/meschain/n11',
+                'extension/module/meschain/gittigidiyor',
+                'extension/module/meschain/pazarama',
+                'extension/module/meschain/analytics',
+                'extension/module/meschain/settings'
+            ],
+            'modify' => [
+                'extension/module/meschain/dashboard',
+                'extension/module/meschain/trendyol',
+                'extension/module/meschain/hepsiburada',
+                'extension/module/meschain/amazon',
+                'extension/module/meschain/ebay',
+                'extension/module/meschain/n11',
+                'extension/module/meschain/gittigidiyor',
+                'extension/module/meschain/pazarama',
+                'extension/module/meschain/analytics',
+                'extension/module/meschain/settings'
+            ]
+        ];
+
+        ]]></add>
+        </operation>
+    </file>
+
+    <!-- Database Triggers for MesChain Integration -->
+    <file path="system/startup.php">
+        <operation>
+            <search><![CDATA[// Registry]]></search>
+            <add position="after"><![CDATA[
+// MesChain Sync Auto-loader
+if (file_exists(DIR_SYSTEM . 'library/meschain/bootstrap.php')) {
+    require_once(DIR_SYSTEM . 'library/meschain/bootstrap.php');
+    \MesChain\Core\Bootstrap::initialize($registry);
+}
+]]></add>
+        </operation>
+    </file>
+
+    <!-- Theme Integration for Frontend -->
+    <file path="catalog/view/theme/default/template/common/header.twig">
+        <operation>
+            <search><![CDATA[</head>]]></search>
+            <add position="before"><![CDATA[
+{% if meschain_frontend_integration %}
+<style>
+.meschain-marketplace-badge {
+    background: linear-gradient(45deg, #007bff, #28a745);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    margin-left: 5px;
+}
+.meschain-sync-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+.meschain-sync-status.synced { background-color: #28a745; }
+.meschain-sync-status.pending { background-color: #ffc107; }
+.meschain-sync-status.error { background-color: #dc3545; }
+</style>
+<script>
+// MesChain Frontend Integration
+window.MesChain = {
+    version: '3.0.0',
+    apiUrl: '{{ meschain_api_url }}',
+    initialized: true
+};
+</script>
+{% endif %}
+]]></add>
+        </operation>
+    </file>
+
+</modification>

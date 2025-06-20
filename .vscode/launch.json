@@ -8,6 +8,91 @@
             "restart": true,
             "port": 9229,
             "preLaunchTask": "func: host start"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Login Server (3077)",
+            "program": "${workspaceFolder}/login_server_3077.js",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Super Admin Panel (3023)",
+            "program": "${workspaceFolder}/start_port_3023_server.js",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Modular Super Admin (3024)",
+            "program": "${workspaceFolder}/modular_server_3024.js",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch All MesChain Systems",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script",
+                "start:all"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Start All Marketplaces",
+            "program": "${workspaceFolder}/start_all_marketplaces.js",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome against localhost",
+            "url": "http://localhost:3023",
+            "webRoot": "${workspaceFolder}"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Full Stack: Start All Services",
+            "configurations": [
+                "Launch All MesChain Systems",
+                "Launch Chrome against localhost"
+            ]
         }
     ]
 }

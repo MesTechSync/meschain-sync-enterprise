@@ -4,7 +4,7 @@
  * Date: 10 Haziran 2025
  * 
  * Features:
- * - Full OpenCart 3.x Integration
+ * - Full OpenCart 4.0.2.3 API Integration
  * - Advanced Marketplace Synchronization
  * - Real-time Barcode Processing
  * - AI-Powered Analytics & Forecasting
@@ -14,7 +14,7 @@
  * - Advanced Reporting System
  */
 
-const OpenCartIntegrationModule = require('./opencart_integration_module_3006');
+const OpenCartIntegrationModule = require('./opencart_integration_module_4002');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -275,6 +275,7 @@ class EnhancedOpenCartSystem {
             platform: platform,
             lastSync: null,
             status: 'ready',
+            version: '4.0.0.2',
             
             async syncProducts(products) {
                 this.status = 'syncing';

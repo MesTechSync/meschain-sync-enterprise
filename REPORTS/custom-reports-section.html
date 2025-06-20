@@ -1,0 +1,322 @@
+<!-- Özel Raporlar - Port 3022 -->
+<section id="özel-raporlar" class="meschain-section hidden">
+    <div class="mb-4 md:mb-6 lg:mb-8">
+        <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
+            <i class="ph ph-file-text mr-2"></i> Özel Raporlar
+        </h2>
+        <p class="text-xl text-gray-600 dark:text-gray-300">Özelleştirilebilir raporlama araçları (Port: 3022)</p>
+    </div>
+
+    <!-- Report Builder -->
+    <div class="meschain-card mb-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Özel Rapor Oluşturucu</h3>
+            <div class="flex space-x-2">
+                <button class="btn-secondary-sm">
+                    <i class="ph ph-floppy-disk mr-2"></i>
+                    Şablonu Kaydet
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="form-group col-span-2">
+                <label for="report-name" class="form-label">Rapor Adı</label>
+                <input type="text" id="report-name" class="form-input" placeholder="Raporunuza bir isim verin">
+            </div>
+            <div class="form-group">
+                <label for="report-format" class="form-label">Çıktı Formatı</label>
+                <select id="report-format" class="form-select">
+                    <option value="excel">Excel (.xlsx)</option>
+                    <option value="csv">CSV</option>
+                    <option value="pdf">PDF</option>
+                    <option value="json">JSON</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="form-group">
+                <label for="report-date-start" class="form-label">Başlangıç Tarihi</label>
+                <input type="date" id="report-date-start" class="form-input" value="2025-05-17">
+            </div>
+            <div class="form-group">
+                <label for="report-date-end" class="form-label">Bitiş Tarihi</label>
+                <input type="date" id="report-date-end" class="form-input" value="2025-06-16">
+            </div>
+        </div>
+
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-6">
+            <h4 class="text-lg font-semibold mb-4">Veri Kaynakları</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                <label class="checkbox-card">
+                    <input type="checkbox" class="sr-only" checked>
+                    <div class="checkbox-card-inner">
+                        <div class="checkbox-icon">
+                            <i class="ph ph-shopping-cart"></i>
+                        </div>
+                        <span>Satış</span>
+                    </div>
+                </label>
+                <label class="checkbox-card">
+                    <input type="checkbox" class="sr-only" checked>
+                    <div class="checkbox-card-inner">
+                        <div class="checkbox-icon">
+                            <i class="ph ph-package"></i>
+                        </div>
+                        <span>Envanter</span>
+                    </div>
+                </label>
+                <label class="checkbox-card">
+                    <input type="checkbox" class="sr-only">
+                    <div class="checkbox-card-inner">
+                        <div class="checkbox-icon">
+                            <i class="ph ph-users"></i>
+                        </div>
+                        <span>Müşteriler</span>
+                    </div>
+                </label>
+                <label class="checkbox-card">
+                    <input type="checkbox" class="sr-only">
+                    <div class="checkbox-card-inner">
+                        <div class="checkbox-icon">
+                            <i class="ph ph-currency-dollar"></i>
+                        </div>
+                        <span>Finans</span>
+                    </div>
+                </label>
+                <label class="checkbox-card">
+                    <input type="checkbox" class="sr-only">
+                    <div class="checkbox-card-inner">
+                        <div class="checkbox-icon">
+                            <i class="ph ph-truck"></i>
+                        </div>
+                        <span>Lojistik</span>
+                    </div>
+                </label>
+                <label class="checkbox-card">
+                    <input type="checkbox" class="sr-only">
+                    <div class="checkbox-card-inner">
+                        <div class="checkbox-icon">
+                            <i class="ph ph-globe"></i>
+                        </div>
+                        <span>Marketplace</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-6">
+            <h4 class="text-lg font-semibold mb-4">Seçilen Alanlar</h4>
+            <div class="overflow-x-auto mb-4">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="py-2 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Alan Adı</th>
+                            <th class="py-2 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Kaynak</th>
+                            <th class="py-2 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Formül/İşlev</th>
+                            <th class="py-2 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-2 px-4">Ürün Adı</td>
+                            <td class="py-2 px-4">Envanter.ÜrünBilgileri</td>
+                            <td class="py-2 px-4">-</td>
+                            <td class="py-2 px-4">
+                                <button class="btn-icon btn-icon-sm me-2"><i class="ph ph-pencil"></i></button>
+                                <button class="btn-icon btn-icon-sm btn-danger"><i class="ph ph-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-2 px-4">Satış Miktarı</td>
+                            <td class="py-2 px-4">Satış.SipariDetay</td>
+                            <td class="py-2 px-4">SUM(miktar)</td>
+                            <td class="py-2 px-4">
+                                <button class="btn-icon btn-icon-sm me-2"><i class="ph ph-pencil"></i></button>
+                                <button class="btn-icon btn-icon-sm btn-danger"><i class="ph ph-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-2 px-4">Toplam Tutar</td>
+                            <td class="py-2 px-4">Satış.SipariDetay</td>
+                            <td class="py-2 px-4">SUM(fiyat * miktar)</td>
+                            <td class="py-2 px-4">
+                                <button class="btn-icon btn-icon-sm me-2"><i class="ph ph-pencil"></i></button>
+                                <button class="btn-icon btn-icon-sm btn-danger"><i class="ph ph-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-start">
+                <button class="btn-secondary-sm">
+                    <i class="ph ph-plus mr-2"></i>
+                    Alan Ekle
+                </button>
+            </div>
+        </div>
+
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-6">
+            <h4 class="text-lg font-semibold mb-4">Filtreleme ve Gruplama</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="form-group">
+                    <label class="form-label">Filtreleme</label>
+                    <div class="flex space-x-2 mb-2">
+                        <select class="form-select">
+                            <option>Satış Miktarı</option>
+                        </select>
+                        <select class="form-select">
+                            <option>&gt;</option>
+                        </select>
+                        <input type="text" class="form-input" value="100">
+                    </div>
+                    <button class="btn-secondary-sm">
+                        <i class="ph ph-plus mr-2"></i>
+                        Filtre Ekle
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gruplama</label>
+                    <div class="flex space-x-2 mb-2">
+                        <select class="form-select">
+                            <option>Kategori</option>
+                            <option>Ürün</option>
+                            <option>Tarih (Gün)</option>
+                            <option>Tarih (Hafta)</option>
+                            <option>Tarih (Ay)</option>
+                        </select>
+                        <button class="btn-icon"><i class="ph ph-trash"></i></button>
+                    </div>
+                    <button class="btn-secondary-sm">
+                        <i class="ph ph-plus mr-2"></i>
+                        Gruplama Ekle
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-6">
+            <h4 class="text-lg font-semibold mb-4">Görselleştirme</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <label class="radio-card">
+                    <input type="radio" name="chart-type" class="sr-only" checked>
+                    <div class="radio-card-inner">
+                        <div class="radio-icon">
+                            <i class="ph ph-chart-bar"></i>
+                        </div>
+                        <span>Sütun Grafik</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="chart-type" class="sr-only">
+                    <div class="radio-card-inner">
+                        <div class="radio-icon">
+                            <i class="ph ph-chart-line"></i>
+                        </div>
+                        <span>Çizgi Grafik</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="chart-type" class="sr-only">
+                    <div class="radio-card-inner">
+                        <div class="radio-icon">
+                            <i class="ph ph-chart-pie"></i>
+                        </div>
+                        <span>Pasta Grafik</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="chart-type" class="sr-only">
+                    <div class="radio-card-inner">
+                        <div class="radio-icon">
+                            <i class="ph ph-table"></i>
+                        </div>
+                        <span>Tablo</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="flex justify-end mt-6">
+            <button class="btn-secondary mr-2">
+                <i class="ph ph-eye mr-2"></i>
+                Önizleme
+            </button>
+            <button class="btn-primary">
+                <i class="ph ph-download mr-2"></i>
+                Raporu Oluştur
+            </button>
+        </div>
+    </div>
+
+    <!-- Saved Reports -->
+    <div class="meschain-card mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Kaydedilmiş Raporlar</h3>
+            <div class="form-group mb-0 w-64">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <i class="ph ph-magnifying-glass text-gray-500"></i>
+                    </span>
+                    <input type="text" class="form-input pl-10" placeholder="Rapor ara...">
+                </div>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Rapor Adı</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Oluşturma Tarihi</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Son Çalıştırma</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Oluşturan</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">Aylık Satış Analizi</td>
+                        <td class="py-3 px-4">12.05.2025</td>
+                        <td class="py-3 px-4">16.06.2025</td>
+                        <td class="py-3 px-4">Ahmet Yılmaz</td>
+                        <td class="py-3 px-4">
+                            <div class="flex space-x-2">
+                                <button class="btn-icon btn-icon-sm"><i class="ph ph-play"></i></button>
+                                <button class="btn-icon btn-icon-sm"><i class="ph ph-pencil"></i></button>
+                                <button class="btn-icon btn-icon-sm"><i class="ph ph-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">Kategori Bazlı Satış Performansı</td>
+                        <td class="py-3 px-4">03.06.2025</td>
+                        <td class="py-3 px-4">15.06.2025</td>
+                        <td class="py-3 px-4">Ayşe Demir</td>
+                        <td class="py-3 px-4">
+                            <div class="flex space-x-2">
+                                <button class="btn-icon btn-icon-sm"><i class="ph ph-play"></i></button>
+                                <button class="btn-icon btn-icon-sm"><i class="ph ph-pencil"></i></button>
+                                <button class="btn-icon btn-icon-sm"><i class="ph ph-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">Marketplace Karşılaştırma Raporu</td>
+                        <td class="py-3 px-4">28.05.2025</td>
+                        <td class="py-3 px-4">10.06.2025</td>
+                        <td class="py-3 px-4">Mehmet Kaya</td>
+                        <td class="py-3 px-4">
+                            <div class="flex space-x-2">
+                                <button class="btn-icon btn-icon-sm"><i class="ph ph-play"></i></button>
+                                <button class="btn-icon btn-icon-sm"><i class="ph ph-pencil"></i></button>
+                                <button class="btn-icon btn-icon-sm"><i class="ph ph-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

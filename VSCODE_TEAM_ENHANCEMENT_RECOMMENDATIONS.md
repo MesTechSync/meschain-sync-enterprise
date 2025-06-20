@@ -1,14 +1,14 @@
 # MesChain-Sync Super Admin Panel - VSCode Ekibi Geliştirme Önerileri
 
-**Hazırlayan:** Cursor Team  
-**Tarih:** 15 Haziran 2025  
-**Sürüm:** v1.0  
+**Hazırlayan:** Cursor Team
+**Tarih:** 15 Haziran 2025
+**Sürüm:** v1.0
 
 Bu belge, Cursor Ekibi tarafından yapılan UI/UX hata düzeltmelerinden sonra VSCode Ekibi için önerilen geliştirme görevlerini içermektedir. Her bir VSCode takım üyesi, bu listeden kendi uzmanlık alanına uygun görevleri seçip GitHub Issues üzerinde kendilerine atayabilirler.
 
 ## İleri Düzey Geliştirme Görevleri (Sprint 3)
 
-### 1. Performans İyileştirmeleri 
+### 1. Performans İyileştirmeleri
 
 - [ ] **1.1 DOM Optimizasyonu (Yüksek Öncelik)**
   - Büyük DOM manipülasyonlarını optimize etme

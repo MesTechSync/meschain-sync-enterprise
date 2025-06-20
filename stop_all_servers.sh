@@ -20,7 +20,7 @@ if [[ -d "logs" ]]; then
         if [[ -f "$pid_file" ]]; then
             pid=$(cat "$pid_file")
             server_name=$(basename "$pid_file" .pid)
-            
+
             if ps -p $pid > /dev/null 2>&1; then
                 echo -e "🛑 Durduruluyor: $server_name (PID: $pid)"
                 kill $pid

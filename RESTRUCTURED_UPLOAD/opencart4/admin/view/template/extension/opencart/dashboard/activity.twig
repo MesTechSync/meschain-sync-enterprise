@@ -1,0 +1,20 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-calendar"></i> {{ heading_title }}</h3>
+  </div>
+  <div class="panel-body" style="height: 300px; overflow-y: auto;">
+    {% if activities %}
+      {% for activity in activities %}
+        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+          <div>{{ activity.comment }}</div>
+          <small class="text-muted">{{ activity.date_added }}</small>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-center text-muted">No recent activity</p>
+    {% endif %}
+  </div>
+  <div class="panel-footer text-center">
+    <a href="{{ activity }}">{{ text_view }}</a>
+  </div>
+</div> 

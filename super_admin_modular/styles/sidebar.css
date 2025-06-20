@@ -29,22 +29,23 @@
 .meschain-sidebar {
     position: fixed !important;
     left: 0 !important;
-    top: 64px !important; /* Header height - 3023 reference: top-16 */
+    top: 64px !important;
+    /* Header height - 3023 reference: top-16 */
     bottom: 0 !important;
-    width: 256px !important; /* w-64 = 256px - 3023 exact match */
+    width: 256px !important;
+    /* w-64 = 256px - 3023 exact match */
     z-index: 40 !important;
     transform: translateX(0) !important;
     margin-left: 0 !important;
-    background: var(--sidebar-bg); /* 3023 reference: var(--sidebar-bg) */
+    background: var(--sidebar-bg);
+    /* 3023 reference: var(--sidebar-bg) */
     backdrop-filter: blur(20px);
-    border-right: 1px solid var(--border-primary); /* 3023 reference: var(--border-primary) */
+    border-right: 1px solid var(--border-primary);
+    /* 3023 reference: var(--border-primary) */
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: calc(100vh - 64px); /* 64px header yüksekliği */
-    padding-top: 16px !important; /* 3023 reference: pt-4 = 16px */
-    padding-left: 24px !important; /* 3023 reference: px-6 = 24px */
-    padding-right: 24px !important; /* 3023 reference: px-6 = 24px */
-    padding-bottom: 24px !important; /* 3023 reference: pb-6 = 24px */
+    max-height: calc(100vh - 64px);
+    /* 64px header yüksekliği */
 }
 
 /* ============================================
@@ -114,7 +115,7 @@
     transition: color 0.3s ease;
 }
 
-.sidebar-search input:focus + i {
+.sidebar-search input:focus+i {
     color: var(--accent-primary);
 }
 
@@ -124,27 +125,33 @@
 .meschain-nav-link {
     display: flex;
     align-items: center;
-    padding: 8px 12px; /* Reduced padding */
-    margin: 2px 8px; /* Reduced margin */
-    border-radius: 8px; /* Smaller border radius */
+    padding: 8px 12px;
+    /* Reduced padding */
+    margin: 2px 8px;
+    /* Reduced margin */
+    border-radius: 8px;
+    /* Smaller border radius */
     color: var(--text-secondary);
     text-decoration: none;
     transition: all 0.3s ease;
     position: relative;
-    font-size: 13px; /* Smaller font */
+    font-size: 13px;
+    /* Smaller font */
     font-weight: 500;
 }
 
 .meschain-nav-link:hover {
     background: var(--sidebar-link-hover-bg);
     color: var(--sidebar-link-hover-text);
-    transform: translateX(3px); /* Reduced transform */
+    transform: translateX(3px);
+    /* Reduced transform */
 }
 
 .meschain-nav-link.active {
     background: var(--sidebar-link-active-bg);
     color: var(--sidebar-link-active-text);
-    border-left: 2px solid var(--sidebar-link-active-border); /* Thinner border */
+    border-left: 2px solid var(--sidebar-link-active-border);
+    /* Thinner border */
 }
 
 .meschain-nav-link span {
@@ -162,7 +169,8 @@
    📦 COMPACT SECTION HEADERS
    ============================================ */
 .nav-section-header {
-    font-size: 10px; /* Smaller headers */
+    font-size: 10px;
+    /* Smaller headers */
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -185,8 +193,8 @@
     transform-style: preserve-3d;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3),
-                0 2px 5px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        0 2px 5px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     margin-right: 12px;
 }
 
@@ -209,8 +217,8 @@
 .meschain-nav-link:hover .sidebar-icon-3d {
     transform: rotateY(-15deg) translateZ(10px) scale(1.1);
     box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4),
-                0 4px 10px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        0 4px 10px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 /* ============================================
@@ -218,7 +226,8 @@
    ============================================ */
 .sidebar-section {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
+    /* Azaltıldı: 20px -> 8px */
 }
 
 .sidebar-section-header {
@@ -243,7 +252,8 @@
     top: 0;
     height: 100%;
     width: 3px;
-    background: #8b5cf6; /* var(--accent-primary) */
+    background: #8b5cf6;
+    /* var(--accent-primary) */
     transform: scaleY(0);
     transition: transform 0.3s ease;
 }
@@ -270,7 +280,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 160px;
-    color: #0f172a !important; /* var(--text-primary) */
+    color: #0f172a !important;
+    /* var(--text-primary) */
 }
 
 .meschain-nav-link span {
@@ -289,9 +300,12 @@
    ============================================ */
 .sidebar-section {
     position: relative;
-    margin-bottom: 8px; /* 3023 PORTUNA UYGUN AZALTILMIŞ ARALIK */
-    border-bottom: 1px solid rgba(139, 92, 246, 0.08); /* 3023 PORTUNA UYGUN AYIRICI ÇİZGİ */
-    padding-bottom: 2px; /* ANA BAŞLIKLAR ARASI AYIRICI BOŞLUK */
+    margin-bottom: 8px;
+    /* 3023 PORTUNA UYGUN AZALTILMIŞ ARALIK */
+    border-bottom: 1px solid rgba(139, 92, 246, 0.08);
+    /* 3023 PORTUNA UYGUN AYIRICI ÇİZGİ */
+    padding-bottom: 2px;
+    /* ANA BAŞLIKLAR ARASI AYIRICI BOŞLUK */
 }
 
 .sidebar-section-header {
@@ -300,9 +314,12 @@
     justify-content: space-between;
     cursor: pointer;
     user-select: none;
-    padding: 8px 12px; /* 3023 PORTUNA UYGUN AZALTILMIŞ PADDING */
-    margin: 2px 0; /* AZALTILMIŞ MARGIN */
-    border-radius: 8px; /* DAHA KÜÇÜK BORDER-RADIUS */
+    padding: 8px 12px;
+    /* 3023 PORTUNA UYGUN AZALTILMIŞ PADDING */
+    margin: 2px 0;
+    /* AZALTILMIŞ MARGIN */
+    border-radius: 8px;
+    /* DAHA KÜÇÜK BORDER-RADIUS */
     transition: background-color 0.3s ease, transform 0.2s ease;
     will-change: background-color, transform;
     position: relative;
@@ -336,19 +353,23 @@
 
 .sidebar-section-header:hover {
     background: rgba(139, 92, 246, 0.1);
-    transition-delay: 0.1s; /* Küçük gecikme ile daha stabil */
+    transition-delay: 0.1s;
+    /* Küçük gecikme ile daha stabil */
 }
 
 /* Enhanced Menu Text Styling */
 .sidebar-section-header span {
-    font-size: 12px !important; /* 3023 PORTUNA UYGUN FONT-SIZE */
+    font-size: 12px !important;
+    /* 3023 PORTUNA UYGUN FONT-SIZE */
     font-weight: 600 !important;
     text-transform: capitalize !important;
-    letter-spacing: 0.5px !important; /* AZALTILMIŞ LETTER-SPACING */
+    letter-spacing: 0.5px !important;
+    /* AZALTILMIŞ LETTER-SPACING */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 180px; /* GENİŞLETİLMİŞ MAX-WIDTH */
+    max-width: 180px;
+    /* GENİŞLETİLMİŞ MAX-WIDTH */
     color: var(--text-primary) !important;
 }
 
@@ -360,62 +381,89 @@
     opacity: 0;
     visibility: hidden;
     transform: translateY(-5px);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 3023 PORTUNA UYGUN DAHA HIZLI ANİMASYON */
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* 3023 PORTUNA UYGUN DAHA HIZLI ANİMASYON */
     overflow: hidden;
-    margin-top: 4px; /* AZALTILMIŞ MARGIN */
-    margin-left: 32px; /* 3023 PORTUNA UYGUN AZALTILMIŞ INDENT */
+    margin-top: 4px;
+    /* AZALTILMIŞ MARGIN */
+    margin-left: 32px;
+    /* 3023 PORTUNA UYGUN AZALTILMIŞ INDENT */
     pointer-events: none;
-    display: block; /* Always display as block for animation */
+    display: block;
+    /* Always display as block for animation */
     position: relative;
     z-index: 100;
-    will-change: transform, opacity; /* GPU acceleration hint */
-    transform-origin: top center; /* Animation originates from top */
-    border-left: 1px solid transparent; /* DAHA İNCE BORDER */
+    will-change: transform, opacity;
+    /* GPU acceleration hint */
+    transform-origin: top center;
+    /* Animation originates from top */
+    border-left: 1px solid transparent;
+    /* DAHA İNCE BORDER */
     transition-property: max-height, opacity, visibility, transform, border-left, background;
 }
 
 /* Hover effect - 3023 PORTUNA UYGUN */
 .sidebar-section.hovering .sidebar-dropdown-menu {
-    border-left: 1px solid rgba(139, 92, 246, 0.4); /* DAHA İNCE BORDER */
-    background: rgba(139, 92, 246, 0.05); /* DAHA HAFİF BACKGROUND */
-    box-shadow: -2px 0 8px -5px rgba(139, 92, 246, 0.15); /* AZALTILMIŞ GLOW */
-    transform: translateY(-2px); /* DAHA KÜÇÜK FLOAT */
+    border-left: 1px solid rgba(139, 92, 246, 0.4);
+    /* DAHA İNCE BORDER */
+    background: rgba(139, 92, 246, 0.05);
+    /* DAHA HAFİF BACKGROUND */
+    box-shadow: -2px 0 8px -5px rgba(139, 92, 246, 0.15);
+    /* AZALTILMIŞ GLOW */
+    transform: translateY(-2px);
+    /* DAHA KÜÇÜK FLOAT */
 }
 
 /* Active effect - ENHANCED OPENING ANIMATION */
 .sidebar-section.active .sidebar-dropdown-menu {
-    display: block !important; /* FORCE DISPLAY */
-    max-height: 800px; /* Increased for larger dropdowns */
+    display: block !important;
+    /* FORCE DISPLAY */
+    max-height: 800px;
+    /* Increased for larger dropdowns */
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
-    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1); /* 3023 PORTUNA UYGUN DAHA HIZLI ANİMASYON */
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    /* 3023 PORTUNA UYGUN DAHA HIZLI ANİMASYON */
     pointer-events: auto !important;
     position: relative !important;
     z-index: 100 !important;
     background: var(--bg-primary, #ffffff);
     border: 1px solid var(--border-color, #dee2e6);
-    border-radius: 8px; /* 3023 PORTUNA UYGUN KÜÇÜLTÜLMÜŞ BORDER-RADIUS */
-    box-shadow: 
+    border-radius: 8px;
+    /* 3023 PORTUNA UYGUN KÜÇÜLTÜLMÜŞ BORDER-RADIUS */
+    box-shadow:
         0 2px 8px var(--shadow-color, rgba(0, 0, 0, 0.08)),
         0 1px 3px rgba(139, 92, 246, 0.12);
-    padding: 6px; /* 3023 PORTUNA UYGUN AZALTILMIŞ PADDING */
-    border-left: 1px solid rgba(139, 92, 246, 0.8); /* DAHA İNCE BORDER */
+    padding: 6px;
+    /* 3023 PORTUNA UYGUN AZALTILMIŞ PADDING */
+    border-left: 1px solid rgba(139, 92, 246, 0.8);
+    /* DAHA İNCE BORDER */
 }
 
 /* Closing animation - 3023 PORTUNA UYGUN */
 .sidebar-section.closing .sidebar-dropdown-menu {
-    transition: all 0.2s cubic-bezier(0.6, -0.28, 0.74, 0.05); /* DAHA HIZLI ANİMASYON */
+    transition: all 0.2s cubic-bezier(0.6, -0.28, 0.74, 0.05);
+    /* DAHA HIZLI ANİMASYON */
     max-height: 0 !important;
     opacity: 0 !important;
-    transform: translateY(-2px) !important; /* DAHA KÜÇÜK TRANSFORM */
+    transform: translateY(-2px) !important;
+    /* DAHA KÜÇÜK TRANSFORM */
 }
 
 /* Sidebar Pulse Animation */
 @keyframes sidebarPulse {
-    0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(139, 92, 246, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+    }
 }
 
 /* Enhanced animations for specific sections */
@@ -424,7 +472,8 @@
 }
 
 .sidebar-section[data-section="marketplace"] .sidebar-dropdown-menu {
-    transition-timing-function: cubic-bezier(0.34, 1.61, 0.7, 1); /* Bounce effect */
+    transition-timing-function: cubic-bezier(0.34, 1.61, 0.7, 1);
+    /* Bounce effect */
 }
 
 .sidebar-section[data-section="envanter"] .sidebar-dropdown-menu {
@@ -438,7 +487,8 @@
 
 .sidebar-section[data-section="sistem-araclari"] .sidebar-dropdown-menu {
     transition-duration: 0.7s;
-    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1); /* Exponential ease out */
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+    /* Exponential ease out */
 }
 
 /* ============================================
@@ -486,7 +536,7 @@
     border-radius: 16px;
     padding: 16px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15),
-                0 4px 12px rgba(139, 92, 246, 0.1);
+        0 4px 12px rgba(139, 92, 246, 0.1);
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
@@ -500,7 +550,7 @@
     background: rgba(31, 41, 55, 0.95);
     border-color: rgba(139, 92, 246, 0.3);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
-                0 4px 12px rgba(139, 92, 246, 0.2);
+        0 4px 12px rgba(139, 92, 246, 0.2);
 }
 
 /* Dropdown header */
@@ -610,7 +660,7 @@
         right: 100%;
         transform: translateX(20px);
     }
-    
+
     .sidebar-section.hovering:not(.active) .sidebar-dropdown-menu {
         transform: translateX(0) !important;
     }
@@ -670,7 +720,7 @@
     border-radius: 20px;
     padding: 24px;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15),
-                0 8px 20px rgba(139, 92, 246, 0.1);
+        0 8px 20px rgba(139, 92, 246, 0.1);
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
@@ -690,7 +740,7 @@
     background: rgba(31, 41, 55, 0.98);
     border-color: rgba(139, 92, 246, 0.3);
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4),
-                0 8px 20px rgba(139, 92, 246, 0.2);
+        0 8px 20px rgba(139, 92, 246, 0.2);
 }
 
 .mega-menu-grid {
@@ -767,9 +817,22 @@
 }
 
 @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-4px); }
-    60% { transform: translateY(-2px); }
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-4px);
+    }
+
+    60% {
+        transform: translateY(-2px);
+    }
 }
 
 /* Loading states for dynamic content */
@@ -785,17 +848,21 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(139, 92, 246, 0.1), 
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(139, 92, 246, 0.1),
+            transparent);
     animation: loading-shimmer 1.5s infinite;
 }
 
 @keyframes loading-shimmer {
-    0% { left: -100%; }
-    100% { left: 100%; }
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
 }
 
 /* ============================================
@@ -804,15 +871,17 @@
 
 /* Main content area should have left margin for sidebar */
 main.flex-1 {
-    margin-left: 256px !important; /* w-64 = 256px sidebar width */
+    margin-left: 256px !important;
+    /* w-64 = 256px sidebar width */
     transition: margin-left 0.3s ease !important;
 }
 
 /* Ensure sidebar doesn't interfere with content */
-.meschain-sidebar + main,
+.meschain-sidebar+main,
 main[style*="padding-left"] {
     margin-left: 256px !important;
-    padding-left: 24px !important; /* Reduce excessive padding */
+    padding-left: 24px !important;
+    /* Reduce excessive padding */
     padding-right: 24px !important;
 }
 
@@ -822,11 +891,11 @@ main[style*="padding-left"] {
         transform: translateX(-100%) !important;
         transition: transform 0.3s ease !important;
     }
-    
+
     .meschain-sidebar.open {
         transform: translateX(0) !important;
     }
-    
+
     main.flex-1 {
         margin-left: 0 !important;
     }
@@ -910,12 +979,48 @@ main[style*="padding-left"] {
 }
 
 @keyframes pulse-green {
-    0%, 100% { 
+
+    0%,
+    100% {
         background: rgba(34, 197, 94, 0.2);
         box-shadow: 0 0 5px rgba(34, 197, 94, 0.3);
     }
-    50% { 
+
+    50% {
         background: rgba(34, 197, 94, 0.3);
         box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
     }
+}
+
+/* ============================================
+   🎛️ SIDEBAR CONTAINER - 3023 REFERENCE SYNC
+   ============================================ */
+.sidebar-container {
+    padding-top: 16px !important;
+    /* 3023 reference: pt-4 = 16px */
+    padding-left: 24px !important;
+    /* 3023 reference: px-6 = 24px */
+    padding-right: 24px !important;
+    /* 3023 reference: px-6 = 24px */
+    padding-bottom: 24px !important;
+    /* 3023 reference: pb-6 = 24px */
+}
+
+/* ============================================
+   🔧 ADDITIONAL DEBUGGING - FORCE FIRST SECTION OPEN
+   ============================================ */
+.sidebar-section[data-section="ana-yonetim"] .sidebar-dropdown-menu {
+    display: block !important;
+    max-height: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    transform: none !important;
+    margin-top: 8px !important;
+}
+
+/* Force first section to be active by default */
+.sidebar-section[data-section="ana-yonetim"] {
+    border-left: 3px solid transparent;
+    /* Placeholder to avoid empty ruleset */
 }

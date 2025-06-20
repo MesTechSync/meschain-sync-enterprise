@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazon Helper Sınıfı
- * 
+ *
  * Amazon API ile iletişim kurmak için gerekli fonksiyonları içerir.
  */
 class AmazonHelper {
@@ -12,10 +12,10 @@ class AmazonHelper {
     private $marketplaceId;
     private $region;
     private $logger;
-    
+
     /**
      * Yapıcı fonksiyon
-     * 
+     *
      * @param string $apiKey API anahtarı
      * @param string $secretKey Secret key
      * @param string $sellerId Satıcı ID
@@ -28,7 +28,7 @@ class AmazonHelper {
         $this->sellerId = $sellerId;
         $this->token = $token;
         $this->region = $region;
-        
+
         // Bölgeye göre marketplace ID'sini ayarla
         switch ($region) {
             case 'eu':
@@ -43,14 +43,14 @@ class AmazonHelper {
             default:
                 $this->marketplaceId = 'A1PA6795UKMFR9'; // Varsayılan: Almanya
         }
-        
+
         // Logger başlat
         $this->logger = new Log('amazon.log');
     }
-    
+
     /**
      * Amazon API'ye istek gönderir
-     * 
+     *
      * @param string $action API işlemi
      * @param array $parameters İstek parametreleri
      * @return array|bool Yanıt veya hata durumunda false
@@ -66,63 +66,64 @@ class AmazonHelper {
                 'Version' => '2013-09-01',
                 'AWSAccessKeyId' => $this->apiKey
             ), $parameters);
-            
+
             // Parametreleri sırala
             ksort($params);
-            
+
             // İstek URL'sini oluştur
             $url = $this->getEndpoint();
-            
+
             // İmza oluştur
             $stringToSign = "GET\n" . parse_url($url, PHP_URL_HOST) . "\n/\n";
-            
+
             $queryString = '';
             foreach ($params as $key => $value) {
                 $queryString .= '&' . $key . '=' . rawurlencode($value);
             }
             $queryString = ltrim($queryString, '&');
-            
+
             $stringToSign .= $queryString;
-            
+
             // HMAC-SHA256 imzası oluştur
             $signature = base64_encode(hash_hmac('sha256', $stringToSign, $this->secretKey, true));
-            
+
             // İmzayı URL'ye ekle
             $url .= '?' . $queryString . '&Signature=' . rawurlencode($signature);
-            
+
             // API isteğini gönder
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                 'x-amazon-user-agent: MesTech Sync/1.0.2 (Language=PHP)',
                 'Content-Type: application/xml',
                 'Authorization: Bearer ' . $this->token
             ));
-            
+
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            
+
             if ($httpCode != 200) {
                 $this->logger->write('Amazon API Error: ' . $httpCode . ' - ' . $response);
                 return false;
             }
-            
+
             // XML yanıtını diziye dönüştür
             $xml = simplexml_load_string($response);
             $result = json_decode(json_encode($xml), true);
-            
+
             return $result;
         } catch (Exception $e) {
             $this->logger->write('Amazon API Exception: ' . $e->getMessage());
             return false;
         }
     }
-    
+
     /**
      * Bölgeye göre API endpoint URL'sini döndürür
-     * 
+     *
      * @return string Endpoint URL
      */
     private function getEndpoint() {
@@ -137,10 +138,10 @@ class AmazonHelper {
                 return 'https://mws-eu.amazonservices.com';
         }
     }
-    
+
     /**
      * Ürünleri Amazon'a gönderir
-     * 
+     *
      * @param array $products Ürün listesi
      * @return bool Başarılı/başarısız
      */
@@ -153,7 +154,7 @@ class AmazonHelper {
         $xml .= '<MerchantIdentifier>' . $this->sellerId . '</MerchantIdentifier>';
         $xml .= '</Header>';
         $xml .= '<MessageType>Product</MessageType>';
-        
+
         $messageId = 1;
         foreach ($products as $product) {
             $xml .= '<Message>';
@@ -181,12 +182,12 @@ class AmazonHelper {
             $xml .= '</ProductData>';
             $xml .= '</Product>';
             $xml .= '</Message>';
-            
+
             $messageId++;
         }
-        
+
         $xml .= '</AmazonEnvelope>';
-        
+
         // Feed gönderme isteği
         $params = array(
             'Action' => 'SubmitFeed',
@@ -194,10 +195,10 @@ class AmazonHelper {
             'PurgeAndReplace' => 'false',
             'ContentMD5Value' => base64_encode(md5($xml, true))
         );
-        
+
         // İsteği gönder
         $result = $this->sendRequest('SubmitFeed', $params);
-        
+
         if ($result && isset($result['SubmitFeedResult']['FeedSubmissionInfo']['FeedSubmissionId'])) {
             $this->logger->write('Amazon Feed Submitted: ' . $result['SubmitFeedResult']['FeedSubmissionInfo']['FeedSubmissionId']);
             return true;
@@ -206,10 +207,10 @@ class AmazonHelper {
             return false;
         }
     }
-    
+
     /**
      * Stok ve fiyat güncellemesi yapar
-     * 
+     *
      * @param array $items Stok ve fiyat bilgileri
      * @return bool Başarılı/başarısız
      */
@@ -222,7 +223,7 @@ class AmazonHelper {
         $xml .= '<MerchantIdentifier>' . $this->sellerId . '</MerchantIdentifier>';
         $xml .= '</Header>';
         $xml .= '<MessageType>Inventory</MessageType>';
-        
+
         $messageId = 1;
         foreach ($items as $item) {
             $xml .= '<Message>';
@@ -234,12 +235,12 @@ class AmazonHelper {
             $xml .= '<Price>' . $item['price'] . '</Price>';
             $xml .= '</Inventory>';
             $xml .= '</Message>';
-            
+
             $messageId++;
         }
-        
+
         $xml .= '</AmazonEnvelope>';
-        
+
         // Feed gönderme isteği
         $params = array(
             'Action' => 'SubmitFeed',
@@ -247,10 +248,10 @@ class AmazonHelper {
             'PurgeAndReplace' => 'false',
             'ContentMD5Value' => base64_encode(md5($xml, true))
         );
-        
+
         // İsteği gönder
         $result = $this->sendRequest('SubmitFeed', $params);
-        
+
         if ($result && isset($result['SubmitFeedResult']['FeedSubmissionInfo']['FeedSubmissionId'])) {
             $this->logger->write('Amazon Inventory Updated: ' . $result['SubmitFeedResult']['FeedSubmissionInfo']['FeedSubmissionId']);
             return true;
@@ -259,10 +260,10 @@ class AmazonHelper {
             return false;
         }
     }
-    
+
     /**
      * Siparişleri getirir
-     * 
+     *
      * @param string $startDate Başlangıç tarihi (ISO 8601 formatında)
      * @param string $endDate Bitiş tarihi (ISO 8601 formatında)
      * @return array|bool Siparişler veya hata durumunda false
@@ -276,17 +277,17 @@ class AmazonHelper {
             'OrderStatus.Status.3' => 'Shipped',
             'FulfillmentChannel.Channel.1' => 'MFN'
         );
-        
+
         $result = $this->sendRequest('ListOrders', $params);
-        
+
         if ($result && isset($result['ListOrdersResult']['Orders']['Order'])) {
             $orders = $result['ListOrdersResult']['Orders']['Order'];
-            
+
             // Tek bir sipariş varsa, dizi yapısını düzelt
             if (isset($orders['AmazonOrderId'])) {
                 $orders = array($orders);
             }
-            
+
             $this->logger->write('Amazon Get Orders: ' . count($orders) . ' orders retrieved');
             return $orders;
         } else {
@@ -294,10 +295,10 @@ class AmazonHelper {
             return false;
         }
     }
-    
+
     /**
      * Sipariş detaylarını getirir
-     * 
+     *
      * @param string $orderId Sipariş ID
      * @return array|bool Sipariş detayları veya hata durumunda false
      */
@@ -305,27 +306,27 @@ class AmazonHelper {
         $params = array(
             'AmazonOrderId' => $orderId
         );
-        
+
         $result = $this->sendRequest('ListOrderItems', $params);
-        
+
         if ($result && isset($result['ListOrderItemsResult']['OrderItems']['OrderItem'])) {
             $items = $result['ListOrderItemsResult']['OrderItems']['OrderItem'];
-            
+
             // Tek bir ürün varsa, dizi yapısını düzelt
             if (isset($items['ASIN'])) {
                 $items = array($items);
             }
-            
+
             return $items;
         } else {
             $this->logger->write('Amazon Get Order Items Failed for Order: ' . $orderId);
             return false;
         }
     }
-    
+
     /**
      * Sipariş durumunu günceller (kargo bildirimi)
-     * 
+     *
      * @param string $orderId Sipariş ID
      * @param string $trackingNumber Kargo takip numarası
      * @param string $carrier Kargo firması
@@ -353,7 +354,7 @@ class AmazonHelper {
         $xml .= '</OrderFulfillment>';
         $xml .= '</Message>';
         $xml .= '</AmazonEnvelope>';
-        
+
         // Feed gönderme isteği
         $params = array(
             'Action' => 'SubmitFeed',
@@ -361,10 +362,10 @@ class AmazonHelper {
             'PurgeAndReplace' => 'false',
             'ContentMD5Value' => base64_encode(md5($xml, true))
         );
-        
+
         // İsteği gönder
         $result = $this->sendRequest('SubmitFeed', $params);
-        
+
         if ($result && isset($result['SubmitFeedResult']['FeedSubmissionInfo']['FeedSubmissionId'])) {
             $this->logger->write('Amazon Order Status Updated: ' . $orderId);
             return true;
@@ -373,10 +374,10 @@ class AmazonHelper {
             return false;
         }
     }
-    
+
     /**
      * Feed durumunu kontrol eder
-     * 
+     *
      * @param string $feedSubmissionId Feed ID
      * @return array|bool Feed durumu veya hata durumunda false
      */
@@ -384,9 +385,9 @@ class AmazonHelper {
         $params = array(
             'FeedSubmissionId' => $feedSubmissionId
         );
-        
+
         $result = $this->sendRequest('GetFeedSubmissionResult', $params);
-        
+
         if ($result) {
             return $result;
         } else {
@@ -394,4 +395,4 @@ class AmazonHelper {
             return false;
         }
     }
-} 
+}

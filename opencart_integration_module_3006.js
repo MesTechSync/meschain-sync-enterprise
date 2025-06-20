@@ -1,10 +1,10 @@
 /**
  * 🛒 OPENCART ENTERPRISE INTEGRATION MODULE
- * MesChain-Sync Enterprise - OpenCart 3.x Integration
+ * MesChain-Sync Enterprise - OpenCart 4.0.2.3 Integration
  * Date: 10 Haziran 2025
  * 
  * Features:
- * - OpenCart 3.x API Integration
+ * - OpenCart 4.0.2.3 API Integration
  * - Barcode Scanning System
  * - AI-Powered Product Tracking
  * - Real-time Inventory Sync
@@ -60,6 +60,7 @@ class OpenCartIntegrationModule extends EventEmitter {
             }
         };
 
+        this.opencartVersion = '4.0.2.3';
         this.dbConnection = null;
         this.websocketServer = null;
         this.connectedClients = new Set();
@@ -282,27 +283,19 @@ class OpenCartIntegrationModule extends EventEmitter {
             const query = `
                 SELECT 
                     p.product_id,
-                    pd.name,
                     p.model,
-                    p.sku,
-                    p.upc,
-                    p.ean,
-                    p.price,
                     p.quantity,
-                    p.status,
-                    p.date_added,
-                    p.date_modified,
-                    pd.description,
-                    pd.meta_title,
-                    pd.meta_description
-                FROM oc_product p
-                LEFT JOIN oc_product_description pd ON p.product_id = pd.product_id
-                WHERE pd.language_id = 1
-                ORDER BY p.date_modified DESC
-                LIMIT 1000
+                    p.price,
+                    pd.name,
+                    p.sku,
+                    p.variant,
+                    p.override
+                FROM ${this.dbPrefix}product p
+                LEFT JOIN ${this.dbPrefix}product_description pd ON p.product_id = pd.product_id
+                WHERE pd.language_id = 1 AND p.status = 1
             `;
-
-            const [products] = await this.dbConnection.execute(query);
+            
+            const products = await this.directDbQuery(query);
             
             // Cache products for quick access
             products.forEach(product => {
@@ -370,8 +363,8 @@ class OpenCartIntegrationModule extends EventEmitter {
                         p.price,
                         p.quantity,
                         p.status
-                    FROM oc_product p
-                    LEFT JOIN oc_product_description pd ON p.product_id = pd.product_id
+                    FROM ${this.dbPrefix}product p
+                    LEFT JOIN ${this.dbPrefix}product_description pd ON p.product_id = pd.product_id
                     WHERE (p.ean = ? OR p.upc = ? OR p.sku = ?)
                     AND pd.language_id = 1
                     LIMIT 1
@@ -510,18 +503,18 @@ class OpenCartIntegrationModule extends EventEmitter {
             
             switch (operation) {
                 case 'add':
-                    sql = 'UPDATE oc_product SET quantity = quantity + ? WHERE product_id = ?';
+                    sql = 'UPDATE ${this.dbPrefix}product SET quantity = quantity + ? WHERE product_id = ?';
                     params = [quantity, productId];
                     break;
                     
                 case 'remove':
-                    sql = 'UPDATE oc_product SET quantity = GREATEST(0, quantity - ?) WHERE product_id = ?';
+                    sql = 'UPDATE ${this.dbPrefix}product SET quantity = GREATEST(0, quantity - ?) WHERE product_id = ?';
                     params = [quantity, productId];
                     break;
                     
                 case 'set':
                 default:
-                    sql = 'UPDATE oc_product SET quantity = ? WHERE product_id = ?';
+                    sql = 'UPDATE ${this.dbPrefix}product SET quantity = ? WHERE product_id = ?';
                     params = [quantity, productId];
                     break;
             }
@@ -725,8 +718,8 @@ class OpenCartIntegrationModule extends EventEmitter {
                     p.quantity,
                     COALESCE(sales.total_sold, 0) as total_sold,
                     COALESCE(sales.revenue, 0) as revenue
-                FROM oc_product p
-                LEFT JOIN oc_product_description pd ON p.product_id = pd.product_id
+                FROM ${this.dbPrefix}product p
+                LEFT JOIN ${this.dbPrefix}product_description pd ON p.product_id = pd.product_id
                 LEFT JOIN (
                     SELECT 
                         op.product_id,
@@ -775,8 +768,8 @@ class OpenCartIntegrationModule extends EventEmitter {
                     p.price,
                     COALESCE(recent_sales.velocity, 0) as daily_velocity,
                     COALESCE(recent_sales.total_sold, 0) as sales_30d
-                FROM oc_product p
-                LEFT JOIN oc_product_description pd ON p.product_id = pd.product_id
+                FROM ${this.dbPrefix}product p
+                LEFT JOIN ${this.dbPrefix}product_description pd ON p.product_id = pd.product_id
                 LEFT JOIN (
                     SELECT 
                         op.product_id,

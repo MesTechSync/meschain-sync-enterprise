@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MesChain Login ve Harita Yeniden Oluşturma Testi</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        h1 {
+            color: #5a67d8;
+            margin: 0;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #f8f9fa;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #5a67d8;
+            color: white;
+        }
+
+        .content {
+            display: none;
+            padding: 20px;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .row {
+            display: flex;
+            margin-bottom: 15px;
+            gap: 20px;
+        }
+
+        .col {
+            flex: 1;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            background: #5a67d8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #4c51bf;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+        }
+
+        .btn-warning:hover {
+            background: #dd6b20;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+        }
+
+        .btn-danger:hover {
+            background: #c53030;
+        }
+
+        .btn-success {
+            background: #48bb78;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .log {
+            height: 300px;
+            overflow-y: auto;
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            font-family: monospace;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #4a5568;
+        }
+
+        .log-success {
+            color: #68d391;
+        }
+
+        .log-warning {
+            color: #fbd38d;
+        }
+
+        .log-error {
+            color: #feb2b2;
+        }
+
+        .log-info {
+            color: #90cdf4;
+        }
+
+        .status-box {
+            padding: 15px;
+            background: #ebf8ff;
+            border-left: 5px solid #4299e1;
+            margin: 15px 0;
+        }
+
+        .panel-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .panel {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .server-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-active {
+            background: #48bb78;
+        }
+
+        .status-inactive {
+            background: #e53e3e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MesChain Login ve Harita Yeniden Oluşturma Testi</h1>
+            <p>18 Haziran 2025</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="login">Login Sistem Testi</div>
+            <div class="tab" data-tab="map">Harita Yeniden Oluşturma</div>
+            <div class="tab" data-tab="status">Sistem Durumu</div>
+        </div>
+
+        <div class="content active" data-content="login">
+            <div class="row">
+                <div class="col">
+                    <h3>Login Ekranları</h3>
+                    <div class="form-group">
+                        <label>Giriş Yapılacak Port:</label>
+                        <select id="login-port">
+                            <option value="3077">Login Server (3077)</option>
+                            <option value="3023">Super Admin Panel (3023)</option>
+                            <option value="3024">Modular Super Admin Panel (3024)</option>
+                            <option value="3000">Ana Dashboard (3000)</option>
+                            <option value="3002">Amazon Admin (3002)</option>
+                            <option value="3003">N11 Admin (3003)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kullanıcı Adı:</label>
+                        <input type="text" id="username" value="admin">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Şifre:</label>
+                        <input type="password" id="password" value="admin123">
+                    </div>
+
+                    <div>
+                        <button class="btn" onclick="testLogin()">Giriş Yap</button>
+                        <button class="btn btn-warning" onclick="testAllLogins()">Tüm Portları Test Et</button>
+                        <button class="btn btn-danger" onclick="logoutAll()">Tüm Girişleri Kapat</button>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <h3>Giriş Logları</h3>
+                    <div class="status-box">
+                        <div><strong>Aktif Oturum:</strong> <span id="active-session">Yok</span></div>
+                        <div><strong>Oturum Token:</strong> <span id="session-token">-</span></div>
+                        <div><strong>Son Giriş:</strong> <span id="last-login">-</span></div>
+                        <div><strong>Aktif Portlar:</strong> <span id="active-ports">-</span></div>
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn" onclick="checkLoginStatus()">Giriş Durumunu Kontrol Et</button>
+                        <button class="btn btn-success" onclick="viewLoginHistory()">Giriş Geçmişi</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="log" id="login-log">
+                <div class="log-entry log-info">Giriş testi bekliyor...</div>
+            </div>
+        </div>
+
+        <div class="content" data-content="map">
+            <div class="row">
+                <div class="col">
+                    <h3>Harita Yeniden Oluşturma</h3>
+
+                    <div class="form-group">
+                        <label>Harita Türü:</label>
+                        <select id="map-type">
+                            <option value="all">Tüm Haritalar</option>
+                            <option value="category">Kategori Haritası</option>
+                            <option value="product">Ürün Haritası</option>
+                            <option value="attribute">Özellik Haritası</option>
+                            <option value="user">Kullanıcı Haritası</option>
+                            <option value="permission">İzin Haritası</option>
+                            <option value="api">API Haritası</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Marketplace:</label>
+                        <select id="map-marketplace">
+                            <option value="all">Tüm Marketplaces</option>
+                            <option value="trendyol">Trendyol</option>
+                            <option value="amazon">Amazon</option>
+                            <option value="n11">N11</option>
+                            <option value="hepsiburada">Hepsiburada</option>
+                            <option value="gittigidiyor">GittiGidiyor</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>İşlem Opsiyonları:</label>
+                        <div>
+                            <input type="checkbox" id="backup-before" checked>
+                            <label for="backup-before" style="display: inline;">Yenilemeden Önce Yedek Al</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="force-reset">
+                            <label for="force-reset" style="display: inline;">Zorla Sıfırla (Tüm Verileri Temizle)</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="notify-users" checked>
+                            <label for="notify-users" style="display: inline;">Kullanıcılara Bildir</label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button class="btn" onclick="regenerateMap()">Harita Yeniden Oluştur</button>
+                        <button class="btn btn-warning" onclick="checkMapStatus()">Harita Durumunu Kontrol Et</button>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <h3>Harita İstatistikleri</h3>
+
+                    <div id="map-stats" class="status-box">
+                        <div><strong>Aktif Haritalar:</strong> <span id="active-maps">0</span></div>
+                        <div><strong>Son Yenileme:</strong> <span id="last-regeneration">-</span></div>
+                        <div><strong>Kategori Eşleştirmeleri:</strong> <span id="category-count">0</span></div>
+                        <div><strong>Ürün Eşleştirmeleri:</strong> <span id="product-count">0</span></div>
+                        <div><strong>Özellik Eşleştirmeleri:</strong> <span id="attribute-count">0</span></div>
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-success" onclick="exportMapData()">Harita Verilerini Dışa Aktar</button>
+                        <button class="btn" onclick="viewMapHistory()">Yenileme Geçmişi</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="log" id="map-log">
+                <div class="log-entry log-info">Harita yenileme testi bekliyor...</div>
+            </div>
+        </div>
+
+        <div class="content" data-content="status">
+            <h3>Sistem Durumu</h3>
+
+            <div class="panel-container">
+                <div class="panel">
+                    <h4>Server Durumu</h4>
+                    <table style="width: 100%;">
+                        <tr>
+                            <td><span class="server-status" id="status-3077"></span> Login Server (3077)</td>
+                            <td><button class="btn" onclick="checkServerStatus(3077)">Kontrol</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="server-status" id="status-3023"></span> Super Admin Panel (3023)</td>
+                            <td><button class="btn" onclick="checkServerStatus(3023)">Kontrol</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="server-status" id="status-3024"></span> Modular Super Admin (3024)</td>
+                            <td><button class="btn" onclick="checkServerStatus(3024)">Kontrol</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="server-status" id="status-3000"></span> Ana Dashboard (3000)</td>
+                            <td><button class="btn" onclick="checkServerStatus(3000)">Kontrol</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="server-status" id="status-3002"></span> Amazon Admin (3002)</td>
+                            <td><button class="btn" onclick="checkServerStatus(3002)">Kontrol</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="server-status" id="status-3003"></span> N11 Admin (3003)</td>
+                            <td><button class="btn" onclick="checkServerStatus(3003)">Kontrol</button></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="panel">
+                    <h4>Sistem Aksiyonları</h4>
+                    <button class="btn" onclick="startAllServers()">Tüm Servisleri Başlat</button>
+                    <button class="btn btn-warning" onclick="restartAllServers()">Tüm Servisleri Yeniden Başlat</button>
+                    <button class="btn btn-danger" onclick="stopAllServers()">Tüm Servisleri Durdur</button>
+
+                    <h4>Sistem Raporları</h4>
+                    <button class="btn" onclick="generateStatusReport()">Durum Raporu Oluştur</button>
+                    <button class="btn" onclick="checkSystemResources()">Sistem Kaynaklarını Kontrol Et</button>
+                </div>
+            </div>
+
+            <div class="log" id="status-log">
+                <div class="log-entry log-info">Sistem durumu kontrolü bekliyor...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gerekli script dosyaları -->
+    <script src="/login_audit_system.js"></script>
+    <script src="/map_regeneration_system.js"></script>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                document.querySelector(`.content[data-content="${tab.dataset.tab}"]`).classList.add('active');
+            });
+        });
+
+        // Logging functions
+        function addLoginLog(message, type = 'info') {
+            const logContainer = document.getElementById('login-log');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function addMapLog(message, type = 'info') {
+            const logContainer = document.getElementById('map-log');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function addStatusLog(message, type = 'info') {
+            const logContainer = document.getElementById('status-log');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Login functions
+        function testLogin() {
+            const port = document.getElementById('login-port').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            addLoginLog(`${username} ile ${port} portuna giriş deneniyor...`, 'info');
+
+            // Simulated login
+            setTimeout(() => {
+                addLoginLog(`${port} portuna başarıyla giriş yapıldı!`, 'success');
+                document.getElementById('active-session').textContent = username;
+                document.getElementById('session-token').textContent = `token_${Date.now().toString(36)}`;
+                document.getElementById('last-login').textContent = new Date().toLocaleTimeString();
+                document.getElementById('active-ports').textContent = port;
+            }, 1000);
+        }
+
+        function testAllLogins() {
+            addLoginLog('Tüm portlarda giriş testleri başlatılıyor...', 'info');
+
+            const ports = ['3077', '3023', '3024', '3000', '3002', '3003'];
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            let counter = 0;
+            ports.forEach((port, index) => {
+                setTimeout(() => {
+                    addLoginLog(`${port} portu için giriş testi...`, 'info');
+
+                    setTimeout(() => {
+                        addLoginLog(`${port} portuna başarıyla giriş yapıldı!`, 'success');
+                        counter++;
+
+                        if (counter === ports.length) {
+                            addLoginLog('Tüm portlara başarıyla giriş yapıldı!', 'success');
+                            document.getElementById('active-session').textContent = username;
+                            document.getElementById('session-token').textContent = `multi_token_${Date.now().toString(36)}`;
+                            document.getElementById('last-login').textContent = new Date().toLocaleTimeString();
+                            document.getElementById('active-ports').textContent = ports.join(', ');
+                        }
+                    }, 800);
+                }, index * 1200);
+            });
+        }
+
+        function logoutAll() {
+            addLoginLog('Tüm oturumlar kapatılıyor...', 'warning');
+
+            setTimeout(() => {
+                addLoginLog('Tüm oturumlar başarıyla kapatıldı!', 'success');
+                document.getElementById('active-session').textContent = 'Yok';
+                document.getElementById('session-token').textContent = '-';
+                document.getElementById('active-ports').textContent = '-';
+            }, 1000);
+        }
+
+        function checkLoginStatus() {
+            addLoginLog('Giriş durumu kontrol ediliyor...', 'info');
+
+            setTimeout(() => {
+                if (document.getElementById('active-session').textContent !== 'Yok') {
+                    addLoginLog(`Aktif oturum bulundu: ${document.getElementById('active-session').textContent}`, 'success');
+                    addLoginLog(`Token: ${document.getElementById('session-token').textContent}`, 'info');
+                    addLoginLog(`Aktif portlar: ${document.getElementById('active-ports').textContent}`, 'info');
+                } else {
+                    addLoginLog('Aktif oturum bulunamadı!', 'warning');
+                }
+            }, 800);
+        }
+
+        function viewLoginHistory() {
+            addLoginLog('Giriş geçmişi getiriliyor...', 'info');
+
+            setTimeout(() => {
+                addLoginLog('Bugünkü giriş geçmişi:', 'info');
+                addLoginLog('admin - 09:15 - 3077 portu - 192.168.1.105', 'info');
+                addLoginLog('manager - 10:22 - 3024 portu - 192.168.1.107', 'info');
+                addLoginLog('support - 11:45 - 3002 portu - 192.168.1.112', 'info');
+                addLoginLog('admin - 13:30 - 3023 portu - 192.168.1.105', 'info');
+            }, 1000);
+        }
+
+        // Map regeneration functions
+        function regenerateMap() {
+            const mapType = document.getElementById('map-type').value;
+            const marketplace = document.getElementById('map-marketplace').value;
+            const backupBefore = document.getElementById('backup-before').checked;
+            const forceReset = document.getElementById('force-reset').checked;
+            const notifyUsers = document.getElementById('notify-users').checked;
+
+            addMapLog(`${mapType === 'all' ? 'Tüm haritalar' : mapType + ' haritası'} yeniden oluşturuluyor...`, 'info');
+
+            if (backupBefore) {
+                addMapLog('Mevcut haritalar yedekleniyor...', 'info');
+            }
+
+            if (forceReset) {
+                addMapLog('Dikkat: Tüm harita verileri sıfırlanacak!', 'warning');
+            }
+
+            let totalSteps = 4;
+
+            for (let i = 1; i <= totalSteps; i++) {
+                setTimeout(() => {
+                    addMapLog(`Yeniden oluşturma adım ${i}/${totalSteps}: ${getStepName(i)}`, 'info');
+
+                    if (i === totalSteps) {
+                        setTimeout(() => {
+                            addMapLog('Harita yeniden oluşturma tamamlandı!', 'success');
+
+                            // Update stats
+                            document.getElementById('active-maps').textContent = '5';
+                            document.getElementById('last-regeneration').textContent = new Date().toLocaleTimeString();
+                            document.getElementById('category-count').textContent = '215';
+                            document.getElementById('product-count').textContent = '1847';
+                            document.getElementById('attribute-count').textContent = '532';
+
+                            if (notifyUsers) {
+                                addMapLog('Kullanıcılara bildirim gönderildi!', 'info');
+                            }
+                        }, 800);
+                    }
+                }, i * 1500);
+            }
+        }
+
+        function getStepName(step) {
+            switch (step) {
+                case 1: return 'Veri kaynağı hazırlanıyor';
+                case 2: return 'Kategori eşleştirmeleri oluşturuluyor';
+                case 3: return 'Ürün eşleştirmeleri oluşturuluyor';
+                case 4: return 'Harita verileri doğrulanıyor';
+                default: return 'İşlem yapılıyor';
+            }
+        }
+
+        function checkMapStatus() {
+            addMapLog('Harita durumu kontrol ediliyor...', 'info');
+
+            setTimeout(() => {
+                addMapLog('Aktif Harita Sistemleri:', 'info');
+                addMapLog('✅ Kategori Haritası: 215 eşleştirme, son güncelleme 18.06.2025 12:45', 'success');
+                addMapLog('✅ Ürün Haritası: 1847 eşleştirme, son güncelleme 18.06.2025 13:30', 'success');
+                addMapLog('✅ Özellik Haritası: 532 eşleştirme, son güncelleme 18.06.2025 13:30', 'success');
+                addMapLog('✅ Kullanıcı Haritası: 47 eşleştirme, son güncelleme 17.06.2025 16:20', 'success');
+                addMapLog('✅ İzin Haritası: 154 eşleştirme, son güncelleme 17.06.2025 16:20', 'success');
+            }, 1000);
+        }
+
+        function exportMapData() {
+            addMapLog('Harita verileri dışa aktarılıyor...', 'info');
+
+            setTimeout(() => {
+                addMapLog('Harita verileri dışa aktarıldı: meschain_maps_18062025.json', 'success');
+            }, 1200);
+        }
+
+        function viewMapHistory() {
+            addMapLog('Yenileme geçmişi getiriliyor...', 'info');
+
+            setTimeout(() => {
+                addMapLog('Son yenileme işlemleri:', 'info');
+                addMapLog('18.06.2025 13:30 - Ürün ve Özellik Haritaları - admin', 'info');
+                addMapLog('18.06.2025 12:45 - Kategori Haritası - admin', 'info');
+                addMapLog('17.06.2025 16:20 - Kullanıcı ve İzin Haritaları - manager', 'info');
+                addMapLog('15.06.2025 09:10 - Tüm Haritalar - system', 'info');
+            }, 1000);
+        }
+
+        // Server status functions
+        function checkServerStatus(port) {
+            addStatusLog(`Port ${port} kontrol ediliyor...`, 'info');
+
+            // Simulated server check
+            setTimeout(() => {
+                const statusElement = document.getElementById(`status-${port}`);
+
+                // Simulated active ports
+                const activePorts = [3077, 3023, 3024];
+
+                if (activePorts.includes(Number(port))) {
+                    statusElement.className = 'server-status status-active';
+                    addStatusLog(`Port ${port} aktif ve çalışıyor!`, 'success');
+                } else {
+                    statusElement.className = 'server-status status-inactive';
+                    addStatusLog(`Port ${port} aktif değil!`, 'error');
+                }
+            }, 800);
+        }
+
+        function startAllServers() {
+            addStatusLog('Tüm servisler başlatılıyor...', 'info');
+
+            setTimeout(() => {
+                const ports = [3077, 3023, 3024, 3000, 3002, 3003];
+
+                ports.forEach(port => {
+                    document.getElementById(`status-${port}`).className = 'server-status status-active';
+                });
+
+                addStatusLog('Tüm servisler başarıyla başlatıldı!', 'success');
+            }, 2000);
+        }
+
+        function stopAllServers() {
+            addStatusLog('Tüm servisler durduruluyor...', 'warning');
+
+            setTimeout(() => {
+                const ports = [3077, 3023, 3024, 3000, 3002, 3003];
+
+                ports.forEach(port => {
+                    document.getElementById(`status-${port}`).className = 'server-status status-inactive';
+                });
+
+                addStatusLog('Tüm servisler durduruldu!', 'success');
+            }, 1500);
+        }
+
+        function restartAllServers() {
+            addStatusLog('Tüm servisler yeniden başlatılıyor...', 'warning');
+
+            setTimeout(() => {
+                stopAllServers();
+
+                setTimeout(() => {
+                    startAllServers();
+                }, 1500);
+            }, 500);
+        }
+
+        function generateStatusReport() {
+            addStatusLog('Durum raporu oluşturuluyor...', 'info');
+
+            setTimeout(() => {
+                addStatusLog('Durum raporu oluşturuldu: SISTEM_DURUMU_RAPORU_18_HAZIRAN_2025.md', 'success');
+            }, 1500);
+        }
+
+        function checkSystemResources() {
+            addStatusLog('Sistem kaynakları kontrol ediliyor...', 'info');
+
+            setTimeout(() => {
+                addStatusLog('CPU Kullanımı: %32', 'info');
+                addStatusLog('RAM Kullanımı: 2.4 GB / 8 GB', 'info');
+                addStatusLog('Disk Kullanımı: 156 GB / 500 GB', 'info');
+                addStatusLog('Ağ Trafiği: 2.3 Mbps gelen, 1.7 Mbps giden', 'info');
+            }, 1000);
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            // Check initial server status
+            [3077, 3023, 3024, 3000, 3002, 3003].forEach(port => {
+                checkServerStatus(port);
+            });
+
+            // Set initial map stats
+            document.getElementById('active-maps').textContent = '5';
+            document.getElementById('last-regeneration').textContent = '18.06.2025 13:30';
+            document.getElementById('category-count').textContent = '215';
+            document.getElementById('product-count').textContent = '1847';
+            document.getElementById('attribute-count').textContent = '532';
+        });
+    </script>
+</body>
+</html>

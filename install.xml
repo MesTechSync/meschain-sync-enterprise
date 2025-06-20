@@ -1,89 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-    <name>MesChain-Sync: Pazarama &amp; Çiçek Sepeti Integration</name>
-    <code>meschain_pazarama_ciceksepeti</code>
+    <name>MesChain Sync - Enterprise Marketplace Integration</name>
+    <code>meschain_sync_enterprise</code>
     <version>1.0.0</version>
     <author>MesChain Development Team</author>
-    <link>https://www.meschain.com</link>
-    <description>Professional marketplace integration for Pazarama and Çiçek Sepeti with OpenCart 3.0.4.0</description>
-    
-    <file path="admin/controller/startup/startup.php">
+    <link>https://meschain.com</link>
+    <description><![CDATA[
+        Enterprise-grade marketplace integration solution for OpenCart 4.0.2.3.
+        Supports: Trendyol, N11, Hepsiburada, Amazon, eBay, GittiGidiyor, Pazarama, PttAVM.
+        Features: Real-time sync, AI optimization, advanced analytics, cron automation.
+    ]]></description>
+
+    <!-- Add MesChain SYNC Extension Type -->
+    <file path="admin/model/setting/extension.php">
         <operation>
-            <search><![CDATA[$this->load->controller('common/header');]]></search>
-            <add position="before"><![CDATA[
-                // MesChain-Sync initialization
-                if (file_exists(DIR_SYSTEM . 'library/meschain/logger.php')) {
-                    require_once(DIR_SYSTEM . 'library/meschain/logger.php');
-                }
-            ]]></add>
-        </operation>
-    </file>
-    
-    <file path="admin/view/template/common/column_left.twig">
-        <operation>
-            <search><![CDATA[<ul class="nav nav-pills nav-stacked">]]></search>
+            <search><![CDATA['dashboard',]]></search>
             <add position="after"><![CDATA[
-                {% if meschain_menu %}
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-toggle="collapse" data-target="#meschain-menu" aria-expanded="false">
-                        <i class="fas fa-sync-alt"></i> MesChain-Sync
-                        <span class="float-right">
-                            <i class="fas fa-chevron-down"></i>
-                        </span>
-                    </a>
-                    <div class="collapse" id="meschain-menu">
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ meschain_sync_url }}" class="nav-link">
-                                    <i class="fas fa-cog"></i> {{ text_meschain_sync }}
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ trendyol_url }}" class="nav-link">
-                                    <i class="fas fa-shopping-bag"></i> Trendyol
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ n11_url }}" class="nav-link">
-                                    <i class="fas fa-store"></i> N11
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ amazon_url }}" class="nav-link">
-                                    <i class="fab fa-amazon"></i> Amazon
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ hepsiburada_url }}" class="nav-link">
-                                    <i class="fas fa-shopping-cart"></i> Hepsiburada
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ ozon_url }}" class="nav-link">
-                                    <i class="fas fa-globe"></i> Ozon
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ pazarama_url }}" class="nav-link">
-                                    <i class="fas fa-shopping-basket"></i> Pazarama
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ ciceksepeti_url }}" class="nav-link">
-                                    <i class="fas fa-leaf"></i> Çiçek Sepeti
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ ebay_url }}" class="nav-link">
-                                    <i class="fab fa-ebay"></i> eBay
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-                {% endif %}
+			'meschain_sync',]]></add>
+        </operation>
+    </file>
+
+    <!-- Add Extension Type Language - Turkish -->
+    <file path="admin/language/tr-tr/marketplace/extension.php">
+        <operation>
+            <search><![CDATA[$_['text_theme']]]></search>
+            <add position="after"><![CDATA[
+$_['text_meschain_sync']     = 'MesChain SYNC';]]></add>
+        </operation>
+    </file>
+
+    <!-- Add Extension Type Language - English -->
+    <file path="admin/language/en-gb/marketplace/extension.php">
+        <operation>
+            <search><![CDATA[$_['text_theme']]]></search>
+            <add position="after"><![CDATA[
+$_['text_meschain_sync']     = 'MesChain SYNC';]]></add>
+        </operation>
+    </file>
+
+    <!-- User Permission -->
+    <file path="admin/controller/startup/permission.php">
+        <operation>
+            <search><![CDATA[
+            'extension/module',
+            ]]></search>
+            <add position="after"><![CDATA[
+            'extension/meschain_sync/module/meschain_sync',
+            'extension/meschain_sync/module/meschain_sync/health',
+            'extension/meschain_sync/module/meschain_sync/systemStatus',
+            'extension/meschain_sync/module/meschain_sync/searchProducts',
+            'extension/meschain_sync/module/meschain_sync/barcodeSearch',
+            'extension/meschain_sync/module/meschain_sync/updateInventory',
+            'extension/meschain_sync/module/meschain_sync/syncMarketplace',
+            'extension/meschain_sync/module/meschain_sync/marketplaceSyncStatus',
+            'extension/meschain_sync/module/meschain_sync/analyticsDashboard',
+            'extension/meschain_sync/module/meschain_sync/cron',
+            'extension/meschain_sync/module/meschain_sync/marketplaces',
+            'extension/meschain_sync/module/meschain_sync/action',
             ]]></add>
         </operation>
     </file>
-    
-</modification> 
+
+    <!-- Add MesChain Sync Routes -->
+    <file path="system/framework.php">
+        <operation>
+            <search><![CDATA[// Route]]></search>
+            <add position="after"><![CDATA[
+// MesChain Sync Routes
+$route->addRoute('extension/meschain_sync/module/meschain_sync', 'extension/meschain_sync/module/meschain_sync/index');
+$route->addRoute('extension/meschain_sync/module/meschain_sync.marketplaces', 'extension/meschain_sync/module/meschain_sync/marketplaces');
+$route->addRoute('extension/meschain_sync/module/meschain_sync.action', 'extension/meschain_sync/module/meschain_sync/action');
+]]></add>
+        </operation>
+    </file>
+
+    <!-- Admin Menu Integration -->
+    <file path="admin/controller/common/column_left.php">
+        <operation>
+            <search><![CDATA[
+            if ($this->user->hasPermission('access', 'marketplace/extension')) {
+            ]]></search>
+            <add position="after"><![CDATA[
+            // MesChain Sync Menu
+            if ($this->user->hasPermission('access', 'extension/meschain_sync/module/meschain_sync')) {
+                $meschain = array();
+
+                $meschain[] = array(
+                    'name' => 'Dashboard',
+                    'href' => $this->url->link('extension/meschain_sync/module/meschain_sync', 'user_token=' . $this->session->data['user_token'], true),
+                    'children' => array()
+                );
+
+                $meschain[] = array(
+                    'name' => 'Marketplace Manager',
+                    'href' => $this->url->link('extension/meschain_sync/module/meschain_sync.marketplaces', 'user_token=' . $this->session->data['user_token'], true),
+                    'children' => array()
+                );
+
+                $meschain[] = array(
+                    'name' => 'Analytics',
+                    'href' => $this->url->link('extension/meschain_sync/module/meschain_sync/analytics', 'user_token=' . $this->session->data['user_token'], true),
+                    'children' => array()
+                );
+
+                $meschain[] = array(
+                    'name' => 'Settings',
+                    'href' => $this->url->link('extension/meschain_sync/module/meschain_sync/settings', 'user_token=' . $this->session->data['user_token'], true),
+                    'children' => array()
+                );
+
+                $data['menus'][] = array(
+                    'id' => 'menu-meschain-sync',
+                    'icon' => 'fa-sync',
+                    'name' => 'MesChain Sync',
+                    'href' => '',
+                    'children' => $meschain
+                );
+            }
+            ]]></add>
+        </operation>
+    </file>
+</modification>

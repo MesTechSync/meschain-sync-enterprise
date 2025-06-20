@@ -1,171 +1,364 @@
 <?php
 /**
- * trendyol_webhook.php (Refactored)
+ * Trendyol Webhook Endpoint - Catalog Controller
+ * MesChain-Sync Enterprise v4.5.0
  *
- * Handles incoming webhook notifications from Trendyol using the standardized ApiClient.
+ * @author MesChain Development Team
+ * @version 4.5.0 Enterprise
+ * @copyright 2024 MesChain Technologies
  */
-class ControllerExtensionModuleTrendyolWebhook extends Controller {
-    
-    public function index() {
-        $log = new Log('trendyol_webhook.log');
-        $log->write('Webhook request received.');
 
-        if ($this->request->server['REQUEST_METHOD'] != 'POST') {
-            $log->write('Invalid HTTP method used.');
-            $this->response->addHeader('HTTP/1.0 405 Method Not Allowed');
-            $this->response->setOutput(json_encode(['error' => 'Method Not Allowed']));
+require_once DIR_SYSTEM . 'library/meschain/api/TrendyolApiClient.php';
+require_once DIR_SYSTEM . 'library/meschain/webhook/TrendyolWebhookHandler.php';
+
+use MesChain\Api\TrendyolApiClient;
+
+class ControllerExtensionModuleTrendyolWebhook extends Controller {
+
+    /**
+     * Main webhook endpoint
+     * URL: /index.php?route=extension/module/trendyol_webhook
+     */
+    public function index() {
+        // Set response headers
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->addHeader('Access-Control-Allow-Origin: *');
+        $this->response->addHeader('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+        $this->response->addHeader('Access-Control-Allow-Headers: Content-Type, Authorization, X-Trendyol-Signature');
+
+        // Handle preflight OPTIONS request
+        if ($this->request->server['REQUEST_METHOD'] === 'OPTIONS') {
+            $this->response->setOutput('');
+            return;
+        }
+
+        // Only allow POST requests for webhooks
+        if ($this->request->server['REQUEST_METHOD'] !== 'POST') {
+            $this->response->setOutput(json_encode([
+                'success' => false,
+                'error' => 'Method not allowed. Only POST requests are accepted.'
+            ]));
             return;
         }
 
         try {
-            // Load the standard Trendyol API Client
-            require_once(DIR_SYSTEM . 'library/meschain/api/TrendyolApiClient.php');
-            
-            // Get credentials - This assumes a single user/credential set for webhook processing.
-            // A more robust system might pass a user token in the webhook URL to fetch specific credentials.
-            $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "user_api_settings WHERE marketplace = 'trendyol' ORDER BY user_id ASC LIMIT 1");
-            if (!$query->num_rows) {
-                throw new Exception("Trendyol API settings not found in user_api_settings.");
-            }
-            $settings = json_decode($query->row['settings'], true);
+            // Get webhook payload
+            $payload = $this->getWebhookPayload();
 
-            require_once(DIR_SYSTEM . 'library/meschain/encryption.php');
-            $encryption = new MeschainEncryption();
-            $decrypted_settings = $encryption->decryptApiCredentials($settings);
-            
-            $apiClient = new TrendyolApiClient($decrypted_settings);
-
-            // Validate Signature
-            $signature = $this->request->server['HTTP_X_TRENDYOL_SIGNATURE'] ?? '';
-            $payload = file_get_contents('php://input');
-            
-            if (!$this->validateTrendyolSignature($signature, $payload, $decrypted_settings['api_secret'])) {
-                $log->write('Forbidden: Invalid signature.');
-                $this->response->addHeader('HTTP/1.0 403 Forbidden');
-                $this->response->setOutput(json_encode(['error' => 'Invalid signature']));
-                return;
+            if (!$payload) {
+                throw new Exception('Invalid or empty payload');
             }
 
-            // Process Payload
-            $data = json_decode($payload, true);
-            if (empty($data)) {
-                throw new Exception("Invalid JSON payload.");
-            }
-            
-            $this->processWebhookPayload($data);
+            // Initialize API client and webhook handler
+            $apiConfig = $this->getApiConfiguration();
+            $apiClient = new TrendyolApiClient($apiConfig, $this->registry);
+            $webhookHandler = new TrendyolWebhookHandler($apiClient, $this->registry);
 
-            $this->response->addHeader('HTTP/1.0 200 OK');
-            $this->response->setOutput(json_encode(['status' => 'success']));
+            // Validate webhook signature
+            if (!$webhookHandler->validate($this->request)) {
+                throw new Exception('Invalid webhook signature');
+            }
+
+            // Process the webhook
+            $result = $webhookHandler->process($payload);
+
+            // Log successful processing
+            $this->log->write('Trendyol Webhook processed successfully: ' . json_encode($result));
+
+            // Return success response
+            $this->response->setOutput(json_encode([
+                'success' => true,
+                'message' => 'Webhook processed successfully',
+                'data' => $result
+            ]));
 
         } catch (Exception $e) {
-            $log->write('ERROR: ' . $e->getMessage());
-            $this->response->addHeader('HTTP/1.0 500 Internal Server Error');
-            $this->response->setOutput(json_encode(['error' => 'Internal Server Error']));
-        }
-    }
-      
-    private function validateTrendyolSignature($signature, $payload, $apiSecret) {
-        if (empty($signature) || empty($apiSecret)) {
-            return false;
-        }
-        $expectedSignature = base64_encode(hash_hmac('sha256', $payload, $apiSecret, true));
-        return hash_equals($expectedSignature, $signature);
-    }
+            // Log error
+            $this->log->write('Trendyol Webhook Error: ' . $e->getMessage());
 
-    private function processWebhookPayload($payload) {
-        $log = new Log('trendyol_webhook.log');
-        $eventType = $payload['eventType'] ?? '';
-        $orderNumber = $payload['orderNumber'] ?? 'N/A';
-
-        $log->write("Processing event: {$eventType} for order: {$orderNumber}");
-
-        switch ($eventType) {
-            case 'NewOrder':
-            case 'OrderCreated':
-                // Here, we would ideally call a centralized order processing model.
-                // For example:
-                // $this->load->model('extension/meschain/order');
-                // $this->model_extension_meschain_order->createOrderFromWebhook('trendyol', $payload);
-                break;
-            case 'OrderStatusChanged':
-                // $this->load->model('extension/meschain/order');
-                // $this->model_extension_meschain_order->updateOrderStatusFromWebhook('trendyol', $payload);
-                break;
+            // Return error response
+            $this->response->setOutput(json_encode([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'timestamp' => date('c')
+            ]));
         }
-        return true;
     }
 
     /**
-     * Webhook endpoint status kontrolü
+     * Webhook test endpoint for development
+     * URL: /index.php?route=extension/module/trendyol_webhook/test
+     */
+    public function test() {
+        $this->response->addHeader('Content-Type: application/json');
+
+        // Check if test mode is enabled
+        if (!$this->config->get('trendyol_test_mode')) {
+            $this->response->setOutput(json_encode([
+                'success' => false,
+                'error' => 'Test endpoint is disabled'
+            ]));
+            return;
+        }
+
+        // Simulate webhook payload for testing
+        $testPayload = [
+            'eventType' => 'ORDER_CREATED',
+            'orderNumber' => 'TEST-' . time(),
+            'orderDate' => time() * 1000,
+            'grossAmount' => 99.99,
+            'totalDiscount' => 10.00,
+            'customerFirstName' => 'Test',
+            'customerLastName' => 'Customer',
+            'customerEmail' => 'test@example.com',
+            'status' => 'Created',
+            'lines' => [
+                [
+                    'productName' => 'Test Product',
+                    'barcode' => 'TEST123456',
+                    'quantity' => 1,
+                    'price' => 89.99,
+                    'totalPrice' => 89.99
+                ]
+            ]
+        ];
+
+        try {
+            // Initialize API client and webhook handler
+            $apiConfig = $this->getApiConfiguration();
+            $apiClient = new TrendyolApiClient($apiConfig, $this->registry);
+            $webhookHandler = new TrendyolWebhookHandler($apiClient, $this->registry);
+
+            // Process test webhook
+            $result = $webhookHandler->process($testPayload);
+
+            $this->response->setOutput(json_encode([
+                'success' => true,
+                'message' => 'Test webhook processed successfully',
+                'test_payload' => $testPayload,
+                'result' => $result
+            ]));
+
+        } catch (Exception $e) {
+            $this->response->setOutput(json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]));
+        }
+    }
+
+    /**
+     * Webhook status endpoint
+     * URL: /index.php?route=extension/module/trendyol_webhook/status
      */
     public function status() {
         $this->response->addHeader('Content-Type: application/json');
-        $this->response->setOutput(json_encode([
-            'status' => 'active',
-            'webhook_enabled' => $this->config->get('module_trendyol_webhook_enabled'),
-            'last_webhook_received' => $this->getLastWebhookReceived(),
-            'timestamp' => date('Y-m-d H:i:s'),
-            'version' => '3.0.1'
-        ]));
-    }    /**
-     * Son webhook alım zamanını getir
-     */
-    private function getLastWebhookReceived() {
-        $query = $this->db->query("
-            SELECT received_at 
-            FROM " . DB_PREFIX . "trendyol_webhooks 
-            ORDER BY received_at DESC 
-            LIMIT 1
-        ");
-        
-        return $query->num_rows ? $query->row['received_at'] : null;
-    }
-    
-    /**
-     * Test endpoint - Webhook sistemi test amaçlı
-     */
-    public function test() {
-        $this->writeLog('INFO', 'Test webhook endpoint çağrıldı');
-        
-        // Test verisi
-        $testData = [
-            'eventType' => 'TEST_EVENT',
-            'orderNumber' => 'TEST-' . time(),
-            'timestamp' => date('c'),
-            'test' => true
-        ];
-        
+
         try {
-            // Trendyol helper'ı yükle
-            $this->load->library('meschain/helper/trendyol');
-            $trendyolHelper = new MeschainTrendyolHelper($this->registry);
-            
-            // Test webhook işleme
-            $result = $trendyolHelper->processWebhook('TEST_EVENT', $testData);
-            
-            $this->writeLog('SUCCESS', 'Test webhook işlendi', [
-                'result' => $result,
-                'testData' => $testData
-            ]);
-            
-            $this->response->addHeader('Content-Type: application/json');
+            $this->load->model('extension/module/trendyol');
+
+            // Get webhook statistics
+            $stats = [
+                'webhook_url' => $this->url->link('extension/module/trendyol_webhook', '', true),
+                'status' => 'active',
+                'last_24_hours' => $this->model_extension_module_trendyol->getWebhookStats(24),
+                'last_7_days' => $this->model_extension_module_trendyol->getWebhookStats(168),
+                'supported_events' => [
+                    'ORDER_CREATED',
+                    'ORDER_CANCELLED',
+                    'ORDER_STATUS_CHANGED',
+                    'PRODUCT_APPROVED',
+                    'PRODUCT_REJECTED',
+                    'INVENTORY_UPDATED',
+                    'PRICE_UPDATED',
+                    'SHIPMENT_CREATED',
+                    'RETURN_INITIATED'
+                ],
+                'configuration' => $this->getWebhookConfiguration(),
+                'last_check' => date('c')
+            ];
+
             $this->response->setOutput(json_encode([
-                'status' => 'success',
-                'message' => 'Test webhook successfully processed',
-                'result' => $result,
-                'timestamp' => date('Y-m-d H:i:s')
+                'success' => true,
+                'data' => $stats
             ]));
-              } catch (Exception $e) {
-            $this->writeLog('ERROR', 'Test webhook hatası', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            $this->response->addHeader('HTTP/1.0 500 Internal Server Error');
+
+        } catch (Exception $e) {
             $this->response->setOutput(json_encode([
-                'status' => 'error',
-                'message' => 'Test webhook failed: ' . $e->getMessage()
+                'success' => false,
+                'error' => $e->getMessage()
             ]));
         }
+    }
+
+    /**
+     * Webhook logs endpoint (for debugging)
+     * URL: /index.php?route=extension/module/trendyol_webhook/logs
+     */
+    public function logs() {
+        $this->response->addHeader('Content-Type: application/json');
+
+        // Check admin permissions
+        if (!$this->isAdminRequest()) {
+            $this->response->setOutput(json_encode([
+                'success' => false,
+                'error' => 'Access denied'
+            ]));
+            return;
+        }
+
+        try {
+            $this->load->model('extension/module/trendyol');
+
+            $limit = isset($this->request->get['limit']) ? (int)$this->request->get['limit'] : 50;
+            $page = isset($this->request->get['page']) ? (int)$this->request->get['page'] : 1;
+            $eventType = isset($this->request->get['event_type']) ? $this->request->get['event_type'] : '';
+
+            $logs = $this->model_extension_module_trendyol->getWebhookLogs([
+                'limit' => $limit,
+                'page' => $page,
+                'event_type' => $eventType
+            ]);
+
+            $this->response->setOutput(json_encode([
+                'success' => true,
+                'data' => $logs,
+                'pagination' => [
+                    'page' => $page,
+                    'limit' => $limit,
+                    'total' => $this->model_extension_module_trendyol->getTotalWebhookLogs(['event_type' => $eventType])
+                ]
+            ]));
+
+        } catch (Exception $e) {
+            $this->response->setOutput(json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]));
+        }
+    }
+
+    /**
+     * Get webhook payload from request
+     */
+    private function getWebhookPayload() {
+        $input = file_get_contents('php://input');
+
+        if (empty($input)) {
+            return null;
+        }
+
+        $payload = json_decode($input, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Invalid JSON payload: ' . json_last_error_msg());
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Get API configuration
+     */
+    private function getApiConfiguration() {
+        $this->load->model('setting/setting');
+
+        $settings = $this->model_setting_setting->getSetting('module_trendyol');
+
+        return [
+            'api_key' => $settings['module_trendyol_api_key'] ?? '',
+            'api_secret' => $settings['module_trendyol_api_secret'] ?? '',
+            'supplier_id' => $settings['module_trendyol_supplier_id'] ?? '',
+            'test_mode' => $settings['module_trendyol_test_mode'] ?? false,
+            'webhook_secret' => $settings['module_trendyol_webhook_secret'] ?? ''
+        ];
+    }
+
+    /**
+     * Get webhook configuration
+     */
+    private function getWebhookConfiguration() {
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "trendyol_webhook_config` ORDER BY event_type");
+
+        $config = [];
+        foreach ($query->rows as $row) {
+            $config[$row['event_type']] = [
+                'enabled' => (bool)$row['enabled'],
+                'auto_process' => (bool)$row['auto_process'],
+                'retry_count' => (int)$row['retry_count']
+            ];
+        }
+
+        return $config;
+    }
+
+    /**
+     * Check if request is from admin panel
+     */
+    private function isAdminRequest() {
+        // Simple check for admin token or IP
+        $adminToken = $this->request->get['admin_token'] ?? '';
+        $adminIp = $this->config->get('trendyol_admin_ip') ?? '';
+
+        if (!empty($adminToken) && $adminToken === $this->config->get('trendyol_admin_token')) {
+            return true;
+        }
+
+        if (!empty($adminIp) && $_SERVER['REMOTE_ADDR'] === $adminIp) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Health check endpoint
+     * URL: /index.php?route=extension/module/trendyol_webhook/health
+     */
+    public function health() {
+        $this->response->addHeader('Content-Type: application/json');
+
+        $health = [
+            'status' => 'healthy',
+            'timestamp' => date('c'),
+            'version' => '4.5.0',
+            'service' => 'Trendyol Webhook Handler',
+            'uptime' => $this->getUptime(),
+            'memory_usage' => memory_get_usage(true),
+            'peak_memory' => memory_get_peak_usage(true)
+        ];
+
+        // Check database connectivity
+        try {
+            $this->db->query("SELECT 1");
+            $health['database'] = 'connected';
+        } catch (Exception $e) {
+            $health['database'] = 'error';
+            $health['status'] = 'unhealthy';
+        }
+
+        // Check API configuration
+        $apiConfig = $this->getApiConfiguration();
+        $health['api_configured'] = !empty($apiConfig['api_key']) && !empty($apiConfig['api_secret']);
+
+        if (!$health['api_configured']) {
+            $health['status'] = 'degraded';
+        }
+
+        $this->response->setOutput(json_encode($health));
+    }
+
+    /**
+     * Get system uptime (simplified)
+     */
+    private function getUptime() {
+        $uptime_file = sys_get_temp_dir() . '/trendyol_webhook_uptime';
+
+        if (!file_exists($uptime_file)) {
+            file_put_contents($uptime_file, time());
+        }
+
+        $start_time = (int)file_get_contents($uptime_file);
+        return time() - $start_time;
     }
 }
