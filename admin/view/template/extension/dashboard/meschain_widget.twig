@@ -1,0 +1,121 @@
+<div class="panel panel-default meschain-widget">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      <i class="fa fa-exchange"></i> 
+      {{ module_name }}
+      <div class="pull-right">
+        <a href="index.php?route=extension/module/{{ module_code }}&user_token={{ user_token }}" class="btn btn-primary btn-xs">
+          <i class="fa fa-cog"></i> Yönet
+        </a>
+      </div>
+    </h3>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="widget-stat">
+          <h4>{{ stats.total_products|default('0') }}</h4>
+          <p>Toplam Ürün</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="widget-stat">
+          <h4>{{ stats.total_orders|default('0') }}</h4>
+          <p>Toplam Sipariş</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="widget-stat">
+          <h4>{{ stats.total_sync|default('0') }}</h4>
+          <p>Senkronizasyon</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="widget-stat">
+          <h6>{{ stats.last_sync|default('Hiçbir zaman') }}</h6>
+          <p>Son Senkronizasyon</p>
+        </div>
+      </div>
+    </div>
+    
+    {% if stats.status is defined %}
+    <div class="row">
+      <div class="col-md-12">
+        <div class="widget-status">
+          {% if stats.status == 'connected' %}
+            <span class="label label-success">
+              <i class="fa fa-check-circle"></i> Bağlı
+            </span>
+          {% elseif stats.status == 'error' %}
+            <span class="label label-danger">
+              <i class="fa fa-exclamation-circle"></i> Hata
+            </span>
+          {% else %}
+            <span class="label label-warning">
+              <i class="fa fa-question-circle"></i> Yapılandırılmamış
+            </span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  
+  {% if stats.recent_activity is defined and stats.recent_activity %}
+  <div class="panel-footer">
+    <small>
+      <strong>Son Aktivite:</strong> {{ stats.recent_activity }}
+    </small>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+.meschain-widget .widget-stat {
+  text-align: center;
+  padding: 10px;
+}
+
+.meschain-widget .widget-stat h4 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  color: #3c8dbc;
+}
+
+.meschain-widget .widget-stat h6 {
+  font-size: 12px;
+  margin: 0;
+  color: #666;
+}
+
+.meschain-widget .widget-stat p {
+  font-size: 11px;
+  margin: 5px 0 0 0;
+  color: #999;
+  text-transform: uppercase;
+}
+
+.meschain-widget .widget-status {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.meschain-widget .panel-heading {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.meschain-widget .panel-heading .panel-title {
+  color: white;
+}
+
+.meschain-widget .panel-heading .btn-primary {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.meschain-widget .panel-heading .btn-primary:hover {
+  background: rgba(255,255,255,0.3);
+}
+</style> 

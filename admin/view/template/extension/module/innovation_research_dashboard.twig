@@ -1,0 +1,1013 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="refresh-trends" class="btn btn-primary">
+          <i class="fa fa-refresh"></i> {{ text_refresh_trends }}
+        </button>
+        <button type="button" id="generate-roadmap" class="btn btn-success">
+          <i class="fa fa-road"></i> {{ text_generate_roadmap }}
+        </button>
+        <button type="button" id="export-research" class="btn btn-info">
+          <i class="fa fa-download"></i> {{ text_export_research }}
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Innovation Status Overview -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-lightbulb-o fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="innovation-score">{{ innovation_score }}</div>
+                <div>{{ text_innovation_score }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">{{ text_target }}: 85+</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-trending-up fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="trend-confidence">{{ trend_confidence }}%</div>
+                <div>{{ text_trend_confidence }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">{{ text_target }}: 80%+</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-rocket fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="opportunities-count">{{ opportunities_count }}</div>
+                <div>{{ text_opportunities_identified }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">{{ text_this_month }}</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-clock-o fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="research-speed">{{ research_speed }}ms</div>
+                <div>{{ text_research_speed }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">{{ text_target }}: &lt;500ms</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Technology Trend Analysis -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-line-chart fa-fw"></i> {{ text_technology_trends }}
+            <div class="pull-right">
+              <div class="btn-group">
+                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                  <span id="trend-timeframe">{{ text_last_12_months }}</span> <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu pull-right" role="menu">
+                  <li><a href="#" onclick="changeTrendTimeframe('3m')">{{ text_last_3_months }}</a></li>
+                  <li><a href="#" onclick="changeTrendTimeframe('6m')">{{ text_last_6_months }}</a></li>
+                  <li><a href="#" onclick="changeTrendTimeframe('12m')">{{ text_last_12_months }}</a></li>
+                  <li><a href="#" onclick="changeTrendTimeframe('24m')">{{ text_last_24_months }}</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <canvas id="technologyTrendsChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-pie-chart fa-fw"></i> {{ text_innovation_focus_areas }}
+          </div>
+          <div class="panel-body">
+            <canvas id="innovationFocusChart" width="300" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Emerging Technologies Assessment -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-cogs fa-fw"></i> {{ text_emerging_technologies }}
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover" id="emerging-tech-table">
+                <thead>
+                  <tr>
+                    <th>{{ text_technology }}</th>
+                    <th>{{ text_maturity }}</th>
+                    <th>{{ text_potential }}</th>
+                    <th>{{ text_timeline }}</th>
+                    <th>{{ text_action }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for tech in emerging_technologies %}
+                  <tr>
+                    <td>
+                      <i class="fa fa-{{ tech.icon }}"></i>
+                      <strong>{{ tech.name }}</strong>
+                      <br><small class="text-muted">{{ tech.category }}</small>
+                    </td>
+                    <td>
+                      <div class="progress">
+                        <div class="progress-bar progress-bar-{{ tech.maturity_class }}" 
+                             style="width: {{ tech.maturity }}%">
+                          {{ tech.maturity }}%
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="label label-{{ tech.potential_class }}">
+                        {{ tech.potential }}
+                      </span>
+                    </td>
+                    <td>{{ tech.timeline }}</td>
+                    <td>
+                      <button type="button" class="btn btn-xs btn-primary" 
+                              onclick="evaluateTechnology('{{ tech.id }}')">
+                        <i class="fa fa-search"></i> {{ text_evaluate }}
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-chain fa-fw"></i> {{ text_blockchain_integration }}
+          </div>
+          <div class="panel-body">
+            <div class="blockchain-scenarios">
+              {% for scenario in blockchain_scenarios %}
+              <div class="scenario-item">
+                <div class="scenario-header">
+                  <h5>
+                    <i class="fa fa-{{ scenario.icon }}"></i>
+                    {{ scenario.title }}
+                    <span class="pull-right">
+                      <span class="label label-{{ scenario.readiness_class }}">
+                        {{ scenario.readiness }}
+                      </span>
+                    </span>
+                  </h5>
+                </div>
+                <div class="scenario-body">
+                  <p>{{ scenario.description }}</p>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <small><strong>{{ text_impact }}:</strong> {{ scenario.impact }}</small>
+                    </div>
+                    <div class="col-md-6">
+                      <small><strong>{{ text_complexity }}:</strong> {{ scenario.complexity }}</small>
+                    </div>
+                  </div>
+                  <div class="scenario-actions">
+                    <button type="button" class="btn btn-xs btn-success" 
+                            onclick="assessBlockchainScenario('{{ scenario.id }}')">
+                      <i class="fa fa-check"></i> {{ text_assess }}
+                    </button>
+                    <button type="button" class="btn btn-xs btn-info" 
+                            onclick="viewScenarioDetails('{{ scenario.id }}')">
+                      <i class="fa fa-eye"></i> {{ text_details }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- IoT & AR/VR Integration Planning -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-wifi fa-fw"></i> {{ text_iot_integration }}
+          </div>
+          <div class="panel-body">
+            <div class="iot-integration-map">
+              <div class="integration-category">
+                <h5>{{ text_smart_inventory }}</h5>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-info" style="width: {{ iot_smart_inventory }}%">
+                    {{ iot_smart_inventory }}%
+                  </div>
+                </div>
+                <small>{{ text_implementation_readiness }}</small>
+              </div>
+              
+              <div class="integration-category">
+                <h5>{{ text_supply_chain_monitoring }}</h5>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-warning" style="width: {{ iot_supply_chain }}%">
+                    {{ iot_supply_chain }}%
+                  </div>
+                </div>
+                <small>{{ text_implementation_readiness }}</small>
+              </div>
+              
+              <div class="integration-category">
+                <h5>{{ text_smart_warehouse }}</h5>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-success" style="width: {{ iot_warehouse }}%">
+                    {{ iot_warehouse }}%
+                  </div>
+                </div>
+                <small>{{ text_implementation_readiness }}</small>
+              </div>
+              
+              <div class="integration-category">
+                <h5>{{ text_connected_devices }}</h5>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-danger" style="width: {{ iot_devices }}%">
+                    {{ iot_devices }}%
+                  </div>
+                </div>
+                <small>{{ text_implementation_readiness }}</small>
+              </div>
+            </div>
+            
+            <div class="text-center" style="margin-top: 20px;">
+              <button type="button" class="btn btn-primary" onclick="planIoTIntegration()">
+                <i class="fa fa-cog"></i> {{ text_plan_iot_integration }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-cube fa-fw"></i> {{ text_ar_vr_integration }}
+          </div>
+          <div class="panel-body">
+            <div class="ar-vr-integration-map">
+              <div class="integration-category">
+                <h5>{{ text_product_visualization }}</h5>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-success" style="width: {{ ar_product_viz }}%">
+                    {{ ar_product_viz }}%
+                  </div>
+                </div>
+                <small>{{ text_implementation_readiness }}</small>
+              </div>
+              
+              <div class="integration-category">
+                <h5>{{ text_virtual_showroom }}</h5>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-info" style="width: {{ vr_showroom }}%">
+                    {{ vr_showroom }}%
+                  </div>
+                </div>
+                <small>{{ text_implementation_readiness }}</small>
+              </div>
+              
+              <div class="integration-category">
+                <h5>{{ text_virtual_trials }}</h5>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-warning" style="width: {{ ar_trials }}%">
+                    {{ ar_trials }}%
+                  </div>
+                </div>
+                <small>{{ text_implementation_readiness }}</small>
+              </div>
+              
+              <div class="integration-category">
+                <h5>{{ text_immersive_shopping }}</h5>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-danger" style="width: {{ vr_shopping }}%">
+                    {{ vr_shopping }}%
+                  </div>
+                </div>
+                <small>{{ text_implementation_readiness }}</small>
+              </div>
+            </div>
+            
+            <div class="text-center" style="margin-top: 20px;">
+              <button type="button" class="btn btn-primary" onclick="planARVRIntegration()">
+                <i class="fa fa-cube"></i> {{ text_plan_ar_vr_integration }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Innovation Roadmap -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-road fa-fw"></i> {{ text_innovation_roadmap }}
+            <div class="pull-right">
+              <button type="button" class="btn btn-xs btn-success" onclick="generateInnovationRoadmap()">
+                <i class="fa fa-refresh"></i> {{ text_regenerate }}
+              </button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="roadmap-timeline">
+              {% for phase in roadmap_phases %}
+              <div class="timeline-item">
+                <div class="timeline-marker">
+                  <i class="fa fa-{{ phase.icon }}"></i>
+                </div>
+                <div class="timeline-content">
+                  <h4>{{ phase.title }}</h4>
+                  <p class="timeline-date">{{ phase.timeline }}</p>
+                  <p>{{ phase.description }}</p>
+                  <div class="timeline-technologies">
+                    {% for tech in phase.technologies %}
+                    <span class="label label-{{ tech.class }}">{{ tech.name }}</span>
+                    {% endfor %}
+                  </div>
+                  <div class="timeline-metrics">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <small><strong>{{ text_investment }}:</strong> {{ phase.investment }}</small>
+                      </div>
+                      <div class="col-md-3">
+                        <small><strong>{{ text_roi_expected }}:</strong> {{ phase.roi }}</small>
+                      </div>
+                      <div class="col-md-3">
+                        <small><strong>{{ text_risk_level }}:</strong> {{ phase.risk }}</small>
+                      </div>
+                      <div class="col-md-3">
+                        <small><strong>{{ text_success_probability }}:</strong> {{ phase.success_probability }}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Innovation Opportunities & Recommendations -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <i class="fa fa-lightbulb-o fa-fw"></i> {{ text_innovation_opportunities }}
+            <span class="badge">{{ opportunities|length }}</span>
+          </div>
+          <div class="panel-body">
+            <div id="opportunities-container" style="max-height: 400px; overflow-y: auto;">
+              {% for opportunity in opportunities %}
+              <div class="opportunity-item">
+                <div class="opportunity-header">
+                  <h5>
+                    <i class="fa fa-{{ opportunity.icon }}"></i>
+                    {{ opportunity.title }}
+                    <span class="pull-right">
+                      <span class="label label-{{ opportunity.priority_class }}">
+                        {{ opportunity.priority }}
+                      </span>
+                    </span>
+                  </h5>
+                </div>
+                <div class="opportunity-body">
+                  <p>{{ opportunity.description }}</p>
+                  <div class="opportunity-metrics">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <small><strong>{{ text_market_size }}:</strong> {{ opportunity.market_size }}</small>
+                      </div>
+                      <div class="col-md-6">
+                        <small><strong>{{ text_implementation_time }}:</strong> {{ opportunity.implementation_time }}</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="opportunity-actions">
+                    <button type="button" class="btn btn-xs btn-success" 
+                            onclick="exploreOpportunity('{{ opportunity.id }}')">
+                      <i class="fa fa-search"></i> {{ text_explore }}
+                    </button>
+                    <button type="button" class="btn btn-xs btn-primary" 
+                            onclick="addToRoadmap('{{ opportunity.id }}')">
+                      <i class="fa fa-plus"></i> {{ text_add_to_roadmap }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <i class="fa fa-recommendations fa-fw"></i> {{ text_strategic_recommendations }}
+            <span class="badge">{{ recommendations|length }}</span>
+          </div>
+          <div class="panel-body">
+            <div id="recommendations-container" style="max-height: 400px; overflow-y: auto;">
+              {% for recommendation in recommendations %}
+              <div class="recommendation-item">
+                <div class="recommendation-header">
+                  <h5>
+                    <i class="fa fa-{{ recommendation.icon }}"></i>
+                    {{ recommendation.title }}
+                    <span class="pull-right">
+                      <span class="label label-{{ recommendation.urgency_class }}">
+                        {{ recommendation.urgency }}
+                      </span>
+                    </span>
+                  </h5>
+                </div>
+                <div class="recommendation-body">
+                  <p>{{ recommendation.description }}</p>
+                  <div class="recommendation-impact">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <small><strong>{{ text_business_impact }}:</strong> {{ recommendation.business_impact }}</small>
+                      </div>
+                      <div class="col-md-6">
+                        <small><strong>{{ text_effort_required }}:</strong> {{ recommendation.effort_required }}</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="recommendation-actions">
+                    <button type="button" class="btn btn-xs btn-success" 
+                            onclick="implementRecommendation('{{ recommendation.id }}')">
+                      <i class="fa fa-check"></i> {{ text_implement }}
+                    </button>
+                    <button type="button" class="btn btn-xs btn-warning" 
+                            onclick="scheduleRecommendation('{{ recommendation.id }}')">
+                      <i class="fa fa-calendar"></i> {{ text_schedule }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Technology Evaluation Modal -->
+<div class="modal fade" id="techEvaluationModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+        <h4 class="modal-title">{{ text_technology_evaluation }}</h4>
+      </div>
+      <div class="modal-body">
+        <div id="tech-evaluation-content">
+          <!-- Dynamic content will be loaded here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          {{ text_close }}
+        </button>
+        <button type="button" class="btn btn-primary" onclick="saveTechEvaluation()">
+          {{ text_save_evaluation }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Initialize innovation research dashboard
+    initializeInnovationDashboard();
+    
+    // Initialize charts
+    initializeInnovationCharts();
+    
+    // Setup auto-refresh
+    setInterval(refreshInnovationData, 300000); // 5 minutes
+    
+    // Initialize data tables
+    $('#emerging-tech-table').DataTable({
+        "responsive": true,
+        "pageLength": 10,
+        "order": [[ 2, "desc" ]]
+    });
+});
+
+function initializeInnovationDashboard() {
+    // Load initial data
+    refreshInnovationData();
+    
+    // Setup event handlers
+    setupEventHandlers();
+}
+
+function initializeInnovationCharts() {
+    // Technology Trends Chart
+    var ctx1 = document.getElementById('technologyTrendsChart').getContext('2d');
+    window.technologyTrendsChart = new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: [{{ trend_chart_labels }}],
+            datasets: [{
+                label: 'AI/ML',
+                data: [{{ ai_ml_trend_data }}],
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                borderWidth: 2,
+                fill: false
+            }, {
+                label: 'Blockchain',
+                data: [{{ blockchain_trend_data }}],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                borderWidth: 2,
+                fill: false
+            }, {
+                label: 'IoT',
+                data: [{{ iot_trend_data }}],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                borderWidth: 2,
+                fill: false
+            }, {
+                label: 'AR/VR',
+                data: [{{ ar_vr_trend_data }}],
+                borderColor: 'rgba(153, 102, 255, 1)',
+                backgroundColor: 'rgba(153, 102, 255, 0.1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Innovation Focus Chart
+    var ctx2 = document.getElementById('innovationFocusChart').getContext('2d');
+    window.innovationFocusChart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: [{{ innovation_focus_labels }}],
+            datasets: [{
+                data: [{{ innovation_focus_data }}],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)',
+                    'rgba(255, 205, 86, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function refreshInnovationData() {
+    $.ajax({
+        url: '{{ get_innovation_data_url }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                updateInnovationMetrics(data.metrics);
+                updateTrendCharts(data.trends);
+                updateOpportunities(data.opportunities);
+                updateRecommendations(data.recommendations);
+            }
+        },
+        error: function() {
+            console.error('Failed to refresh innovation data');
+        }
+    });
+}
+
+function updateInnovationMetrics(metrics) {
+    $('#innovation-score').text(metrics.innovation_score);
+    $('#trend-confidence').text(metrics.trend_confidence + '%');
+    $('#opportunities-count').text(metrics.opportunities_count);
+    $('#research-speed').text(metrics.research_speed + 'ms');
+}
+
+function updateTrendCharts(trends) {
+    if (window.technologyTrendsChart && trends.technology_trends) {
+        window.technologyTrendsChart.data.datasets[0].data = trends.technology_trends.ai_ml;
+        window.technologyTrendsChart.data.datasets[1].data = trends.technology_trends.blockchain;
+        window.technologyTrendsChart.data.datasets[2].data = trends.technology_trends.iot;
+        window.technologyTrendsChart.data.datasets[3].data = trends.technology_trends.ar_vr;
+        window.technologyTrendsChart.update('none');
+    }
+    
+    if (window.innovationFocusChart && trends.innovation_focus) {
+        window.innovationFocusChart.data.datasets[0].data = trends.innovation_focus;
+        window.innovationFocusChart.update('none');
+    }
+}
+
+function evaluateTechnology(techId) {
+    $.ajax({
+        url: '{{ evaluate_technology_url }}',
+        type: 'POST',
+        data: { technology_id: techId },
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                $('#tech-evaluation-content').html(data.evaluation_html);
+                $('#techEvaluationModal').modal('show');
+            } else {
+                alert('{{ text_evaluation_failed }}: ' + data.error);
+            }
+        }
+    });
+}
+
+function assessBlockchainScenario(scenarioId) {
+    $.ajax({
+        url: '{{ assess_blockchain_url }}',
+        type: 'POST',
+        data: { scenario_id: scenarioId },
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                alert('{{ text_blockchain_assessment_completed }}');
+                refreshInnovationData();
+            } else {
+                alert('{{ text_assessment_failed }}: ' + data.error);
+            }
+        }
+    });
+}
+
+function planIoTIntegration() {
+    $.ajax({
+        url: '{{ plan_iot_url }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                alert('{{ text_iot_planning_completed }}');
+                refreshInnovationData();
+            } else {
+                alert('{{ text_planning_failed }}: ' + data.error);
+            }
+        }
+    });
+}
+
+function planARVRIntegration() {
+    $.ajax({
+        url: '{{ plan_ar_vr_url }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                alert('{{ text_ar_vr_planning_completed }}');
+                refreshInnovationData();
+            } else {
+                alert('{{ text_planning_failed }}: ' + data.error);
+            }
+        }
+    });
+}
+
+function generateInnovationRoadmap() {
+    $('#generate-roadmap').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ text_generating }}');
+    
+    $.ajax({
+        url: '{{ generate_roadmap_url }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                alert('{{ text_roadmap_generated }}');
+                location.reload();
+            } else {
+                alert('{{ text_generation_failed }}: ' + data.error);
+            }
+        },
+        complete: function() {
+            $('#generate-roadmap').prop('disabled', false).html('<i class="fa fa-road"></i> {{ text_generate_roadmap }}');
+        }
+    });
+}
+
+function exploreOpportunity(opportunityId) {
+    window.open('{{ explore_opportunity_url }}&opportunity_id=' + opportunityId, '_blank');
+}
+
+function addToRoadmap(opportunityId) {
+    $.ajax({
+        url: '{{ add_to_roadmap_url }}',
+        type: 'POST',
+        data: { opportunity_id: opportunityId },
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                alert('{{ text_added_to_roadmap }}');
+                refreshInnovationData();
+            } else {
+                alert('{{ text_add_failed }}: ' + data.error);
+            }
+        }
+    });
+}
+
+function implementRecommendation(recommendationId) {
+    $.ajax({
+        url: '{{ implement_recommendation_url }}',
+        type: 'POST',
+        data: { recommendation_id: recommendationId },
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                alert('{{ text_recommendation_implemented }}');
+                refreshInnovationData();
+            } else {
+                alert('{{ text_implementation_failed }}: ' + data.error);
+            }
+        }
+    });
+}
+
+function changeTrendTimeframe(timeframe) {
+    $('#trend-timeframe').text(getTimeframeText(timeframe));
+    
+    $.ajax({
+        url: '{{ get_innovation_data_url }}',
+        type: 'GET',
+        data: { timeframe: timeframe },
+        dataType: 'json',
+        success: function(data) {
+            if (data.success && data.trends) {
+                updateTrendCharts(data.trends);
+            }
+        }
+    });
+}
+
+function getTimeframeText(timeframe) {
+    switch(timeframe) {
+        case '3m': return '{{ text_last_3_months }}';
+        case '6m': return '{{ text_last_6_months }}';
+        case '12m': return '{{ text_last_12_months }}';
+        case '24m': return '{{ text_last_24_months }}';
+        default: return '{{ text_last_12_months }}';
+    }
+}
+
+// Export functionality
+$('#export-research').click(function() {
+    window.open('{{ export_research_url }}', '_blank');
+});
+
+// Refresh button
+$('#refresh-trends').click(function() {
+    refreshInnovationData();
+});
+</script>
+
+<style>
+.huge {
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.scenario-item, .opportunity-item, .recommendation-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+}
+
+.scenario-header, .opportunity-header, .recommendation-header {
+    margin-bottom: 10px;
+}
+
+.scenario-body, .opportunity-body, .recommendation-body {
+    margin-bottom: 10px;
+}
+
+.scenario-actions, .opportunity-actions, .recommendation-actions {
+    text-align: right;
+}
+
+.integration-category {
+    margin-bottom: 20px;
+}
+
+.integration-category h5 {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.progress {
+    height: 20px;
+    margin-bottom: 5px;
+}
+
+.roadmap-timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.roadmap-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #ddd;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #337ab7;
+    color: white;
+    text-align: center;
+    line-height: 30px;
+}
+
+.timeline-content {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-left: 20px;
+}
+
+.timeline-content h4 {
+    margin-top: 0;
+    color: #337ab7;
+}
+
+.timeline-date {
+    color: #666;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.timeline-technologies {
+    margin: 10px 0;
+}
+
+.timeline-technologies .label {
+    margin-right: 5px;
+}
+
+.timeline-metrics {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.blockchain-scenarios, #opportunities-container, #recommendations-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .huge {
+        font-size: 24px;
+    }
+    
+    .roadmap-timeline {
+        padding-left: 20px;
+    }
+    
+    .timeline-marker {
+        left: -15px;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        font-size: 12px;
+    }
+    
+    .timeline-content {
+        margin-left: 10px;
+    }
+}
+</style>
+
+{{ footer }} 

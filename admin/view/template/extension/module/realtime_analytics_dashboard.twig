@@ -1,0 +1,963 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="refresh-analytics" class="btn btn-primary">
+          <i class="fa fa-refresh"></i> {{ text_refresh }}
+        </button>
+        <button type="button" id="export-analytics" class="btn btn-success">
+          <i class="fa fa-download"></i> {{ text_export }}
+        </button>
+        <button type="button" id="configure-dashboard" class="btn btn-info" data-toggle="modal" data-target="#configModal">
+          <i class="fa fa-cog"></i> {{ text_configure }}
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Real-time Status Indicators -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="alert alert-info">
+          <i class="fa fa-info-circle"></i>
+          <strong>{{ text_realtime_status }}:</strong>
+          <span id="realtime-status" class="label label-success">{{ text_active }}</span>
+          <span class="pull-right">
+            {{ text_last_update }}: <span id="last-update-time">{{ last_update_time }}</span>
+            | {{ text_data_latency }}: <span id="data-latency">{{ data_latency }}ms</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Key Performance Indicators -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-money fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="realtime-revenue">{{ realtime_revenue }}</div>
+                <div>{{ text_realtime_revenue }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">
+              <span id="revenue-change" class="label label-{{ revenue_change_class }}">
+                {{ revenue_change }}
+              </span>
+            </span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="realtime-orders">{{ realtime_orders }}</div>
+                <div>{{ text_realtime_orders }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">
+              <span id="orders-change" class="label label-{{ orders_change_class }}">
+                {{ orders_change }}
+              </span>
+            </span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-users fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="active-customers">{{ active_customers }}</div>
+                <div>{{ text_active_customers }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">
+              <span id="customers-change" class="label label-{{ customers_change_class }}">
+                {{ customers_change }}
+              </span>
+            </span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-percent fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="conversion-rate">{{ conversion_rate }}%</div>
+                <div>{{ text_conversion_rate }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">
+              <span id="conversion-change" class="label label-{{ conversion_change_class }}">
+                {{ conversion_change }}
+              </span>
+            </span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Real-time Charts -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-line-chart fa-fw"></i> {{ text_realtime_sales_chart }}
+            <div class="pull-right">
+              <div class="btn-group">
+                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                  <span id="chart-timeframe">{{ text_last_24h }}</span> <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu pull-right" role="menu">
+                  <li><a href="#" onclick="changeTimeframe('1h')">{{ text_last_1h }}</a></li>
+                  <li><a href="#" onclick="changeTimeframe('6h')">{{ text_last_6h }}</a></li>
+                  <li><a href="#" onclick="changeTimeframe('24h')">{{ text_last_24h }}</a></li>
+                  <li><a href="#" onclick="changeTimeframe('7d')">{{ text_last_7d }}</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <canvas id="realtimeSalesChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-pie-chart fa-fw"></i> {{ text_marketplace_distribution }}
+          </div>
+          <div class="panel-body">
+            <canvas id="marketplaceDistributionChart" width="300" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Advanced Analytics Widgets -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-bar-chart fa-fw"></i> {{ text_inventory_analytics }}
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="metric-box">
+                  <h4>{{ text_low_stock_items }}</h4>
+                  <div class="metric-value text-danger" id="low-stock-count">{{ low_stock_count }}</div>
+                  <div class="metric-change">
+                    <span class="label label-{{ low_stock_change_class }}">{{ low_stock_change }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="metric-box">
+                  <h4>{{ text_inventory_turnover }}</h4>
+                  <div class="metric-value text-success" id="inventory-turnover">{{ inventory_turnover }}</div>
+                  <div class="metric-change">
+                    <span class="label label-{{ turnover_change_class }}">{{ turnover_change }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <canvas id="inventoryTrendChart" width="400" height="150"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-users fa-fw"></i> {{ text_customer_analytics }}
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="metric-box">
+                  <h4>{{ text_new_customers }}</h4>
+                  <div class="metric-value text-primary" id="new-customers">{{ new_customers }}</div>
+                  <div class="metric-change">
+                    <span class="label label-{{ new_customers_change_class }}">{{ new_customers_change }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="metric-box">
+                  <h4>{{ text_customer_lifetime_value }}</h4>
+                  <div class="metric-value text-info" id="customer-ltv">{{ customer_ltv }}</div>
+                  <div class="metric-change">
+                    <span class="label label-{{ ltv_change_class }}">{{ ltv_change }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <canvas id="customerBehaviorChart" width="400" height="150"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Real-time Data Tables -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-list fa-fw"></i> {{ text_recent_orders }}
+            <span class="badge" id="recent-orders-count">{{ recent_orders_count }}</span>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover" id="recent-orders-table">
+                <thead>
+                  <tr>
+                    <th>{{ text_order_id }}</th>
+                    <th>{{ text_customer }}</th>
+                    <th>{{ text_marketplace }}</th>
+                    <th>{{ text_amount }}</th>
+                    <th>{{ text_status }}</th>
+                    <th>{{ text_time }}</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-orders-tbody">
+                  {% for order in recent_orders %}
+                  <tr>
+                    <td><a href="{{ order.view_url }}">#{{ order.order_id }}</a></td>
+                    <td>{{ order.customer_name }}</td>
+                    <td>
+                      <img src="{{ order.marketplace_logo }}" width="20" height="20" alt="{{ order.marketplace }}">
+                      {{ order.marketplace }}
+                    </td>
+                    <td>{{ order.total }}</td>
+                    <td>
+                      <span class="label label-{{ order.status_class }}">{{ order.status }}</span>
+                    </td>
+                    <td>{{ order.time_ago }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-exclamation-triangle fa-fw"></i> {{ text_alerts_notifications }}
+            <span class="badge badge-danger" id="alerts-count">{{ alerts_count }}</span>
+          </div>
+          <div class="panel-body">
+            <div id="alerts-container" style="max-height: 300px; overflow-y: auto;">
+              {% for alert in alerts %}
+              <div class="alert alert-{{ alert.type }} alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert">
+                  <span>&times;</span>
+                </button>
+                <strong>{{ alert.title }}</strong> {{ alert.message }}
+                <br><small class="text-muted">{{ alert.timestamp }}</small>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Performance Metrics -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-tachometer fa-fw"></i> {{ text_system_performance }}
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="performance-metric">
+                  <h5>{{ text_data_processing_speed }}</h5>
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-success" style="width: {{ data_processing_speed }}%">
+                      {{ data_processing_speed }}%
+                    </div>
+                  </div>
+                  <small>{{ text_target }}: 95%+</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="performance-metric">
+                  <h5>{{ text_api_response_time }}</h5>
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-info" style="width: {{ api_response_performance }}%">
+                      {{ api_response_time }}ms
+                    </div>
+                  </div>
+                  <small>{{ text_target }}: &lt;100ms</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="performance-metric">
+                  <h5>{{ text_data_accuracy }}</h5>
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-warning" style="width: {{ data_accuracy }}%">
+                      {{ data_accuracy }}%
+                    </div>
+                  </div>
+                  <small>{{ text_target }}: 99.5%+</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="performance-metric">
+                  <h5>{{ text_system_uptime }}</h5>
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-success" style="width: {{ system_uptime }}%">
+                      {{ system_uptime }}%
+                    </div>
+                  </div>
+                  <small>{{ text_target }}: 99.9%+</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Configuration Modal -->
+<div class="modal fade" id="configModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+        <h4 class="modal-title">{{ text_dashboard_configuration }}</h4>
+      </div>
+      <div class="modal-body">
+        <form id="dashboard-config-form">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ text_refresh_interval }}</label>
+                <select class="form-control" id="refresh-interval">
+                  <option value="5">5 {{ text_seconds }}</option>
+                  <option value="10" selected>10 {{ text_seconds }}</option>
+                  <option value="30">30 {{ text_seconds }}</option>
+                  <option value="60">1 {{ text_minute }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ text_default_timeframe }}</label>
+                <select class="form-control" id="default-timeframe">
+                  <option value="1h">{{ text_last_1h }}</option>
+                  <option value="6h">{{ text_last_6h }}</option>
+                  <option value="24h" selected>{{ text_last_24h }}</option>
+                  <option value="7d">{{ text_last_7d }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>{{ text_visible_widgets }}</label>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" id="show-sales-chart" checked>
+                    {{ text_sales_chart }}
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" id="show-marketplace-distribution" checked>
+                    {{ text_marketplace_distribution }}
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" id="show-inventory-analytics" checked>
+                    {{ text_inventory_analytics }}
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" id="show-customer-analytics" checked>
+                    {{ text_customer_analytics }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          {{ text_cancel }}
+        </button>
+        <button type="button" class="btn btn-primary" onclick="saveDashboardConfig()">
+          {{ text_save }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Initialize real-time dashboard
+    initializeRealTimeDashboard();
+    
+    // Start auto-refresh
+    startAutoRefresh();
+    
+    // Initialize charts
+    initializeCharts();
+});
+
+function initializeRealTimeDashboard() {
+    // Setup WebSocket connection for real-time updates
+    if (typeof WebSocket !== 'undefined') {
+        connectWebSocket();
+    } else {
+        // Fallback to polling
+        startPolling();
+    }
+    
+    // Initialize data tables
+    $('#recent-orders-table').DataTable({
+        "responsive": true,
+        "pageLength": 10,
+        "order": [[ 5, "desc" ]],
+        "searching": false,
+        "paging": false,
+        "info": false
+    });
+}
+
+function connectWebSocket() {
+    var ws = new WebSocket('{{ websocket_url }}');
+    
+    ws.onopen = function(event) {
+        console.log('WebSocket connected');
+        updateConnectionStatus('connected');
+    };
+    
+    ws.onmessage = function(event) {
+        var data = JSON.parse(event.data);
+        updateRealTimeData(data);
+    };
+    
+    ws.onclose = function(event) {
+        console.log('WebSocket disconnected');
+        updateConnectionStatus('disconnected');
+        // Attempt to reconnect after 5 seconds
+        setTimeout(connectWebSocket, 5000);
+    };
+    
+    ws.onerror = function(error) {
+        console.error('WebSocket error:', error);
+        updateConnectionStatus('error');
+    };
+}
+
+function startPolling() {
+    setInterval(function() {
+        refreshRealTimeData();
+    }, 10000); // Poll every 10 seconds
+}
+
+function refreshRealTimeData() {
+    $.ajax({
+        url: '{{ get_realtime_data_url }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                updateRealTimeData(data.data);
+                updateLastUpdateTime();
+            }
+        },
+        error: function() {
+            console.error('Failed to refresh real-time data');
+            updateConnectionStatus('error');
+        }
+    });
+}
+
+function updateRealTimeData(data) {
+    // Update KPI values
+    if (data.kpis) {
+        $('#realtime-revenue').text(data.kpis.revenue);
+        $('#realtime-orders').text(data.kpis.orders);
+        $('#active-customers').text(data.kpis.active_customers);
+        $('#conversion-rate').text(data.kpis.conversion_rate + '%');
+        
+        // Update change indicators
+        updateChangeIndicator('#revenue-change', data.kpis.revenue_change);
+        updateChangeIndicator('#orders-change', data.kpis.orders_change);
+        updateChangeIndicator('#customers-change', data.kpis.customers_change);
+        updateChangeIndicator('#conversion-change', data.kpis.conversion_change);
+    }
+    
+    // Update charts
+    if (data.charts) {
+        updateSalesChart(data.charts.sales);
+        updateMarketplaceChart(data.charts.marketplace);
+        updateInventoryChart(data.charts.inventory);
+        updateCustomerChart(data.charts.customer);
+    }
+    
+    // Update recent orders
+    if (data.recent_orders) {
+        updateRecentOrders(data.recent_orders);
+    }
+    
+    // Update alerts
+    if (data.alerts) {
+        updateAlerts(data.alerts);
+    }
+    
+    // Update performance metrics
+    if (data.performance) {
+        updatePerformanceMetrics(data.performance);
+    }
+}
+
+function updateChangeIndicator(selector, change) {
+    var $element = $(selector);
+    var value = parseFloat(change.value);
+    var text = change.formatted;
+    
+    $element.text(text);
+    $element.removeClass('label-success label-danger label-warning');
+    
+    if (value > 0) {
+        $element.addClass('label-success');
+    } else if (value < 0) {
+        $element.addClass('label-danger');
+    } else {
+        $element.addClass('label-warning');
+    }
+}
+
+function initializeCharts() {
+    // Sales Chart
+    var ctx1 = document.getElementById('realtimeSalesChart').getContext('2d');
+    window.salesChart = new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: [{{ sales_chart_labels }}],
+            datasets: [{
+                label: '{{ text_sales }}',
+                data: [{{ sales_chart_data }}],
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: {
+                duration: 1000
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    
+    // Marketplace Distribution Chart
+    var ctx2 = document.getElementById('marketplaceDistributionChart').getContext('2d');
+    window.marketplaceChart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: [{{ marketplace_labels }}],
+            datasets: [{
+                data: [{{ marketplace_data }}],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 205, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: {
+                duration: 1000
+            }
+        }
+    });
+    
+    // Inventory Trend Chart
+    var ctx3 = document.getElementById('inventoryTrendChart').getContext('2d');
+    window.inventoryChart = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: [{{ inventory_labels }}],
+            datasets: [{
+                label: '{{ text_stock_levels }}',
+                data: [{{ inventory_data }}],
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // Customer Behavior Chart
+    var ctx4 = document.getElementById('customerBehaviorChart').getContext('2d');
+    window.customerChart = new Chart(ctx4, {
+        type: 'line',
+        data: {
+            labels: [{{ customer_labels }}],
+            datasets: [{
+                label: '{{ text_new_customers }}',
+                data: [{{ customer_data }}],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                borderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function updateSalesChart(data) {
+    if (window.salesChart && data) {
+        window.salesChart.data.labels = data.labels;
+        window.salesChart.data.datasets[0].data = data.values;
+        window.salesChart.update('none');
+    }
+}
+
+function updateMarketplaceChart(data) {
+    if (window.marketplaceChart && data) {
+        window.marketplaceChart.data.labels = data.labels;
+        window.marketplaceChart.data.datasets[0].data = data.values;
+        window.marketplaceChart.update('none');
+    }
+}
+
+function updateInventoryChart(data) {
+    if (window.inventoryChart && data) {
+        window.inventoryChart.data.labels = data.labels;
+        window.inventoryChart.data.datasets[0].data = data.values;
+        window.inventoryChart.update('none');
+    }
+}
+
+function updateCustomerChart(data) {
+    if (window.customerChart && data) {
+        window.customerChart.data.labels = data.labels;
+        window.customerChart.data.datasets[0].data = data.values;
+        window.customerChart.update('none');
+    }
+}
+
+function updateRecentOrders(orders) {
+    var tbody = $('#recent-orders-tbody');
+    tbody.empty();
+    
+    orders.forEach(function(order) {
+        var row = '<tr>' +
+            '<td><a href="' + order.view_url + '">#' + order.order_id + '</a></td>' +
+            '<td>' + order.customer_name + '</td>' +
+            '<td><img src="' + order.marketplace_logo + '" width="20" height="20"> ' + order.marketplace + '</td>' +
+            '<td>' + order.total + '</td>' +
+            '<td><span class="label label-' + order.status_class + '">' + order.status + '</span></td>' +
+            '<td>' + order.time_ago + '</td>' +
+            '</tr>';
+        tbody.append(row);
+    });
+    
+    $('#recent-orders-count').text(orders.length);
+}
+
+function updateAlerts(alerts) {
+    var container = $('#alerts-container');
+    container.empty();
+    
+    alerts.forEach(function(alert) {
+        var alertHtml = '<div class="alert alert-' + alert.type + ' alert-dismissible">' +
+            '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>' +
+            '<strong>' + alert.title + '</strong> ' + alert.message +
+            '<br><small class="text-muted">' + alert.timestamp + '</small>' +
+            '</div>';
+        container.append(alertHtml);
+    });
+    
+    $('#alerts-count').text(alerts.length);
+}
+
+function updatePerformanceMetrics(performance) {
+    if (performance.data_processing_speed) {
+        $('.progress-bar:eq(0)').css('width', performance.data_processing_speed + '%');
+    }
+    if (performance.api_response_time) {
+        $('.progress-bar:eq(1)').css('width', performance.api_response_performance + '%');
+        $('.progress-bar:eq(1)').text(performance.api_response_time + 'ms');
+    }
+    if (performance.data_accuracy) {
+        $('.progress-bar:eq(2)').css('width', performance.data_accuracy + '%');
+    }
+    if (performance.system_uptime) {
+        $('.progress-bar:eq(3)').css('width', performance.system_uptime + '%');
+    }
+}
+
+function updateConnectionStatus(status) {
+    var statusElement = $('#realtime-status');
+    statusElement.removeClass('label-success label-warning label-danger');
+    
+    switch(status) {
+        case 'connected':
+            statusElement.addClass('label-success').text('{{ text_connected }}');
+            break;
+        case 'disconnected':
+            statusElement.addClass('label-warning').text('{{ text_disconnected }}');
+            break;
+        case 'error':
+            statusElement.addClass('label-danger').text('{{ text_error }}');
+            break;
+    }
+}
+
+function updateLastUpdateTime() {
+    $('#last-update-time').text(new Date().toLocaleTimeString());
+}
+
+function changeTimeframe(timeframe) {
+    $('#chart-timeframe').text(getTimeframeText(timeframe));
+    
+    // Refresh charts with new timeframe
+    $.ajax({
+        url: '{{ get_realtime_data_url }}',
+        type: 'GET',
+        data: { timeframe: timeframe },
+        dataType: 'json',
+        success: function(data) {
+            if (data.success && data.data.charts) {
+                updateSalesChart(data.data.charts.sales);
+                updateInventoryChart(data.data.charts.inventory);
+                updateCustomerChart(data.data.charts.customer);
+            }
+        }
+    });
+}
+
+function getTimeframeText(timeframe) {
+    switch(timeframe) {
+        case '1h': return '{{ text_last_1h }}';
+        case '6h': return '{{ text_last_6h }}';
+        case '24h': return '{{ text_last_24h }}';
+        case '7d': return '{{ text_last_7d }}';
+        default: return '{{ text_last_24h }}';
+    }
+}
+
+function startAutoRefresh() {
+    var interval = parseInt($('#refresh-interval').val()) * 1000;
+    
+    setInterval(function() {
+        if (!document.hidden) { // Only refresh when tab is active
+            refreshRealTimeData();
+        }
+    }, interval);
+}
+
+function saveDashboardConfig() {
+    var config = {
+        refresh_interval: $('#refresh-interval').val(),
+        default_timeframe: $('#default-timeframe').val(),
+        visible_widgets: {
+            sales_chart: $('#show-sales-chart').is(':checked'),
+            marketplace_distribution: $('#show-marketplace-distribution').is(':checked'),
+            inventory_analytics: $('#show-inventory-analytics').is(':checked'),
+            customer_analytics: $('#show-customer-analytics').is(':checked')
+        }
+    };
+    
+    $.ajax({
+        url: '{{ save_config_url }}',
+        type: 'POST',
+        data: config,
+        dataType: 'json',
+        success: function(data) {
+            if (data.success) {
+                $('#configModal').modal('hide');
+                alert('{{ text_config_saved }}');
+                location.reload();
+            } else {
+                alert('{{ text_config_save_failed }}: ' + data.error);
+            }
+        }
+    });
+}
+
+// Export functionality
+$('#export-analytics').click(function() {
+    window.open('{{ export_url }}', '_blank');
+});
+
+// Refresh button
+$('#refresh-analytics').click(function() {
+    refreshRealTimeData();
+});
+</script>
+
+<style>
+.huge {
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.metric-box {
+    text-align: center;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.metric-change {
+    margin-top: 5px;
+}
+
+.performance-metric {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.performance-metric h5 {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.progress {
+    height: 25px;
+    margin-bottom: 5px;
+}
+
+.progress-bar {
+    line-height: 25px;
+    font-weight: bold;
+}
+
+#alerts-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.panel-heading .badge {
+    margin-left: 10px;
+}
+
+.table-responsive {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .huge {
+        font-size: 24px;
+    }
+    
+    .metric-value {
+        font-size: 18px;
+    }
+}
+</style>
+
+{{ footer }} 

@@ -1,0 +1,678 @@
+{{ header }}{{ column_left }}
+
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" class="btn btn-success" onclick="sendTestNotification()">
+          <i class="fa fa-mobile"></i> Send Test Notification
+        </button>
+        <button type="button" class="btn btn-primary" onclick="sendBulkNotification()">
+          <i class="fa fa-bullhorn"></i> Send Bulk Notification
+        </button>
+        <button type="button" class="btn btn-info" onclick="testApiEndpoint()">
+          <i class="fa fa-code"></i> Test API
+        </button>
+        <button type="button" class="btn btn-warning" onclick="configureFCM()">
+          <i class="fa fa-cog"></i> Configure FCM
+        </button>
+      </div>
+      <h1>Mobile API & Push Notifications</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Mobile Statistics -->
+    <div class="row">
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-blue">
+          <div class="icon"><i class="fa fa-mobile"></i></div>
+          <div class="num" id="active-devices">{{ push_stats.active_devices ?? 0 }}</div>
+          <h3>Active Devices</h3>
+          <p>Registered mobile devices</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-green">
+          <div class="icon"><i class="fa fa-bell"></i></div>
+          <div class="num" id="today-notifications">{{ push_stats.today_sent ?? 0 }}</div>
+          <h3>Today's Notifications</h3>
+          <p>Push notifications sent</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-orange">
+          <div class="icon"><i class="fa fa-code"></i></div>
+          <div class="num" id="api-calls">{{ api_stats.today_calls ?? 0 }}</div>
+          <h3>API Calls Today</h3>
+          <p>Mobile API requests</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="tile-stats tile-red">
+          <div class="icon"><i class="fa fa-tachometer"></i></div>
+          <div class="num" id="success-rate">{{ api_stats.success_rate ?? 0 }}%</div>
+          <h3>API Success Rate</h3>
+          <p>Last 24 hours</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Configuration Status -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-cogs"></i> Mobile Configuration Status
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="config-item">
+                  <div class="config-label">
+                    <i class="fa fa-android"></i> FCM Server Key
+                  </div>
+                  <div class="config-status">
+                    {% if fcm_server_key != 'Not configured' %}
+                      <span class="label label-success">{{ fcm_server_key }}</span>
+                    {% else %}
+                      <span class="label label-danger">Not Configured</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="config-item">
+                  <div class="config-label">
+                    <i class="fa fa-apple"></i> APNS Certificate
+                  </div>
+                  <div class="config-status">
+                    {% if apns_certificate == 'Configured' %}
+                      <span class="label label-success">Configured</span>
+                    {% else %}
+                      <span class="label label-danger">Not Configured</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="config-item">
+                  <div class="config-label">
+                    <i class="fa fa-signal"></i> API Response Time
+                  </div>
+                  <div class="config-status">
+                    <span class="label label-info">{{ api_stats.avg_response_time ?? 0 }}ms</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Device Management -->
+    <div class="row">
+      <div class="col-md-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-mobile"></i> Registered Devices
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped" id="devices-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Platform</th>
+                    <th>Device Model</th>
+                    <th>App Version</th>
+                    <th>OS Version</th>
+                    <th>Last Updated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for device in devices %}
+                  <tr>
+                    <td>
+                      <strong>{{ device.username }}</strong>
+                      <br><small>ID: {{ device.user_id }}</small>
+                    </td>
+                    <td>
+                      {% if device.platform == 'android' %}
+                        <i class="fa fa-android text-success"></i> Android
+                      {% elseif device.platform == 'ios' %}
+                        <i class="fa fa-apple text-info"></i> iOS
+                      {% else %}
+                        <i class="fa fa-mobile"></i> {{ device.platform|title }}
+                      {% endif %}
+                    </td>
+                    <td>{{ device.device_model }}</td>
+                    <td>{{ device.app_version ?? 'Unknown' }}</td>
+                    <td>{{ device.os_version }}</td>
+                    <td>{{ device.updated_at }}</td>
+                    <td>
+                      <button class="btn btn-xs btn-primary" onclick="sendTestToDevice({{ device.user_id }})">
+                        <i class="fa fa-paper-plane"></i> Test
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-pie-chart"></i> Platform Distribution
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div id="platform-chart" style="height: 300px;">
+              <canvas id="platformCanvas"></canvas>
+            </div>
+            <div class="platform-stats">
+              {% for platform, count in push_stats.platforms %}
+              <div class="platform-stat-item">
+                <span class="platform-name">
+                  {% if platform == 'android' %}
+                    <i class="fa fa-android text-success"></i> Android
+                  {% elseif platform == 'ios' %}
+                    <i class="fa fa-apple text-info"></i> iOS
+                  {% else %}
+                    <i class="fa fa-mobile"></i> {{ platform|title }}
+                  {% endif %}
+                </span>
+                <span class="platform-count">{{ count }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Calls & Notifications Log -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-code"></i> Recent API Calls
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="api-calls-list" style="max-height: 400px; overflow-y: auto;">
+              {% for call in recent_api_calls %}
+              <div class="api-call-item">
+                <div class="call-header">
+                  <span class="label label-{{ call.success ? 'success' : 'danger' }}">
+                    {{ call.method }}
+                  </span>
+                  <strong>{{ call.endpoint }}</strong>
+                  <span class="pull-right text-muted">{{ call.response_time }}ms</span>
+                </div>
+                <div class="call-details">
+                  <small class="text-muted">
+                    Client: {{ call.client_id }} | IP: {{ call.ip_address }} | {{ call.created_at }}
+                  </small>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-bell"></i> Recent Notifications
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="notifications-list" style="max-height: 400px; overflow-y: auto;">
+              {% for notification in recent_notifications %}
+              <div class="notification-item">
+                <div class="notification-header">
+                  <strong>{{ notification.title }}</strong>
+                  <span class="pull-right">
+                    <span class="badge">{{ notification.sent_count }}/{{ notification.total_devices }}</span>
+                  </span>
+                </div>
+                <div class="notification-message">
+                  {{ notification.message|slice(0, 80) }}{% if notification.message|length > 80 %}...{% endif %}
+                </div>
+                <div class="notification-details">
+                  <small class="text-muted">
+                    To: {{ notification.username ?? 'User ID ' ~ notification.user_id }} | {{ notification.created_at }}
+                  </small>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Test Notification Modal -->
+<div class="modal fade" id="test-notification-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Send Test Notification</h4>
+      </div>
+      <div class="modal-body">
+        <form id="test-notification-form">
+          <div class="form-group">
+            <label for="test-user-id">User ID</label>
+            <input type="number" class="form-control" id="test-user-id" name="user_id" required>
+            <small class="help-block">Enter the user ID to send test notification to</small>
+          </div>
+          <div class="form-group">
+            <label for="test-title">Notification Title</label>
+            <input type="text" class="form-control" id="test-title" name="title" value="Test Notification" required>
+          </div>
+          <div class="form-group">
+            <label for="test-message">Notification Message</label>
+            <textarea class="form-control" id="test-message" name="message" rows="3" required>This is a test notification from MesChain Mobile API</textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="submitTestNotification()">Send Test</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Notification Modal -->
+<div class="modal fade" id="bulk-notification-modal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Send Bulk Notification</h4>
+      </div>
+      <div class="modal-body">
+        <form id="bulk-notification-form">
+          <div class="form-group">
+            <label for="bulk-title">Notification Title</label>
+            <input type="text" class="form-control" id="bulk-title" name="title" required>
+          </div>
+          <div class="form-group">
+            <label for="bulk-message">Notification Message</label>
+            <textarea class="form-control" id="bulk-message" name="message" rows="3" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="target-type">Target Audience</label>
+            <select class="form-control" id="target-type" name="target_type" onchange="toggleUserIds()">
+              <option value="all">All Users with Devices</option>
+              <option value="active_users">Active Users (Last 30 days)</option>
+              <option value="specific_users">Specific Users</option>
+            </select>
+          </div>
+          <div class="form-group" id="user-ids-group" style="display: none;">
+            <label for="user-ids">User IDs</label>
+            <input type="text" class="form-control" id="user-ids" name="user_ids" placeholder="1,2,3,4,5...">
+            <small class="help-block">Enter comma-separated user IDs</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="submitBulkNotification()">Send Bulk</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FCM Configuration Modal -->
+<div class="modal fade" id="fcm-config-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Configure FCM</h4>
+      </div>
+      <div class="modal-body">
+        <form id="fcm-config-form">
+          <div class="form-group">
+            <label for="fcm-server-key">FCM Server Key</label>
+            <input type="text" class="form-control" id="fcm-server-key" name="fcm_server_key" required>
+            <small class="help-block">Enter your Firebase Cloud Messaging server key</small>
+          </div>
+          <div class="alert alert-info">
+            <strong>How to get FCM Server Key:</strong><br>
+            1. Go to Firebase Console<br>
+            2. Select your project<br>
+            3. Go to Project Settings → Cloud Messaging<br>
+            4. Copy the Server Key
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="submitFcmConfig()">Save Configuration</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- API Test Modal -->
+<div class="modal fade" id="api-test-modal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Test Mobile API Endpoint</h4>
+      </div>
+      <div class="modal-body">
+        <form id="api-test-form">
+          <div class="form-group">
+            <label for="api-endpoint">API Endpoint</label>
+            <input type="text" class="form-control" id="api-endpoint" name="endpoint" placeholder="dashboard/overview" required>
+            <small class="help-block">Enter the API endpoint to test (without leading slash)</small>
+          </div>
+          <div class="form-group">
+            <label for="api-method">HTTP Method</label>
+            <select class="form-control" id="api-method" name="method">
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="auth-token">Auth Token</label>
+            <input type="text" class="form-control" id="auth-token" name="auth_token" required>
+            <small class="help-block">Enter a valid OAuth access token</small>
+          </div>
+        </form>
+        <div id="api-test-result" style="display: none;">
+          <h5>API Response:</h5>
+          <pre id="api-response" style="max-height: 300px; overflow-y: auto;"></pre>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="submitApiTest()">Test API</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.tile-stats {
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tile-stats .icon {
+  float: left;
+  margin-right: 15px;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.tile-stats .num {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.tile-stats h3 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.tile-stats p {
+  margin: 0;
+  color: #999;
+  font-size: 12px;
+}
+
+.tile-blue { border-left: 3px solid #3498db; }
+.tile-green { border-left: 3px solid #2ecc71; }
+.tile-orange { border-left: 3px solid #f39c12; }
+.tile-red { border-left: 3px solid #e74c3c; }
+
+.config-item {
+  margin-bottom: 15px;
+}
+
+.config-label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.config-status .label {
+  font-size: 12px;
+}
+
+.api-call-item, .notification-item {
+  margin-bottom: 15px;
+  padding: 10px;
+  border-left: 3px solid #ddd;
+  background: #f9f9f9;
+}
+
+.call-header, .notification-header {
+  margin-bottom: 5px;
+}
+
+.platform-stat-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.platform-name {
+  font-weight: bold;
+}
+
+.platform-count {
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+</style>
+
+<script>
+// Mobile Management Functions
+function sendTestNotification() {
+    $('#test-notification-modal').modal('show');
+}
+
+function submitTestNotification() {
+    var formData = $('#test-notification-form').serialize();
+    
+    $.ajax({
+        url: '{{ action_send_test_notification }}',
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                alert('Test notification sent successfully!\nSent to: ' + response.sent_count + ' devices');
+                $('#test-notification-modal').modal('hide');
+            } else {
+                alert('Error: ' + response.error);
+            }
+        },
+        error: function() {
+            alert('Request failed');
+        }
+    });
+}
+
+function sendBulkNotification() {
+    $('#bulk-notification-modal').modal('show');
+}
+
+function toggleUserIds() {
+    var targetType = $('#target-type').val();
+    if (targetType === 'specific_users') {
+        $('#user-ids-group').show();
+    } else {
+        $('#user-ids-group').hide();
+    }
+}
+
+function submitBulkNotification() {
+    var formData = $('#bulk-notification-form').serialize();
+    
+    if (confirm('Are you sure you want to send bulk notification?')) {
+        $.ajax({
+            url: '{{ action_send_bulk_notification }}',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.success) {
+                    alert('Bulk notification sent successfully!\nSent to: ' + response.total_sent + ' devices\nTotal users: ' + response.total_users);
+                    $('#bulk-notification-modal').modal('hide');
+                    refreshStats();
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            }
+        });
+    }
+}
+
+function configureFCM() {
+    $('#fcm-config-modal').modal('show');
+}
+
+function submitFcmConfig() {
+    var formData = $('#fcm-config-form').serialize();
+    
+    $.ajax({
+        url: '{{ action_update_fcm_config }}',
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                alert('FCM configuration updated successfully!');
+                $('#fcm-config-modal').modal('hide');
+                location.reload();
+            } else {
+                alert('Error: ' + response.error);
+            }
+        }
+    });
+}
+
+function testApiEndpoint() {
+    $('#api-test-modal').modal('show');
+}
+
+function submitApiTest() {
+    var formData = $('#api-test-form').serialize();
+    
+    $.ajax({
+        url: '{{ action_test_api_endpoint }}',
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                $('#api-response').text(JSON.stringify(response.result, null, 2));
+                $('#api-test-result').show();
+            } else {
+                alert('Error: ' + response.error);
+            }
+        }
+    });
+}
+
+function sendTestToDevice(userId) {
+    $('#test-user-id').val(userId);
+    $('#test-notification-modal').modal('show');
+}
+
+function refreshStats() {
+    $.ajax({
+        url: '{{ action_refresh_stats }}',
+        type: 'GET',
+        success: function(data) {
+            // Update statistics
+            $('#active-devices').text(data.push_stats.active_devices || 0);
+            $('#today-notifications').text(data.push_stats.today_sent || 0);
+            $('#api-calls').text(data.api_stats.today_calls || 0);
+            $('#success-rate').text((data.api_stats.success_rate || 0) + '%');
+        }
+    });
+}
+
+// Platform distribution chart
+function initPlatformChart() {
+    var ctx = document.getElementById('platformCanvas').getContext('2d');
+    var platformData = {{ push_stats.platforms|json_encode|raw }};
+    
+    var labels = Object.keys(platformData);
+    var data = Object.values(platformData);
+    var colors = ['#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#9b59b6'];
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                display: false
+            }
+        }
+    });
+}
+
+// Auto refresh dashboard every 2 minutes
+setInterval(refreshStats, 120000);
+
+// Initialize chart on page load
+$(document).ready(function() {
+    if (typeof Chart !== 'undefined') {
+        initPlatformChart();
+    }
+});
+</script>
+
+<!-- Chart.js for platform distribution -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{{ footer }} 

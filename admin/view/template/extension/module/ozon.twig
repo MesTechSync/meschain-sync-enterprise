@@ -1,0 +1,621 @@
+{#
+  ozon.twig
+  Amaç: Ozon modülünün OpenCart yönetici paneli arayüz şablonu.
+  Standart: Her değişiklikte log tutulmalı (ozon_view.log).
+#}
+<!-- Ozon modülü yönetim paneli görünümü --> 
+
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-ozon" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fa fa-save"></i>
+        </button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+          <i class="fa fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+      <div class="alert alert-danger alert-dismissible">
+        <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    {% endif %}
+    
+    {% if success %}
+      <div class="alert alert-success alert-dismissible">
+        <i class="fa fa-check-circle"></i> {{ success }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    {% endif %}
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-shopping-cart"></i> {{ heading_title }}
+          <small class="text-muted">{{ text_module_version }}</small>
+        </h3>
+      </div>
+      <div class="panel-body">
+        
+        <!-- API Status Card -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="alert alert-info">
+              <div class="row">
+                <div class="col-md-2">
+                  <div class="text-center">
+                    {% if api_status.status == 'connected' %}
+                      <i class="fa fa-check-circle fa-3x text-success"></i>
+                      <br><strong class="text-success">{{ text_api_connected }}</strong>
+                    {% elseif api_status.status == 'disconnected' %}
+                      <i class="fa fa-times-circle fa-3x text-danger"></i>
+                      <br><strong class="text-danger">{{ error_api_credentials }}</strong>
+                    {% else %}
+                      <i class="fa fa-exclamation-triangle fa-3x text-warning"></i>
+                      <br><strong class="text-warning">{{ api_status.message }}</strong>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <h4><i class="fa fa-flag"></i> {{ text_ozon_api_version }} - Russian Market Integration</h4>
+                  <p class="text-muted">{{ text_supported_features }}:</p>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <ul class="list-unstyled">
+                        <li>{{ text_fbo_support }}</li>
+                        <li>{{ text_realtime_sync }}</li>
+                        <li>{{ text_price_optimization }}</li>
+                      </ul>
+                    </div>
+                    <div class="col-md-6">
+                      <ul class="list-unstyled">
+                        <li>{{ text_auto_categories }}</li>
+                        <li>{{ text_order_management }}</li>
+                        <li>{{ text_performance_monitoring }}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="text-center">
+                    <button type="button" id="test-connection" class="btn btn-info btn-lg" data-toggle="tooltip" title="{{ tooltip_test_api }}">
+                      <i class="fa fa-plug"></i><br>{{ button_test_connection }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Metrics -->
+        {% if metrics %}
+        <div class="row">
+          <div class="col-md-2">
+            <div class="info-box bg-aqua">
+              <span class="info-box-icon"><i class="fa fa-cube"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">{{ text_total_products }}</span>
+                <span class="info-box-number">{{ metrics.total_products|default('0') }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="info-box bg-green">
+              <span class="info-box-icon"><i class="fa fa-check"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">{{ text_synced_products }}</span>
+                <span class="info-box-number">{{ metrics.synced_products|default('0') }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="info-box bg-yellow">
+              <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">{{ text_pending_products }}</span>
+                <span class="info-box-number">{{ metrics.pending_products|default('0') }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="info-box bg-red">
+              <span class="info-box-icon"><i class="fa fa-shopping-cart"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">{{ text_monthly_orders }}</span>
+                <span class="info-box-number">{{ metrics.monthly_orders|default('0') }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="info-box bg-purple">
+              <span class="info-box-icon"><i class="fa fa-ruble"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">{{ text_monthly_revenue }}</span>
+                <span class="info-box-number">₽{{ metrics.monthly_revenue|number_format }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="info-box bg-navy">
+              <span class="info-box-icon"><i class="fa fa-warehouse"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">{{ text_fbo_warehouses }}</span>
+                <span class="info-box-number">{{ warehouses|length|default('0') }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="box box-primary">
+              <div class="box-header with-border">
+                <h3 class="box-title"><i class="fa fa-bolt"></i> {{ text_quick_actions }}</h3>
+              </div>
+              <div class="box-body">
+                <div class="row">
+                  <div class="col-md-3">
+                    <button type="button" id="sync-products" class="btn btn-success btn-block btn-lg" data-toggle="tooltip" title="{{ tooltip_sync_all }}">
+                      <i class="fa fa-sync"></i><br>{{ button_sync_products }}
+                    </button>
+                  </div>
+                  <div class="col-md-3">
+                    <button type="button" id="update-prices" class="btn btn-warning btn-block btn-lg" data-toggle="tooltip" title="{{ tooltip_update_prices }}">
+                      <i class="fa fa-ruble"></i><br>{{ button_sync_prices }}
+                    </button>
+                  </div>
+                  <div class="col-md-3">
+                    <button type="button" id="fbo-upload" class="btn btn-info btn-block btn-lg" data-toggle="tooltip" title="{{ tooltip_fbo_upload }}">
+                      <i class="fa fa-warehouse"></i><br>{{ button_bulk_upload }}
+                    </button>
+                  </div>
+                  <div class="col-md-3">
+                    <button type="button" id="sync-orders" class="btn btn-primary btn-block btn-lg">
+                      <i class="fa fa-shopping-cart"></i><br>{{ button_sync_orders }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active">
+            <a href="#tab-general" aria-controls="tab-general" role="tab" data-toggle="tab">
+              <i class="fa fa-cog"></i> {{ tab_general }}
+            </a>
+          </li>
+          <li role="presentation">
+            <a href="#tab-api" aria-controls="tab-api" role="tab" data-toggle="tab">
+              <i class="fa fa-key"></i> {{ tab_api }}
+            </a>
+          </li>
+          <li role="presentation">
+            <a href="#tab-fbo" aria-controls="tab-fbo" role="tab" data-toggle="tab">
+              <i class="fa fa-warehouse"></i> {{ tab_fbo }}
+            </a>
+          </li>
+          <li role="presentation">
+            <a href="#tab-sync" aria-controls="tab-sync" role="tab" data-toggle="tab">
+              <i class="fa fa-refresh"></i> {{ tab_sync }}
+            </a>
+          </li>
+        </ul>
+
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-ozon" class="form-horizontal">
+          <div class="tab-content">
+            
+            <!-- General Tab -->
+            <div role="tabpanel" class="tab-pane active" id="tab-general">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_ozon_status" id="input-ozon-status" class="form-control">
+                    {% if module_ozon_status %}
+                      <option value="1" selected="selected">{{ text_enabled }}</option>
+                      <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                      <option value="1">{{ text_enabled }}</option>
+                      <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-debug">{{ entry_debug }}</label>
+                <div class="col-sm-10">
+                  <select name="module_ozon_debug" id="input-ozon-debug" class="form-control">
+                    {% if module_ozon_debug %}
+                      <option value="1" selected="selected">{{ text_enabled }}</option>
+                      <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                      <option value="1">{{ text_enabled }}</option>
+                      <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <div class="help-block">{{ help_debug }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- API Tab -->
+            <div role="tabpanel" class="tab-pane" id="tab-api">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-client-id">{{ entry_client_id }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_ozon_client_id" value="{{ module_ozon_client_id }}" placeholder="{{ entry_client_id }}" id="input-client-id" class="form-control" />
+                  {% if error_client_id %}
+                    <div class="text-danger">{{ error_client_id }}</div>
+                  {% endif %}
+                  <div class="help-block">{{ help_client_id }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-api-key">{{ entry_api_key }}</label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_ozon_api_key" value="{{ module_ozon_api_key }}" placeholder="{{ entry_api_key }}" id="input-ozon-api-key" class="form-control" />
+                  {% if error_api_key %}
+                    <div class="text-danger">{{ error_api_key }}</div>
+                  {% endif %}
+                  <div class="help-block">{{ help_api_key }}</div>
+                  <div class="input-group">
+                    <span class="input-group-btn">
+                      <button type="button" id="show-api-key" class="btn btn-default">
+                        <i class="fa fa-eye"></i>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FBO Tab -->
+            <div role="tabpanel" class="tab-pane" id="tab-fbo">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-fbo-enabled">{{ entry_fbo_enabled }}</label>
+                <div class="col-sm-10">
+                  <select name="module_ozon_fbo_enabled" id="input-fbo-enabled" class="form-control">
+                    {% if module_ozon_fbo_enabled %}
+                      <option value="1" selected="selected">{{ text_enabled }}</option>
+                      <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                      <option value="1">{{ text_enabled }}</option>
+                      <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <div class="help-block">{{ help_fbo_enabled }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-warehouse-id">{{ entry_warehouse_id }}</label>
+                <div class="col-sm-10">
+                  <select name="module_ozon_warehouse_id" id="input-warehouse-id" class="form-control">
+                    <option value="">{{ text_select }}</option>
+                    {% for warehouse in warehouses %}
+                      {% if warehouse.warehouse_id == module_ozon_warehouse_id %}
+                        <option value="{{ warehouse.warehouse_id }}" selected="selected">{{ warehouse.name }} ({{ warehouse.city }})</option>
+                      {% else %}
+                        <option value="{{ warehouse.warehouse_id }}">{{ warehouse.name }} ({{ warehouse.city }})</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                  <div class="help-block">{{ help_warehouse_id }}</div>
+                </div>
+              </div>
+
+              <!-- FBO Warehouses List -->
+              {% if warehouses %}
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_fbo_warehouses }}</label>
+                <div class="col-sm-10">
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>{{ column_warehouse_id }}</th>
+                          <th>{{ column_name }}</th>
+                          <th>{{ column_city }}</th>
+                          <th>{{ column_delivery_days }}</th>
+                          <th>{{ column_status }}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for warehouse in warehouses %}
+                        <tr>
+                          <td><code>{{ warehouse.warehouse_id }}</code></td>
+                          <td>{{ warehouse.name }}</td>
+                          <td>{{ warehouse.city }}, {{ warehouse.region }}</td>
+                          <td>{{ warehouse.delivery_days }} {{ text_days }}</td>
+                          <td>
+                            {% if warehouse.status == 'active' %}
+                              <span class="label label-success">{{ text_active }}</span>
+                            {% else %}
+                              <span class="label label-danger">{{ text_inactive }}</span>
+                            {% endif %}
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Sync Tab -->
+            <div role="tabpanel" class="tab-pane" id="tab-sync">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-auto-sync">{{ entry_auto_sync }}</label>
+                <div class="col-sm-10">
+                  <select name="module_ozon_auto_sync" id="input-ozon-auto-sync" class="form-control">
+                    {% if module_ozon_auto_sync %}
+                      <option value="1" selected="selected">{{ text_enabled }}</option>
+                      <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                      <option value="1">{{ text_enabled }}</option>
+                      <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <div class="help-block">{{ help_auto_sync }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-sync-interval">{{ entry_sync_interval }}</label>
+                <div class="col-sm-10">
+                  <input type="number" name="module_ozon_sync_interval" value="{{ module_ozon_sync_interval|default('60') }}" placeholder="60" id="input-sync-interval" class="form-control" min="15" max="1440" />
+                  <div class="help-block">{{ help_sync_interval }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_last_sync }}</label>
+                <div class="col-sm-10">
+                  <p class="form-control-static">
+                    {% if metrics.last_sync_time %}
+                      {{ metrics.last_sync_time|date('d/m/Y H:i:s') }} ({{ text_moscow_time }})
+                    {% else %}
+                      {{ text_never }}
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loading-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <div class="spinner">
+          <i class="fa fa-spinner fa-spin fa-3x"></i>
+        </div>
+        <h4 id="loading-text">{{ text_loading }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    
+    // Test API Connection
+    $('#test-connection').click(function() {
+        var btn = $(this);
+        var originalText = btn.html();
+        
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i><br>{{ text_loading }}');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/ozon/testConnection&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    alert('{{ text_api_connected }}\n\nSeller ID: ' + (json.seller_id || 'N/A') + '\nResponse Time: ' + (json.response_time || 'N/A'));
+                } else {
+                    alert('{{ error_api_connection }}\n\n' + (json.error || '{{ error_api_timeout }}'));
+                }
+            },
+            error: function() {
+                alert('{{ error_api_connection }}');
+            },
+            complete: function() {
+                btn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+
+    // Sync Products
+    $('#sync-products').click(function() {
+        showLoadingModal('{{ text_sync_started }}');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/ozon/syncProducts&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                hideLoadingModal();
+                if (json.success) {
+                    alert(json.message || '{{ text_sync_completed }}');
+                    location.reload();
+                } else {
+                    alert('{{ error_sync_failed }}\n\n' + (json.error || ''));
+                }
+            },
+            error: function() {
+                hideLoadingModal();
+                alert('{{ error_sync_failed }}');
+            }
+        });
+    });
+
+    // Update Prices
+    $('#update-prices').click(function() {
+        showLoadingModal('{{ text_price_update_started }}');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/ozon/updatePrices&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                hideLoadingModal();
+                if (json.success) {
+                    alert(json.message || '{{ text_price_update_completed }}');
+                    location.reload();
+                } else {
+                    alert('{{ error_sync_failed }}\n\n' + (json.error || ''));
+                }
+            },
+            error: function() {
+                hideLoadingModal();
+                alert('{{ error_sync_failed }}');
+            }
+        });
+    });
+
+    // FBO Upload
+    $('#fbo-upload').click(function() {
+        showLoadingModal('{{ text_fbo_upload_started }}');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/ozon/fboUpload&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                hideLoadingModal();
+                if (json.success) {
+                    alert(json.message || '{{ text_fbo_upload_completed }}');
+                    location.reload();
+                } else {
+                    alert('{{ error_fbo_disabled }}\n\n' + (json.error || ''));
+                }
+            },
+            error: function() {
+                hideLoadingModal();
+                alert('{{ error_sync_failed }}');
+            }
+        });
+    });
+
+    // Show/Hide API Key
+    $('#show-api-key').click(function() {
+        var input = $('#input-api-key');
+        var icon = $(this).find('i');
+        
+        if (input.attr('type') === 'password') {
+            input.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            input.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
+
+    // Loading Modal Functions
+    function showLoadingModal(text) {
+        $('#loading-text').text(text);
+        $('#loading-modal').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+    }
+
+    function hideLoadingModal() {
+        $('#loading-modal').modal('hide');
+    }
+
+    // Enable tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+
+<style>
+.info-box {
+    display: block;
+    min-height: 90px;
+    background: #fff;
+    width: 100%;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    border-radius: 2px;
+    margin-bottom: 15px;
+}
+
+.info-box-icon {
+    border-top-left-radius: 2px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 2px;
+    display: block;
+    float: left;
+    height: 90px;
+    width: 90px;
+    text-align: center;
+    font-size: 45px;
+    line-height: 90px;
+    background: rgba(0,0,0,0.2);
+}
+
+.info-box-content {
+    padding: 5px 10px;
+    margin-left: 90px;
+}
+
+.info-box-text {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.info-box-number {
+    display: block;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.bg-aqua { background-color: #00c0ef !important; color: #fff; }
+.bg-green { background-color: #00a65a !important; color: #fff; }
+.bg-yellow { background-color: #f39c12 !important; color: #fff; }
+.bg-red { background-color: #dd4b39 !important; color: #fff; }
+.bg-purple { background-color: #605ca8 !important; color: #fff; }
+.bg-navy { background-color: #001f3f !important; color: #fff; }
+
+.spinner {
+    padding: 20px;
+}
+
+#loading-modal .modal-content {
+    border-radius: 10px;
+}
+</style>
+
+{{ footer }} 

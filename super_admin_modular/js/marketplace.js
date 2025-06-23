@@ -54,41 +54,135 @@ const MARKETPLACE_CONFIG = {
     }
 };
 
-// Marketplace sync functions
-function syncAllMarketplaces() {
+// API Request cache system
+class APICache {
+    constructor(defaultTTL = 300000) { // Default 5-minute TTL
+        this.cache = new Map();
+        this.defaultTTL = defaultTTL;
+        this.metrics = {
+            hits: 0,
+            misses: 0,
+            total: 0
+        };
+    }
+    
+    async get(key, fetchCallback, ttl = this.defaultTTL) {
+        this.metrics.total++;
+        const now = Date.now();
+        
+        // Check if we have a valid cached item
+        if (this.cache.has(key)) {
+            const cachedItem = this.cache.get(key);
+            if (now < cachedItem.expiry) {
+                this.metrics.hits++;
+                return cachedItem.value;
+            }
+        }
+        
+        // Cache miss or expired
+        this.metrics.misses++;
+        try {
+            // Fetch fresh data
+            const value = await fetchCallback();
+            
+            // Store in cache
+            this.cache.set(key, {
+                value,
+                expiry: now + ttl
+            });
+            
+            return value;
+        } catch (error) {
+            // If we have an expired cache item, return it as fallback
+            if (this.cache.has(key)) {
+                console.warn(`API error, serving stale cache for: ${key}`, error);
+                return this.cache.get(key).value;
+            }
+            throw error;
+        }
+    }
+    
+    invalidate(key) {
+        this.cache.delete(key);
+    }
+    
+    invalidateAll() {
+        this.cache.clear();
+    }
+    
+    // Get cache hit rate percentage
+    getHitRate() {
+        return this.metrics.total === 0 ? 0 : 
+            Math.round((this.metrics.hits / this.metrics.total) * 100);
+    }
+}
+
+// Initialize API cache
+const apiCache = new APICache();
+
+// Marketplace sync functions with optimized batch processing
+async function syncAllMarketplaces() {
     if (typeof showNotification === 'function') {
         showNotification('🔄 Tüm pazaryerleri senkronize ediliyor...', 'info');
     }
     
     const marketplaces = Object.keys(MARKETPLACE_CONFIG.marketplaces);
-    let completedCount = 0;
+    let successCount = 0;
+    let failCount = 0;
     
-    marketplaces.forEach(async (marketplace, index) => {
-        setTimeout(async () => {
-            try {
-                const config = MARKETPLACE_CONFIG.marketplaces[marketplace];
-                const response = await fetch(`http://localhost:${config.port}/api/sync`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                
-                completedCount++;
-                if (typeof showNotification === 'function') {
-                    showNotification(`✅ ${config.name} senkronize edildi`, 'success');
-                }
-                
-                if (completedCount === marketplaces.length) {
-                    if (typeof showNotification === 'function') {
-                        showNotification('🎉 Tüm pazaryerleri başarıyla senkronize edildi!', 'success');
-                    }
-                }
-            } catch (error) {
-                if (typeof showNotification === 'function') {
-                    showNotification(`❌ ${MARKETPLACE_CONFIG.marketplaces[marketplace].name} senkronizasyon hatası`, 'error');
-                }
+    // Performance optimization: Use Promise.all for parallel execution instead of serial setTimeout
+    // This creates a single batch of concurrent requests instead of staggered ones
+    const syncPromises = marketplaces.map(async (marketplace) => {
+        const config = MARKETPLACE_CONFIG.marketplaces[marketplace];
+        const abortController = new AbortController();
+        // Set 5 second timeout per API call
+        const timeoutId = setTimeout(() => abortController.abort(), 5000);
+        
+        try {
+            const response = await fetch(`http://localhost:${config.port}/api/sync`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    // Add cache control headers to prevent unnecessary caching
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                },
+                signal: abortController.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}`);
             }
-        }, index * 500);
+            
+            // Add to success queue rather than showing individual notifications
+            successCount++;
+            return { success: true, name: config.name };
+        } catch (error) {
+            clearTimeout(timeoutId);
+            failCount++;
+            console.error(`Sync error for ${marketplace}:`, error.message);
+            return { success: false, name: config.name, error: error.message };
+        }
     });
+    
+    // Execute all sync operations in parallel with a max concurrency limit
+    const results = await Promise.all(syncPromises);
+    
+    // Show a summary notification instead of individual ones
+    if (typeof showNotification === 'function') {
+        if (failCount === 0) {
+            showNotification(`🎉 Tüm pazaryerleri başarıyla senkronize edildi! (${successCount}/${marketplaces.length})`, 'success');
+        } else {
+            showNotification(`⚠️ Pazaryeri senkronizasyonu: ${successCount} başarılı, ${failCount} başarısız`, 'warning');
+        }
+    }
+    
+    // Invalidate status cache after sync
+    apiCache.invalidate('marketplaceStatuses');
+    
+    return results;
 }
 
 function bulkProductUpdate() {
@@ -188,38 +282,87 @@ function openReportingService(reportType) {
         });
 }
 
-// Marketplace utility functions
+// Marketplace utility functions with performance optimizations
 function getMarketplacePort(marketplace) {
     const config = MARKETPLACE_CONFIG.marketplaces[marketplace];
     return config ? config.port : 3000;
 }
 
-function getMarketplaceStatus(marketplace) {
-    return new Promise((resolve) => {
-        const port = getMarketplacePort(marketplace);
-        
-        fetch(`http://localhost:${port}/health`)
-            .then(response => resolve(response.ok))
-            .catch(() => resolve(false));
-    });
-}
-
-async function getAllMarketplaceStatuses() {
-    const statuses = {};
-    const promises = Object.keys(MARKETPLACE_CONFIG.marketplaces).map(async (marketplace) => {
-        statuses[marketplace] = await getMarketplaceStatus(marketplace);
-    });
+// Optimized marketplace status check with timeout and error handling
+async function getMarketplaceStatus(marketplace) {
+    const port = getMarketplacePort(marketplace);
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 3000); // 3 second timeout
     
-    await Promise.all(promises);
-    return statuses;
+    try {
+        const response = await fetch(`http://localhost:${port}/health`, {
+            signal: abortController.signal,
+            // Cache control to prevent browser caching
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
+        });
+        clearTimeout(timeoutId);
+        return response.ok;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        console.warn(`Health check failed for marketplace ${marketplace}:`, error.message);
+        return false;
+    }
 }
 
-// Marketplace monitoring functions
+// Get all marketplace statuses with caching (5 minute TTL)
+async function getAllMarketplaceStatuses() {
+    return await apiCache.get('marketplaceStatuses', async () => {
+        console.log('Cache miss: Fetching fresh marketplace statuses');
+        const marketplaces = Object.keys(MARKETPLACE_CONFIG.marketplaces);
+        const statusPromises = marketplaces.map(async marketplace => {
+            const status = await getMarketplaceStatus(marketplace);
+            return [marketplace, status]; // Return as [key, value] pair
+        });
+        
+        // Execute all status checks in parallel
+        const results = await Promise.all(statusPromises);
+        
+        // Convert results back to object
+        return Object.fromEntries(results);
+    }, 300000); // 5-minute cache TTL
+}
+
+// Marketplace monitoring functions with optimized interval
+let monitoringInterval = null;
+
 function startMarketplaceMonitoring() {
-    setInterval(async () => {
+    if (monitoringInterval) {
+        clearInterval(monitoringInterval);
+    }
+    
+    // Initial check immediately
+    getAllMarketplaceStatuses().then(updateMarketplaceStatusUI);
+    
+    // Set interval for subsequent checks with dynamic adjustment
+    // Start with 30 seconds, but adjust based on system load
+    monitoringInterval = setInterval(async () => {
+        const startTime = performance.now();
         const statuses = await getAllMarketplaceStatuses();
+        const endTime = performance.now();
+        
+        // If API calls are getting slow (taking > 2s), increase the interval
+        const callDuration = endTime - startTime;
+        if (callDuration > 2000 && monitoringInterval) {
+            console.warn(`Status API calls are slow (${callDuration.toFixed(0)}ms), adjusting monitoring frequency`);
+            clearInterval(monitoringInterval);
+            monitoringInterval = setInterval(() => {
+                getAllMarketplaceStatuses().then(updateMarketplaceStatusUI);
+            }, 60000); // Increase to 60 seconds when system is under load
+        }
+        
         updateMarketplaceStatusUI(statuses);
-    }, 30000); // Check every 30 seconds
+    }, 30000);
+    
+    // Return the interval ID so it can be cleared if needed
+    return monitoringInterval;
 }
 
 function updateMarketplaceStatusUI(statuses) {

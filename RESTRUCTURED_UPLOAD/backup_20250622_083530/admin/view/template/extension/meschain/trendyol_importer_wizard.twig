@@ -1,0 +1,615 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <a href="{{ dashboard_url }}" data-bs-toggle="tooltip" title="{{ text_back_dashboard }}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> {{ text_back_dashboard }}</a>
+      </div>
+      <h1>{{ heading_title }} - {{ text_import_wizard }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    
+    <!-- Wizard Progress -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-12">
+            <div class="wizard-progress">
+              <div class="wizard-steps">
+                <div class="wizard-step active" data-step="1">
+                  <div class="step-number">1</div>
+                  <div class="step-title">{{ text_step_configuration }}</div>
+                </div>
+                <div class="wizard-step" data-step="2">
+                  <div class="step-number">2</div>
+                  <div class="step-title">{{ text_step_categories }}</div>
+                </div>
+                <div class="wizard-step" data-step="3">
+                  <div class="step-number">3</div>
+                  <div class="step-title">{{ text_step_products }}</div>
+                </div>
+                <div class="wizard-step" data-step="4">
+                  <div class="step-number">4</div>
+                  <div class="step-title">{{ text_step_confirm }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form id="import-wizard-form">
+      <!-- Step 1: Configuration -->
+      <div class="wizard-content" id="step-1">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-cog"></i> {{ text_step_configuration }}</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="session_name" class="form-label">{{ entry_session_name }}</label>
+                  <input type="text" class="form-control" id="session_name" name="session_name" 
+                         value="Import {{ 'now'|date('Y-m-d H:i') }}" required>
+                  <div class="form-text">{{ help_session_name }}</div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="import_type" class="form-label">{{ entry_import_type }}</label>
+                  <select class="form-select" id="import_type" name="import_type" required>
+                    <option value="all">{{ text_import_all_products }}</option>
+                    <option value="category">{{ text_import_by_category }}</option>
+                    <option value="brand">{{ text_import_by_brand }}</option>
+                    <option value="custom">{{ text_import_custom }}</option>
+                  </select>
+                  <div class="form-text">{{ help_import_type }}</div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="batch_size" class="form-label">{{ entry_batch_size }}</label>
+                  <select class="form-select" id="batch_size" name="batch_size">
+                    <option value="50">50 {{ text_products_per_batch }}</option>
+                    <option value="100" selected>100 {{ text_products_per_batch }}</option>
+                    <option value="200">200 {{ text_products_per_batch }}</option>
+                    <option value="500">500 {{ text_products_per_batch }}</option>
+                  </select>
+                  <div class="form-text">{{ help_batch_size }}</div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">{{ entry_import_options }}</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="import_images" name="import_images" checked>
+                    <label class="form-check-label" for="import_images">{{ text_import_images }}</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="update_existing" name="update_existing">
+                    <label class="form-check-label" for="update_existing">{{ text_update_existing }}</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="create_categories" name="create_categories" checked>
+                    <label class="form-check-label" for="create_categories">{{ text_create_categories }}</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="import_attributes" name="import_attributes" checked>
+                    <label class="form-check-label" for="import_attributes">{{ text_import_attributes }}</label>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="default_status" class="form-label">{{ entry_default_status }}</label>
+                  <select class="form-select" id="default_status" name="default_status">
+                    <option value="1" selected>{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                  </select>
+                  <div class="form-text">{{ help_default_status }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Categories -->
+      <div class="wizard-content" id="step-2" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-sitemap"></i> {{ text_step_categories }}</h3>
+          </div>
+          <div class="card-body">
+            <div id="category-filters" style="display: none;">
+              <div class="mb-3">
+                <label class="form-label">{{ text_select_categories }}</label>
+                <div id="trendyol-categories" class="category-tree">
+                  <div class="text-center py-4">
+                    <i class="fa-solid fa-spinner fa-spin"></i> {{ text_loading_categories }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div id="brand-filters" style="display: none;">
+              <div class="mb-3">
+                <label class="form-label">{{ text_select_brands }}</label>
+                <div class="row">
+                  <div class="col-md-6">
+                    <input type="text" class="form-control mb-2" id="brand-search" placeholder="{{ text_search_brands }}">
+                    <div id="brand-list" class="border p-2" style="height: 300px; overflow-y: auto;">
+                      <div class="text-center py-4">
+                        <i class="fa-solid fa-spinner fa-spin"></i> {{ text_loading_brands }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">{{ text_selected_brands }}</label>
+                    <div id="selected-brands" class="border p-2" style="height: 342px; overflow-y: auto;">
+                      <p class="text-muted">{{ text_no_brands_selected }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="custom-filters" style="display: none;">
+              <div class="mb-3">
+                <label for="custom_filter_json" class="form-label">{{ entry_custom_filter }}</label>
+                <textarea class="form-control" id="custom_filter_json" name="custom_filter_json" rows="8" 
+                          placeholder='{"barcode": "1234567890", "approved": true}'></textarea>
+                <div class="form-text">{{ help_custom_filter }}</div>
+              </div>
+            </div>
+
+            <div id="all-products-info">
+              <div class="alert alert-info">
+                <i class="fa-solid fa-info-circle"></i> {{ text_all_products_info }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Products Preview -->
+      <div class="wizard-content" id="step-3" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-eye"></i> {{ text_step_products }}</h3>
+          </div>
+          <div class="card-body">
+            <div id="product-preview-loading" class="text-center py-4">
+              <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+              <p>{{ text_loading_preview }}</p>
+            </div>
+            
+            <div id="product-preview-content" style="display: none;">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <div class="alert alert-success">
+                    <strong>{{ text_preview_ready }}</strong><br>
+                    <span id="preview-count">0</span> {{ text_products_found }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="alert alert-warning">
+                    <strong>{{ text_estimated_time }}</strong><br>
+                    <span id="estimated-time">{{ text_calculating }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-striped" id="products-preview-table">
+                  <thead>
+                    <tr>
+                      <th>{{ column_image }}</th>
+                      <th>{{ column_name }}</th>
+                      <th>{{ column_barcode }}</th>
+                      <th>{{ column_category }}</th>
+                      <th>{{ column_price }}</th>
+                      <th>{{ column_stock }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Products will be loaded via AJAX -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Confirmation -->
+      <div class="wizard-content" id="step-4" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-check-circle"></i> {{ text_step_confirm }}</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-8">
+                <h5>{{ text_import_summary }}</h5>
+                <table class="table table-borderless">
+                  <tr>
+                    <td><strong>{{ entry_session_name }}:</strong></td>
+                    <td id="confirm-session-name">-</td>
+                  </tr>
+                  <tr>
+                    <td><strong>{{ entry_import_type }}:</strong></td>
+                    <td id="confirm-import-type">-</td>
+                  </tr>
+                  <tr>
+                    <td><strong>{{ text_products_to_import }}:</strong></td>
+                    <td id="confirm-product-count">-</td>
+                  </tr>
+                  <tr>
+                    <td><strong>{{ entry_batch_size }}:</strong></td>
+                    <td id="confirm-batch-size">-</td>
+                  </tr>
+                  <tr>
+                    <td><strong>{{ text_estimated_time }}:</strong></td>
+                    <td id="confirm-estimated-time">-</td>
+                  </tr>
+                </table>
+
+                <div class="alert alert-warning">
+                  <i class="fa-solid fa-exclamation-triangle"></i> 
+                  <strong>{{ text_import_warning }}</strong><br>
+                  {{ text_import_warning_desc }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <!-- Navigation Buttons -->
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-secondary" id="prev-step" onclick="previousStep()" disabled>
+            <i class="fa-solid fa-arrow-left"></i> {{ text_previous }}
+          </button>
+          <button type="button" class="btn btn-primary" id="next-step" onclick="nextStep()">
+            {{ text_next }} <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          <button type="button" class="btn btn-success" id="start-import" onclick="startImport()" style="display: none;">
+            <i class="fa-solid fa-play"></i> {{ text_start_import }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.wizard-progress {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 120px;
+  position: relative;
+}
+
+.wizard-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 100%;
+  width: 120px;
+  height: 2px;
+  background: #dee2e6;
+  z-index: 1;
+}
+
+.wizard-step.active .step-number,
+.wizard-step.completed .step-number {
+  background: #0d6efd;
+  color: white;
+}
+
+.wizard-step.active:not(:last-child)::after,
+.wizard-step.completed:not(:last-child)::after {
+  background: #0d6efd;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #dee2e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.step-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.category-tree {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+}
+</style>
+
+<script type="text/javascript">
+let currentStep = 1;
+let totalSteps = 4;
+let selectedCategories = [];
+let selectedBrands = [];
+let previewData = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize import type change handler
+    document.getElementById('import_type').addEventListener('change', handleImportTypeChange);
+    
+    // Initialize form validation
+    initializeFormValidation();
+});
+
+function handleImportTypeChange() {
+    const importType = document.getElementById('import_type').value;
+    
+    // Hide all filter sections
+    document.getElementById('category-filters').style.display = 'none';
+    document.getElementById('brand-filters').style.display = 'none';
+    document.getElementById('custom-filters').style.display = 'none';
+    document.getElementById('all-products-info').style.display = 'none';
+    
+    // Show relevant filter section
+    switch(importType) {
+        case 'category':
+            document.getElementById('category-filters').style.display = 'block';
+            loadCategories();
+            break;
+        case 'brand':
+            document.getElementById('brand-filters').style.display = 'block';
+            loadBrands();
+            break;
+        case 'custom':
+            document.getElementById('custom-filters').style.display = 'block';
+            break;
+        case 'all':
+        default:
+            document.getElementById('all-products-info').style.display = 'block';
+            break;
+    }
+}
+
+function nextStep() {
+    if (validateCurrentStep()) {
+        if (currentStep < totalSteps) {
+            currentStep++;
+            showStep(currentStep);
+            
+            if (currentStep === 3) {
+                loadProductPreview();
+            } else if (currentStep === 4) {
+                updateConfirmationSummary();
+            }
+        }
+    }
+}
+
+function previousStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+    }
+}
+
+function showStep(step) {
+    // Hide all steps
+    for (let i = 1; i <= totalSteps; i++) {
+        document.getElementById('step-' + i).style.display = 'none';
+        document.querySelector('[data-step="' + i + '"]').classList.remove('active', 'completed');
+    }
+    
+    // Show current step
+    document.getElementById('step-' + step).style.display = 'block';
+    document.querySelector('[data-step="' + step + '"]').classList.add('active');
+    
+    // Mark previous steps as completed
+    for (let i = 1; i < step; i++) {
+        document.querySelector('[data-step="' + i + '"]').classList.add('completed');
+    }
+    
+    // Update navigation buttons
+    document.getElementById('prev-step').disabled = (step === 1);
+    
+    if (step === totalSteps) {
+        document.getElementById('next-step').style.display = 'none';
+        document.getElementById('start-import').style.display = 'inline-block';
+    } else {
+        document.getElementById('next-step').style.display = 'inline-block';
+        document.getElementById('start-import').style.display = 'none';
+    }
+}
+
+function validateCurrentStep() {
+    // Add validation logic for each step
+    return true;
+}
+
+function loadCategories() {
+    // Load Trendyol categories via AJAX
+    fetch('{{ url("extension/meschain/trendyol_importer/getCategories", "user_token=" ~ user_token) }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderCategoryTree(data.categories);
+            } else {
+                document.getElementById('trendyol-categories').innerHTML = 
+                    '<div class="alert alert-danger">' + data.message + '</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading categories:', error);
+        });
+}
+
+function loadBrands() {
+    // Load Trendyol brands via AJAX
+    fetch('{{ url("extension/meschain/trendyol_importer/getBrands", "user_token=" ~ user_token) }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderBrandList(data.brands);
+            } else {
+                document.getElementById('brand-list').innerHTML = 
+                    '<div class="alert alert-danger">' + data.message + '</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading brands:', error);
+        });
+}
+
+function loadProductPreview() {
+    document.getElementById('product-preview-loading').style.display = 'block';
+    document.getElementById('product-preview-content').style.display = 'none';
+    
+    const formData = new FormData(document.getElementById('import-wizard-form'));
+    
+    fetch('{{ url("extension/meschain/trendyol_importer/getProductPreview", "user_token=" ~ user_token) }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('product-preview-loading').style.display = 'none';
+        
+        if (data.success) {
+            previewData = data;
+            document.getElementById('preview-count').textContent = data.total_count;
+            document.getElementById('estimated-time').textContent = data.estimated_time;
+            renderProductPreview(data.products);
+            document.getElementById('product-preview-content').style.display = 'block';
+        } else {
+            alert('Error loading preview: ' + data.message);
+        }
+    })
+    .catch(error => {
+        document.getElementById('product-preview-loading').style.display = 'none';
+        console.error('Error loading preview:', error);
+        alert('Error loading preview: ' + error.message);
+    });
+}
+
+function updateConfirmationSummary() {
+    document.getElementById('confirm-session-name').textContent = 
+        document.getElementById('session_name').value;
+    document.getElementById('confirm-import-type').textContent = 
+        document.getElementById('import_type').selectedOptions[0].text;
+    document.getElementById('confirm-batch-size').textContent = 
+        document.getElementById('batch_size').value;
+    
+    if (previewData) {
+        document.getElementById('confirm-product-count').textContent = previewData.total_count;
+        document.getElementById('confirm-estimated-time').textContent = previewData.estimated_time;
+    }
+}
+
+function startImport() {
+    if (!confirm('{{ text_confirm_start_import }}')) {
+        return;
+    }
+    
+    const formData = new FormData(document.getElementById('import-wizard-form'));
+    
+    fetch('{{ url("extension/meschain/trendyol_importer/startImport", "user_token=" ~ user_token) }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '{{ url("extension/meschain/trendyol_importer/progress", "user_token=" ~ user_token) }}&session_id=' + data.session_id;
+        } else {
+            alert('Error starting import: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error starting import:', error);
+        alert('Error starting import: ' + error.message);
+    });
+}
+
+function initializeFormValidation() {
+    // Add form validation logic
+}
+
+function renderCategoryTree(categories) {
+    // Render category tree with checkboxes
+    let html = '<div class="category-list">';
+    categories.forEach(category => {
+        html += `<div class="form-check">
+            <input class="form-check-input" type="checkbox" value="${category.id}" id="cat_${category.id}">
+            <label class="form-check-label" for="cat_${category.id}">${category.name}</label>
+        </div>`;
+    });
+    html += '</div>';
+    document.getElementById('trendyol-categories').innerHTML = html;
+}
+
+function renderBrandList(brands) {
+    // Render brand list with search functionality
+    let html = '';
+    brands.forEach(brand => {
+        html += `<div class="form-check">
+            <input class="form-check-input" type="checkbox" value="${brand.id}" id="brand_${brand.id}">
+            <label class="form-check-label" for="brand_${brand.id}">${brand.name}</label>
+        </div>`;
+    });
+    document.getElementById('brand-list').innerHTML = html;
+}
+
+function renderProductPreview(products) {
+    let html = '';
+    products.forEach(product => {
+        html += `<tr>
+            <td><img src="${product.images[0] || ''}" style="width: 50px; height: 50px;" class="img-thumbnail" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIGZpbGw9IiNGNUY1RjUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSI+Tk88L3RleHQ+PC9zdmc+'"></td>
+            <td>${product.title}</td>
+            <td>${product.barcode || 'N/A'}</td>
+            <td>${product.categoryName || 'N/A'}</td>
+            <td>${product.salePrice ? (product.salePrice + ' TL') : 'N/A'}</td>
+            <td>${product.quantity || 'N/A'}</td>
+        </tr>`;
+    });
+    document.querySelector('#products-preview-table tbody').innerHTML = html;
+}
+</script>
+
+{{ footer }}

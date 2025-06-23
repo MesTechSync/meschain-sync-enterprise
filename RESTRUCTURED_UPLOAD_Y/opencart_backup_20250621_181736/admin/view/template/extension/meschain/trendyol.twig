@@ -1,0 +1,297 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-trendyol" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fas fa-save"></i>
+        </button>
+        <a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-secondary">
+          <i class="fas fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    {% if error_warning %}
+      <div class="alert alert-danger alert-dismissible">
+        <i class="fas fa-exclamation-circle"></i> {{ error_warning }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endif %}
+
+    {% if success %}
+      <div class="alert alert-success alert-dismissible">
+        <i class="fas fa-check-circle"></i> {{ success }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endif %}
+
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-cog"></i> {{ text_edit }}
+      </div>
+      <div class="card-body">
+        <form id="form-trendyol" action="{{ action }}" method="post" data-oc-toggle="ajax">
+          <ul class="nav nav-tabs" id="tab-trendyol">
+            <li class="nav-item">
+              <a class="nav-link active" href="#tab-general" data-bs-toggle="tab">{{ tab_general }}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#tab-api" data-bs-toggle="tab">{{ tab_api }}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#tab-webhook" data-bs-toggle="tab">{{ tab_webhook }}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#tab-sync" data-bs-toggle="tab">{{ tab_sync }}</a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-general">
+              <div class="row mb-3">
+                <label for="input-status" class="col-sm-2 col-form-label">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <div class="form-check form-switch">
+                    <input type="hidden" name="module_trendyol_status" value="0">
+                    <input type="checkbox" name="module_trendyol_status" value="1" id="input-status" class="form-check-input"{% if module_trendyol_status %} checked{% endif %}>
+                    <label class="form-check-label" for="input-status">{{ text_enabled }}</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <label for="input-debug" class="col-sm-2 col-form-label">{{ entry_debug }}</label>
+                <div class="col-sm-10">
+                  <div class="form-check form-switch">
+                    <input type="hidden" name="module_trendyol_debug" value="0">
+                    <input type="checkbox" name="module_trendyol_debug" value="1" id="input-debug" class="form-check-input"{% if module_trendyol_debug %} checked{% endif %}>
+                    <label class="form-check-label" for="input-debug">{{ text_enabled }}</label>
+                  </div>
+                  <div class="form-text">{{ help_debug }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-api">
+              <div class="row mb-3 required">
+                <label for="input-api-key" class="col-sm-2 col-form-label">{{ entry_api_key }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_trendyol_api_key" value="{{ module_trendyol_api_key }}" placeholder="{{ entry_api_key }}" id="input-api-key" class="form-control">
+                  <div class="form-text">{{ help_api_key }}</div>
+                  {% if error_api_key %}
+                    <div class="text-danger">{{ error_api_key }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="row mb-3 required">
+                <label for="input-api-secret" class="col-sm-2 col-form-label">{{ entry_api_secret }}</label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_trendyol_api_secret" value="{{ module_trendyol_api_secret }}" placeholder="{{ entry_api_secret }}" id="input-api-secret" class="form-control">
+                  <div class="form-text">{{ help_api_secret }}</div>
+                  {% if error_api_secret %}
+                    <div class="text-danger">{{ error_api_secret }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="row mb-3 required">
+                <label for="input-supplier-id" class="col-sm-2 col-form-label">{{ entry_supplier_id }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_trendyol_supplier_id" value="{{ module_trendyol_supplier_id }}" placeholder="{{ entry_supplier_id }}" id="input-supplier-id" class="form-control">
+                  <div class="form-text">{{ help_supplier_id }}</div>
+                  {% if error_supplier_id %}
+                    <div class="text-danger">{{ error_supplier_id }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <label for="input-test-mode" class="col-sm-2 col-form-label">{{ entry_test_mode }}</label>
+                <div class="col-sm-10">
+                  <div class="form-check form-switch">
+                    <input type="hidden" name="module_trendyol_test_mode" value="0">
+                    <input type="checkbox" name="module_trendyol_test_mode" value="1" id="input-test-mode" class="form-check-input"{% if module_trendyol_test_mode %} checked{% endif %}>
+                    <label class="form-check-label" for="input-test-mode">{{ text_enabled }}</label>
+                  </div>
+                  <div class="form-text">{{ help_test_mode }}</div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-sm-10 offset-sm-2">
+                  <button type="button" id="button-test" class="btn btn-info">
+                    <i class="fas fa-plug"></i> {{ button_test_connection }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-webhook">
+              <div class="row mb-3">
+                <label for="input-webhook-secret" class="col-sm-2 col-form-label">{{ entry_webhook_secret }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_trendyol_webhook_secret" value="{{ module_trendyol_webhook_secret }}" placeholder="{{ entry_webhook_secret }}" id="input-webhook-secret" class="form-control">
+                  <div class="form-text">{{ help_webhook_secret }}</div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <label class="col-sm-2 col-form-label">Webhook URL</label>
+                <div class="col-sm-10">
+                  <div class="input-group">
+                    <input type="text" value="{{ webhook_url }}" class="form-control" readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('{{ webhook_url }}')">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                  <div class="form-text">Bu URL'yi Trendyol Seller Center'da webhook URL olarak ayarlayın.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-sync">
+              <div class="row mb-3">
+                <label for="input-auto-sync" class="col-sm-2 col-form-label">{{ entry_auto_sync }}</label>
+                <div class="col-sm-10">
+                  <div class="form-check form-switch">
+                    <input type="hidden" name="module_trendyol_auto_sync" value="0">
+                    <input type="checkbox" name="module_trendyol_auto_sync" value="1" id="input-auto-sync" class="form-check-input"{% if module_trendyol_auto_sync %} checked{% endif %}>
+                    <label class="form-check-label" for="input-auto-sync">{{ text_enabled }}</label>
+                  </div>
+                  <div class="form-text">{{ help_auto_sync }}</div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-sm-10 offset-sm-2">
+                  <button type="button" id="button-sync-products" class="btn btn-success me-2">
+                    <i class="fas fa-sync"></i> {{ button_sync_products }}
+                  </button>
+                  <button type="button" id="button-sync-orders" class="btn btn-warning">
+                    <i class="fas fa-shopping-cart"></i> {{ button_sync_orders }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$('#button-test').on('click', function() {
+    var button = $(this);
+    button.prop('disabled', true);
+
+    $.ajax({
+        url: '{{ test_connection }}',
+        type: 'post',
+        dataType: 'json',
+        beforeSend: function() {
+            button.html('<i class="fas fa-spinner fa-spin"></i> Testing...');
+        },
+        complete: function() {
+            button.prop('disabled', false);
+            button.html('<i class="fas fa-plug"></i> {{ button_test_connection }}');
+        },
+        success: function(json) {
+            $('.alert-dismissible').remove();
+
+            if (json['error']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+
+            if (json['success']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+
+$('#button-sync-products').on('click', function() {
+    var button = $(this);
+    button.prop('disabled', true);
+
+    $.ajax({
+        url: '{{ sync_products }}',
+        type: 'post',
+        dataType: 'json',
+        beforeSend: function() {
+            button.html('<i class="fas fa-spinner fa-spin"></i> Syncing...');
+        },
+        complete: function() {
+            button.prop('disabled', false);
+            button.html('<i class="fas fa-sync"></i> {{ button_sync_products }}');
+        },
+        success: function(json) {
+            $('.alert-dismissible').remove();
+
+            if (json['error']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+
+            if (json['success']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+
+$('#button-sync-orders').on('click', function() {
+    var button = $(this);
+    button.prop('disabled', true);
+
+    $.ajax({
+        url: '{{ sync_orders }}',
+        type: 'post',
+        dataType: 'json',
+        beforeSend: function() {
+            button.html('<i class="fas fa-spinner fa-spin"></i> Syncing...');
+        },
+        complete: function() {
+            button.prop('disabled', false);
+            button.html('<i class="fas fa-shopping-cart"></i> {{ button_sync_orders }}');
+        },
+        success: function(json) {
+            $('.alert-dismissible').remove();
+
+            if (json['error']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+
+            if (json['success']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        alert('URL copied to clipboard!');
+    });
+}
+</script>
+
+{{ footer }}

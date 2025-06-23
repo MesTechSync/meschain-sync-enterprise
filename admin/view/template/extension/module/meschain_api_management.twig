@@ -1,0 +1,498 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="refresh-health" class="btn btn-primary">
+          <i class="fa fa-refresh"></i> Refresh Status
+        </button>
+        <button type="button" id="run-tests" class="btn btn-warning">
+          <i class="fa fa-play"></i> Run Tests
+        </button>
+        <button type="button" id="clear-logs" class="btn btn-danger">
+          <i class="fa fa-trash"></i> Clear Logs
+        </button>
+      </div>
+      <h1>MesChain API Management</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- API Health Status -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-heartbeat"></i> API Health Status
+          <span id="health-status-badge" class="label label-default pull-right">Loading...</span>
+        </h3>
+      </div>
+      <div class="panel-body" id="health-status-content">
+        {% if api_health %}
+        <div class="row">
+          <div class="col-md-6">
+            <h4>Overall Status: 
+              <span class="label {% if api_health.status == 'healthy' %}label-success{% elseif api_health.status == 'degraded' %}label-warning{% else %}label-danger{% endif %}">
+                {{ api_health.status|title }}
+              </span>
+            </h4>
+            <p><strong>Last Updated:</strong> {{ api_health.timestamp }}</p>
+          </div>
+          <div class="col-md-6">
+            <h4>Component Status</h4>
+            <ul class="list-unstyled">
+              {% for component, status in api_health.components %}
+              <li>
+                <span class="label {% if status == 'operational' %}label-success{% else %}label-danger{% endif %}">
+                  {{ status|title }}
+                </span>
+                {{ component|replace('_', ' ')|title }}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-12">
+            <h4>Configuration</h4>
+            <div class="row">
+              {% for config_key, config_value in api_health.config %}
+              <div class="col-md-3">
+                <div class="well well-sm text-center">
+                  <h5>{{ config_key|replace('_', ' ')|title }}</h5>
+                  <span class="label {% if config_value %}label-success{% else %}label-default{% endif %}">
+                    {% if config_value %}Enabled{% else %}Disabled{% endif %}
+                  </span>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+          <i class="fa fa-exclamation-triangle"></i> API service is not available
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- API Statistics -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-bar-chart"></i> API Statistics (Last 7 Days)
+        </h3>
+      </div>
+      <div class="panel-body" id="api-statistics-content">
+        {% if api_stats and not api_stats.error %}
+        <div class="row">
+          <div class="col-md-3">
+            <div class="well well-sm text-center">
+              <h3 class="text-primary">{{ api_stats.total_requests|number_format }}</h3>
+              <p>Total Requests</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="well well-sm text-center">
+              <h3 class="{% if api_stats.error_rate > 5 %}text-danger{% elseif api_stats.error_rate > 2 %}text-warning{% else %}text-success{% endif %}">
+                {{ api_stats.error_rate }}%
+              </h3>
+              <p>Error Rate</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="well well-sm text-center">
+              <h3 class="text-info">{{ api_stats.average_response_time }}ms</h3>
+              <p>Avg Response Time</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="well well-sm text-center">
+              <h3 class="text-warning">{{ api_stats.rate_limit_violations|number_format }}</h3>
+              <p>Rate Limit Violations</p>
+            </div>
+          </div>
+        </div>
+        
+        {% if api_stats.top_endpoints %}
+        <h4>Top Endpoints</h4>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Endpoint</th>
+                <th>Requests</th>
+                <th>Avg Response Time</th>
+                <th>Error Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for endpoint in api_stats.top_endpoints %}
+              <tr>
+                <td><code>{{ endpoint.name }}</code></td>
+                <td>{{ endpoint.requests|number_format }}</td>
+                <td>{{ endpoint.avg_response_time }}ms</td>
+                <td>
+                  <span class="label {% if endpoint.error_rate > 5 %}label-danger{% elseif endpoint.error_rate > 2 %}label-warning{% else %}label-success{% endif %}">
+                    {{ endpoint.error_rate }}%
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-info">
+          <i class="fa fa-info-circle"></i> No API statistics available
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- API Testing -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-bug"></i> API Testing
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-6">
+            <button type="button" id="run-test-suite" class="btn btn-primary btn-lg btn-block">
+              <i class="fa fa-play"></i> Run Full Test Suite
+            </button>
+            <p class="help-block">Runs comprehensive tests on all API endpoints</p>
+          </div>
+          <div class="col-md-6">
+            <a href="{{ documentation_url }}" target="_blank" class="btn btn-info btn-lg btn-block">
+              <i class="fa fa-book"></i> View API Documentation
+            </a>
+            <p class="help-block">View complete API documentation</p>
+          </div>
+        </div>
+        
+        <div id="test-results" class="hidden">
+          <h4>Test Results</h4>
+          <div id="test-results-content"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent API Logs -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-list"></i> Recent API Logs
+          <div class="pull-right">
+            <select id="log-level-filter" class="form-control input-sm" style="width: auto; display: inline-block;">
+              <option value="">All Levels</option>
+              <option value="error">Error</option>
+              <option value="warning">Warning</option>
+              <option value="info">Info</option>
+              <option value="debug">Debug</option>
+            </select>
+          </div>
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div id="api-logs-content">
+          {% if recent_logs %}
+          <div class="table-responsive">
+            <table class="table table-condensed">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Level</th>
+                  <th>Message</th>
+                  <th>Memory</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in recent_logs %}
+                <tr class="log-entry log-{{ log.level }}">
+                  <td>{{ log.timestamp }}</td>
+                  <td>
+                    <span class="label {% if log.level == 'error' %}label-danger{% elseif log.level == 'warning' %}label-warning{% elseif log.level == 'info' %}label-info{% else %}label-default{% endif %}">
+                      {{ log.level|upper }}
+                    </span>
+                  </td>
+                  <td>{{ log.message }}</td>
+                  <td>{{ (log.memory_usage / 1024 / 1024)|number_format(2) }}MB</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i> No recent logs available
+          </div>
+          {% endif %}
+        </div>
+        
+        <div class="text-center">
+          <button type="button" id="load-more-logs" class="btn btn-default">
+            <i class="fa fa-refresh"></i> Load More Logs
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Real-time Monitoring -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-tachometer"></i> Real-time Monitoring
+          <label class="switch pull-right">
+            <input type="checkbox" id="realtime-toggle">
+            <span class="slider"></span>
+          </label>
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div id="realtime-monitor">
+          <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i> Enable real-time monitoring to see live API metrics
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.log-error { background-color: #f8d7da; }
+.log-warning { background-color: #fff3cd; }
+.log-info { background-color: #d1ecf1; }
+.log-debug { background-color: #f8f9fa; }
+</style>
+
+<script>
+$(document).ready(function() {
+    var realtimeSource = null;
+    
+    // Refresh health status
+    $('#refresh-health').click(function() {
+        refreshHealthStatus();
+    });
+    
+    // Run test suite
+    $('#run-test-suite').click(function() {
+        runTestSuite();
+    });
+    
+    // Clear logs
+    $('#clear-logs').click(function() {
+        if (confirm('Are you sure you want to clear all API logs?')) {
+            clearLogs();
+        }
+    });
+    
+    // Log level filter
+    $('#log-level-filter').change(function() {
+        filterLogs();
+    });
+    
+    // Load more logs
+    $('#load-more-logs').click(function() {
+        loadMoreLogs();
+    });
+    
+    // Real-time monitoring toggle
+    $('#realtime-toggle').change(function() {
+        if (this.checked) {
+            startRealtimeMonitoring();
+        } else {
+            stopRealtimeMonitoring();
+        }
+    });
+    
+    function refreshHealthStatus() {
+        $.ajax({
+            url: '{{ health_check_url }}',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#health-status-badge').removeClass().addClass('label label-warning').text('Checking...');
+            },
+            success: function(response) {
+                if (response.status === 'healthy') {
+                    $('#health-status-badge').removeClass().addClass('label label-success').text('Healthy');
+                } else if (response.status === 'degraded') {
+                    $('#health-status-badge').removeClass().addClass('label label-warning').text('Degraded');
+                } else {
+                    $('#health-status-badge').removeClass().addClass('label label-danger').text('Unhealthy');
+                }
+                
+                // Update health content (you would implement this)
+                console.log('Health status:', response);
+            },
+            error: function() {
+                $('#health-status-badge').removeClass().addClass('label label-danger').text('Error');
+            }
+        });
+    }
+    
+    function runTestSuite() {
+        $('#test-results').removeClass('hidden');
+        $('#test-results-content').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Running test suite...</div>');
+        
+        $.ajax({
+            url: '{{ test_suite_url }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    displayTestResults(response.data);
+                } else {
+                    $('#test-results-content').html('<div class="alert alert-danger">Test suite failed: ' + response.message + '</div>');
+                }
+            },
+            error: function() {
+                $('#test-results-content').html('<div class="alert alert-danger">Failed to run test suite</div>');
+            }
+        });
+    }
+    
+    function displayTestResults(data) {
+        var html = '<div class="alert alert-' + (data.summary.success_rate > 90 ? 'success' : 'warning') + '">';
+        html += '<h4>Test Summary</h4>';
+        html += '<p>Passed: ' + data.summary.passed + ' | Failed: ' + data.summary.failed + ' | Success Rate: ' + data.summary.success_rate + '%</p>';
+        html += '</div>';
+        
+        html += '<div class="table-responsive"><table class="table table-striped"><thead><tr>';
+        html += '<th>Test Name</th><th>Status</th><th>Execution Time</th></tr></thead><tbody>';
+        
+        data.tests.forEach(function(test) {
+            html += '<tr class="' + (test.status === 'PASS' ? 'success' : 'danger') + '">';
+            html += '<td>' + test.name + '</td>';
+            html += '<td><span class="label label-' + (test.status === 'PASS' ? 'success' : 'danger') + '">' + test.status + '</span></td>';
+            html += '<td>' + test.execution_time + 'ms</td>';
+            html += '</tr>';
+        });
+        
+        html += '</tbody></table></div>';
+        $('#test-results-content').html(html);
+    }
+    
+    function clearLogs() {
+        $.ajax({
+            url: '{{ clear_logs_url }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#api-logs-content').html('<div class="alert alert-success">' + response.message + '</div>');
+                } else {
+                    alert('Failed to clear logs: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('Failed to clear logs');
+            }
+        });
+    }
+    
+    function filterLogs() {
+        var level = $('#log-level-filter').val();
+        $('.log-entry').show();
+        if (level) {
+            $('.log-entry').not('.log-' + level).hide();
+        }
+    }
+    
+    function loadMoreLogs() {
+        // Implementation for loading more logs
+        console.log('Loading more logs...');
+    }
+    
+    function startRealtimeMonitoring() {
+        realtimeSource = new EventSource('{{ monitor_url }}');
+        
+        realtimeSource.onmessage = function(event) {
+            var data = JSON.parse(event.data);
+            updateRealtimeDisplay(data);
+        };
+        
+        realtimeSource.onerror = function() {
+            $('#realtime-monitor').html('<div class="alert alert-danger">Real-time monitoring connection failed</div>');
+            $('#realtime-toggle').prop('checked', false);
+        };
+        
+        $('#realtime-monitor').html('<div class="alert alert-success">Real-time monitoring active</div>');
+    }
+    
+    function stopRealtimeMonitoring() {
+        if (realtimeSource) {
+            realtimeSource.close();
+            realtimeSource = null;
+        }
+        $('#realtime-monitor').html('<div class="alert alert-info">Real-time monitoring stopped</div>');
+    }
+    
+    function updateRealtimeDisplay(data) {
+        // Update real-time display based on data type
+        if (data.type === 'health') {
+            // Update health indicators
+        } else if (data.type === 'statistics') {
+            // Update statistics
+        }
+    }
+});
+</script>
+
+{{ footer }}

@@ -1,0 +1,513 @@
+{{ header }}{{ column_left }}
+
+<div id="content">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="float-end">
+				<a href="{{ sync_products_url }}" class="btn btn-primary" id="btn-sync-products" data-bs-toggle="tooltip" title="Ürünleri Senkronize Et">
+					<i class="fa-solid fa-sync"></i>
+					Senkronize Et
+				</a>
+				<button type="submit" form="form-trendyol" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-success">
+					<i class="fa-solid fa-save"></i>
+				</button>
+				<a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light">
+					<i class="fa-solid fa-reply"></i>
+				</a>
+			</div>
+			<h1>{{ heading_title }}</h1>
+			<ol class="breadcrumb">
+				{% for breadcrumb in breadcrumbs %}
+					<li class="breadcrumb-item">
+						<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+					</li>
+				{% endfor %}
+			</ol>
+		</div>
+	</div>
+
+	<div class="container-fluid">
+		{% if error_warning %}
+			<div class="alert alert-danger alert-dismissible">
+				<i class="fa-solid fa-exclamation-circle"></i>
+				{{ error_warning }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+		{% endif %}
+
+		{% if success %}
+			<div class="alert alert-success alert-dismissible">
+				<i class="fa-solid fa-check-circle"></i>
+				{{ success }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+		{% endif %}
+
+		<div id="alert-container"></div>
+
+		<!-- Dashboard Stats -->
+		<div class="row mb-4">
+			<div class="col-md-3">
+				<div class="card text-white bg-primary">
+					<div class="card-body">
+						<h5 class="card-title">Toplam Ürün</h5>
+						<h2 class="mb-0" id="stat-total-products">0</h2>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card text-white bg-success">
+					<div class="card-body">
+						<h5 class="card-title">Aktif Ürün</h5>
+						<h2 class="mb-0" id="stat-active-products">0</h2>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card text-white bg-warning">
+					<div class="card-body">
+						<h5 class="card-title">Bekleyen Sipariş</h5>
+						<h2 class="mb-0" id="stat-pending-orders">0</h2>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card text-white bg-info">
+					<div class="card-body">
+						<h5 class="card-title">Günlük Satış</h5>
+						<h2 class="mb-0" id="stat-daily-sales">₺0</h2>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Settings Form -->
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">
+					<i class="fa-solid fa-cog"></i>
+					Trendyol Ayarları</h3>
+			</div>
+			<div class="card-body">
+				<form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-trendyol">
+					<ul class="nav nav-tabs" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" href="#tab-general" data-bs-toggle="tab">Genel</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#tab-products" data-bs-toggle="tab">Ürünler</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#tab-orders" data-bs-toggle="tab">Siparişler</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#tab-campaigns" data-bs-toggle="tab">Kampanyalar</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#tab-analytics" data-bs-toggle="tab">Analitik</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#tab-cron" data-bs-toggle="tab">{{ tab_cron }}</a>
+						</li>
+					</ul>
+
+					<div
+						class="tab-content">
+						<!-- General Tab -->
+						<div class="tab-pane fade show active" id="tab-general">
+							<div class="row mb-3 required">
+								<label class="col-sm-2 col-form-label" for="input-api-key">API Anahtarı</label>
+								<div class="col-sm-10">
+									<input type="text" name="api_key" value="{{ api_key }}" placeholder="API Anahtarı" id="input-api-key" class="form-control"/>
+								</div>
+							</div>
+
+							<div class="row mb-3 required">
+								<label class="col-sm-2 col-form-label" for="input-api-secret">API Secret</label>
+								<div class="col-sm-10">
+									<input type="password" name="api_secret" value="{{ api_secret }}" placeholder="API Secret" id="input-api-secret" class="form-control"/>
+								</div>
+							</div>
+
+							<div class="row mb-3 required">
+								<label class="col-sm-2 col-form-label" for="input-supplier-id">Satıcı ID</label>
+								<div class="col-sm-10">
+									<input type="text" name="supplier_id" value="{{ supplier_id }}" placeholder="Satıcı ID" id="input-supplier-id" class="form-control"/>
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<label class="col-sm-2 col-form-label" for="input-status">Durum</label>
+								<div class="col-sm-10">
+									<select name="status" id="input-status" class="form-select">
+										<option value="1" {% if status %} selected {% endif %}>Etkin</option>
+										<option value="0" {% if not status %} selected {% endif %}>Devre Dışı</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<label class="col-sm-2 col-form-label" for="input-auto-sync">Otomatik Senkronizasyon</label>
+								<div class="col-sm-10">
+									<select name="auto_sync" id="input-auto-sync" class="form-select">
+										<option value="1" {% if auto_sync %} selected {% endif %}>Etkin</option>
+										<option value="0" {% if not auto_sync %} selected {% endif %}>Devre Dışı</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<label class="col-sm-2 col-form-label" for="input-sync-interval">Senkronizasyon Aralığı (dk)</label>
+								<div class="col-sm-10">
+									<input type="number" name="sync_interval" value="{{ sync_interval }}" placeholder="60" id="input-sync-interval" class="form-control"/>
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<label class="col-sm-2 col-form-label" for="input-price-margin">Fiyat Marjı (%)</label>
+								<div class="col-sm-10">
+									<input type="number" name="price_margin" value="{{ price_margin }}" placeholder="0" id="input-price-margin" class="form-control" step="0.01"/>
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<label class="col-sm-2 col-form-label" for="input-stock-buffer">Stok Tamponu</label>
+								<div class="col-sm-10">
+									<input type="number" name="stock_buffer" value="{{ stock_buffer }}" placeholder="0" id="input-stock-buffer" class="form-control"/>
+								</div>
+							</div>
+						</div>
+
+						<!-- Products Tab -->
+						<div class="tab-pane fade" id="tab-products">
+							<div class="table-responsive">
+								<table class="table table-bordered table-hover" id="trendyol-products-table">
+									<thead>
+										<tr>
+											<th>Barkod</th>
+											<th>Ürün Adı</th>
+											<th>Stok Kodu</th>
+											<th>Fiyat</th>
+											<th>Stok</th>
+											<th>Durum</th>
+											<th>İşlemler</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td colspan="7" class="text-center">Ürünler yükleniyor...</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<!-- Orders Tab -->
+						<div class="tab-pane fade" id="tab-orders">
+							<div class="mb-3">
+								<select id="order-status-filter" class="form-select">
+									<option value="all">Tüm Siparişler</option>
+									<option value="Created">Oluşturuldu</option>
+									<option value="Picking">Hazırlanıyor</option>
+									<option value="Invoiced">Faturalandı</option>
+									<option value="Shipped">Kargoya Verildi</option>
+									<option value="Delivered">Teslim Edildi</option>
+									<option value="Cancelled">İptal Edildi</option>
+								</select>
+							</div>
+
+							<div class="table-responsive">
+								<table class="table table-bordered table-hover" id="trendyol-orders-table">
+									<thead>
+										<tr>
+											<th>Sipariş No</th>
+											<th>Müşteri</th>
+											<th>Tarih</th>
+											<th>Tutar</th>
+											<th>Durum</th>
+											<th>İşlemler</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td colspan="6" class="text-center">Siparişler yükleniyor...</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<!-- Campaigns Tab -->
+						<div class="tab-pane fade" id="tab-campaigns">
+							<div class="row" id="campaigns-container">
+								<div class="col-12 text-center">
+									<p>Kampanyalar yükleniyor...</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Analytics Tab -->
+						<div class="tab-pane fade" id="tab-analytics">
+							<div class="row">
+								<div class="col-md-6">
+									<canvas id="sales-chart" height="300"></canvas>
+								</div>
+								<div class="col-md-6">
+									<canvas id="orders-chart" height="300"></canvas>
+								</div>
+							</div>
+
+							<div class="row mt-4">
+								<div class="col-md-12">
+									<h4>Performans Metrikleri</h4>
+									<table class="table table-bordered">
+										<thead>
+											<tr>
+												<th>Metrik</th>
+												<th>Değer</th>
+												<th>Önceki Dönem</th>
+												<th>Değişim</th>
+											</tr>
+										</thead>
+										<tbody id="performance-metrics">
+											<tr>
+												<td colspan="4" class="text-center">Metrikler yükleniyor...</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+
+						<!-- Cron Tab -->
+						<div class="tab-pane fade" id="tab-cron">
+							{% include 'extension/meschain/marketplace/meschain_trendyol_cron_tab.twig' %}
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () { // Initialize Trendyol module
+var TrendyolModule = {
+init: function () {
+this.bindEvents();
+this.loadDashboardStats();
+this.initCharts();
+},
+
+bindEvents: function () { // Sync products button
+$('#btn-sync-products').on('click', function (e) {
+e.preventDefault();
+TrendyolModule.syncProducts();
+});
+
+// Tab change events
+$('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+var target = $(e.target).attr('href');
+
+switch (target) {
+case '#tab-products': TrendyolModule.loadProducts();
+break;
+case '#tab-orders': TrendyolModule.loadOrders();
+break;
+case '#tab-campaigns': TrendyolModule.loadCampaigns();
+break;
+case '#tab-analytics': TrendyolModule.loadAnalytics();
+break;
+case '#tab-cron': TrendyolModule.loadCronData();
+break;
+}
+});
+
+// Order status filter
+$('#order-status-filter').on('change', function () {
+TrendyolModule.loadOrders();
+});
+},
+
+loadDashboardStats: function () {
+$.ajax({
+url: '{{ get_analytics_url }}',
+type: 'GET',
+data: {
+period: 'today'
+},
+dataType: 'json',
+success: function (response) {
+if (response.success) {
+$('#stat-total-products').text(response.analytics.products.total || 0);
+$('#stat-active-products').text(response.analytics.products.active || 0);
+$('#stat-pending-orders').text(response.analytics.orders.pending || 0);
+$('#stat-daily-sales').text('₺' + (
+response.analytics.sales.today || 0
+));
+}
+}
+});
+},
+
+syncProducts: function () {
+var button = $('#btn-sync-products');
+button.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Senkronize ediliyor...');
+
+$.ajax({
+url: '{{ sync_products_url }}',
+type: 'POST',
+dataType: 'json',
+success: function (response) {
+if (response.success) {
+TrendyolModule.showAlert('success', response.success);
+TrendyolModule.loadDashboardStats();
+} else {
+TrendyolModule.showAlert('danger', response.error || 'Senkronizasyon başarısız!');
+}
+},
+error: function () {
+TrendyolModule.showAlert('danger', 'Bir hata oluştu!');
+},
+complete: function () {
+button.prop('disabled', false).html('<i class="fa-solid fa-sync"></i> Senkronize Et');
+}
+});
+},
+
+loadProducts: function () { // Implementation for loading products
+},
+
+loadOrders: function () {
+var status = $('#order-status-filter').val();
+
+$.ajax({
+url: '{{ get_orders_url }}',
+type: 'GET',
+data: {
+status: status
+},
+dataType: 'json',
+success: function (response) {
+if (response.success) {
+TrendyolModule.renderOrders(response.orders);
+}
+}
+});
+},
+
+loadCampaigns: function () {
+$.ajax({
+url: '{{ get_campaigns_url }}',
+type: 'GET',
+dataType: 'json',
+success: function (response) {
+if (response.success) {
+TrendyolModule.renderCampaigns(response.campaigns);
+}
+}
+});
+},
+
+loadAnalytics: function () {
+$.ajax({
+url: '{{ get_analytics_url }}',
+type: 'GET',
+data: {
+period: '7days'
+},
+dataType: 'json',
+success: function (response) {
+if (response.success) {
+TrendyolModule.updateCharts(response.analytics);
+TrendyolModule.updateMetrics(response.analytics.performance);
+}
+}
+});
+},
+
+initCharts: function () { // Sales chart
+var salesCtx = document.getElementById('sales-chart');
+if (salesCtx) {
+this.salesChart = new Chart(salesCtx.getContext('2d'), {
+type: 'line',
+data: {
+labels: [],
+datasets: [
+{
+label: 'Satışlar',
+data: [],
+borderColor: 'rgb(255, 99, 132)',
+tension: 0.1
+}
+]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false
+}
+});
+}
+
+// Orders chart
+var ordersCtx = document.getElementById('orders-chart');
+if (ordersCtx) {
+this.ordersChart = new Chart(ordersCtx.getContext('2d'), {
+type: 'bar',
+data: {
+labels: [],
+datasets: [
+{
+label: 'Siparişler',
+data: [],
+backgroundColor: 'rgba(54, 162, 235, 0.5)'
+}
+]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false
+}
+});
+}
+},
+
+updateCharts: function (analytics) { // Update charts with analytics data
+},
+
+renderOrders: function (orders) { // Render orders table
+},
+
+renderCampaigns: function (campaigns) { // Render campaigns
+},
+
+updateMetrics: function (metrics) { // Update performance metrics table
+},
+
+loadCronData: function () {
+    // Check for last cron execution time
+    $.ajax({
+        url: 'index.php?route=extension/module/meschain_trendyol/getCronLastRun&user_token={{ user_token }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function (response) {
+            if (response.success) {
+                $('#cron-last-run').val(response.last_run);
+            }
+        }
+    });
+},
+
+showAlert: function (type, message) {
+$('#alert-container').html('<div class="alert alert-' + type + ' alert-dismissible">' + '<i class="fa-solid fa-' + (
+type === 'success' ? 'check' : 'exclamation'
+) + '-circle"></i> ' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' + '</div>');
+}
+};
+
+// Initialize module
+TrendyolModule.init();
+});
+</script>
+
+{{ footer }}

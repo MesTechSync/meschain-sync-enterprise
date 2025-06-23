@@ -1,0 +1,406 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="button" data-bs-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+          <i class="fas fa-cog"></i> Actions <i class="fas fa-caret-down"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a href="#" onclick="bulkSync()" class="dropdown-item"><i class="fas fa-sync"></i> Bulk Sync</a></li>
+          <li><a href="#" onclick="bulkDelete()" class="dropdown-item"><i class="fas fa-trash"></i> Bulk Delete</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a href="{{ sync_all }}" class="dropdown-item"><i class="fas fa-download"></i> Sync All Products</a></li>
+        </ul>
+      </div>
+      <h1>{{ heading_title_products }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    {% if error_warning %}
+      <div class="alert alert-danger alert-dismissible">
+        <i class="fas fa-exclamation-circle"></i> {{ error_warning }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endif %}
+
+    {% if success %}
+      <div class="alert alert-success alert-dismissible">
+        <i class="fas fa-check-circle"></i> {{ success }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endif %}
+
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-filter"></i> Filter
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="mb-3">
+              <label for="input-name" class="form-label">{{ text_filter_name }}</label>
+              <input type="text" name="filter_name" value="{{ filter_name }}" placeholder="{{ text_filter_name }}" id="input-name" class="form-control">
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="mb-3">
+              <label for="input-status" class="form-label">{{ text_filter_status }}</label>
+              <select name="filter_status" id="input-status" class="form-select">
+                <option value="">All Status</option>
+                <option value="active"{% if filter_status == 'active' %} selected{% endif %}>{{ text_status_active }}</option>
+                <option value="pending"{% if filter_status == 'pending' %} selected{% endif %}>{{ text_status_pending }}</option>
+                <option value="rejected"{% if filter_status == 'rejected' %} selected{% endif %}>{{ text_status_rejected }}</option>
+                <option value="inactive"{% if filter_status == 'inactive' %} selected{% endif %}>{{ text_status_inactive }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="mb-3">
+              <label for="input-barcode" class="form-label">{{ text_filter_barcode }}</label>
+              <input type="text" name="filter_barcode" value="{{ filter_barcode }}" placeholder="{{ text_filter_barcode }}" id="input-barcode" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="text-end">
+          <button type="button" id="button-filter" class="btn btn-light me-2">
+            <i class="fas fa-filter"></i> Filter
+          </button>
+          <button type="button" id="button-clear" class="btn btn-light">
+            <i class="fas fa-eraser"></i> Clear
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-list"></i> Product List
+        <div class="card-tools">
+          <div class="input-group input-group-sm">
+            <input type="text" name="search" value="{{ search }}" placeholder="Quick search..." class="form-control">
+            <button type="button" class="btn btn-default">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <form id="form-product">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th style="width: 1px;" class="text-center">
+                    <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));">
+                  </th>
+                  <th class="text-center">Image</th>
+                  <th>
+                    {% if sort == 'name' %}
+                      <a href="{{ sort_name }}" class="text-decoration-none">{{ column_product_name }} <i class="fas fa-sort-{{ order == 'DESC' ? 'down' : 'up' }}"></i></a>
+                    {% else %}
+                      <a href="{{ sort_name }}" class="text-decoration-none">{{ column_product_name }}</a>
+                    {% endif %}
+                  </th>
+                  <th>{{ column_model }}</th>
+                  <th>{{ column_barcode }}</th>
+                  <th>
+                    {% if sort == 'price' %}
+                      <a href="{{ sort_price }}" class="text-decoration-none">{{ column_price }} <i class="fas fa-sort-{{ order == 'DESC' ? 'down' : 'up' }}"></i></a>
+                    {% else %}
+                      <a href="{{ sort_price }}" class="text-decoration-none">{{ column_price }}</a>
+                    {% endif %}
+                  </th>
+                  <th>{{ column_quantity }}</th>
+                  <th>
+                    {% if sort == 'status' %}
+                      <a href="{{ sort_status }}" class="text-decoration-none">{{ column_status }} <i class="fas fa-sort-{{ order == 'DESC' ? 'down' : 'up' }}"></i></a>
+                    {% else %}
+                      <a href="{{ sort_status }}" class="text-decoration-none">{{ column_status }}</a>
+                    {% endif %}
+                  </th>
+                  <th>{{ column_last_sync }}</th>
+                  <th class="text-end">{{ column_action }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if products %}
+                  {% for product in products %}
+                    <tr>
+                      <td class="text-center">
+                        <input type="checkbox" name="selected[]" value="{{ product.product_id }}">
+                      </td>
+                      <td class="text-center">
+                        {% if product.image %}
+                          <img src="{{ product.image }}" alt="{{ product.name }}" class="img-thumbnail" style="width: 50px; height: 50px;">
+                        {% else %}
+                          <span class="img-thumbnail d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fas fa-image text-muted"></i>
+                          </span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <strong>{{ product.name }}</strong>
+                        {% if product.trendyol_id %}
+                          <br><small class="text-muted">Trendyol ID: {{ product.trendyol_id }}</small>
+                        {% endif %}
+                      </td>
+                      <td>{{ product.model }}</td>
+                      <td>{{ product.barcode }}</td>
+                      <td>{{ product.price }}</td>
+                      <td>
+                        <span class="badge bg-{{ product.quantity > 0 ? 'success' : 'danger' }}">
+                          {{ product.quantity }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge bg-{{ product.status_class }}">{{ product.status_text }}</span>
+                      </td>
+                      <td>
+                        {% if product.last_sync %}
+                          {{ product.last_sync }}
+                        {% else %}
+                          <span class="text-muted">Never</span>
+                        {% endif %}
+                      </td>
+                      <td class="text-end">
+                        <div class="btn-group">
+                          <button type="button" data-bs-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">
+                            <i class="fas fa-cog"></i>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a href="{{ product.edit }}" class="dropdown-item"><i class="fas fa-pencil-alt"></i> Edit</a></li>
+                            <li><a href="#" onclick="syncProduct({{ product.product_id }})" class="dropdown-item"><i class="fas fa-sync"></i> Sync</a></li>
+                            <li><a href="#" onclick="viewTrendyol({{ product.trendyol_id }})" class="dropdown-item"><i class="fas fa-external-link-alt"></i> View on Trendyol</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a href="#" onclick="deleteProduct({{ product.product_id }})" class="dropdown-item text-danger"><i class="fas fa-trash"></i> Delete</a></li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="10" class="text-center">No products found</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+        <div class="row">
+          <div class="col-sm-6 text-start">{{ pagination }}</div>
+          <div class="col-sm-6 text-end">{{ results }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="modal fade" id="modal-product" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Product Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="product-details"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$('#button-filter').on('click', function() {
+    var url = 'index.php?route=extension/meschain/trendyol/products&user_token={{ user_token }}';
+
+    var filter_name = $('input[name=\'filter_name\']').val();
+    if (filter_name) {
+        url += '&filter_name=' + encodeURIComponent(filter_name);
+    }
+
+    var filter_status = $('select[name=\'filter_status\']').val();
+    if (filter_status) {
+        url += '&filter_status=' + encodeURIComponent(filter_status);
+    }
+
+    var filter_barcode = $('input[name=\'filter_barcode\']').val();
+    if (filter_barcode) {
+        url += '&filter_barcode=' + encodeURIComponent(filter_barcode);
+    }
+
+    location = url;
+});
+
+$('#button-clear').on('click', function() {
+    location = 'index.php?route=extension/meschain/trendyol/products&user_token={{ user_token }}';
+});
+
+$('input[name=\'search\']').on('keydown', function(e) {
+    if (e.keyCode == 13) {
+        var url = 'index.php?route=extension/meschain/trendyol/products&user_token={{ user_token }}';
+        var search = $(this).val();
+        if (search) {
+            url += '&search=' + encodeURIComponent(search);
+        }
+        location = url;
+    }
+});
+
+function syncProduct(product_id) {
+    $.ajax({
+        url: 'index.php?route=extension/meschain/trendyol/syncProduct&user_token={{ user_token }}',
+        type: 'post',
+        data: {product_id: product_id},
+        dataType: 'json',
+        beforeSend: function() {
+            $('#content').prepend('<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> Syncing product...</div>');
+        },
+        complete: function() {
+            $('.alert-info').remove();
+        },
+        success: function(json) {
+            $('.alert-dismissible').remove();
+
+            if (json['error']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+
+            if (json['success']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                location.reload();
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+}
+
+function bulkSync() {
+    var selected = [];
+    $('input[name*=\'selected\']:checked').each(function() {
+        selected.push($(this).val());
+    });
+
+    if (selected.length == 0) {
+        alert('Please select products to sync');
+        return;
+    }
+
+    $.ajax({
+        url: 'index.php?route=extension/meschain/trendyol/bulkSync&user_token={{ user_token }}',
+        type: 'post',
+        data: {selected: selected},
+        dataType: 'json',
+        beforeSend: function() {
+            $('#content').prepend('<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> Syncing selected products...</div>');
+        },
+        complete: function() {
+            $('.alert-info').remove();
+        },
+        success: function(json) {
+            $('.alert-dismissible').remove();
+
+            if (json['error']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+
+            if (json['success']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                location.reload();
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+}
+
+function bulkDelete() {
+    var selected = [];
+    $('input[name*=\'selected\']:checked').each(function() {
+        selected.push($(this).val());
+    });
+
+    if (selected.length == 0) {
+        alert('Please select products to delete');
+        return;
+    }
+
+    if (confirm('Are you sure you want to delete selected products from Trendyol?')) {
+        $.ajax({
+            url: 'index.php?route=extension/meschain/trendyol/bulkDelete&user_token={{ user_token }}',
+            type: 'post',
+            data: {selected: selected},
+            dataType: 'json',
+            beforeSend: function() {
+                $('#content').prepend('<div class="alert alert-warning"><i class="fas fa-spinner fa-spin"></i> Deleting selected products...</div>');
+            },
+            complete: function() {
+                $('.alert-warning').remove();
+            },
+            success: function(json) {
+                $('.alert-dismissible').remove();
+
+                if (json['error']) {
+                    $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                }
+
+                if (json['success']) {
+                    $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                    location.reload();
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    }
+}
+
+function deleteProduct(product_id) {
+    if (confirm('Are you sure you want to delete this product from Trendyol?')) {
+        $.ajax({
+            url: 'index.php?route=extension/meschain/trendyol/deleteProduct&user_token={{ user_token }}',
+            type: 'post',
+            data: {product_id: product_id},
+            dataType: 'json',
+            success: function(json) {
+                $('.alert-dismissible').remove();
+
+                if (json['error']) {
+                    $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                }
+
+                if (json['success']) {
+                    $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                    location.reload();
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    }
+}
+
+function viewTrendyol(trendyol_id) {
+    if (trendyol_id) {
+        window.open('https://www.trendyol.com/product/' + trendyol_id, '_blank');
+    }
+}
+</script>
+
+{{ footer }}

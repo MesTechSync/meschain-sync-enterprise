@@ -1,0 +1,267 @@
+<!-- Envanter Raporları - Port 3021 -->
+<section id="envanter-raporları" class="meschain-section hidden">
+    <div class="mb-4 md:mb-6 lg:mb-8">
+        <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+            <i class="ph ph-package mr-2"></i> Envanter Raporları
+        </h2>
+        <p class="text-xl text-gray-600 dark:text-gray-300">Detaylı stok ve envanter analizi (Port: 3021)</p>
+    </div>
+
+    <!-- Inventory Overview Dashboard -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
+        <div class="meschain-metric-card fade-in-up">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-stack text-white text-xl"></i>
+                </div>
+                <span class="trend-badge positive">
+                    <i class="ph ph-trend-up"></i> 5%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">12,487</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Toplam SKU</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.1s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-teal-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-warehouse text-white text-xl"></i>
+                </div>
+                <span class="trend-badge positive">
+                    <i class="ph ph-trend-up"></i> 3%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">87,654</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Toplam Stok Adedi</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.2s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-warning text-white text-xl"></i>
+                </div>
+                <span class="trend-badge negative">
+                    <i class="ph ph-trend-up"></i> 8%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">284</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Düşük Stoklu Ürünler</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.3s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-currency-circle-dollar text-white text-xl"></i>
+                </div>
+                <span class="trend-badge positive">
+                    <i class="ph ph-trend-up"></i> 2%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">₺3,785,250</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Stok Değeri</p>
+        </div>
+    </div>
+
+    <!-- Inventory Analysis Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Stok Seviye Trendi</h3>
+                <div class="flex space-x-2">
+                    <select class="form-select-sm">
+                        <option value="30">Son 30 Gün</option>
+                        <option value="90">Son 3 Ay</option>
+                        <option value="365">Son 1 Yıl</option>
+                    </select>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="stockLevelChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+        
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Kategori Bazında Stok Dağılımı</h3>
+                <div class="flex space-x-2">
+                    <select class="form-select-sm">
+                        <option value="qty">Adet</option>
+                        <option value="value">Değer</option>
+                    </select>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="stockDistributionChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock & Warehouse Analysis -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Düşük Stoklu Ürünler</h3>
+                <button class="btn-secondary-sm">
+                    <i class="ph ph-file-csv mr-2"></i>
+                    Dışa Aktar
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Ürün Kodu</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Ürün Adı</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Mevcut Stok</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Minimum Stok</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">TRK-CF-001</td>
+                            <td class="py-3 px-4">Turkish Coffee Set</td>
+                            <td class="py-3 px-4">18</td>
+                            <td class="py-3 px-4">25</td>
+                            <td class="py-3 px-4"><span class="status-badge warning">Düşük</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">TRK-DL-035</td>
+                            <td class="py-3 px-4">Turkish Delight Box</td>
+                            <td class="py-3 px-4">12</td>
+                            <td class="py-3 px-4">30</td>
+                            <td class="py-3 px-4"><span class="status-badge danger">Kritik</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">EV-EY-023</td>
+                            <td class="py-3 px-4">Evil Eye Bracelet</td>
+                            <td class="py-3 px-4">24</td>
+                            <td class="py-3 px-4">25</td>
+                            <td class="py-3 px-4"><span class="status-badge warning">Düşük</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">ORG-OL-015</td>
+                            <td class="py-3 px-4">Organic Olive Oil</td>
+                            <td class="py-3 px-4">15</td>
+                            <td class="py-3 px-4">20</td>
+                            <td class="py-3 px-4"><span class="status-badge warning">Düşük</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">CER-BW-008</td>
+                            <td class="py-3 px-4">Ceramic Bowl</td>
+                            <td class="py-3 px-4">8</td>
+                            <td class="py-3 px-4">15</td>
+                            <td class="py-3 px-4"><span class="status-badge danger">Kritik</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Depo Doluluk Analizi</h3>
+                <button class="btn-secondary-sm">
+                    <i class="ph ph-file-csv mr-2"></i>
+                    Dışa Aktar
+                </button>
+            </div>
+            <div class="h-80">
+                <canvas id="warehouseOccupancyChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Movement & Product Rotation -->
+    <div class="grid grid-cols-1 gap-4 mb-6">
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Envanter Hareketleri</h3>
+                <div class="flex space-x-2">
+                    <select class="form-select-sm">
+                        <option value="30">Son 30 Gün</option>
+                        <option value="90">Son 3 Ay</option>
+                        <option value="365">Son 1 Yıl</option>
+                    </select>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="inventoryMovementChart" width="800" height="320"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Ürün Rotasyon Analizi</h3>
+                <div class="flex space-x-2">
+                    <select class="form-select-sm">
+                        <option value="90">Son 90 Gün</option>
+                        <option value="180">Son 6 Ay</option>
+                        <option value="365">Son 1 Yıl</option>
+                    </select>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="productRotationChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Stoksuz Gün Analizi</h3>
+                <div class="flex space-x-2">
+                    <select class="form-select-sm">
+                        <option value="90">Son 90 Gün</option>
+                        <option value="180">Son 6 Ay</option>
+                        <option value="365">Son 1 Yıl</option>
+                    </select>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="stockoutDaysChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Inventory Reports Tools -->
+    <div class="meschain-card mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Envanter Raporu Oluştur</h3>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="form-group">
+                <label for="inventory-report-type" class="form-label">Rapor Türü</label>
+                <select id="inventory-report-type" class="form-select">
+                    <option value="stock-level">Stok Seviyesi</option>
+                    <option value="stock-value">Stok Değeri</option>
+                    <option value="low-stock">Düşük Stok</option>
+                    <option value="stock-movement">Stok Hareketi</option>
+                    <option value="warehouse">Depo Analizi</option>
+                    <option value="product-rotation">Ürün Rotasyon</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="inventory-report-date-start" class="form-label">Başlangıç Tarihi</label>
+                <input type="date" id="inventory-report-date-start" class="form-input" value="2025-05-17">
+            </div>
+            <div class="form-group">
+                <label for="inventory-report-date-end" class="form-label">Bitiş Tarihi</label>
+                <input type="date" id="inventory-report-date-end" class="form-input" value="2025-06-16">
+            </div>
+        </div>
+        
+        <div class="flex justify-end">
+            <button class="btn-secondary mr-2">
+                <i class="ph ph-eye mr-2"></i>
+                Önizleme
+            </button>
+            <button class="btn-primary">
+                <i class="ph ph-download mr-2"></i>
+                Raporu İndir
+            </button>
+        </div>
+    </div>
+</section>

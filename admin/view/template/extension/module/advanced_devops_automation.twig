@@ -1,0 +1,694 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="devops-assessment" class="btn btn-primary">
+          <i class="fa fa-chart-line"></i> DevOps Assessment
+        </button>
+        <button type="button" id="optimize-performance" class="btn btn-success">
+          <i class="fa fa-rocket"></i> Optimize Performance
+        </button>
+        <button type="button" id="security-scan" class="btn btn-warning">
+          <i class="fa fa-shield-alt"></i> Security Scan
+        </button>
+      </div>
+      <h1>🚀 Advanced DevOps & Automation Excellence - ATOM-M015</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- DevOps Status Overview -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-code-branch fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">98.5%</div>
+                <div>Pipeline Success Rate</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">CI/CD Excellence</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-clock fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">2.5h</div>
+                <div>Lead Time</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">75% Faster Deployment</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shield-alt fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">96.4%</div>
+                <div>Security Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Zero Critical Vulnerabilities</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-danger">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-brain fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">94.2%</div>
+                <div>AI Analytics Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Intelligent Automation</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- DevOps Automation Control Panel -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🚀 DevOps Automation Control Panel</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-3">
+                <button type="button" id="implement-cicd-pipeline" class="btn btn-primary btn-lg btn-block">
+                  <i class="fa fa-code-branch"></i><br>
+                  Ultra-Enhanced CI/CD
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button type="button" id="deploy-analytics-intelligence" class="btn btn-success btn-lg btn-block">
+                  <i class="fa fa-brain"></i><br>
+                  Advanced Analytics & AI
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button type="button" id="implement-security-compliance" class="btn btn-warning btn-lg btn-block">
+                  <i class="fa fa-shield-alt"></i><br>
+                  Security & Compliance
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button type="button" id="optimize-devops-performance" class="btn btn-danger btn-lg btn-block">
+                  <i class="fa fa-rocket"></i><br>
+                  Performance Optimization
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- CI/CD Pipeline Status -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title">🔄 CI/CD Pipeline Status</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Pipeline</th>
+                    <th>Type</th>
+                    <th>Build Status</th>
+                    <th>Deploy Status</th>
+                    <th>Success Rate</th>
+                    <th>Coverage</th>
+                  </tr>
+                </thead>
+                <tbody id="cicd-pipelines-table">
+                  {% for pipeline in cicd_status %}
+                  <tr>
+                    <td><strong>{{ pipeline.pipeline_name }}</strong></td>
+                    <td>{{ pipeline.pipeline_type|title }}</td>
+                    <td>
+                      {% if pipeline.build_status == 'success' %}
+                        <span class="label label-success">Success</span>
+                      {% elseif pipeline.build_status == 'running' %}
+                        <span class="label label-info">Running</span>
+                      {% else %}
+                        <span class="label label-danger">{{ pipeline.build_status|title }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if pipeline.deployment_status == 'deployed' %}
+                        <span class="label label-success">Deployed</span>
+                      {% elseif pipeline.deployment_status == 'deploying' %}
+                        <span class="label label-warning">Deploying</span>
+                      {% else %}
+                        <span class="label label-danger">{{ pipeline.deployment_status|title }}</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ pipeline.success_rate }}%</td>
+                    <td>
+                      <div class="progress">
+                        <div class="progress-bar progress-bar-success" style="width: {{ pipeline.test_coverage }}%">
+                          {{ pipeline.test_coverage }}%
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title">📊 Automation Metrics</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Current Value</th>
+                    <th>Target</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="automation-metrics-table">
+                  {% for metric in automation_metrics %}
+                  <tr>
+                    <td><strong>{{ metric.metric_name }}</strong></td>
+                    <td>{{ metric.metric_value }} {{ metric.metric_unit }}</td>
+                    <td>{{ metric.target_value }} {{ metric.metric_unit }}</td>
+                    <td>
+                      {% if metric.metric_value >= metric.target_value %}
+                        <span class="label label-success">Target Met</span>
+                      {% else %}
+                        <span class="label label-warning">Below Target</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Security & Analytics -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h3 class="panel-title">🛡️ Security Automation Status</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Security Tool</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Vulnerabilities</th>
+                    <th>Critical</th>
+                    <th>Remediation</th>
+                  </tr>
+                </thead>
+                <tbody id="security-automation-table">
+                  {% for security in security_automation %}
+                  <tr>
+                    <td><strong>{{ security.security_tool }}</strong></td>
+                    <td>{{ security.tool_type|upper }}</td>
+                    <td>
+                      {% if security.scan_status == 'completed' %}
+                        <span class="label label-success">Completed</span>
+                      {% elseif security.scan_status == 'running' %}
+                        <span class="label label-info">Running</span>
+                      {% else %}
+                        <span class="label label-warning">{{ security.scan_status|title }}</span>
+                      {% endif %}
+                    </td>
+                    <td><span class="badge badge-info">{{ security.vulnerabilities_found }}</span></td>
+                    <td>
+                      {% if security.critical_vulnerabilities == 0 %}
+                        <span class="badge badge-success">0</span>
+                      {% else %}
+                        <span class="badge badge-danger">{{ security.critical_vulnerabilities }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if security.remediation_status == 'fixed' %}
+                        <span class="label label-success">Fixed</span>
+                      {% elseif security.remediation_status == 'in_progress' %}
+                        <span class="label label-warning">In Progress</span>
+                      {% else %}
+                        <span class="label label-info">{{ security.remediation_status|title }}</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="panel panel-danger">
+          <div class="panel-heading">
+            <h3 class="panel-title">🧠 Analytics Intelligence</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Analysis Type</th>
+                    <th>Data Source</th>
+                    <th>Status</th>
+                    <th>Insights</th>
+                    <th>Accuracy</th>
+                  </tr>
+                </thead>
+                <tbody id="analytics-intelligence-table">
+                  {% for analytics in analytics_intelligence %}
+                  <tr>
+                    <td><strong>{{ analytics.analysis_type }}</strong></td>
+                    <td>{{ analytics.data_source }}</td>
+                    <td>
+                      {% if analytics.analysis_status == 'completed' %}
+                        <span class="label label-success">Completed</span>
+                      {% elseif analytics.analysis_status == 'running' %}
+                        <span class="label label-info">Running</span>
+                      {% else %}
+                        <span class="label label-warning">{{ analytics.analysis_status|title }}</span>
+                      {% endif %}
+                    </td>
+                    <td><span class="badge badge-primary">{{ analytics.insights_generated }}</span></td>
+                    <td>{{ (analytics.accuracy_score * 100)|round(1) }}%</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Performance Dashboard -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">📈 Real-Time DevOps Performance Dashboard</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-8">
+                <canvas id="devops-performance-chart" width="400" height="200"></canvas>
+              </div>
+              <div class="col-md-4">
+                <div class="table-responsive">
+                  <table class="table table-condensed">
+                    <thead>
+                      <tr>
+                        <th>KPI</th>
+                        <th>Current</th>
+                        <th>Trend</th>
+                      </tr>
+                    </thead>
+                    <tbody id="performance-kpi-table">
+                      <tr>
+                        <td>Deployment Frequency</td>
+                        <td>24/day</td>
+                        <td><span class="text-success">↗ +300%</span></td>
+                      </tr>
+                      <tr>
+                        <td>Lead Time</td>
+                        <td>2.5h</td>
+                        <td><span class="text-success">↘ -75%</span></td>
+                      </tr>
+                      <tr>
+                        <td>MTTR</td>
+                        <td>15min</td>
+                        <td><span class="text-success">↘ -90%</span></td>
+                      </tr>
+                      <tr>
+                        <td>Change Failure Rate</td>
+                        <td>1.5%</td>
+                        <td><span class="text-success">↘ -80%</span></td>
+                      </tr>
+                      <tr>
+                        <td>Test Coverage</td>
+                        <td>95.8%</td>
+                        <td><span class="text-success">↗ +15%</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- DevOps Actions -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">⚡ DevOps Automation Actions</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-2">
+                <button type="button" id="trigger-pipeline" class="btn btn-info btn-block">
+                  <i class="fa fa-play"></i> Trigger Pipeline
+                </button>
+              </div>
+              <div class="col-md-2">
+                <button type="button" id="run-security-scan" class="btn btn-warning btn-block">
+                  <i class="fa fa-scan"></i> Security Scan
+                </button>
+              </div>
+              <div class="col-md-2">
+                <button type="button" id="analyze-performance" class="btn btn-success btn-block">
+                  <i class="fa fa-chart-bar"></i> Analyze Performance
+                </button>
+              </div>
+              <div class="col-md-2">
+                <button type="button" id="compliance-check" class="btn btn-primary btn-block">
+                  <i class="fa fa-check-circle"></i> Compliance Check
+                </button>
+              </div>
+              <div class="col-md-2">
+                <button type="button" id="auto-remediation" class="btn btn-danger btn-block">
+                  <i class="fa fa-magic"></i> Auto Remediation
+                </button>
+              </div>
+              <div class="col-md-2">
+                <button type="button" id="generate-devops-report" class="btn btn-default btn-block">
+                  <i class="fa fa-file-alt"></i> Generate Report
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DevOps Implementation Modal -->
+<div class="modal fade" id="devops-implementation-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">🚀 DevOps Implementation Progress</h4>
+      </div>
+      <div class="modal-body">
+        <div id="devops-implementation-progress">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped active" style="width: 0%">
+              <span id="progress-text">Initializing DevOps Automation...</span>
+            </div>
+          </div>
+          <div id="implementation-log" style="max-height: 300px; overflow-y: auto; margin-top: 15px;">
+            <!-- Implementation logs will appear here -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Auto-refresh DevOps metrics every 30 seconds
+    setInterval(function() {
+        refreshDevopsMetrics();
+    }, 30000);
+    
+    // Initialize DevOps performance chart
+    initializeDevopsChart();
+    
+    // Implement Ultra-Enhanced CI/CD Pipeline
+    $('#implement-cicd-pipeline').click(function() {
+        implementDevopsFeature('implementUltraEnhancedCicdPipeline', 'Ultra-Enhanced CI/CD Pipeline');
+    });
+    
+    // Deploy Advanced Analytics & Intelligence
+    $('#deploy-analytics-intelligence').click(function() {
+        implementDevopsFeature('deployAdvancedAnalyticsIntelligence', 'Advanced Analytics & Intelligence');
+    });
+    
+    // Implement Security & Compliance Automation
+    $('#implement-security-compliance').click(function() {
+        implementDevopsFeature('implementSecurityComplianceAutomation', 'Security & Compliance Automation');
+    });
+    
+    // Optimize DevOps Performance
+    $('#optimize-devops-performance').click(function() {
+        optimizeDevopsPerformance();
+    });
+    
+    // Execute DevOps Assessment
+    $('#devops-assessment').click(function() {
+        executeDevopsAssessment();
+    });
+    
+    // Generate DevOps Report
+    $('#generate-devops-report').click(function() {
+        generateDevopsReport();
+    });
+    
+    function implementDevopsFeature(action, featureName) {
+        $('#devops-implementation-modal').modal('show');
+        $('#progress-text').text('Initializing ' + featureName + '...');
+        $('.progress-bar').css('width', '10%');
+        
+        var logContainer = $('#implementation-log');
+        logContainer.html('<div class="alert alert-info">🚀 Starting ' + featureName + ' implementation...</div>');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_devops_automation/' + action + '&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            beforeSend: function() {
+                $('.progress-bar').css('width', '30%');
+                $('#progress-text').text('Configuring automation pipelines...');
+                logContainer.append('<div class="alert alert-warning">⚙️ Setting up CI/CD infrastructure...</div>');
+            },
+            success: function(response) {
+                $('.progress-bar').css('width', '100%');
+                $('#progress-text').text(featureName + ' implemented successfully!');
+                
+                if (response.success) {
+                    logContainer.append('<div class="alert alert-success">✅ ' + response.message + '</div>');
+                    if (response.implementation_results) {
+                        logContainer.append('<div class="alert alert-info">📊 Implementation Results: ' + JSON.stringify(response.implementation_results, null, 2) + '</div>');
+                    }
+                    if (response.pipeline_performance || response.analytics_performance || response.security_score) {
+                        var performance = response.pipeline_performance || response.analytics_performance || response.security_score;
+                        logContainer.append('<div class="alert alert-success">🚀 Performance Metrics: ' + JSON.stringify(performance, null, 2) + '</div>');
+                    }
+                    
+                    // Refresh the page data
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                } else {
+                    logContainer.append('<div class="alert alert-danger">❌ Error: ' + response.error + '</div>');
+                }
+            },
+            error: function(xhr, status, error) {
+                $('.progress-bar').css('width', '100%').removeClass('progress-bar-info').addClass('progress-bar-danger');
+                $('#progress-text').text('Implementation failed!');
+                logContainer.append('<div class="alert alert-danger">❌ AJAX Error: ' + error + '</div>');
+            }
+        });
+    }
+    
+    function optimizeDevopsPerformance() {
+        $('#devops-implementation-modal').modal('show');
+        $('#progress-text').text('Optimizing DevOps Performance...');
+        $('.progress-bar').css('width', '20%');
+        
+        var logContainer = $('#implementation-log');
+        logContainer.html('<div class="alert alert-info">⚡ Starting DevOps performance optimization...</div>');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_devops_automation/optimizeDevopsPerformance&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                $('.progress-bar').css('width', '100%');
+                $('#progress-text').text('Performance optimization completed!');
+                
+                if (response.success) {
+                    logContainer.append('<div class="alert alert-success">✅ DevOps performance optimized successfully!</div>');
+                    logContainer.append('<div class="alert alert-info">📊 Optimization Results: ' + JSON.stringify(response.optimization_results, null, 2) + '</div>');
+                    if (response.performance_improvements) {
+                        logContainer.append('<div class="alert alert-success">🚀 Performance Improvements: ' + JSON.stringify(response.performance_improvements, null, 2) + '</div>');
+                    }
+                } else {
+                    logContainer.append('<div class="alert alert-danger">❌ Error: ' + response.error + '</div>');
+                }
+            }
+        });
+    }
+    
+    function executeDevopsAssessment() {
+        $('#devops-implementation-modal').modal('show');
+        $('#progress-text').text('Executing DevOps Maturity Assessment...');
+        $('.progress-bar').css('width', '25%');
+        
+        var logContainer = $('#implementation-log');
+        logContainer.html('<div class="alert alert-info">📊 Starting DevOps maturity assessment...</div>');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_devops_automation/executeDevopsAutomationAssessment&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                $('.progress-bar').css('width', '100%');
+                $('#progress-text').text('Assessment completed!');
+                
+                if (response.success) {
+                    logContainer.append('<div class="alert alert-success">✅ DevOps assessment completed successfully!</div>');
+                    logContainer.append('<div class="alert alert-info">📊 Assessment Results: ' + JSON.stringify(response.assessment_results, null, 2) + '</div>');
+                    if (response.maturity_score) {
+                        logContainer.append('<div class="alert alert-success">🎯 Maturity Score: ' + JSON.stringify(response.maturity_score, null, 2) + '</div>');
+                    }
+                } else {
+                    logContainer.append('<div class="alert alert-danger">❌ Error: ' + response.error + '</div>');
+                }
+            }
+        });
+    }
+    
+    function generateDevopsReport() {
+        window.open('index.php?route=extension/module/advanced_devops_automation/generateDevopsAutomationReport&type=comprehensive&period=24_hours&user_token={{ user_token }}', '_blank');
+    }
+    
+    function refreshDevopsMetrics() {
+        // Refresh CI/CD pipelines table
+        $.get('index.php?route=extension/module/advanced_devops_automation/getCicdStatus&user_token={{ user_token }}', function(data) {
+            // Update CI/CD pipelines table
+        });
+        
+        // Refresh automation metrics
+        $.get('index.php?route=extension/module/advanced_devops_automation/getAutomationMetrics&user_token={{ user_token }}', function(data) {
+            // Update automation metrics table
+        });
+    }
+    
+    function initializeDevopsChart() {
+        var ctx = document.getElementById('devops-performance-chart').getContext('2d');
+        var devopsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                datasets: [{
+                    label: 'Pipeline Success Rate (%)',
+                    data: [95.2, 96.8, 97.5, 98.1, 98.8, 99.2, 98.5],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }, {
+                    label: 'Deployment Frequency (per day)',
+                    data: [18, 20, 22, 24, 26, 25, 24],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.1
+                }, {
+                    label: 'Security Score (%)',
+                    data: [94.1, 95.2, 95.8, 96.1, 96.4, 96.7, 96.4],
+                    borderColor: 'rgb(255, 205, 86)',
+                    backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'DevOps Performance Metrics (24h)'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+
+{{ footer }}
+</rewritten_file>

@@ -1,0 +1,739 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-clear-logs" data-toggle="tooltip" title="{{ button_clear_logs }}" class="btn btn-danger">
+          <i class="fa fa-trash"></i>
+        </button>
+        <button type="button" id="button-export-logs" data-toggle="tooltip" title="{{ button_export_logs }}" class="btn btn-warning">
+          <i class="fa fa-download"></i>
+        </button>
+        <button type="button" id="button-refresh" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-info">
+          <i class="fa fa-refresh"></i>
+        </button>
+        <a href="{{ back_url }}" data-toggle="tooltip" title="{{ button_back }}" class="btn btn-default">
+          <i class="fa fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }} - {{ text_logs }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <!-- Log Statistics -->
+    <div class="row">
+      <div class="col-md-2">
+        <div class="panel panel-primary">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-list fa-2x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ logs|length }}</div>
+                <div>{{ text_total_logs }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-2">
+        <div class="panel panel-red">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-exclamation-circle fa-2x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ error_count|default(0) }}</div>
+                <div>{{ text_errors }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-2">
+        <div class="panel panel-yellow">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-exclamation-triangle fa-2x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ warning_count|default(0) }}</div>
+                <div>{{ text_warnings }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-2">
+        <div class="panel panel-green">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-info-circle fa-2x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ info_count|default(0) }}</div>
+                <div>{{ text_info }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-2">
+        <div class="panel panel-info">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cogs fa-2x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ debug_count|default(0) }}</div>
+                <div>{{ text_debug }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-2">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-clock-o fa-2x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ avg_execution_time|default('0.0') }}ms</div>
+                <div>{{ text_avg_time }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Filters Panel -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-filter"></i> {{ text_filter }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-sm-2">
+            <div class="form-group">
+              <label class="control-label" for="input-operation">{{ entry_operation_type }}</label>
+              <select name="filter_operation" id="input-operation" class="form-control">
+                <option value="">{{ text_all_operations }}</option>
+                <option value="product_sync"{% if filter_operation == 'product_sync' %} selected="selected"{% endif %}>{{ text_product_sync }}</option>
+                <option value="order_sync"{% if filter_operation == 'order_sync' %} selected="selected"{% endif %}>{{ text_order_sync }}</option>
+                <option value="inventory_sync"{% if filter_operation == 'inventory_sync' %} selected="selected"{% endif %}>{{ text_inventory_sync }}</option>
+                <option value="category_sync"{% if filter_operation == 'category_sync' %} selected="selected"{% endif %}>{{ text_category_sync }}</option>
+                <option value="api_call"{% if filter_operation == 'api_call' %} selected="selected"{% endif %}>{{ text_api_call }}</option>
+                <option value="webhook"{% if filter_operation == 'webhook' %} selected="selected"{% endif %}>{{ text_webhook }}</option>
+                <option value="error"{% if filter_operation == 'error' %} selected="selected"{% endif %}>{{ text_error }}</option>
+                <option value="info"{% if filter_operation == 'info' %} selected="selected"{% endif %}>{{ text_info }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="form-group">
+              <label class="control-label" for="input-level">{{ entry_level }}</label>
+              <select name="filter_level" id="input-level" class="form-control">
+                <option value="">{{ text_all_levels }}</option>
+                <option value="emergency"{% if filter_level == 'emergency' %} selected="selected"{% endif %}>{{ text_emergency }}</option>
+                <option value="alert"{% if filter_level == 'alert' %} selected="selected"{% endif %}>{{ text_alert }}</option>
+                <option value="critical"{% if filter_level == 'critical' %} selected="selected"{% endif %}>{{ text_critical }}</option>
+                <option value="error"{% if filter_level == 'error' %} selected="selected"{% endif %}>{{ text_error }}</option>
+                <option value="warning"{% if filter_level == 'warning' %} selected="selected"{% endif %}>{{ text_warning }}</option>
+                <option value="notice"{% if filter_level == 'notice' %} selected="selected"{% endif %}>{{ text_notice }}</option>
+                <option value="info"{% if filter_level == 'info' %} selected="selected"{% endif %}>{{ text_info }}</option>
+                <option value="debug"{% if filter_level == 'debug' %} selected="selected"{% endif %}>{{ text_debug }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="form-group">
+              <label class="control-label" for="input-date-start">{{ entry_date_start }}</label>
+              <input type="date" name="filter_date_start" value="{{ filter_date_start }}" id="input-date-start" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="form-group">
+              <label class="control-label" for="input-date-end">{{ entry_date_end }}</label>
+              <input type="date" name="filter_date_end" value="{{ filter_date_end }}" id="input-date-end" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="form-group">
+              <label class="control-label" for="input-search">{{ entry_search }}</label>
+              <input type="text" name="filter_search" value="{{ filter_search }}" placeholder="{{ text_search_message }}" id="input-search" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="form-group">
+              <label class="control-label">&nbsp;</label>
+              <div class="btn-group btn-block">
+                <button type="button" id="button-filter" class="btn btn-primary">
+                  <i class="fa fa-search"></i> {{ button_filter }}
+                </button>
+                <button type="button" id="button-clear" class="btn btn-default">
+                  <i class="fa fa-times"></i> {{ button_clear }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Logs Table -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
+        <div class="pull-right">
+          <div class="btn-group">
+            <button type="button" id="button-bulk-delete" class="btn btn-sm btn-danger" disabled>
+              <i class="fa fa-trash"></i> {{ button_bulk_delete }}
+            </button>
+            <button type="button" id="button-auto-refresh" class="btn btn-sm btn-info" data-toggle="button">
+              <i class="fa fa-refresh"></i> {{ button_auto_refresh }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <form id="form-log">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <td style="width: 1px;" class="text-center">
+                    <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" />
+                  </td>
+                  <td class="text-center">{{ column_level }}</td>
+                  <td>
+                    <a href="#" class="sort-link" data-sort="operation_type">{{ column_operation_type }}</a>
+                  </td>
+                  <td>{{ column_message }}</td>
+                  <td class="text-center">
+                    <a href="#" class="sort-link" data-sort="execution_time">{{ column_execution_time }}</a>
+                  </td>
+                  <td class="text-center">
+                    <a href="#" class="sort-link" data-sort="created_at">{{ column_created_at }}</a>
+                  </td>
+                  <td class="text-center">{{ column_action }}</td>
+                </tr>
+              </thead>
+              <tbody>
+                {% if logs %}
+                {% for log in logs %}
+                <tr class="log-row log-{{ log.level }}">
+                  <td class="text-center">
+                    <input type="checkbox" name="selected[]" value="{{ log.log_id }}" />
+                  </td>
+                  <td class="text-center">
+                    {% if log.level == 'emergency' %}
+                    <span class="label label-danger"><i class="fa fa-fire"></i> {{ text_emergency }}</span>
+                    {% elseif log.level == 'alert' %}
+                    <span class="label label-danger"><i class="fa fa-bell"></i> {{ text_alert }}</span>
+                    {% elseif log.level == 'critical' %}
+                    <span class="label label-danger"><i class="fa fa-exclamation-circle"></i> {{ text_critical }}</span>
+                    {% elseif log.level == 'error' %}
+                    <span class="label label-danger"><i class="fa fa-times-circle"></i> {{ text_error }}</span>
+                    {% elseif log.level == 'warning' %}
+                    <span class="label label-warning"><i class="fa fa-exclamation-triangle"></i> {{ text_warning }}</span>
+                    {% elseif log.level == 'notice' %}
+                    <span class="label label-info"><i class="fa fa-info-circle"></i> {{ text_notice }}</span>
+                    {% elseif log.level == 'info' %}
+                    <span class="label label-success"><i class="fa fa-info"></i> {{ text_info }}</span>
+                    {% elseif log.level == 'debug' %}
+                    <span class="label label-default"><i class="fa fa-bug"></i> {{ text_debug }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <strong>{{ log.operation_type|replace({'_': ' '})|title }}</strong>
+                    {% if log.operation_id %}
+                    <br><small class="text-muted">ID: {{ log.operation_id }}</small>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="log-message">
+                      {{ log.message|slice(0, 100) }}{% if log.message|length > 100 %}...{% endif %}
+                    </div>
+                    {% if log.context_data %}
+                    <br><small class="text-info">
+                      <i class="fa fa-database"></i> {{ text_has_context_data }}
+                    </small>
+                    {% endif %}
+                    {% if log.request_data %}
+                    <br><small class="text-primary">
+                      <i class="fa fa-arrow-up"></i> {{ text_has_request_data }}
+                    </small>
+                    {% endif %}
+                    {% if log.response_data %}
+                    <br><small class="text-success">
+                      <i class="fa fa-arrow-down"></i> {{ text_has_response_data }}
+                    </small>
+                    {% endif %}
+                  </td>
+                  <td class="text-center">
+                    {% if log.execution_time %}
+                    <span class="badge {% if log.execution_time > 1000 %}badge-danger{% elseif log.execution_time > 500 %}badge-warning{% else %}badge-success{% endif %}">
+                      {{ "%.2f"|format(log.execution_time) }}ms
+                    </span>
+                    {% if log.memory_usage %}
+                    <br><small class="text-muted">{{ (log.memory_usage / 1024 / 1024)|round(2) }}MB</small>
+                    {% endif %}
+                    {% else %}
+                    <span class="text-muted">-</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-center">
+                    <strong>{{ log.created_at|date('d/m/Y') }}</strong>
+                    <br><small>{{ log.created_at|date('H:i:s') }}</small>
+                    {% if log.ip_address %}
+                    <br><small class="text-muted">{{ log.ip_address }}</small>
+                    {% endif %}
+                  </td>
+                  <td class="text-center">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown">
+                        {{ text_action }} <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="#" onclick="viewLog('{{ log.log_id }}')"><i class="fa fa-eye"></i> {{ text_view_details }}</a></li>
+                        {% if log.context_data %}
+                        <li><a href="#" onclick="viewContext('{{ log.log_id }}')"><i class="fa fa-database"></i> {{ text_view_context }}</a></li>
+                        {% endif %}
+                        {% if log.request_data %}
+                        <li><a href="#" onclick="viewRequest('{{ log.log_id }}')"><i class="fa fa-arrow-up"></i> {{ text_view_request }}</a></li>
+                        {% endif %}
+                        {% if log.response_data %}
+                        <li><a href="#" onclick="viewResponse('{{ log.log_id }}')"><i class="fa fa-arrow-down"></i> {{ text_view_response }}</a></li>
+                        {% endif %}
+                        <li class="divider"></li>
+                        <li><a href="#" onclick="deleteLog('{{ log.log_id }}')" class="text-danger"><i class="fa fa-trash"></i> {{ text_delete }}</a></li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                  <td colspan="7" class="text-center">{{ text_no_results }}</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+        
+        <div class="row">
+          <div class="col-sm-6 text-left">{{ pagination }}</div>
+          <div class="col-sm-6 text-right">{{ results }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Log Detail Modal -->
+<div class="modal fade" id="modal-log-detail" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_log_details }}</h4>
+      </div>
+      <div class="modal-body">
+        <div id="log-details">
+          <div class="text-center">
+            <i class="fa fa-spinner fa-spin fa-3x"></i>
+            <p>{{ text_loading }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Data Viewer Modal -->
+<div class="modal fade" id="modal-data-viewer" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title" id="data-viewer-title">{{ text_data_viewer }}</h4>
+      </div>
+      <div class="modal-body">
+        <pre id="data-viewer-content" style="max-height: 400px; overflow-y: auto; background: #f5f5f5; padding: 15px; border-radius: 4px;"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+        <button type="button" class="btn btn-primary" onclick="copyToClipboard()">
+          <i class="fa fa-copy"></i> {{ button_copy }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+var autoRefreshInterval;
+
+$(document).ready(function() {
+    // Enable/disable bulk action buttons based on selection
+    $('input[name*="selected"]').change(function() {
+        var selected = $('input[name*="selected"]:checked').length;
+        $('#button-bulk-delete').prop('disabled', selected === 0);
+    });
+    
+    // Filter functionality
+    $('#button-filter').click(function() {
+        var url = '{{ logs_url }}';
+        var filter_operation = $('select[name="filter_operation"]').val();
+        var filter_level = $('select[name="filter_level"]').val();
+        var filter_date_start = $('input[name="filter_date_start"]').val();
+        var filter_date_end = $('input[name="filter_date_end"]').val();
+        var filter_search = $('input[name="filter_search"]').val();
+        
+        if (filter_operation) {
+            url += '&filter_operation=' + encodeURIComponent(filter_operation);
+        }
+        if (filter_level) {
+            url += '&filter_level=' + encodeURIComponent(filter_level);
+        }
+        if (filter_date_start) {
+            url += '&filter_date_start=' + encodeURIComponent(filter_date_start);
+        }
+        if (filter_date_end) {
+            url += '&filter_date_end=' + encodeURIComponent(filter_date_end);
+        }
+        if (filter_search) {
+            url += '&filter_search=' + encodeURIComponent(filter_search);
+        }
+        
+        location = url;
+    });
+    
+    // Clear filters
+    $('#button-clear').click(function() {
+        location = '{{ logs_url }}';
+    });
+    
+    // Refresh logs
+    $('#button-refresh').click(function() {
+        location.reload();
+    });
+    
+    // Auto-refresh toggle
+    $('#button-auto-refresh').click(function() {
+        if ($(this).hasClass('active')) {
+            // Stop auto-refresh
+            clearInterval(autoRefreshInterval);
+            $(this).removeClass('btn-success').addClass('btn-info');
+        } else {
+            // Start auto-refresh every 30 seconds
+            autoRefreshInterval = setInterval(function() {
+                location.reload();
+            }, 30000);
+            $(this).removeClass('btn-info').addClass('btn-success');
+        }
+    });
+    
+    // Clear logs
+    $('#button-clear-logs').click(function() {
+        if (confirm('{{ text_confirm_clear_logs }}')) {
+            $.ajax({
+                url: '{{ clear_url }}',
+                type: 'post',
+                dataType: 'json',
+                success: function(json) {
+                    if (json['success']) {
+                        alert(json['success']);
+                        location.reload();
+                    } else if (json['error']) {
+                        alert(json['error']);
+                    }
+                },
+                error: function() {
+                    alert('{{ error_clear_logs }}');
+                }
+            });
+        }
+    });
+    
+    // Export logs
+    $('#button-export-logs').click(function() {
+        var url = '{{ logs_url }}/export';
+        
+        // Add current filters to export
+        var filter_operation = $('select[name="filter_operation"]').val();
+        var filter_level = $('select[name="filter_level"]').val();
+        var filter_date_start = $('input[name="filter_date_start"]').val();
+        var filter_date_end = $('input[name="filter_date_end"]').val();
+        var filter_search = $('input[name="filter_search"]').val();
+        
+        if (filter_operation) url += '&filter_operation=' + encodeURIComponent(filter_operation);
+        if (filter_level) url += '&filter_level=' + encodeURIComponent(filter_level);
+        if (filter_date_start) url += '&filter_date_start=' + encodeURIComponent(filter_date_start);
+        if (filter_date_end) url += '&filter_date_end=' + encodeURIComponent(filter_date_end);
+        if (filter_search) url += '&filter_search=' + encodeURIComponent(filter_search);
+        
+        window.open(url, '_blank');
+    });
+    
+    // Bulk delete
+    $('#button-bulk-delete').click(function() {
+        var selected = $('input[name*="selected"]:checked');
+        if (selected.length === 0) {
+            alert('{{ error_no_selection }}');
+            return;
+        }
+        
+        if (confirm('{{ text_confirm_bulk_delete }}')) {
+            var ids = [];
+            selected.each(function() {
+                ids.push($(this).val());
+            });
+            
+            $.ajax({
+                url: '{{ logs_url }}/bulk_delete',
+                type: 'post',
+                data: {
+                    selected: ids
+                },
+                dataType: 'json',
+                success: function(json) {
+                    if (json['success']) {
+                        alert(json['success']);
+                        location.reload();
+                    } else {
+                        alert(json['error'] || '{{ error_bulk_delete }}');
+                    }
+                },
+                error: function() {
+                    alert('{{ error_bulk_delete }}');
+                }
+            });
+        }
+    });
+    
+    // Sort functionality
+    $('.sort-link').click(function(e) {
+        e.preventDefault();
+        var sort = $(this).data('sort');
+        var url = '{{ logs_url }}';
+        var order = 'ASC';
+        
+        // Add current filters
+        var filter_operation = $('select[name="filter_operation"]').val();
+        var filter_level = $('select[name="filter_level"]').val();
+        var filter_date_start = $('input[name="filter_date_start"]').val();
+        var filter_date_end = $('input[name="filter_date_end"]').val();
+        var filter_search = $('input[name="filter_search"]').val();
+        
+        if (filter_operation) url += '&filter_operation=' + encodeURIComponent(filter_operation);
+        if (filter_level) url += '&filter_level=' + encodeURIComponent(filter_level);
+        if (filter_date_start) url += '&filter_date_start=' + encodeURIComponent(filter_date_start);
+        if (filter_date_end) url += '&filter_date_end=' + encodeURIComponent(filter_date_end);
+        if (filter_search) url += '&filter_search=' + encodeURIComponent(filter_search);
+        
+        url += '&sort=' + sort + '&order=' + order;
+        location = url;
+    });
+});
+
+// Individual log actions
+function viewLog(id) {
+    $('#modal-log-detail').modal('show');
+    
+    $.ajax({
+        url: '{{ logs_url }}/view',
+        type: 'post',
+        data: 'log_id=' + id,
+        dataType: 'json',
+        success: function(json) {
+            if (json['success']) {
+                $('#log-details').html(json['html']);
+            } else {
+                $('#log-details').html('<div class="alert alert-danger">' + (json['error'] || '{{ error_load_log }}') + '</div>');
+            }
+        },
+        error: function() {
+            $('#log-details').html('<div class="alert alert-danger">{{ error_load_log }}</div>');
+        }
+    });
+}
+
+function viewContext(id) {
+    viewData(id, 'context', '{{ text_context_data }}');
+}
+
+function viewRequest(id) {
+    viewData(id, 'request', '{{ text_request_data }}');
+}
+
+function viewResponse(id) {
+    viewData(id, 'response', '{{ text_response_data }}');
+}
+
+function viewData(id, type, title) {
+    $('#data-viewer-title').text(title);
+    $('#modal-data-viewer').modal('show');
+    
+    $.ajax({
+        url: '{{ logs_url }}/view_data',
+        type: 'post',
+        data: {
+            log_id: id,
+            data_type: type
+        },
+        dataType: 'json',
+        success: function(json) {
+            if (json['success']) {
+                $('#data-viewer-content').text(JSON.stringify(JSON.parse(json['data']), null, 2));
+            } else {
+                $('#data-viewer-content').text(json['error'] || '{{ error_load_data }}');
+            }
+        },
+        error: function() {
+            $('#data-viewer-content').text('{{ error_load_data }}');
+        }
+    });
+}
+
+function deleteLog(id) {
+    if (confirm('{{ text_confirm_delete }}')) {
+        $.ajax({
+            url: '{{ logs_url }}/delete',
+            type: 'post',
+            data: 'log_id=' + id,
+            dataType: 'json',
+            success: function(json) {
+                if (json['success']) {
+                    alert(json['success']);
+                    location.reload();
+                } else {
+                    alert(json['error'] || '{{ error_delete }}');
+                }
+            },
+            error: function() {
+                alert('{{ error_delete }}');
+            }
+        });
+    }
+}
+
+function copyToClipboard() {
+    var content = $('#data-viewer-content').text();
+    navigator.clipboard.writeText(content).then(function() {
+        alert('{{ text_copied_to_clipboard }}');
+    }, function() {
+        alert('{{ error_copy_to_clipboard }}');
+    });
+}
+</script>
+
+<style>
+.huge {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.panel-green {
+    border-color: #5cb85c;
+}
+.panel-green > .panel-body {
+    border-color: #5cb85c;
+    color: #5cb85c;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+.panel-yellow > .panel-body {
+    border-color: #f0ad4e;
+    color: #f0ad4e;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+.panel-red > .panel-body {
+    border-color: #d9534f;
+    color: #d9534f;
+}
+
+.sort-link {
+    color: #337ab7;
+    text-decoration: none;
+}
+.sort-link:hover {
+    color: #23527c;
+    text-decoration: underline;
+}
+
+.log-row.log-emergency {
+    background-color: #f2dede;
+}
+.log-row.log-alert {
+    background-color: #f2dede;
+}
+.log-row.log-critical {
+    background-color: #f2dede;
+}
+.log-row.log-error {
+    background-color: #f2dede;
+}
+.log-row.log-warning {
+    background-color: #fcf8e3;
+}
+
+.log-message {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+.badge-success {
+    background-color: #5cb85c;
+}
+.badge-warning {
+    background-color: #f0ad4e;
+}
+.badge-danger {
+    background-color: #d9534f;
+}
+</style>
+
+{{ footer }} 

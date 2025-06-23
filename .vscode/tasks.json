@@ -2,40 +2,120 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "args": [
-            "start_port_3023_server.js"
-            ],
+            "label": "Restart Super Admin Panel 3023",
+            "type": "shell",
             "command": "node",
+            "args": [
+                "start_port_3023_server.js"
+            ],
             "group": "build",
             "isBackground": true,
-            "label": "Restart Super Admin Panel 3023",
-            "type": "shell"
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
         },
         {
+            "label": "Start All MesChain Systems",
+            "type": "shell",
+            "command": "npm",
             "args": [
+                "run",
                 "start:all"
             ],
-            "command": "npm",
-            "group": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "isBackground": true,
-            "label": "Start All MesChain Systems",
-            "type": "shell"
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
         },
         {
             "label": "Start Login Server 3077",
             "type": "shell",
             "command": "node",
-            "args": ["login_server_3077.js"],
+            "args": [
+                "login_server_3077.js"
+            ],
             "group": "build",
-            "isBackground": true
+            "isBackground": true,
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
         },
         {
             "label": "Start Modular Super Admin Panel 3024",
             "type": "shell",
             "command": "node",
-            "args": ["modular_server_3024.js"],
+            "args": [
+                "modular_server_3024.js"
+            ],
             "group": "build",
-            "isBackground": true
+            "isBackground": true,
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Start All Marketplaces",
+            "type": "shell",
+            "command": "node",
+            "args": [
+                "start_all_marketplaces.js"
+            ],
+            "group": "build",
+            "isBackground": true,
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Stop All Running Servers",
+            "type": "shell",
+            "command": "pkill",
+            "args": [
+                "-f",
+                "node.*\\.js"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Restart All Servers",
+            "dependsOn": [
+                "Stop All Running Servers",
+                "Start All MesChain Systems"
+            ],
+            "dependsOrder": "sequence",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
         }
     ]
 }

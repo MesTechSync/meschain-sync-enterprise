@@ -1,0 +1,271 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <a href="{{ import_wizard_url }}" data-bs-toggle="tooltip" title="{{ text_start_import }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> {{ text_start_import }}</a>
+        <a href="{{ sessions_url }}" data-bs-toggle="tooltip" title="{{ text_import_sessions }}" class="btn btn-secondary"><i class="fa-solid fa-list"></i> {{ text_import_sessions }}</a>
+      </div>
+      <h1>{{ heading_title }} - {{ text_dashboard }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h4 class="mb-0">{{ total_sessions }}</h4>
+                <p class="mb-0">{{ text_total_sessions }}</p>
+              </div>
+              <div class="align-self-center">
+                <i class="fa-solid fa-database fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-warning text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h4 class="mb-0">{{ active_sessions }}</h4>
+                <p class="mb-0">{{ text_active_sessions }}</p>
+              </div>
+              <div class="align-self-center">
+                <i class="fa-solid fa-spinner fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h4 class="mb-0">{{ total_products_imported }}</h4>
+                <p class="mb-0">{{ text_total_imported }}</p>
+              </div>
+              <div class="align-self-center">
+                <i class="fa-solid fa-box fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="card {% if api_status.success %}bg-success{% else %}bg-danger{% endif %} text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="mb-0">{% if api_status.success %}{{ text_api_connected }}{% else %}{{ text_api_disconnected }}{% endif %}</h6>
+                <p class="mb-0">{{ text_api_status }}</p>
+              </div>
+              <div class="align-self-center">
+                <i class="fa-solid {% if api_status.success %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Quick Actions -->
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-bolt"></i> Quick Actions</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="d-grid">
+                  <a href="{{ import_wizard_url }}" class="btn btn-primary btn-lg">
+                    <i class="fa-solid fa-download"></i> {{ text_start_new_import }}
+                  </a>
+                </div>
+                <small class="text-muted">Start a new product import from Trendyol</small>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="d-grid">
+                  <a href="{{ sessions_url }}" class="btn btn-secondary btn-lg">
+                    <i class="fa-solid fa-history"></i> {{ text_view_all_sessions }}
+                  </a>
+                </div>
+                <small class="text-muted">View and manage import sessions</small>
+              </div>
+            </div>
+            
+            {% if not api_status.success %}
+            <div class="alert alert-warning">
+              <i class="fa-solid fa-exclamation-triangle"></i> 
+              <strong>API Connection Issue:</strong> {{ api_status.message }}
+              <br><small>Please check your Trendyol API credentials in the MesChain Sync settings.</small>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Recent Sessions -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-clock"></i> {{ text_recent_activity }}</h3>
+          </div>
+          <div class="card-body">
+            {% if recent_sessions %}
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>{{ column_session_name }}</th>
+                    <th>{{ column_status }}</th>
+                    <th>{{ column_progress }}</th>
+                    <th>{{ column_created }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for session in recent_sessions %}
+                  <tr>
+                    <td>{{ session.session_name }}</td>
+                    <td>
+                      {% if session.status == 'completed' %}
+                        <span class="badge bg-success">{{ text_status_completed }}</span>
+                      {% elseif session.status == 'running' %}
+                        <span class="badge bg-primary">{{ text_status_running }}</span>
+                      {% elseif session.status == 'failed' %}
+                        <span class="badge bg-danger">{{ text_status_failed }}</span>
+                      {% elseif session.status == 'paused' %}
+                        <span class="badge bg-warning">{{ text_status_paused }}</span>
+                      {% else %}
+                        <span class="badge bg-secondary">{{ text_status_pending }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if session.total_products > 0 %}
+                        {% set percentage = (session.processed_products / session.total_products * 100)|round %}
+                        <div class="progress">
+                          <div class="progress-bar" style="width: {{ percentage }}%">{{ percentage }}%</div>
+                        </div>
+                      {% else %}
+                        <span class="text-muted">N/A</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ session.created_at }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-center py-4">{{ text_no_sessions }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- System Status -->
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-cog"></i> {{ text_system_status }}</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <strong>{{ text_api_status }}:</strong>
+              {% if api_status.success %}
+                <span class="badge bg-success">{{ text_api_connected }}</span>
+              {% else %}
+                <span class="badge bg-danger">{{ text_api_disconnected }}</span>
+              {% endif %}
+            </div>
+            
+            {% if api_status.success and api_status.supplier_info %}
+            <div class="mb-3">
+              <strong>{{ text_supplier_info }}:</strong>
+              <br><small>ID: {{ api_status.supplier_info.supplierId ?? 'N/A' }}</small>
+              <br><small>{{ text_api_endpoint }}: {{ api_status.endpoint }}</small>
+            </div>
+            {% endif %}
+            
+            <div class="mb-3">
+              <strong>{{ text_last_sync }}:</strong>
+              <br><small>{{ "now"|date("Y-m-d H:i:s") }}</small>
+            </div>
+
+            <div class="d-grid">
+              <button type="button" class="btn btn-outline-primary" onclick="testConnection()">
+                <i class="fa-solid fa-plug"></i> {{ text_test_connection }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Help & Documentation -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-question-circle"></i> Help & Support</h3>
+          </div>
+          <div class="card-body">
+            <p><strong>Getting Started:</strong></p>
+            <ul class="list-unstyled">
+              <li><i class="fa-solid fa-check text-success"></i> Configure Trendyol API credentials</li>
+              <li><i class="fa-solid fa-check text-success"></i> Test API connection</li>
+              <li><i class="fa-solid fa-check text-success"></i> Start your first import</li>
+            </ul>
+            
+            <p><strong>Need Help?</strong></p>
+            <p><small>Check the documentation or contact MesChain support for assistance.</small></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+function testConnection() {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Testing...';
+    button.disabled = true;
+    
+    fetch('{{ url("extension/meschain/trendyol_importer/testConnection", "user_token=" ~ user_token) }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Connection successful!');
+                location.reload();
+            } else {
+                alert('Connection failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        })
+        .finally(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        });
+}
+
+// Auto-refresh for active sessions
+setInterval(function() {
+    if ({{ active_sessions }} > 0) {
+        location.reload();
+    }
+}, 30000); // Refresh every 30 seconds if there are active sessions
+</script>
+
+{{ footer }}

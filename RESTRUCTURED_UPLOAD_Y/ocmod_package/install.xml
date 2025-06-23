@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name><![CDATA[MesChain-Sync Enterprise]]></name>
+    <code>meschain_sync_enterprise</code>
+    <version>3.0.0</version>
+    <author><![CDATA[MesTech Development Team]]></author>
+    <link>https://meschain.com</link>
+    <description><![CDATA[
+        OpenCart 4.0.2.3 için Enterprise seviyesinde pazaryeri entegrasyonu.
+        
+        Özellikler:
+        • 7+ Pazaryeri Desteği (Amazon, Trendyol, N11, vb.)
+        • Gerçek Zamanlı Stok & Sipariş Yönetimi
+        • Azure Bulut Entegrasyonu
+        • Yapay Zeka Destekli Fiyatlandırma
+        • Gelişmiş Analitik & Raporlama
+        
+        Teknik Destek: support@meschain.com
+    ]]></description>
+
+    <!-- Admin Panel Menü Entegrasyonu -->
+    <file path="admin/view/template/common/column_left.twig">
+        <operation>
+            <search><![CDATA[<li><a href="{{ marketplace }}">{{ text_marketplace }}</a></li>]]></search>
+            <add position="after"><![CDATA[
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-sync"></i> MesChain-Sync
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ meschain_dashboard }}" class="dropdown-item"><i class="fas fa-tachometer-alt"></i> Kontrol Paneli</a></li>
+                    <li><a href="{{ meschain_marketplaces }}" class="dropdown-item"><i class="fas fa-store"></i> Pazaryerleri</a></li>
+                    <li><a href="{{ meschain_products }}" class="dropdown-item"><i class="fas fa-box"></i> Ürün Yönetimi</a></li>
+                    <li><a href="{{ meschain_orders }}" class="dropdown-item"><i class="fas fa-shopping-cart"></i> Sipariş Yönetimi</a></li>
+                    <li><a href="{{ meschain_analytics }}" class="dropdown-item"><i class="fas fa-chart-line"></i> Analitik</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a href="{{ meschain_settings }}" class="dropdown-item"><i class="fas fa-cog"></i> Ayarlar</a></li>
+                </ul>
+            </li>
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Ürün Sayfası Entegrasyonu -->
+    <file path="admin/view/template/catalog/product_form.twig">
+        <operation>
+            <search><![CDATA[<ul class="nav nav-tabs">]]></search>
+            <add position="after"><![CDATA[
+            <li class="nav-item"><a href="#tab-meschain" data-bs-toggle="tab" class="nav-link">Pazaryeri Entegrasyonu</a></li>
+            ]]></add>
+        </operation>
+        
+        <operation>
+            <search><![CDATA[<div class="tab-content">]]></search>
+            <add position="after"><![CDATA[
+            <div class="tab-pane" id="tab-meschain">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-sync"></i> Pazaryeri Entegrasyonu</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Durum</label>
+                            <div class="col-sm-10">
+                                <select name="meschain_status" class="form-control">
+                                    <option value="1" {% if meschain_status %} selected {% endif %}>Aktif</option>
+                                    <option value="0" {% if not meschain_status %} selected {% endif %}>Pasif</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Pazaryerleri</label>
+                            <div class="col-sm-10">
+                                {% for market in meschain_markets %}
+                                <div class="form-check">
+                                    <input type="checkbox" 
+                                           name="meschain_markets[]" 
+                                           value="{{ market.id }}" 
+                                           class="form-check-input"
+                                           {% if market.selected %} checked {% endif %}
+                                           id="market-{{ market.id }}">
+                                    <label class="form-check-label" for="market-{{ market.id }}">
+                                        {{ market.name }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Fiyatlandırma</label>
+                            <div class="col-sm-10">
+                                <div class="input-group">
+                                    <span class="input-group-text">Kar Marjı (%)</span>
+                                    <input type="number" 
+                                           name="meschain_profit_margin" 
+                                           value="{{ meschain_profit_margin }}" 
+                                           class="form-control"
+                                           min="0" 
+                                           max="100"
+                                           step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Sipariş Sayfası Entegrasyonu -->
+    <file path="admin/view/template/sale/order_info.twig">
+        <operation>
+            <search><![CDATA[<div class="card mb-3">]]></search>
+            <add position="before"><![CDATA[
+            {% if meschain_marketplace_info %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-store"></i> Pazaryeri Bilgileri</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Pazaryeri:</strong> {{ meschain_marketplace_info.name }}</p>
+                            <p><strong>Sipariş No:</strong> {{ meschain_marketplace_info.order_id }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Durum:</strong> {{ meschain_marketplace_info.status }}</p>
+                            <p><strong>Son Güncelleme:</strong> {{ meschain_marketplace_info.last_update }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Controller Entegrasyonu -->
+    <file path="admin/controller/catalog/product.php">
+        <operation>
+            <search><![CDATA[protected function getForm(): void {]]></search>
+            <add position="after"><![CDATA[
+            // MesChain Entegrasyonu
+            $this->load->model('extension/module/meschain');
+            
+            if (isset($this->request->post['meschain_status'])) {
+                $data['meschain_status'] = $this->request->post['meschain_status'];
+            } elseif (!empty($product_info)) {
+                $data['meschain_status'] = $this->model_extension_module_meschain->getProductStatus($product_info['product_id']);
+            } else {
+                $data['meschain_status'] = 1;
+            }
+            
+            $data['meschain_markets'] = $this->model_extension_module_meschain->getMarketplaces();
+            
+            if (isset($this->request->post['meschain_profit_margin'])) {
+                $data['meschain_profit_margin'] = $this->request->post['meschain_profit_margin'];
+            } elseif (!empty($product_info)) {
+                $data['meschain_profit_margin'] = $this->model_extension_module_meschain->getProductProfitMargin($product_info['product_id']);
+            } else {
+                $data['meschain_profit_margin'] = 10; // Varsayılan kar marjı
+            }
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- Extensions Grubu Entegrasyonu -->
+    <file path="admin/view/template/marketplace/extension.twig">
+        <operation>
+            <search><![CDATA[data-bs-target="#collapse-{{ extension['extension'] }}"]]></search>
+            <add position="replace"><![CDATA[data-bs-target="#collapse-{{ extension['extension'] == 'meschain_sync' ? 'meschain' : extension['extension'] }}"]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[<div id="collapse-{{ extension['extension'] }}"]]></search>
+            <add position="replace"><![CDATA[<div id="collapse-{{ extension['extension'] == 'meschain_sync' ? 'meschain' : extension['extension'] }}"]]></add>
+        </operation>
+    </file>
+
+    <!-- Extensions İsimlendirme -->
+    <file path="admin/controller/marketplace/extension.php">
+        <operation>
+            <search><![CDATA[$extension_data[] = array(]]></search>
+            <add position="before"><![CDATA[
+                if ($extension == 'meschain_sync') {
+                    $heading_title = 'MesChain Sync';
+                } else {
+                    $heading_title = strip_tags($this->language->get('heading_' . $extension));
+                }
+            ]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA['name'      => strip_tags($this->language->get('heading_' . $extension)),]]></search>
+            <add position="replace"><![CDATA['name'      => $heading_title,]]></add>
+        </operation>
+    </file>
+</modification>

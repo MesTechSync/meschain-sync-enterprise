@@ -1,0 +1,259 @@
+<!-- Mali Raporlar - Port 3019 -->
+<section id="mali-raporlar" class="meschain-section hidden">
+    <div class="mb-4 md:mb-6 lg:mb-8">
+        <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
+            <i class="ph ph-calculator mr-2"></i> Mali Raporlar
+        </h2>
+        <p class="text-xl text-gray-600 dark:text-gray-300">Finansal analiz ve muhasebe raporları (Port: 3019)</p>
+    </div>
+
+    <!-- Financial Overview Dashboard -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
+        <div class="meschain-metric-card fade-in-up">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-trending-up text-white text-xl"></i>
+                </div>
+                <span class="trend-badge positive">
+                    <i class="ph ph-trend-up"></i> 14%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">₺428,560</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Aylık Gelir</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.1s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-trending-down text-white text-xl"></i>
+                </div>
+                <span class="trend-badge negative">
+                    <i class="ph ph-trend-up"></i> 5%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">₺142,875</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Aylık Gider</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.2s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-chart-pie text-white text-xl"></i>
+                </div>
+                <span class="trend-badge positive">
+                    <i class="ph ph-trend-up"></i> 3%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">66.7%</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Kar Marjı</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.3s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-currency-circle-dollar text-white text-xl"></i>
+                </div>
+                <span class="trend-badge neutral">
+                    <i class="ph ph-minus"></i> 0%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">₺285,685</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Net Kar</p>
+        </div>
+    </div>
+
+    <!-- Financial Analysis Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Gelir/Gider Analizi</h3>
+                <div class="flex space-x-2">
+                    <select class="form-select-sm">
+                        <option value="30">Son 30 Gün</option>
+                        <option value="90">Son 3 Ay</option>
+                        <option value="365">Son 1 Yıl</option>
+                    </select>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="incomeExpenseChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+        
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Kategori Bazlı Giderler</h3>
+                <div class="flex space-x-2">
+                    <select class="form-select-sm">
+                        <option value="current">Bu Ay</option>
+                        <option value="previous">Geçen Ay</option>
+                        <option value="ytd">Yıl Başından Beri</option>
+                    </select>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="expenseCategoryChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cash Flow & Balance Sheet -->
+    <div class="grid grid-cols-1 gap-4 mb-6">
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Nakit Akışı</h3>
+                <button class="btn-secondary-sm">
+                    <i class="ph ph-file-csv mr-2"></i>
+                    Dışa Aktar
+                </button>
+            </div>
+            <div class="h-80">
+                <canvas id="cashFlowChart" width="800" height="320"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Bilanço Özeti</h3>
+                <button class="btn-secondary-sm">
+                    <i class="ph ph-file-csv mr-2"></i>
+                    Dışa Aktar
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Hesap</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Bu Ay (₺)</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Geçen Ay (₺)</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Değişim</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Toplam Varlıklar</td>
+                            <td class="py-3 px-4">₺2,564,350</td>
+                            <td class="py-3 px-4">₺2,486,120</td>
+                            <td class="py-3 px-4"><span class="trend-indicator positive"><i class="ph ph-trend-up"></i> 3.1%</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Toplam Borçlar</td>
+                            <td class="py-3 px-4">₺854,210</td>
+                            <td class="py-3 px-4">₺896,430</td>
+                            <td class="py-3 px-4"><span class="trend-indicator positive"><i class="ph ph-trend-down"></i> 4.7%</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Net Varlıklar</td>
+                            <td class="py-3 px-4">₺1,710,140</td>
+                            <td class="py-3 px-4">₺1,589,690</td>
+                            <td class="py-3 px-4"><span class="trend-indicator positive"><i class="ph ph-trend-up"></i> 7.6%</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Döner Varlıklar</td>
+                            <td class="py-3 px-4">₺964,250</td>
+                            <td class="py-3 px-4">₺943,780</td>
+                            <td class="py-3 px-4"><span class="trend-indicator positive"><i class="ph ph-trend-up"></i> 2.2%</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Kısa Vadeli Borçlar</td>
+                            <td class="py-3 px-4">₺385,640</td>
+                            <td class="py-3 px-4">₺412,350</td>
+                            <td class="py-3 px-4"><span class="trend-indicator positive"><i class="ph ph-trend-down"></i> 6.5%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Vergi Özeti</h3>
+                <button class="btn-secondary-sm">
+                    <i class="ph ph-file-csv mr-2"></i>
+                    Dışa Aktar
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Vergi Türü</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Bu Ay (₺)</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Toplam YTD (₺)</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Son Ödeme</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">KDV</td>
+                            <td class="py-3 px-4">₺77,140</td>
+                            <td class="py-3 px-4">₺438,290</td>
+                            <td class="py-3 px-4">15.06.2025</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Kurumlar Vergisi</td>
+                            <td class="py-3 px-4">₺57,137</td>
+                            <td class="py-3 px-4">₺285,685</td>
+                            <td class="py-3 px-4">30.06.2025</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">SGK Primleri</td>
+                            <td class="py-3 px-4">₺35,430</td>
+                            <td class="py-3 px-4">₺212,580</td>
+                            <td class="py-3 px-4">25.06.2025</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Stopaj</td>
+                            <td class="py-3 px-4">₺12,850</td>
+                            <td class="py-3 px-4">₺77,100</td>
+                            <td class="py-3 px-4">23.06.2025</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Financial Reports Tools -->
+    <div class="meschain-card mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Mali Rapor Oluştur</h3>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="form-group">
+                <label for="financial-report-type" class="form-label">Rapor Türü</label>
+                <select id="financial-report-type" class="form-select">
+                    <option value="income-statement">Gelir Tablosu</option>
+                    <option value="balance-sheet">Bilanço</option>
+                    <option value="cash-flow">Nakit Akış</option>
+                    <option value="tax-summary">Vergi Özeti</option>
+                    <option value="expenses">Gider Raporu</option>
+                    <option value="profit-loss">Kar/Zarar</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="financial-report-date-start" class="form-label">Başlangıç Tarihi</label>
+                <input type="date" id="financial-report-date-start" class="form-input" value="2025-05-17">
+            </div>
+            <div class="form-group">
+                <label for="financial-report-date-end" class="form-label">Bitiş Tarihi</label>
+                <input type="date" id="financial-report-date-end" class="form-input" value="2025-06-16">
+            </div>
+        </div>
+        
+        <div class="flex justify-end">
+            <button class="btn-secondary mr-2">
+                <i class="ph ph-eye mr-2"></i>
+                Önizleme
+            </button>
+            <button class="btn-primary">
+                <i class="ph ph-download mr-2"></i>
+                Raporu İndir
+            </button>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,238 @@
+<!-- Amazon Section - Part 2 (Orders and Products) -->
+<div id="amazon-orders-products" class="marketplace-content">
+    <!-- Recent Orders -->
+    <div class="meschain-card mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Son Siparişler</h3>
+            <button class="btn-secondary" onclick="navigateToAmazonOrders()">
+                <i class="ph ph-list mr-2"></i>
+                Tüm Siparişler
+            </button>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Sipariş No</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Tarih</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Müşteri</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Tutar</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Durum</th>
+                        <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">İşlem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">AMZ-405-9872145</td>
+                        <td class="py-3 px-4">16.06.2025</td>
+                        <td class="py-3 px-4">Selim A.</td>
+                        <td class="py-3 px-4">₺3,499.90</td>
+                        <td class="py-3 px-4"><span class="status-badge new">Yeni</span></td>
+                        <td class="py-3 px-4">
+                            <button class="action-btn">
+                                <i class="ph ph-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">AMZ-405-9872143</td>
+                        <td class="py-3 px-4">16.06.2025</td>
+                        <td class="py-3 px-4">Deniz B.</td>
+                        <td class="py-3 px-4">₺1,290.00</td>
+                        <td class="py-3 px-4"><span class="status-badge new">Yeni</span></td>
+                        <td class="py-3 px-4">
+                            <button class="action-btn">
+                                <i class="ph ph-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">AMZ-405-9872138</td>
+                        <td class="py-3 px-4">15.06.2025</td>
+                        <td class="py-3 px-4">Cem Y.</td>
+                        <td class="py-3 px-4">₺5,899.00</td>
+                        <td class="py-3 px-4"><span class="status-badge processing">Hazırlanıyor</span></td>
+                        <td class="py-3 px-4">
+                            <button class="action-btn">
+                                <i class="ph ph-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">AMZ-405-9872132</td>
+                        <td class="py-3 px-4">15.06.2025</td>
+                        <td class="py-3 px-4">Zeynep K.</td>
+                        <td class="py-3 px-4">₺899.90</td>
+                        <td class="py-3 px-4"><span class="status-badge shipped">Kargoda</span></td>
+                        <td class="py-3 px-4">
+                            <button class="action-btn">
+                                <i class="ph ph-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4">AMZ-405-9872125</td>
+                        <td class="py-3 px-4">14.06.2025</td>
+                        <td class="py-3 px-4">Murat S.</td>
+                        <td class="py-3 px-4">₺2,450.00</td>
+                        <td class="py-3 px-4"><span class="status-badge shipped">Kargoda</span></td>
+                        <td class="py-3 px-4">
+                            <button class="action-btn">
+                                <i class="ph ph-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Amazon Product Management -->
+    <div class="meschain-card mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Ürün Yönetimi</h3>
+            <div class="flex space-x-2">
+                <button class="btn-secondary" onclick="navigateToAmazonProducts()">
+                    <i class="ph ph-list mr-2"></i>
+                    Tüm Ürünler
+                </button>
+                <button class="btn-primary" onclick="showAddAmazonProductModal()">
+                    <i class="ph ph-plus mr-2"></i>
+                    Yeni Ürün
+                </button>
+            </div>
+        </div>
+        
+        <!-- Product Search and Filter -->
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+            <div class="w-full md:w-1/2">
+                <div class="relative">
+                    <input type="text" placeholder="Ürün ara..." class="search-input">
+                    <i class="ph ph-magnifying-glass search-icon"></i>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <select class="form-select">
+                    <option value="">Kategori</option>
+                    <option value="electronics">Elektronik</option>
+                    <option value="home">Ev Yaşam</option>
+                    <option value="fashion">Moda</option>
+                </select>
+                <select class="form-select">
+                    <option value="">Durum</option>
+                    <option value="active">Aktif</option>
+                    <option value="pending">İncelemede</option>
+                    <option value="suppressed">Pasif</option>
+                </select>
+                <button class="btn-icon">
+                    <i class="ph ph-funnel"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Products List -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Product 1 -->
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="https://via.placeholder.com/300x300" alt="Ürün">
+                    <div class="product-badge success">Aktif</div>
+                </div>
+                <div class="product-info">
+                    <h4 class="product-title">Apple MacBook Pro M3 Pro 16GB 512GB</h4>
+                    <div class="product-meta">
+                        <span class="product-id">ASIN: B0CHP79JH8</span>
+                        <span class="product-stock">Stok: 18</span>
+                    </div>
+                    <div class="product-price">₺89,999.00</div>
+                    <div class="product-actions">
+                        <button class="action-btn-sm">
+                            <i class="ph ph-pencil"></i>
+                        </button>
+                        <button class="action-btn-sm">
+                            <i class="ph ph-copy"></i>
+                        </button>
+                        <button class="action-btn-sm danger">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 2 -->
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="https://via.placeholder.com/300x300" alt="Ürün">
+                    <div class="product-badge success">Aktif</div>
+                </div>
+                <div class="product-info">
+                    <h4 class="product-title">Samsung QLED 4K 65" Smart TV</h4>
+                    <div class="product-meta">
+                        <span class="product-id">ASIN: B09XDC7L54</span>
+                        <span class="product-stock">Stok: 7</span>
+                    </div>
+                    <div class="product-price">₺45,499.00</div>
+                    <div class="product-actions">
+                        <button class="action-btn-sm">
+                            <i class="ph ph-pencil"></i>
+                        </button>
+                        <button class="action-btn-sm">
+                            <i class="ph ph-copy"></i>
+                        </button>
+                        <button class="action-btn-sm danger">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 3 -->
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="https://via.placeholder.com/300x300" alt="Ürün">
+                    <div class="product-badge warning">İncelemede</div>
+                </div>
+                <div class="product-info">
+                    <h4 class="product-title">Dyson V15 Detect Kablosuz Süpürge</h4>
+                    <div class="product-meta">
+                        <span class="product-id">ASIN: B0BVDKW1RQ</span>
+                        <span class="product-stock">Stok: 5</span>
+                    </div>
+                    <div class="product-price">₺32,990.00</div>
+                    <div class="product-actions">
+                        <button class="action-btn-sm">
+                            <i class="ph ph-pencil"></i>
+                        </button>
+                        <button class="action-btn-sm">
+                            <i class="ph ph-copy"></i>
+                        </button>
+                        <button class="action-btn-sm danger">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-6">
+            <div class="text-sm text-gray-600 dark:text-gray-300">
+                Toplam 87 ürün, 1-3 arası gösteriliyor
+            </div>
+            <div class="pagination">
+                <button class="pagination-btn disabled">
+                    <i class="ph ph-caret-left"></i>
+                </button>
+                <button class="pagination-btn active">1</button>
+                <button class="pagination-btn">2</button>
+                <button class="pagination-btn">3</button>
+                <span class="pagination-ellipsis">...</span>
+                <button class="pagination-btn">29</button>
+                <button class="pagination-btn">
+                    <i class="ph ph-caret-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

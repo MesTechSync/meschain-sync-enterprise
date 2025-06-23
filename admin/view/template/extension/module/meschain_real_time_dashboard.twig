@@ -1,0 +1,440 @@
+{{ header }}{{ column_left }}
+
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <button type="button" id="refresh-dashboard" class="btn btn-success">
+                    <i class="fa fa-refresh"></i> Yenile
+                </button>
+                <button type="button" id="test-webhooks" class="btn btn-warning">
+                    <i class="fa fa-send"></i> Webhook Test
+                </button>
+            </div>
+            <h1>MesChain Real-Time Dashboard</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- System Health Section -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <i class="fa fa-heartbeat"></i> Sistem Durumu
+                    <span id="health-indicator" class="pull-right">
+                        {% if system_health.status == 'healthy' %}
+                            <span class="label label-success">SAĞLIKLI</span>
+                        {% elseif system_health.status == 'degraded' %}
+                            <span class="label label-warning">KISMEN SORUNLU</span>
+                        {% else %}
+                            <span class="label label-danger">SORUNLU</span>
+                        {% endif %}
+                    </span>
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="well text-center">
+                            <h4>Bellek Kullanımı</h4>
+                            <p class="lead">{{ system_health.metrics.memory_usage }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="well text-center">
+                            <h4>Disk Kullanımı</h4>
+                            <p class="lead">{{ system_health.metrics.disk_usage.percent }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="well text-center">
+                            <h4>Kuyruk Boyutu</h4>
+                            <p class="lead">{{ system_health.metrics.queue_size }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="well text-center">
+                            <h4>Hata Sayısı (1 Saat)</h4>
+                            <p class="lead">{{ system_health.metrics.error_rate }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Statistics -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-shopping-cart fa-4x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">{{ daily_stats.total_orders }}</div>
+                                <div>Günlük Siparişler</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-green">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-cube fa-4x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">{{ daily_stats.synced_products }}</div>
+                                <div>Senkronize Ürünler</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-yellow">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-send fa-4x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">{{ daily_stats.webhook_calls }}</div>
+                                <div>Webhook Çağrıları</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-red">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-exclamation-triangle fa-4x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">{{ daily_stats.error_count }}</div>
+                                <div>Hatalar</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marketplace Services Status -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-store"></i> Marketplace Durumu</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    {% for key, service in system_health.services %}
+                    <div class="col-md-2">
+                        <div class="service-card text-center">
+                            {% if service.status == 'healthy' %}
+                                <div class="service-status success">
+                                    <i class="fa fa-check-circle fa-3x"></i>
+                                </div>
+                            {% elseif service.status == 'degraded' %}
+                                <div class="service-status warning">
+                                    <i class="fa fa-exclamation-circle fa-3x"></i>
+                                </div>
+                            {% else %}
+                                <div class="service-status danger">
+                                    <i class="fa fa-times-circle fa-3x"></i>
+                                </div>
+                            {% endif %}
+                            <h5>{{ key|upper }}</h5>
+                            {% if service.response_time is defined %}
+                                <p><small>{{ service.response_time }}</small></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Marketplace Stats and Activity -->
+        <div class="row">
+            <!-- Marketplace Statistics -->
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><i class="fa fa-bar-chart"></i> Marketplace İstatistikleri</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Marketplace</th>
+                                        <th>Durum</th>
+                                        <th>Günlük Siparişler</th>
+                                        <th>Aktif Ürünler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key, marketplace in marketplaces %}
+                                    <tr>
+                                        <td><strong>{{ marketplace.name }}</strong></td>
+                                        <td>
+                                            {% if marketplace.status == 'active' %}
+                                                <span class="label label-success">Aktif</span>
+                                            {% else %}
+                                                <span class="label label-danger">Pasif</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ marketplace.orders }}</td>
+                                        <td>{{ marketplace.products }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><i class="fa fa-clock-o"></i> Son Aktiviteler</h3>
+                    </div>
+                    <div class="panel-body" style="max-height: 400px; overflow-y: auto;">
+                        {% if recent_webhooks %}
+                            {% for webhook in recent_webhooks %}
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fa fa-send text-primary"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Webhook:</strong> {{ webhook.event_type }}</p>
+                                    <small class="text-muted">{{ webhook.date_added }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">Henüz webhook aktivitesi yok.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Errors -->
+        {% if recent_errors %}
+        <div class="panel panel-danger">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-warning"></i> Son Hatalar</h3>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Zaman</th>
+                                <th>Seviye</th>
+                                <th>Mesaj</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for error in recent_errors %}
+                            <tr>
+                                <td>{{ error.date_added }}</td>
+                                <td><span class="label label-danger">{{ error.level|upper }}</span></td>
+                                <td>{{ error.message|truncate(100) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.huge {
+    font-size: 40px;
+}
+
+.panel-green {
+    border-color: #5cb85c;
+}
+
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+
+.panel-red > .panel-heading {
+    border-color: #d9534f;
+    color: white;
+    background-color: #d9534f;
+}
+
+.service-card {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.service-status.success i {
+    color: #28a745;
+}
+
+.service-status.warning i {
+    color: #ffc107;
+}
+
+.service-status.danger i {
+    color: #dc3545;
+}
+
+.activity-item {
+    display: flex;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-icon {
+    flex-shrink: 0;
+    margin-right: 10px;
+}
+
+.activity-content {
+    flex-grow: 1;
+}
+
+#health-indicator {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // Auto refresh every 30 seconds
+    setInterval(function() {
+        refreshDashboard();
+    }, 30000);
+    
+    // Manual refresh button
+    $('#refresh-dashboard').click(function() {
+        refreshDashboard();
+    });
+    
+    // Webhook test button
+    $('#test-webhooks').click(function() {
+        testWebhooks();
+    });
+    
+    function refreshDashboard() {
+        $.ajax({
+            url: '{{ ajax_health_check }}',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#refresh-dashboard').prop('disabled', true);
+            },
+            success: function(data) {
+                // Update health indicator
+                var healthHtml = '';
+                if (data.status === 'healthy') {
+                    healthHtml = '<span class="label label-success">SAĞLIKLI</span>';
+                } else if (data.status === 'degraded') {
+                    healthHtml = '<span class="label label-warning">KISMEN SORUNLU</span>';
+                } else {
+                    healthHtml = '<span class="label label-danger">SORUNLU</span>';
+                }
+                $('#health-indicator').html(healthHtml);
+                
+                // Show success notification
+                showNotification('Dashboard güncellendi', 'success');
+            },
+            error: function() {
+                showNotification('Dashboard güncellenirken hata oluştu', 'danger');
+            },
+            complete: function() {
+                $('#refresh-dashboard').prop('disabled', false);
+            }
+        });
+    }
+    
+    function testWebhooks() {
+        $.ajax({
+            url: 'index.php?route=extension/module/meschain_real_time_dashboard/testWebhooks&user_token={{ user_token }}',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#test-webhooks').prop('disabled', true);
+                showNotification('Webhook testleri başlatıldı...', 'info');
+            },
+            success: function(data) {
+                var message = 'Webhook Test Sonuçları:\n';
+                for (var marketplace in data) {
+                    message += marketplace + ': ' + data[marketplace].status + '\n';
+                }
+                alert(message);
+            },
+            error: function() {
+                showNotification('Webhook testleri başarısız', 'danger');
+            },
+            complete: function() {
+                $('#test-webhooks').prop('disabled', false);
+            }
+        });
+    }
+    
+    function showNotification(message, type) {
+        var alertClass = 'alert-' + type;
+        var notification = '<div class="alert ' + alertClass + ' alert-dismissible" role="alert">' +
+            '<button type="button" class="close" data-dismiss="alert">' +
+            '<span>&times;</span></button>' + message + '</div>';
+        
+        $('.container-fluid').prepend(notification);
+        
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+});
+</script>
+
+{{ footer }} 

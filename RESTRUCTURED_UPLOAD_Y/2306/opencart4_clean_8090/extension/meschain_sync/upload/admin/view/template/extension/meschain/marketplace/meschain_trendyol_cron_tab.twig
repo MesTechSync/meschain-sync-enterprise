@@ -1,0 +1,171 @@
+<fieldset>
+    <legend>{{ tab_cron }}</legend>
+    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_cron_info }}</div>
+    
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="input-cron-token">
+            <span data-toggle="tooltip" title="{{ help_cron_token }}">
+                {{ entry_cron_token }}
+            </span>
+        </label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <input type="text" name="module_meschain_trendyol_cron_token" value="{{ module_meschain_trendyol_cron_token }}" id="input-cron-token" class="form-control" />
+                <span class="input-group-btn">
+                    <button type="button" id="button-generate-token" class="btn btn-primary">
+                        <i class="fa fa-refresh"></i> {{ button_generate }}
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ entry_cron_commands }}</label>
+        <div class="col-sm-10">
+            <div class="alert alert-info">{{ help_cron_commands }}</div>
+            
+            <div class="cron-command-group">
+                <label>{{ text_cron_import_orders }}</label>
+                <div class="input-group">
+                    <input type="text" value="wget -q -O /dev/null '{{ cron_url }}&action=import_orders'" class="form-control cron-command" readonly />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default copy-btn" data-clipboard-target="#cron-import-orders">
+                            <i class="fa fa-copy"></i> {{ button_copy }}
+                        </button>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="cron-command-group">
+                <label>{{ text_cron_sync_products }}</label>
+                <div class="input-group">
+                    <input type="text" value="wget -q -O /dev/null '{{ cron_url }}&action=sync_products'" class="form-control cron-command" readonly />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default copy-btn" data-clipboard-target="#cron-sync-products">
+                            <i class="fa fa-copy"></i> {{ button_copy }}
+                        </button>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="cron-command-group">
+                <label>{{ text_cron_sync_stock }}</label>
+                <div class="input-group">
+                    <input type="text" value="wget -q -O /dev/null '{{ cron_url }}&action=sync_stock'" class="form-control cron-command" readonly />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default copy-btn" data-clipboard-target="#cron-sync-stock">
+                            <i class="fa fa-copy"></i> {{ button_copy }}
+                        </button>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="cron-command-group">
+                <label>{{ text_cron_sync_orders }}</label>
+                <div class="input-group">
+                    <input type="text" value="wget -q -O /dev/null '{{ cron_url }}&action=sync_orders'" class="form-control cron-command" readonly />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default copy-btn" data-clipboard-target="#cron-sync-orders">
+                            <i class="fa fa-copy"></i> {{ button_copy }}
+                        </button>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="cron-command-group">
+                <label>{{ text_cron_all }}</label>
+                <div class="input-group">
+                    <input type="text" value="wget -q -O /dev/null '{{ cron_url }}&action=all'" class="form-control cron-command" readonly />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default copy-btn" data-clipboard-target="#cron-all">
+                            <i class="fa fa-copy"></i> {{ button_copy }}
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ entry_cron_last_run }}</label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <input type="text" id="cron-last-run" value="{{ cron_last_run }}" class="form-control" readonly />
+                <span class="input-group-btn">
+                    <button type="button" id="button-refresh-last-run" class="btn btn-info">
+                        <i class="fa fa-refresh"></i> {{ button_refresh }}
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+<style>
+.cron-command-group {
+    margin-bottom: 15px;
+}
+.cron-command-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+</style>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Generate random token
+    $('#button-generate-token').on('click', function() {
+        var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var token = '';
+        for (var i = 0; i < 32; i++) {
+            var randomNumber = Math.floor(Math.random() * chars.length);
+            token += chars.substring(randomNumber, randomNumber + 1);
+        }
+        $('#input-cron-token').val(token);
+    });
+    
+    // Refresh last run time
+    $('#button-refresh-last-run').on('click', function() {
+        $.ajax({
+            url: 'index.php?route=extension/module/meschain_trendyol/getCronLastRun&user_token={{ user_token }}',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#button-refresh-last-run').button('loading');
+            },
+            complete: function() {
+                $('#button-refresh-last-run').button('reset');
+            },
+            success: function(json) {
+                if (json['success']) {
+                    $('#cron-last-run').val(json['last_run']);
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    });
+    
+    // Copy to clipboard
+    $('.copy-btn').on('click', function() {
+        var command = $(this).closest('.input-group').find('.cron-command').val();
+        var $temp = $('<input>');
+        $('body').append($temp);
+        $temp.val(command).select();
+        document.execCommand('copy');
+        $temp.remove();
+        
+        $(this).attr('data-original-title', '{{ button_copy }}')
+            .tooltip('show');
+        
+        var $button = $(this);
+        $button.find('i').attr('class', 'fa fa-check');
+        
+        setTimeout(function() {
+            $button.find('i').attr('class', 'fa fa-copy');
+        }, 2000);
+    });
+});
+</script>

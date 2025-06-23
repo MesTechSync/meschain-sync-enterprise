@@ -1,0 +1,53 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ back }}" data-toggle="tooltip" title="{{ button_back }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-ban"></i> {{ text_cancel_order }} #{{ order_number }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-cancel" class="form-horizontal">
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="input-reason">{{ text_cancel_reason }}</label>
+            <div class="col-sm-10">
+              <select name="reason_id" id="input-reason" class="form-control">
+                <option value="">{{ text_select }}</option>
+                {% for reason_id, reason_text in cancel_reasons %}
+                <option value="{{ reason_id }}">{{ reason_text }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-explanation">{{ text_cancel_explanation }}</label>
+            <div class="col-sm-10">
+              <textarea name="reason" rows="5" id="input-explanation" class="form-control"></textarea>
+            </div>
+          </div>
+          <div class="text-right">
+            <button type="submit" form="form-cancel" class="btn btn-danger"><i class="fa fa-ban"></i> {{ text_cancel }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }} 

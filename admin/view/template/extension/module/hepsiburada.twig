@@ -1,0 +1,804 @@
+{#
+  hepsiburada.twig
+  Amaç: Hepsiburada modülünün OpenCart yönetici paneli arayüz şablonu.
+  Modern: RBAC entegreli, dashboard cards, comprehensive tabs
+  Standart: Her değişiklikte log tutulmalı (hepsiburada_view.log).
+#}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        {% if has_permission %}
+        <button type="submit" form="form-hepsiburada" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fa fa-save"></i>
+        </button>
+        {% endif %}
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+          <i class="fa fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <!-- Dashboard Cards -->
+    {% if has_permission and module_status %}
+    <div class="row">
+      <div class="col-md-3">
+        <div class="panel panel-primary">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cloud-upload fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ api_status|default('disconnected') }}</div>
+                <div>{{ dashboard_api_status }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-info">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cubes fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_products|default(0) }}</div>
+                <div>{{ stat_total_products }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-success">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_orders|default(0) }}</div>
+                <div>{{ stat_total_orders }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-warning">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-lira fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_revenue|default('0 TL') }}</div>
+                <div>{{ stat_total_revenue }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Configuration Panel -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-shopping-bag"></i> {{ heading_title }}
+          <small class="text-muted">{{ text_module_version }}</small>
+        </h3>
+      </div>
+      
+      <div class="panel-body">
+        {% if has_permission %}
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-hepsiburada" class="form-horizontal">
+          
+          <!-- API Status Card -->
+          <div class="row">
+            <div class="col-md-12">
+              <div class="alert alert-info">
+                <div class="row">
+                  <div class="col-md-2">
+                    <div class="text-center">
+                      {% if api_status.status == 'connected' %}
+                        <i class="fa fa-check-circle fa-3x text-success"></i>
+                        <br><strong class="text-success">{{ text_api_connected }}</strong>
+                      {% elseif api_status.status == 'disconnected' %}
+                        <i class="fa fa-times-circle fa-3x text-danger"></i>
+                        <br><strong class="text-danger">{{ error_api_credentials }}</strong>
+                      {% else %}
+                        <i class="fa fa-exclamation-triangle fa-3x text-warning"></i>
+                        <br><strong class="text-warning">{{ api_status.message }}</strong>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="col-md-8">
+                    <h4><i class="fa fa-flag"></i> {{ text_hb_api_version }} - Turkish Market Integration</h4>
+                    <p class="text-muted">{{ text_supported_features }}:</p>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <ul class="list-unstyled">
+                          <li>{{ text_cargo_integration }}</li>
+                          <li>{{ text_realtime_sync }}</li>
+                          <li>{{ text_promotion_management }}</li>
+                          <li>{{ text_turkish_market }}</li>
+                        </ul>
+                      </div>
+                      <div class="col-md-6">
+                        <ul class="list-unstyled">
+                          <li>{{ text_auto_categories }}</li>
+                          <li>{{ text_order_management }}</li>
+                          <li>{{ text_vat_support }}</li>
+                          <li>{{ text_performance_monitoring }}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-2">
+                    <div class="text-center">
+                      <button type="button" id="test-connection" class="btn btn-info btn-lg" data-toggle="tooltip" title="{{ tooltip_test_api }}">
+                        <i class="fa fa-plug"></i><br>{{ button_test_connection }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Metrics -->
+          {% if metrics %}
+          <div class="row">
+            <div class="col-md-2">
+              <div class="info-box bg-aqua">
+                <span class="info-box-icon"><i class="fa fa-cube"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">{{ text_total_products }}</span>
+                  <span class="info-box-number">{{ metrics.total_products|default('0') }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="info-box bg-green">
+                <span class="info-box-icon"><i class="fa fa-check"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">{{ text_synced_products }}</span>
+                  <span class="info-box-number">{{ metrics.synced_products|default('0') }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="info-box bg-yellow">
+                <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">{{ text_pending_products }}</span>
+                  <span class="info-box-number">{{ metrics.pending_products|default('0') }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="info-box bg-red">
+                <span class="info-box-icon"><i class="fa fa-shopping-cart"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">{{ text_monthly_orders }}</span>
+                  <span class="info-box-number">{{ metrics.monthly_orders|default('0') }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="info-box bg-purple">
+                <span class="info-box-icon"><i class="fa fa-try"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">{{ text_monthly_revenue }}</span>
+                  <span class="info-box-number">₺{{ metrics.monthly_revenue|number_format }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="info-box bg-navy">
+                <span class="info-box-icon"><i class="fa fa-truck"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">{{ text_pending_shipments }}</span>
+                  <span class="info-box-number">{{ metrics.pending_shipments|default('0') }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Quick Actions -->
+          <div class="row">
+            <div class="col-md-12">
+              <div class="box box-primary">
+                <div class="box-header with-border">
+                  <h3 class="box-title"><i class="fa fa-bolt"></i> {{ text_quick_actions }}</h3>
+                </div>
+                <div class="box-body">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <button type="button" id="sync-products" class="btn btn-success btn-block btn-lg" data-toggle="tooltip" title="{{ tooltip_sync_all }}">
+                        <i class="fa fa-sync"></i><br>{{ button_sync_products }}
+                      </button>
+                    </div>
+                    <div class="col-md-3">
+                      <button type="button" id="update-prices" class="btn btn-warning btn-block btn-lg" data-toggle="tooltip" title="{{ tooltip_update_prices }}">
+                        <i class="fa fa-try"></i><br>{{ button_sync_prices }}
+                      </button>
+                    </div>
+                    <div class="col-md-3">
+                      <button type="button" id="update-cargo" class="btn btn-info btn-block btn-lg" data-toggle="tooltip" title="{{ tooltip_update_cargo }}">
+                        <i class="fa fa-truck"></i><br>{{ button_update_cargo }}
+                      </button>
+                    </div>
+                    <div class="col-md-3">
+                      <button type="button" id="manage-promotions" class="btn btn-primary btn-block btn-lg" data-toggle="tooltip" title="{{ tooltip_manage_promotions }}">
+                        <i class="fa fa-tags"></i><br>{{ button_manage_promotions }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Tabs -->
+          <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+              <a href="#tab-general" aria-controls="tab-general" role="tab" data-toggle="tab">
+                <i class="fa fa-cog"></i> {{ tab_general }}
+              </a>
+            </li>
+            <li role="presentation">
+              <a href="#tab-api" aria-controls="tab-api" role="tab" data-toggle="tab">
+                <i class="fa fa-key"></i> {{ tab_api }}
+              </a>
+            </li>
+            <li role="presentation">
+              <a href="#tab-cargo" aria-controls="tab-cargo" role="tab" data-toggle="tab">
+                <i class="fa fa-truck"></i> {{ tab_cargo }}
+              </a>
+            </li>
+            <li role="presentation">
+              <a href="#tab-sync" aria-controls="tab-sync" role="tab" data-toggle="tab">
+                <i class="fa fa-refresh"></i> {{ tab_sync }}
+              </a>
+            </li>
+          </ul>
+          
+          <div class="tab-content">
+            
+            <!-- General Tab -->
+            <div role="tabpanel" class="tab-pane active" id="tab-general">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_hepsiburada_status" id="input-status" class="form-control">
+                    {% if module_hepsiburada_status %}
+                      <option value="1" selected="selected">{{ text_enabled }}</option>
+                      <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                      <option value="1">{{ text_enabled }}</option>
+                      <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-debug">{{ entry_debug }}</label>
+                <div class="col-sm-10">
+                  <select name="module_hepsiburada_debug" id="input-debug" class="form-control">
+                    {% if module_hepsiburada_debug %}
+                      <option value="1" selected="selected">{{ text_enabled }}</option>
+                      <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                      <option value="1">{{ text_enabled }}</option>
+                      <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <div class="help-block">{{ help_debug }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-vat-rate">{{ entry_vat_rate }}</label>
+                <div class="col-sm-10">
+                  <input type="number" name="module_hepsiburada_vat_rate" value="{{ module_hepsiburada_vat_rate|default('18') }}" placeholder="18" id="input-vat-rate" class="form-control" min="1" max="50" step="0.01" />
+                  <div class="help-block">{{ help_vat_rate }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- API Tab -->
+            <div role="tabpanel" class="tab-pane" id="tab-api">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-username">{{ entry_username }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_hepsiburada_username" value="{{ module_hepsiburada_username }}" placeholder="{{ entry_username }}" id="input-username" class="form-control" />
+                  {% if error_username %}
+                    <div class="text-danger">{{ error_username }}</div>
+                  {% endif %}
+                  <div class="help-block">{{ help_username }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-password">{{ entry_password }}</label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_hepsiburada_password" value="{{ module_hepsiburada_password }}" placeholder="{{ entry_password }}" id="input-password" class="form-control" />
+                  {% if error_password %}
+                    <div class="text-danger">{{ error_password }}</div>
+                  {% endif %}
+                  <div class="help-block">{{ help_password }}</div>
+                  <div class="input-group">
+                    <span class="input-group-btn">
+                      <button type="button" id="show-password" class="btn btn-default">
+                        <i class="fa fa-eye"></i>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-merchant-id">{{ entry_merchant_id }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_hepsiburada_merchant_id" value="{{ module_hepsiburada_merchant_id }}" placeholder="{{ entry_merchant_id }}" id="input-merchant-id" class="form-control" />
+                  {% if error_merchant_id %}
+                    <div class="text-danger">{{ error_merchant_id }}</div>
+                  {% endif %}
+                  <div class="help-block">{{ help_merchant_id }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Cargo Tab -->
+            <div role="tabpanel" class="tab-pane" id="tab-cargo">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-cargo-company">{{ entry_cargo_company }}</label>
+                <div class="col-sm-10">
+                  <select name="module_hepsiburada_cargo_company" id="input-cargo-company" class="form-control">
+                    <option value="">{{ text_select }}</option>
+                    {% for cargo in cargo_companies %}
+                      {% if cargo.code == module_hepsiburada_cargo_company %}
+                        <option value="{{ cargo.code }}" selected="selected">{{ cargo.name }}</option>
+                      {% else %}
+                        <option value="{{ cargo.code }}">{{ cargo.name }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                  <div class="help-block">{{ help_cargo_company }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-auto-approve">{{ entry_auto_approve }}</label>
+                <div class="col-sm-10">
+                  <select name="module_hepsiburada_auto_approve" id="input-auto-approve" class="form-control">
+                    {% if module_hepsiburada_auto_approve %}
+                      <option value="1" selected="selected">{{ text_enabled }}</option>
+                      <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                      <option value="1">{{ text_enabled }}</option>
+                      <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <div class="help-block">{{ help_auto_approve }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-preparation-time">{{ entry_preparation_time }}</label>
+                <div class="col-sm-10">
+                  <input type="number" name="module_hepsiburada_preparation_time" value="{{ module_hepsiburada_preparation_time|default('1') }}" placeholder="1" id="input-preparation-time" class="form-control" min="1" max="5" />
+                  <div class="help-block">{{ help_preparation_time }}</div>
+                </div>
+              </div>
+
+              <!-- Cargo Companies List -->
+              {% if cargo_companies %}
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_multi_cargo }}</label>
+                <div class="col-sm-10">
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>{{ column_cargo_company }}</th>
+                          <th>Kod</th>
+                          <th>API Desteği</th>
+                          <th>Takip URL</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for cargo in cargo_companies %}
+                        <tr>
+                          <td>{{ cargo.name }}</td>
+                          <td><code>{{ cargo.code }}</code></td>
+                          <td>
+                            {% if cargo.api_support is defined and cargo.api_support %}
+                              <span class="label label-success">{{ text_active }}</span>
+                            {% else %}
+                              <span class="label label-danger">{{ text_inactive }}</span>
+                            {% endif %}
+                          </td>
+                          <td>
+                            <small class="text-muted">Otomatik oluşturulur</small>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+            
+            <!-- Sync Tab -->
+            <div role="tabpanel" class="tab-pane" id="tab-sync">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-auto-sync">{{ entry_auto_sync }}</label>
+                <div class="col-sm-10">
+                  <select name="module_hepsiburada_auto_sync" id="input-auto-sync" class="form-control">
+                    {% if module_hepsiburada_auto_sync %}
+                      <option value="1" selected="selected">{{ text_enabled }}</option>
+                      <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                      <option value="1">{{ text_enabled }}</option>
+                      <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <div class="help-block">{{ help_auto_sync }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-sync-interval">{{ entry_sync_interval }}</label>
+                <div class="col-sm-10">
+                  <input type="number" name="module_hepsiburada_sync_interval" value="{{ module_hepsiburada_sync_interval|default('60') }}" placeholder="60" id="input-sync-interval" class="form-control" min="15" max="1440" />
+                  <div class="help-block">{{ help_sync_interval }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-price-markup">{{ entry_price_markup }}</label>
+                <div class="col-sm-10">
+                  <input type="number" name="module_hepsiburada_price_markup" value="{{ module_hepsiburada_price_markup|default('0') }}" placeholder="0" id="input-price-markup" class="form-control" min="0" max="100" step="0.01" />
+                  <div class="help-block">{{ help_price_markup }}</div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_last_sync }}</label>
+                <div class="col-sm-10">
+                  <p class="form-control-static">
+                    {% if metrics.last_sync_time %}
+                      {{ metrics.last_sync_time|date('d/m/Y H:i:s') }} ({{ text_istanbul_time }})
+                    {% else %}
+                      {{ text_never }}
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </form>
+        {% else %}
+        <div class="alert alert-warning">
+          <i class="fa fa-exclamation-triangle"></i> {{ error_permission }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loading-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <div class="spinner">
+          <i class="fa fa-spinner fa-spin fa-3x"></i>
+        </div>
+        <h4 id="loading-text">{{ text_loading }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    
+    // Test API Connection
+    $('#test-connection').click(function() {
+        var btn = $(this);
+        var originalText = btn.html();
+        
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i><br>{{ text_loading }}');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/hepsiburada/testConnection&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    alert('{{ text_api_connected }}\n\nMerchant ID: ' + (json.merchant_id || 'N/A') + '\nResponse Time: ' + (json.response_time || 'N/A'));
+                } else {
+                    alert('{{ error_api_connection }}\n\n' + (json.error || '{{ error_api_timeout }}'));
+                }
+            },
+            error: function() {
+                alert('{{ error_api_connection }}');
+            },
+            complete: function() {
+                btn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+
+    // Sync Products
+    $('#sync-products').click(function() {
+        showLoadingModal('{{ text_sync_started }}');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/hepsiburada/syncProducts&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                hideLoadingModal();
+                if (json.success) {
+                    alert(json.message || '{{ text_sync_completed }}');
+                    location.reload();
+                } else {
+                    alert('{{ error_sync_failed }}\n\n' + (json.error || ''));
+                }
+            },
+            error: function() {
+                hideLoadingModal();
+                alert('{{ error_sync_failed }}');
+            }
+        });
+    });
+
+    // Update Prices
+    $('#update-prices').click(function() {
+        showLoadingModal('{{ text_price_update_started }}');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/hepsiburada/updatePrices&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                hideLoadingModal();
+                if (json.success) {
+                    alert(json.message || '{{ text_price_update_completed }}');
+                    location.reload();
+                } else {
+                    alert('{{ error_sync_failed }}\n\n' + (json.error || ''));
+                }
+            },
+            error: function() {
+                hideLoadingModal();
+                alert('{{ error_sync_failed }}');
+            }
+        });
+    });
+
+    // Update Cargo
+    $('#update-cargo').click(function() {
+        showLoadingModal('{{ text_cargo_update_started }}');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/hepsiburada/updateCargoInfo&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                hideLoadingModal();
+                if (json.success) {
+                    alert(json.message || '{{ text_cargo_update_completed }}');
+                    location.reload();
+                } else {
+                    alert('{{ error_invalid_cargo }}\n\n' + (json.error || ''));
+                }
+            },
+            error: function() {
+                hideLoadingModal();
+                alert('{{ error_sync_failed }}');
+            }
+        });
+    });
+
+    // Manage Promotions
+    $('#manage-promotions').click(function() {
+        showLoadingModal('Promosyonlar yönetiliyor...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/hepsiburada/managePromotions&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                hideLoadingModal();
+                if (json.success) {
+                    var message = 'Promosyonlar başarıyla yönetildi!';
+                    if (json.applied_count) {
+                        message += '\n' + json.applied_count + ' promosyon uygulandı.';
+                    }
+                    alert(message);
+                    location.reload();
+                } else {
+                    alert('{{ error_promotion_failed }}\n\n' + (json.error || ''));
+                }
+            },
+            error: function() {
+                hideLoadingModal();
+                alert('{{ error_promotion_failed }}');
+            }
+        });
+    });
+
+    // Show/Hide Password
+    $('#show-password').click(function() {
+        var input = $('#input-password');
+        var icon = $(this).find('i');
+        
+        if (input.attr('type') === 'password') {
+            input.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            input.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
+
+    // Loading Modal Functions
+    function showLoadingModal(text) {
+        $('#loading-text').text(text);
+        $('#loading-modal').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+    }
+
+    function hideLoadingModal() {
+        $('#loading-modal').modal('hide');
+    }
+
+    // Enable tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+
+<style>
+.info-box {
+    display: block;
+    min-height: 90px;
+    background: #fff;
+    width: 100%;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    border-radius: 2px;
+    margin-bottom: 15px;
+}
+
+.info-box-icon {
+    border-top-left-radius: 2px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 2px;
+    display: block;
+    float: left;
+    height: 90px;
+    width: 90px;
+    text-align: center;
+    font-size: 45px;
+    line-height: 90px;
+    background: rgba(0,0,0,0.2);
+}
+
+.info-box-content {
+    padding: 5px 10px;
+    margin-left: 90px;
+}
+
+.info-box-text {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.info-box-number {
+    display: block;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.bg-aqua { background-color: #00c0ef !important; color: #fff; }
+.bg-green { background-color: #00a65a !important; color: #fff; }
+.bg-yellow { background-color: #f39c12 !important; color: #fff; }
+.bg-red { background-color: #dd4b39 !important; color: #fff; }
+.bg-purple { background-color: #605ca8 !important; color: #fff; }
+.bg-navy { background-color: #001f3f !important; color: #fff; }
+
+.spinner {
+    padding: 20px;
+}
+
+#loading-modal .modal-content {
+    border-radius: 10px;
+}
+
+.box {
+    position: relative;
+    border-radius: 3px;
+    background: #ffffff;
+    border-top: 3px solid #d2d6de;
+    margin-bottom: 20px;
+    width: 100%;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
+
+.box.box-primary {
+    border-top-color: #3c8dbc;
+}
+
+.box-header {
+    border-bottom: 1px solid #f4f4f4;
+    color: #444;
+    display: block;
+    padding: 10px;
+    position: relative;
+}
+
+.box-header.with-border {
+    border-bottom: 1px solid #d2d6de;
+}
+
+.box-title {
+    font-size: 18px;
+    margin: 0;
+    line-height: 1;
+}
+
+.box-body {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    padding: 10px;
+}
+</style>
+
+{{ footer }} 

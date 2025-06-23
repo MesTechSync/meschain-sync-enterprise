@@ -1,0 +1,560 @@
+{# MesChain Sync Admin Template #}
+{{ header }}{{ column_left }}
+
+<div id="content">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="float-end">
+				<button type="submit" form="form-module" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+					<i class="fa-solid fa-save"></i>
+				</button>
+				<a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light">
+					<i class="fa-solid fa-reply"></i>
+				</a>
+			</div>
+			<h1>{{ heading_title }}</h1>
+			<ol class="breadcrumb">
+				{% for breadcrumb in breadcrumbs %}
+					<li class="breadcrumb-item">
+						<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+					</li>
+				{% endfor %}
+			</ol>
+		</div>
+	</div>
+
+	<div class="container-fluid">
+		{% if error_warning %}
+			<div class="alert alert-danger alert-dismissible">
+				<i class="fa-solid fa-circle-exclamation"></i>
+				{{ error_warning }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+		{% endif %}
+
+		{% if success %}
+			<div class="alert alert-success alert-dismissible">
+				<i class="fa-solid fa-circle-check"></i>
+				{{ success }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+		{% endif %}
+
+		<!-- Dashboard Stats -->
+		<div class="row mb-4" id="dashboard-stats">
+			<div class="col-md-3 col-sm-6">
+				<div class="card text-center">
+					<div class="card-body">
+						<h3 class="text-primary">
+							<i class="fa-solid fa-boxes-stacked"></i>
+						</h3>
+						<h4 id="total-products">0</h4>
+						<p class="text-muted">{{ text_total_products }}</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6">
+				<div class="card text-center">
+					<div class="card-body">
+						<h3 class="text-success">
+							<i class="fa-solid fa-sync"></i>
+						</h3>
+						<h4 id="synced-products">0</h4>
+						<p class="text-muted">{{ text_synced_products }}</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6">
+				<div class="card text-center">
+					<div class="card-body">
+						<h3 class="text-info">
+							<i class="fa-solid fa-store"></i>
+						</h3>
+						<h4 id="active-marketplaces">0</h4>
+						<p class="text-muted">{{ text_active_marketplaces }}</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6">
+				<div class="card text-center">
+					<div class="card-body">
+						<h3 class="text-warning">
+							<i class="fa-solid fa-chart-line"></i>
+						</h3>
+						<h4 id="sync-rate">0%</h4>
+						<p class="text-muted">{{ text_sync_rate }}</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Main Content -->
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">
+					<i class="fa-solid fa-pencil"></i>
+					{{ text_edit }}</h3>
+			</div>
+			<div class="card-body">
+				<form
+					id="form-module" action="{{ action }}" method="post" enctype="multipart/form-data">
+
+					<!-- Navigation Tabs -->
+					<ul class="nav nav-tabs" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" href="#tab-general" data-bs-toggle="tab">
+								<i class="fa-solid fa-cog"></i>
+								{{ tab_general }}
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#tab-marketplaces" data-bs-toggle="tab">
+								<i class="fa-solid fa-store"></i>
+								{{ tab_marketplaces }}
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#tab-products" data-bs-toggle="tab">
+								<i class="fa-solid fa-boxes-stacked"></i>
+								{{ tab_products }}
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#tab-orders" data-bs-toggle="tab">
+								<i class="fa-solid fa-shopping-cart"></i>
+								{{ tab_orders }}
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#tab-analytics" data-bs-toggle="tab">
+								<i class="fa-solid fa-chart-line"></i>
+								{{ tab_analytics }}
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#tab-logs" data-bs-toggle="tab">
+								<i class="fa-solid fa-file-lines"></i>
+								{{ tab_logs }}
+							</a>
+						</li>
+					</ul>
+
+					<!-- Tab Content -->
+					<div
+						class="tab-content mt-3">
+
+						<!-- General Tab -->
+						<div class="tab-pane fade show active" id="tab-general">
+							<div class="row mb-3">
+								<label class="col-sm-2 col-form-label" for="input-status">{{ entry_status }}</label>
+								<div class="col-sm-10">
+									<select name="module_meschain_sync_status" id="input-status" class="form-select">
+										<option value="0" {% if not module_meschain_sync_status %} selected {% endif %}>{{ text_disabled }}</option>
+										<option value="1" {% if module_meschain_sync_status %} selected {% endif %}>{{ text_enabled }}</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<label class="col-sm-2 col-form-label">{{ entry_cron_url }}</label>
+								<div class="col-sm-10">
+									<div class="input-group">
+										<input type="text" value="{{ cron_url }}" class="form-control" readonly>
+										<button type="button" class="btn btn-secondary" onclick="copyToClipboard('{{ cron_url }}')">
+											<i class="fa-solid fa-copy"></i>
+											{{ button_copy }}
+										</button>
+									</div>
+									<div class="form-text">{{ help_cron_url }}</div>
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<label class="col-sm-2 col-form-label">{{ entry_system_status }}</label>
+								<div class="col-sm-10">
+									<div id="system-status-container">
+										<div class="spinner-border text-primary" role="status">
+											<span class="visually-hidden">Loading...</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Marketplaces Tab -->
+						<div class="tab-pane fade" id="tab-marketplaces">
+							<div
+								class="row" id="marketplace-cards"><!-- Marketplace cards will be loaded dynamically -->
+							</div>
+						</div>
+
+						<!-- Products Tab -->
+						<div class="tab-pane fade" id="tab-products">
+							<div class="row mb-3">
+								<div class="col-md-6">
+									<div class="input-group">
+										<input type="text" id="product-search" class="form-control" placeholder="{{ text_search_products }}">
+										<button type="button" class="btn btn-primary" onclick="searchProducts()">
+											<i class="fa-solid fa-search"></i>
+											{{ button_search }}
+										</button>
+									</div>
+								</div>
+								<div class="col-md-6 text-end">
+									<button type="button" class="btn btn-success" onclick="syncAllProducts()">
+										<i class="fa-solid fa-sync"></i>
+										{{ button_sync_all }}
+									</button>
+								</div>
+							</div>
+
+							<div class="table-responsive">
+								<table class="table table-hover" id="products-table">
+									<thead>
+										<tr>
+											<th>{{ column_image }}</th>
+											<th>{{ column_name }}</th>
+											<th>{{ column_model }}</th>
+											<th>{{ column_price }}</th>
+											<th>{{ column_quantity }}</th>
+											<th>{{ column_sync_status }}</th>
+											<th class="text-end">{{ column_action }}</th>
+										</tr>
+									</thead>
+									<tbody>
+										<!-- Products will be loaded dynamically -->
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<!-- Orders Tab -->
+						<div class="tab-pane fade" id="tab-orders">
+							<div class="alert alert-info">
+								<i class="fa-solid fa-info-circle"></i>
+								{{ text_orders_info }}
+							</div>
+
+							<div class="table-responsive">
+								<table class="table table-hover" id="orders-table">
+									<thead>
+										<tr>
+											<th>{{ column_order_id }}</th>
+											<th>{{ column_marketplace }}</th>
+											<th>{{ column_customer }}</th>
+											<th>{{ column_total }}</th>
+											<th>{{ column_status }}</th>
+											<th>{{ column_date_added }}</th>
+											<th class="text-end">{{ column_action }}</th>
+										</tr>
+									</thead>
+									<tbody>
+										<!-- Orders will be loaded dynamically -->
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<!-- Analytics Tab -->
+						<div class="tab-pane fade" id="tab-analytics">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="card">
+										<div class="card-header">
+											<h5>
+												<i class="fa-solid fa-chart-bar"></i>
+												{{ text_sales_by_marketplace }}</h5>
+										</div>
+										<div class="card-body">
+											<canvas id="sales-chart"></canvas>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="card">
+										<div class="card-header">
+											<h5>
+												<i class="fa-solid fa-chart-pie"></i>
+												{{ text_product_distribution }}</h5>
+										</div>
+										<div class="card-body">
+											<canvas id="distribution-chart"></canvas>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="row mt-4">
+								<div class="col-12">
+									<div class="card">
+										<div class="card-header">
+											<h5>
+												<i class="fa-solid fa-chart-line"></i>
+												{{ text_sync_performance }}</h5>
+										</div>
+										<div class="card-body">
+											<canvas id="performance-chart"></canvas>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Logs Tab -->
+						<div class="tab-pane fade" id="tab-logs">
+							<div class="row mb-3">
+								<div class="col-md-4">
+									<select id="log-level" class="form-select">
+										<option value="">{{ text_all_levels }}</option>
+										<option value="debug">Debug</option>
+										<option value="info">Info</option>
+										<option value="warning">Warning</option>
+										<option value="error">Error</option>
+										<option value="critical">Critical</option>
+									</select>
+								</div>
+								<div class="col-md-4">
+									<select id="log-marketplace" class="form-select">
+										<option value="">{{ text_all_marketplaces }}</option>
+										<option value="trendyol">Trendyol</option>
+										<option value="n11">N11</option>
+										<option value="hepsiburada">Hepsiburada</option>
+										<option value="amazon">Amazon</option>
+										<option value="ebay">eBay</option>
+									</select>
+								</div>
+								<div class="col-md-4">
+									<button type="button" class="btn btn-primary" onclick="loadLogs()">
+										<i class="fa-solid fa-filter"></i>
+										{{ button_filter }}
+									</button>
+									<button type="button" class="btn btn-danger" onclick="clearLogs()">
+										<i class="fa-solid fa-trash"></i>
+										{{ button_clear }}
+									</button>
+								</div>
+							</div>
+
+							<div class="table-responsive">
+								<table class="table table-sm" id="logs-table">
+									<thead>
+										<tr>
+											<th>{{ column_datetime }}</th>
+											<th>{{ column_level }}</th>
+											<th>{{ column_type }}</th>
+											<th>{{ column_message }}</th>
+											<th>{{ column_marketplace }}</th>
+										</tr>
+									</thead>
+									<tbody>
+										<!-- Logs will be loaded dynamically -->
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- JavaScript -->
+<script type="text/javascript">
+	// API endpoints
+const API_SEARCH_PRODUCTS = '{{ api_search_products }}';
+const API_SYNC_MARKETPLACE = '{{ api_sync_marketplace }}';
+const API_SYSTEM_STATUS = '{{ api_system_status }}';
+
+// Initialize on page load
+$(document).ready(function () {
+loadSystemStatus();
+loadMarketplaces();
+loadDashboardStats();
+initializeCharts();
+
+// Auto-refresh system status every 30 seconds
+setInterval(loadSystemStatus, 30000);
+});
+
+// Load system status
+function loadSystemStatus() {
+$.ajax({
+url: API_SYSTEM_STATUS,
+method: 'GET',
+dataType: 'json',
+success: function (response) {
+updateSystemStatus(response);
+},
+error: function () {
+$('#system-status-container').html('<div class="alert alert-danger"> {{ error_loading_status }}</div>');
+}
+});
+}
+
+// Update system status display
+function updateSystemStatus(status) {
+let html = '<div class="row">';
+
+// System health
+html += '<div class="col-md-3"><strong> {{ text_system }}:</strong> ';
+html += '<span class="badge bg-' + (
+status.system === 'operational' ? 'success' : 'danger'
+) + '">' + status.system + '</span></div>';
+
+// Health checks
+if (status.health) {
+Object.keys(status.health).forEach(function (check) {
+html += '<div class="col-md-3"><strong>' + check + ':</strong> ';
+html += '<span class="badge bg-' + (
+status.health[check] === 'healthy' ? 'success' : 'danger'
+) + '">' + status.health[check] + '</span></div>';
+});
+}
+
+html += '</div>';
+$('#system-status-container').html(html);
+}
+
+// Load marketplaces
+function loadMarketplaces() { // This would typically load from API, but for now we'll use static data
+const marketplaces = [
+{
+id: 'trendyol',
+name: 'Trendyol',
+status: 'active',
+color: 'primary'
+},
+{
+id: 'n11',
+name: 'N11',
+status: 'active',
+color: 'info'
+},
+{
+id: 'hepsiburada',
+name: 'Hepsiburada',
+status: 'active',
+color: 'warning'
+},
+{
+id: 'amazon',
+name: 'Amazon',
+status: 'inactive',
+color: 'secondary'
+}, {
+id: 'ebay',
+name: 'eBay',
+status: 'inactive',
+color: 'secondary'
+}
+];
+
+let html = '';
+marketplaces.forEach(function (mp) {
+html += '<div class="col-md-4 mb-3">';
+html += '<div class="card border-' + mp.color + '">';
+html += '<div class="card-header bg-' + mp.color + ' text-white">';
+html += '<h5><i class="fa-solid fa-store"></i> ' + mp.name + '</h5>';
+html += '</div>';
+html += '<div class="card-body">';
+html += '<p><strong> {{ text_status }}:</strong> ';
+html += '<span class="badge bg-' + (
+mp.status === 'active' ? 'success' : 'secondary'
+) + '">' + mp.status + '</span></p>';
+html += '<button type="button" class="btn btn-sm btn-primary" onclick="syncMarketplace(\'' + mp.id + '\')">';
+html += '<i class="fa-solid fa-sync"></i>  {{ button_sync }}</button> ';
+html += '<button type="button" class="btn btn-sm btn-secondary" onclick="configureMarketplace(\'' + mp.id + '\')">';
+html += '<i class="fa-solid fa-cog"></i>  {{ button_configure }}</button>';
+html += '</div></div></div>';
+});
+
+$('#marketplace-cards').html(html);
+}
+
+// Search products
+function searchProducts() {
+const query = $('#product-search').val();
+
+$.ajax({
+url: API_SEARCH_PRODUCTS + '&q=' + encodeURIComponent(query),
+method: 'GET',
+dataType: 'json',
+success: function (response) {
+if (response.success) {
+displayProducts(response.products);
+}
+}
+});
+}
+
+// Display products
+function displayProducts(products) {
+let html = '';
+
+products.forEach(function (product) {
+html += '<tr>';
+html += '<td><img src="' + (
+product.image || 'placeholder.png'
+) + '" width="50" class="img-thumbnail"></td>';
+html += '<td>' + product.name + '</td>';
+html += '<td>' + product.model + '</td>';
+html += '<td>' + product.price + '</td>';
+html += '<td>' + product.quantity + '</td>';
+html += '<td><span class="badge bg-secondary"> {{ text_not_synced }}</span></td>';
+html += '<td class="text-end">';
+html += '<button type="button" class="btn btn-sm btn-primary" onclick="syncProduct(' + product.product_id + ')">';
+html += '<i class="fa-solid fa-sync"></i></button>';
+html += '</td></tr>';
+});
+
+$('#products-table tbody').html(html);
+}
+
+// Sync marketplace
+function syncMarketplace(marketplace) {
+if (!confirm('{{ text_confirm_sync }}')) 
+return;
+
+
+$.ajax({
+url: API_SYNC_MARKETPLACE + '&marketplace=' + marketplace,
+method: 'POST',
+dataType: 'json',
+beforeSend: function () { // Show loading
+},
+success: function (response) {
+if (response.success) {
+alert('{{ text_sync_success }}');
+loadDashboardStats();
+} else {
+alert('{{ text_sync_error }}' + (
+response.error || ''
+));
+}
+}
+});
+}
+
+// Load dashboard stats
+function loadDashboardStats() { // This would typically load from API
+$('#total-products').text('1,234');
+$('#synced-products').text('987');
+$('#active-marketplaces').text('3');
+$('#sync-rate').text('80%');
+}
+
+// Initialize charts (placeholder)
+function initializeCharts() { // Would initialize Chart.js charts here
+}
+
+// Utility function to copy to clipboard
+function copyToClipboard(text) {
+navigator.clipboard.writeText(text).then(function () {
+alert('{{ text_copied }}');
+});
+}
+</script>
+
+{{ footer }}

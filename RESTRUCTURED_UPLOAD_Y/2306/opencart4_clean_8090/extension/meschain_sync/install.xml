@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>MesChain Sync Enterprise</name>
+    <code>meschain_sync_enterprise</code>
+    <version>4.5.0</version>
+    <author>MesChain Development Team</author>
+    <link>https://meschain.com</link>
+    <description>MesChain Sync Enterprise - Entegre Pazaryeri Yönetim Modülü</description>
+    
+    <!-- OpenCart Admin Panel Menü Entegrasyonu -->
+    <file path="admin/controller/common/column_left.php">
+        <operation>
+            <search><![CDATA[$marketplace = array();]]></search>
+            <add position="after"><![CDATA[
+            // MesChain Sync Entegrasyonu
+            $meschain = array();
+            
+            if ($this->user->hasPermission('access', 'extension/module/meschain_sync')) {
+                $meschain[] = array(
+                    'name'     => $this->language->get('text_dashboard'),
+                    'href'     => $this->url->link('extension/module/meschain_sync', 'user_token=' . $this->session->data['user_token'], true),
+                    'children' => array()
+                );
+            }
+            
+            if ($this->user->hasPermission('access', 'extension/module/meschain_trendyol')) {
+                $meschain[] = array(
+                    'name'     => 'Trendyol',
+                    'href'     => $this->url->link('extension/module/meschain_trendyol', 'user_token=' . $this->session->data['user_token'], true),
+                    'children' => array()
+                );
+            }
+            
+            if ($this->user->hasPermission('access', 'extension/module/meschain_n11')) {
+                $meschain[] = array(
+                    'name'     => 'n11',
+                    'href'     => $this->url->link('extension/module/meschain_n11', 'user_token=' . $this->session->data['user_token'], true),
+                    'children' => array()
+                );
+            }
+            
+            if ($this->user->hasPermission('access', 'extension/module/meschain_hepsiburada')) {
+                $meschain[] = array(
+                    'name'     => 'HepsiBurada',
+                    'href'     => $this->url->link('extension/module/meschain_hepsiburada', 'user_token=' . $this->session->data['user_token'], true),
+                    'children' => array()
+                );
+            }
+            
+            if ($this->user->hasPermission('access', 'extension/module/meschain_sync')) {
+                $meschain[] = array(
+                    'name'     => $this->language->get('text_settings'),
+                    'href'     => $this->url->link('extension/module/meschain_sync/settings', 'user_token=' . $this->session->data['user_token'], true),
+                    'children' => array()
+                );
+            }
+            
+            if ($meschain) {
+                $marketplace[] = array(
+                    'name'     => 'MesChain Sync',
+                    'href'     => '',
+                    'children' => $meschain
+                );
+            }
+            ]]></add>
+        </operation>
+    </file>
+    
+    <!-- Dil Dosyası Entegrasyonu -->
+    <file path="admin/language/tr-tr/common/column_left.php">
+        <operation>
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[
+$_['text_meschain_sync']        = 'MesChain Sync';
+$_['text_dashboard']            = 'Dashboard';
+$_['text_settings']             = 'Ayarlar';
+            ]]></add>
+        </operation>
+    </file>
+    
+    <file path="admin/language/en-gb/common/column_left.php">
+        <operation>
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[
+$_['text_meschain_sync']        = 'MesChain Sync';
+$_['text_dashboard']            = 'Dashboard';
+$_['text_settings']             = 'Settings';
+            ]]></add>
+        </operation>
+    </file>
+</modification>

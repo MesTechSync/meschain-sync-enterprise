@@ -1,0 +1,352 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-ozon-settings" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }} - {{ text_settings }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-cog"></i> {{ text_settings }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-ozon-settings" class="form-horizontal">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
+            <li><a href="#tab-api" data-toggle="tab">{{ tab_api }}</a></li>
+            <li><a href="#tab-sync" data-toggle="tab">{{ tab_sync }}</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab-general">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_mestech_ozon_status" id="input-mestech-ozon-status" class="form-control">
+                    {% if module_mestech_ozon_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-auto-sync">{{ entry_auto_sync }}</label>
+                <div class="col-sm-10">
+                  <select name="module_mestech_ozon_auto_sync" id="input-mestech-ozon-auto-sync" class="form-control">
+                    {% if module_mestech_ozon_auto_sync %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                  <div class="help-block">{{ help_auto_sync }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-api">
+              <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i> {{ text_api_info }}
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-api-url">{{ entry_api_url }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_mestech_ozon_api_url" value="{{ module_mestech_ozon_api_url }}" placeholder="{{ entry_api_url }}" id="input-api-url" class="form-control" />
+                  <div class="help-block">{{ help_api_url }}</div>
+                  {% if error_api_url %}
+                  <div class="text-danger">{{ error_api_url }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-client-id">{{ entry_client_id }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_mestech_ozon_client_id" value="{{ module_mestech_ozon_client_id }}" placeholder="{{ entry_client_id }}" id="input-client-id" class="form-control" />
+                  <div class="help-block">{{ help_client_id }}</div>
+                  {% if error_client_id %}
+                  <div class="text-danger">{{ error_client_id }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-api-key">{{ entry_api_key }}</label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_mestech_ozon_api_key" value="{{ module_mestech_ozon_api_key }}" placeholder="{{ entry_api_key }}" id="input-mestech-ozon-api-key" class="form-control" />
+                  <div class="help-block">{{ help_api_key }}</div>
+                  {% if error_api_key %}
+                  <div class="text-danger">{{ error_api_key }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-api-secret">{{ entry_api_secret }}</label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_mestech_ozon_api_secret" value="{{ module_mestech_ozon_api_secret }}" placeholder="{{ entry_api_secret }}" id="input-api-secret" class="form-control" />
+                  <div class="help-block">{{ help_api_secret }}</div>
+                  {% if error_api_secret %}
+                  <div class="text-danger">{{ error_api_secret }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="button" id="test-connection" class="btn btn-info">
+                    <i class="fa fa-plug"></i> {{ button_test_connection }}
+                  </button>
+                  <div id="connection-result" class="help-block"></div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-sync">
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_sync_options }}</label>
+                <div class="col-sm-10">
+                  <div class="well well-sm">
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <button type="button" id="sync-products" class="btn btn-success btn-block">
+                          <i class="fa fa-refresh"></i> {{ button_sync_products }}
+                        </button>
+                      </div>
+                      <div class="col-sm-6">
+                        <button type="button" id="sync-orders" class="btn btn-warning btn-block">
+                          <i class="fa fa-shopping-cart"></i> {{ button_sync_orders }}
+                        </button>
+                      </div>
+                    </div>
+                    <div class="row" style="margin-top: 10px;">
+                      <div class="col-sm-6">
+                        <button type="button" id="sync-categories" class="btn btn-info btn-block">
+                          <i class="fa fa-sitemap"></i> {{ button_sync_categories }}
+                        </button>
+                      </div>
+                      <div class="col-sm-6">
+                        <button type="button" id="sync-all" class="btn btn-primary btn-block">
+                          <i class="fa fa-refresh"></i> {{ button_sync_all }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="sync-result" class="help-block"></div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_sync_status }}</label>
+                <div class="col-sm-10">
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <td>{{ column_type }}</td>
+                          <td>{{ column_last_sync }}</td>
+                          <td>{{ column_status }}</td>
+                          <td>{{ column_count }}</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>{{ text_products }}</td>
+                          <td id="products-last-sync">-</td>
+                          <td id="products-status"><span class="label label-default">{{ text_not_synced }}</span></td>
+                          <td id="products-count">0</td>
+                        </tr>
+                        <tr>
+                          <td>{{ text_orders }}</td>
+                          <td id="orders-last-sync">-</td>
+                          <td id="orders-status"><span class="label label-default">{{ text_not_synced }}</span></td>
+                          <td id="orders-count">0</td>
+                        </tr>
+                        <tr>
+                          <td>{{ text_categories }}</td>
+                          <td id="categories-last-sync">-</td>
+                          <td id="categories-status"><span class="label label-default">{{ text_not_synced }}</span></td>
+                          <td id="categories-count">0</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // API bağlantı testi
+    $('#test-connection').on('click', function() {
+        var button = $(this);
+        var result = $('#connection-result');
+        
+        button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ text_testing }}');
+        result.html('');
+        
+        $.ajax({
+            url: 'index.php?route=extension/mestech/ozon/testConnection&user_token={{ user_token }}',
+            type: 'POST',
+            data: {
+                api_url: $('#input-api-url').val(),
+                client_id: $('#input-client-id').val(),
+                api_key: $('#input-api-key').val(),
+                api_secret: $('#input-api-secret').val()
+            },
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    result.html('<span class="text-success"><i class="fa fa-check"></i> ' + json.message + '</span>');
+                } else {
+                    result.html('<span class="text-danger"><i class="fa fa-times"></i> ' + json.error + '</span>');
+                }
+            },
+            error: function() {
+                result.html('<span class="text-danger"><i class="fa fa-times"></i> {{ error_connection }}</span>');
+            },
+            complete: function() {
+                button.prop('disabled', false).html('<i class="fa fa-plug"></i> {{ button_test_connection }}');
+            }
+        });
+    });
+    
+    // Ürün senkronizasyonu
+    $('#sync-products').on('click', function() {
+        performSync('products', $(this));
+    });
+    
+    // Sipariş senkronizasyonu
+    $('#sync-orders').on('click', function() {
+        performSync('orders', $(this));
+    });
+    
+    // Kategori senkronizasyonu
+    $('#sync-categories').on('click', function() {
+        performSync('categories', $(this));
+    });
+    
+    // Tüm senkronizasyon
+    $('#sync-all').on('click', function() {
+        performSync('all', $(this));
+    });
+    
+    function performSync(type, button) {
+        var result = $('#sync-result');
+        var originalText = button.html();
+        
+        button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ text_syncing }}');
+        result.html('');
+        
+        $.ajax({
+            url: 'index.php?route=extension/mestech/ozon/sync' + type.charAt(0).toUpperCase() + type.slice(1) + '&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    result.html('<span class="text-success"><i class="fa fa-check"></i> ' + json.message + '</span>');
+                    updateSyncStatus(type, json);
+                } else {
+                    result.html('<span class="text-danger"><i class="fa fa-times"></i> ' + json.error + '</span>');
+                }
+            },
+            error: function() {
+                result.html('<span class="text-danger"><i class="fa fa-times"></i> {{ error_sync }}</span>');
+            },
+            complete: function() {
+                button.prop('disabled', false).html(originalText);
+            }
+        });
+    }
+    
+    function updateSyncStatus(type, data) {
+        var now = new Date().toLocaleString();
+        
+        if (type === 'products' || type === 'all') {
+            $('#products-last-sync').text(now);
+            $('#products-status').html('<span class="label label-success">{{ text_synced }}</span>');
+            if (data.products_count) {
+                $('#products-count').text(data.products_count);
+            }
+        }
+        
+        if (type === 'orders' || type === 'all') {
+            $('#orders-last-sync').text(now);
+            $('#orders-status').html('<span class="label label-success">{{ text_synced }}</span>');
+            if (data.orders_count) {
+                $('#orders-count').text(data.orders_count);
+            }
+        }
+        
+        if (type === 'categories' || type === 'all') {
+            $('#categories-last-sync').text(now);
+            $('#categories-status').html('<span class="label label-success">{{ text_synced }}</span>');
+            if (data.categories_count) {
+                $('#categories-count').text(data.categories_count);
+            }
+        }
+    }
+    
+    // Sayfa yüklendiğinde senkronizasyon durumunu kontrol et
+    loadSyncStatus();
+    
+    function loadSyncStatus() {
+        $.ajax({
+            url: 'index.php?route=extension/mestech/ozon/getSyncStatus&user_token={{ user_token }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(json) {
+                if (json.products) {
+                    $('#products-last-sync').text(json.products.last_sync || '-');
+                    $('#products-count').text(json.products.count || 0);
+                    if (json.products.last_sync) {
+                        $('#products-status').html('<span class="label label-success">{{ text_synced }}</span>');
+                    }
+                }
+                
+                if (json.orders) {
+                    $('#orders-last-sync').text(json.orders.last_sync || '-');
+                    $('#orders-count').text(json.orders.count || 0);
+                    if (json.orders.last_sync) {
+                        $('#orders-status').html('<span class="label label-success">{{ text_synced }}</span>');
+                    }
+                }
+                
+                if (json.categories) {
+                    $('#categories-last-sync').text(json.categories.last_sync || '-');
+                    $('#categories-count').text(json.categories.count || 0);
+                    if (json.categories.last_sync) {
+                        $('#categories-status').html('<span class="label label-success">{{ text_synced }}</span>');
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+
+{{ footer }}

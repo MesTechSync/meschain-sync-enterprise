@@ -1,0 +1,237 @@
+<!-- Performans Raporları - Port 3020 -->
+<section id="performans-raporları" class="meschain-section hidden">
+    <div class="mb-4 md:mb-6 lg:mb-8">
+        <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+            <i class="ph ph-trending-up mr-2"></i> Performans Raporları
+        </h2>
+        <p class="text-xl text-gray-600 dark:text-gray-300">Sistem ve operasyonel performans analizleri (Port: 3020)</p>
+    </div>
+
+    <!-- Performance Overview Dashboard -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
+        <div class="meschain-metric-card fade-in-up">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-gauge text-white text-xl"></i>
+                </div>
+                <span class="trend-badge positive">
+                    <i class="ph ph-trend-up"></i> 8%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">98.7%</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Sistem Çalışma Süresi</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.1s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-teal-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-clock text-white text-xl"></i>
+                </div>
+                <span class="trend-badge negative">
+                    <i class="ph ph-trend-down"></i> 12%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">142ms</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Ortalama Yanıt Süresi</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.2s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-database text-white text-xl"></i>
+                </div>
+                <span class="trend-badge positive">
+                    <i class="ph ph-trend-up"></i> 3%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">94.2%</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Veritabanı Performansı</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.3s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-users-three text-white text-xl"></i>
+                </div>
+                <span class="trend-badge positive">
+                    <i class="ph ph-trend-up"></i> 15%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">3,754</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Eşzamanlı Kullanıcı</p>
+        </div>
+    </div>
+
+    <!-- Performance Analysis Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">API Yanıt Süreleri</h3>
+                <div class="flex space-x-2">
+                    <select class="form-select-sm">
+                        <option value="24h">Son 24 Saat</option>
+                        <option value="7d">Son 7 Gün</option>
+                        <option value="30d">Son 30 Gün</option>
+                    </select>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="apiResponseTimeChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+        
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Sunucu Kaynakları</h3>
+                <div class="flex space-x-2">
+                    <select class="form-select-sm">
+                        <option value="24h">Son 24 Saat</option>
+                        <option value="7d">Son 7 Gün</option>
+                        <option value="30d">Son 30 Gün</option>
+                    </select>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="serverResourcesChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Marketplace Performance & Error Analysis -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Marketplace API Performansı</h3>
+                <button class="btn-secondary-sm">
+                    <i class="ph ph-file-csv mr-2"></i>
+                    Dışa Aktar
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Marketplace</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Ort. Yanıt (ms)</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Başarı Oranı</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Trendyol API</td>
+                            <td class="py-3 px-4">128ms</td>
+                            <td class="py-3 px-4">99.8%</td>
+                            <td class="py-3 px-4"><span class="status-badge success">Mükemmel</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Amazon API</td>
+                            <td class="py-3 px-4">187ms</td>
+                            <td class="py-3 px-4">98.7%</td>
+                            <td class="py-3 px-4"><span class="status-badge success">İyi</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">N11 API</td>
+                            <td class="py-3 px-4">156ms</td>
+                            <td class="py-3 px-4">99.2%</td>
+                            <td class="py-3 px-4"><span class="status-badge success">İyi</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Hepsiburada API</td>
+                            <td class="py-3 px-4">210ms</td>
+                            <td class="py-3 px-4">97.5%</td>
+                            <td class="py-3 px-4"><span class="status-badge warning">Orta</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">eBay API</td>
+                            <td class="py-3 px-4">245ms</td>
+                            <td class="py-3 px-4">96.8%</td>
+                            <td class="py-3 px-4"><span class="status-badge warning">Orta</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Hata Analizi</h3>
+                <button class="btn-secondary-sm">
+                    <i class="ph ph-file-csv mr-2"></i>
+                    Dışa Aktar
+                </button>
+            </div>
+            <div class="h-80">
+                <canvas id="errorAnalysisChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Database Performance -->
+    <div class="meschain-card mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Veritabanı Performansı</h3>
+            <div class="flex space-x-2">
+                <select class="form-select-sm">
+                    <option value="24h">Son 24 Saat</option>
+                    <option value="7d">Son 7 Gün</option>
+                    <option value="30d">Son 30 Gün</option>
+                </select>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+            <div class="h-60">
+                <canvas id="dbQueriesChart" width="300" height="240"></canvas>
+                <p class="text-center text-gray-600 dark:text-gray-300 mt-2">Sorgu Sayısı</p>
+            </div>
+            <div class="h-60">
+                <canvas id="dbResponseTimeChart" width="300" height="240"></canvas>
+                <p class="text-center text-gray-600 dark:text-gray-300 mt-2">Yanıt Süresi</p>
+            </div>
+            <div class="h-60">
+                <canvas id="dbConnectionsChart" width="300" height="240"></canvas>
+                <p class="text-center text-gray-600 dark:text-gray-300 mt-2">Aktif Bağlantılar</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Reports Tools -->
+    <div class="meschain-card mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Performans Raporu Oluştur</h3>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="form-group">
+                <label for="performance-report-type" class="form-label">Rapor Türü</label>
+                <select id="performance-report-type" class="form-select">
+                    <option value="system-overview">Sistem Genel Bakış</option>
+                    <option value="api-performance">API Performansı</option>
+                    <option value="database">Veritabanı Performansı</option>
+                    <option value="marketplace-api">Marketplace API</option>
+                    <option value="error-analysis">Hata Analizi</option>
+                    <option value="resource-usage">Kaynak Kullanımı</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="performance-report-date-start" class="form-label">Başlangıç Tarihi</label>
+                <input type="date" id="performance-report-date-start" class="form-input" value="2025-05-17">
+            </div>
+            <div class="form-group">
+                <label for="performance-report-date-end" class="form-label">Bitiş Tarihi</label>
+                <input type="date" id="performance-report-date-end" class="form-input" value="2025-06-16">
+            </div>
+        </div>
+        
+        <div class="flex justify-end">
+            <button class="btn-secondary mr-2">
+                <i class="ph ph-eye mr-2"></i>
+                Önizleme
+            </button>
+            <button class="btn-primary">
+                <i class="ph ph-download mr-2"></i>
+                Raporu İndir
+            </button>
+        </div>
+    </div>
+</section>

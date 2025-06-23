@@ -1,0 +1,544 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-refresh" data-toggle="tooltip" title="Verileri Yenile" class="btn btn-info"><i class="fa fa-refresh"></i></button>
+        <button type="button" id="button-export" data-toggle="tooltip" title="Excel Export" class="btn btn-success"><i class="fa fa-download"></i></button>
+      </div>
+      <h1><i class="fa fa-bar-chart"></i> MesChain Raporlama Sistemi</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    
+    <!-- Dashboard İstatistikleri -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ dashboard_stats.total_products|default(0) }}</div>
+                <div>Toplam Ürün</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-list fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ dashboard_stats.total_orders|default(0) }}</div>
+                <div>Toplam Sipariş</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-money fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ dashboard_stats.total_sales|number_format(2)|default('0.00') }}₺</div>
+                <div>Toplam Satış</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-globe fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ dashboard_stats.active_marketplaces|default(0) }}</div>
+                <div>Aktif Pazaryeri</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Grafik Raporları -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-line-chart"></i> Aylık Satış Trendi</h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="salesTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-pie-chart"></i> Pazaryeri Satış Dağılımı</h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="marketplaceChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pazaryeri Satış Raporu -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-shopping-bag"></i> Pazaryeri Satış Raporu (Bu Ay)</h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Pazaryeri</th>
+                <th>Sipariş Sayısı</th>
+                <th>Toplam Satış</th>
+                <th>Ortalama Sipariş Değeri</th>
+                <th>İşlemler</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if marketplace_sales %}
+                {% for marketplace, stats in marketplace_sales %}
+                <tr>
+                  <td><strong>{{ stats.name }}</strong></td>
+                  <td>{{ stats.order_count }}</td>
+                  <td>{{ stats.total_sales|number_format(2) }}₺</td>
+                  <td>{{ stats.avg_order_value|number_format(2) }}₺</td>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-info" onclick="exportMarketplace('{{ marketplace }}')">
+                      <i class="fa fa-download"></i> Export
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="5" class="text-center">Henüz satış verisi bulunmuyor.</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- En Çok Satan Ürünler -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-star"></i> En Çok Satan Ürünler (Top 10)</h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Ürün Adı</th>
+                <th>Model</th>
+                <th>Fiyat</th>
+                <th>Satılan Adet</th>
+                <th>Toplam Gelir</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if top_products %}
+                {% for product in top_products %}
+                <tr>
+                  <td>{{ product.name }}</td>
+                  <td>{{ product.model }}</td>
+                  <td>{{ product.price|number_format(2) }}₺</td>
+                  <td>{{ product.total_sold }}</td>
+                  <td>{{ product.total_revenue|number_format(2) }}₺</td>
+                </tr>
+                {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="5" class="text-center">Henüz satış verisi bulunmuyor.</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stok Durumu -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-exclamation-triangle"></i> Düşük Stok Ürünleri</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th>Stok</th>
+                    <th>Fiyat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if stock_report.low_stock %}
+                    {% for product in stock_report.low_stock|slice(0, 5) %}
+                    <tr>
+                      <td>{{ product.name|slice(0, 30) }}...</td>
+                      <td><span class="label label-warning">{{ product.quantity }}</span></td>
+                      <td>{{ product.price|number_format(2) }}₺</td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                  <tr>
+                    <td colspan="3" class="text-center">Düşük stok ürünü yok.</td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="panel panel-danger">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-times-circle"></i> Stokta Olmayan Ürünler</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th>Stok</th>
+                    <th>Fiyat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if stock_report.out_of_stock %}
+                    {% for product in stock_report.out_of_stock|slice(0, 5) %}
+                    <tr>
+                      <td>{{ product.name|slice(0, 30) }}...</td>
+                      <td><span class="label label-danger">{{ product.quantity }}</span></td>
+                      <td>{{ product.price|number_format(2) }}₺</td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                  <tr>
+                    <td colspan="3" class="text-center">Stokta olmayan ürün yok.</td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Dropshipping Raporu -->
+    {% if dropshipping_report %}
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-truck"></i> Dropshipping Performansı</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          {% if dropshipping_report.orders_by_status %}
+          <div class="col-md-6">
+            <h4>Sipariş Durumları</h4>
+            <div class="table-responsive">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>Durum</th>
+                    <th>Adet</th>
+                    <th>Tutar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for status in dropshipping_report.orders_by_status %}
+                  <tr>
+                    <td>{{ status.status|title }}</td>
+                    <td>{{ status.count }}</td>
+                    <td>{{ status.total_amount|number_format(2) }}₺</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% endif %}
+          
+          {% if dropshipping_report.supplier_performance %}
+          <div class="col-md-6">
+            <h4>Tedarikçi Performansı</h4>
+            <div class="table-responsive">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>Tedarikçi</th>
+                    <th>Sipariş</th>
+                    <th>Komisyon</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for supplier in dropshipping_report.supplier_performance %}
+                  <tr>
+                    <td>{{ supplier.supplier_name }}</td>
+                    <td>{{ supplier.order_count }}</td>
+                    <td>{{ supplier.avg_commission|number_format(2) }}₺</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Özel Rapor Formu -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-calendar"></i> Özel Tarih Aralığı Raporu</h3>
+      </div>
+      <div class="panel-body">
+        <form id="custom-report-form" class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Başlangıç Tarihi</label>
+            <div class="col-sm-3">
+              <input type="date" name="start_date" class="form-control" value="{{ "now"|date("Y-m-01") }}">
+            </div>
+            <label class="col-sm-2 control-label">Bitiş Tarihi</label>
+            <div class="col-sm-3">
+              <input type="date" name="end_date" class="form-control" value="{{ "now"|date("Y-m-d") }}">
+            </div>
+            <div class="col-sm-2">
+              <button type="button" id="generate-custom-report" class="btn btn-primary">
+                <i class="fa fa-search"></i> Rapor Oluştur
+              </button>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Rapor Tipi</label>
+            <div class="col-sm-4">
+              <select name="report_type" class="form-control">
+                <option value="marketplace">Pazaryeri Satışları</option>
+                <option value="products">En Çok Satan Ürünler</option>
+                <option value="sales_trend">Satış Trendi</option>
+              </select>
+            </div>
+          </div>
+        </form>
+        
+        <div id="custom-report-results" style="display: none;">
+          <hr>
+          <div id="custom-report-content"></div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+.huge {
+    font-size: 40px;
+}
+
+.panel-green {
+    border-color: #5cb85c;
+}
+
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+
+.panel-red > .panel-heading {
+    border-color: #d9534f;
+    color: white;
+    background-color: #d9534f;
+}
+</style>
+
+<script type="text/javascript">
+// Dashboard verilerini yenile
+$('#button-refresh').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/reporting/refreshDashboard&user_token={{ user_token }}',
+        type: 'get',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#button-refresh').button('loading');
+        },
+        complete: function() {
+            $('#button-refresh').button('reset');
+        },
+        success: function(json) {
+            if (json['success']) {
+                location.reload();
+            } else if (json['error']) {
+                alert('Hata: ' + json['error']);
+            }
+        }
+    });
+});
+
+// Pazaryeri export
+function exportMarketplace(marketplace) {
+    window.open('{{ export_marketplace_url }}&marketplace=' + marketplace, '_blank');
+}
+
+// Özel rapor oluştur
+$('#generate-custom-report').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/reporting/getCustomReport&user_token={{ user_token }}',
+        type: 'post',
+        data: $('#custom-report-form').serialize(),
+        dataType: 'json',
+        beforeSend: function() {
+            $('#generate-custom-report').button('loading');
+        },
+        complete: function() {
+            $('#generate-custom-report').button('reset');
+        },
+        success: function(json) {
+            if (json['success'] && json['data']) {
+                var content = '<div class="table-responsive"><table class="table table-bordered">';
+                
+                // Rapor tipine göre tablo oluştur
+                var reportType = $('select[name="report_type"]').val();
+                
+                if (reportType === 'marketplace') {
+                    content += '<thead><tr><th>Pazaryeri</th><th>Sipariş</th><th>Satış</th><th>Ortalama</th></tr></thead><tbody>';
+                    $.each(json['data'], function(marketplace, stats) {
+                        content += '<tr><td>' + stats.name + '</td><td>' + stats.order_count + '</td><td>' + parseFloat(stats.total_sales).toFixed(2) + '₺</td><td>' + parseFloat(stats.avg_order_value).toFixed(2) + '₺</td></tr>';
+                    });
+                } else if (reportType === 'products') {
+                    content += '<thead><tr><th>Ürün</th><th>Model</th><th>Satılan</th><th>Gelir</th></tr></thead><tbody>';
+                    $.each(json['data'], function(index, product) {
+                        content += '<tr><td>' + product.name + '</td><td>' + product.model + '</td><td>' + product.total_sold + '</td><td>' + parseFloat(product.total_revenue).toFixed(2) + '₺</td></tr>';
+                    });
+                }
+                
+                content += '</tbody></table></div>';
+                
+                $('#custom-report-content').html(content);
+                $('#custom-report-results').show();
+            } else if (json['error']) {
+                alert('Hata: ' + json['error']);
+            }
+        }
+    });
+});
+
+// Grafikleri Çiz
+document.addEventListener("DOMContentLoaded", function() {
+    // Aylık Satış Trendi Grafiği (Çizgi)
+    var salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
+    var salesTrendData = JSON.parse('{{ sales_trend_chart_json|e('js') }}');
+    new Chart(salesTrendCtx, {
+        type: 'line',
+        data: {
+            labels: salesTrendData.labels,
+            datasets: [{
+                label: 'Aylık Satış (TL)',
+                data: salesTrendData.data,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Pazaryeri Satış Dağılımı (Pasta)
+    var marketplaceCtx = document.getElementById('marketplaceChart').getContext('2d');
+    var marketplaceData = JSON.parse('{{ marketplace_chart_json|e('js') }}');
+    new Chart(marketplaceCtx, {
+        type: 'pie',
+        data: {
+            labels: marketplaceData.labels,
+            datasets: [{
+                label: 'Satış Dağılımı',
+                data: marketplaceData.data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)'
+                ],
+                borderColor: 'rgba(255, 255, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+});
+</script>
+
+{{ footer }} 

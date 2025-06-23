@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+MesChain Sync Enterprise - Native OpenCart 4.x Extension
+Version: 2.0.0
+Compatibility: OpenCart 4.0.2.3+
+Architecture: OCMOD-free, Event-driven, Native Extension
+
+This extension uses modern OpenCart 4.x features:
+- Native Event System (no file modifications)
+- PSR-4 Namespace compliance
+- PHP 8.1+ compatibility
+- MySQL 8.0+ optimization
+- JSON configuration storage
+- Native admin menu integration
+-->
+<modification>
+    <name>MesChain Sync Enterprise</name>
+    <code>meschain_sync_enterprise</code>
+    <version>2.0.0</version>
+    <author>MesChain Development Team</author>
+    <link>https://meschain.com</link>
+    <opencart_version>4.0.2.3+</opencart_version>
+    
+    <description>
+        <![CDATA[
+        MesChain Sync Enterprise - Native OpenCart 4.x Extension
+        
+        🚀 NATIVE EXTENSION FEATURES:
+        ✅ Zero OCMOD dependency - Uses OpenCart 4.x native systems
+        ✅ Event-driven architecture - Real-time synchronization
+        ✅ Modern PHP 8.1+ compatibility
+        ✅ MySQL 8.0+ optimization with JSON columns
+        ✅ PSR-4 namespace compliance
+        ✅ Native admin menu integration
+        ✅ Performance optimized with caching
+        ✅ Enterprise-grade security
+        
+        🏪 MARKETPLACE INTEGRATIONS:
+        ✅ Trendyol (V1 & V2 API)
+        ✅ Amazon Marketplace
+        ✅ Hepsiburada
+        ✅ N11
+        ✅ Pazarama
+        ✅ eBay
+        
+        📊 ADVANCED FEATURES:
+        ✅ Real-time inventory synchronization
+        ✅ Order management automation
+        ✅ Analytics and reporting dashboard
+        ✅ Webhook support for instant updates
+        ✅ Bulk operations with progress tracking
+        ✅ Error monitoring and alerts
+        ✅ Multi-language support (TR/EN)
+        ✅ API rate limiting and optimization
+        
+        This extension represents the next generation of marketplace integration,
+        built specifically for OpenCart 4.x with modern development practices.
+        ]]>
+    </description>
+    
+    <!-- Extension Metadata -->
+    <extension_info>
+        <type>native</type>
+        <category>marketplace</category>
+        <subcategory>integration</subcategory>
+        <priority>high</priority>
+        <architecture>event_driven</architecture>
+        <dependencies>
+            <php_version>8.0.0</php_version>
+            <mysql_version>8.0.0</mysql_version>
+            <opencart_version>4.0.2.3</opencart_version>
+            <required_extensions>
+                <extension>json</extension>
+                <extension>curl</extension>
+                <extension>openssl</extension>
+                <extension>mbstring</extension>
+            </required_extensions>
+        </dependencies>
+    </extension_info>
+    
+    <!-- Native Installation Process -->
+    <install>
+        <![CDATA[
+        // Native PHP installer - no file modifications needed
+        require_once DIR_EXTENSION . 'meschain/install.php';
+        ]]>
+    </install>
+    
+    <!-- Native Uninstallation Process -->
+    <uninstall>
+        <![CDATA[
+        // Native PHP uninstaller - clean removal
+        require_once DIR_EXTENSION . 'meschain/uninstall.php';
+        ]]>
+    </uninstall>
+    
+    <!-- Event Registrations (Native OpenCart 4.x Events) -->
+    <events>
+        <event>
+            <code>meschain_product_sync</code>
+            <trigger>admin/model/catalog/product/editProduct/after</trigger>
+            <action>extension/meschain/event/product|sync</action>
+            <status>1</status>
+            <sort_order>1</sort_order>
+        </event>
+        
+        <event>
+            <code>meschain_order_sync</code>
+            <trigger>admin/model/sale/order/editOrder/after</trigger>
+            <action>extension/meschain/event/order|sync</action>
+            <status>1</status>
+            <sort_order>1</sort_order>
+        </event>
+        
+        <event>
+            <code>meschain_product_delete</code>
+            <trigger>admin/model/catalog/product/deleteProduct/before</trigger>
+            <action>extension/meschain/event/product|delete</action>
+            <status>1</status>
+            <sort_order>1</sort_order>
+        </event>
+        
+        <event>
+            <code>meschain_stock_update</code>
+            <trigger>admin/model/catalog/product/editStock/after</trigger>
+            <action>extension/meschain/event/product|stockUpdate</action>
+            <status>1</status>
+            <sort_order>1</sort_order>
+        </event>
+        
+        <event>
+            <code>meschain_order_status_change</code>
+            <trigger>admin/model/sale/order/addOrderHistory/after</trigger>
+            <action>extension/meschain/event/order|statusChange</action>
+            <status>1</status>
+            <sort_order>1</sort_order>
+        </event>
+        
+        <event>
+            <code>meschain_category_update</code>
+            <trigger>admin/model/catalog/category/editCategory/after</trigger>
+            <action>extension/meschain/event/category|update</action>
+            <status>1</status>
+            <sort_order>1</sort_order>
+        </event>
+    </events>
+    
+    <!-- Admin Menu Integration (Native approach) -->
+    <admin_menu>
+        <menu_item>
+            <id>meschain_main</id>
+            <name>MesChain Sync</name>
+            <icon>fas fa-sync-alt</icon>
+            <sort_order>500</sort_order>
+            <children>
+                <menu_item>
+                    <id>meschain_dashboard</id>
+                    <name>Dashboard</name>
+                    <href>extension/meschain/dashboard</href>
+                    <icon>fas fa-tachometer-alt</icon>
+                </menu_item>
+                <menu_item>
+                    <id>meschain_trendyol</id>
+                    <name>Trendyol</name>
+                    <href>extension/meschain/trendyol</href>
+                    <icon>fas fa-store</icon>
+                </menu_item>
+                <menu_item>
+                    <id>meschain_products</id>
+                    <name>Product Management</name>
+                    <href>extension/meschain/products</href>
+                    <icon>fas fa-box</icon>
+                </menu_item>
+                <menu_item>
+                    <id>meschain_orders</id>
+                    <name>Order Management</name>
+                    <href>extension/meschain/orders</href>
+                    <icon>fas fa-shopping-cart</icon>
+                </menu_item>
+                <menu_item>
+                    <id>meschain_analytics</id>
+                    <name>Analytics</name>
+                    <href>extension/meschain/analytics</href>
+                    <icon>fas fa-chart-bar</icon>
+                </menu_item>
+                <menu_item>
+                    <id>meschain_logs</id>
+                    <name>Sync Logs</name>
+                    <href>extension/meschain/logs</href>
+                    <icon>fas fa-list-alt</icon>
+                </menu_item>
+                <menu_item>
+                    <id>meschain_settings</id>
+                    <name>Settings</name>
+                    <href>extension/meschain/settings</href>
+                    <icon>fas fa-cog</icon>
+                </menu_item>
+            </children>
+        </menu_item>
+    </admin_menu>
+    
+    <!-- Permissions (Native OpenCart 4.x permissions) -->
+    <permissions>
+        <access>
+            <permission>extension/meschain/dashboard</permission>
+            <permission>extension/meschain/trendyol</permission>
+            <permission>extension/meschain/products</permission>
+            <permission>extension/meschain/orders</permission>
+            <permission>extension/meschain/analytics</permission>
+            <permission>extension/meschain/logs</permission>
+            <permission>extension/meschain/settings</permission>
+            <permission>extension/meschain/event</permission>
+        </access>
+        <modify>
+            <permission>extension/meschain/dashboard</permission>
+            <permission>extension/meschain/trendyol</permission>
+            <permission>extension/meschain/products</permission>
+            <permission>extension/meschain/orders</permission>
+            <permission>extension/meschain/analytics</permission>
+            <permission>extension/meschain/logs</permission>
+            <permission>extension/meschain/settings</permission>
+            <permission>extension/meschain/event</permission>
+        </modify>
+    </permissions>
+    
+    <!-- Configuration Settings -->
+    <settings>
+        <setting>
+            <key>meschain_status</key>
+            <value>1</value>
+            <type>boolean</type>
+            <description>Enable/Disable MesChain Extension</description>
+        </setting>
+        <setting>
+            <key>meschain_version</key>
+            <value>2.0.0</value>
+            <type>string</type>
+            <description>Extension Version</description>
+        </setting>
+        <setting>
+            <key>meschain_api_timeout</key>
+            <value>30</value>
+            <type>integer</type>
+            <description>API Request Timeout (seconds)</description>
+        </setting>
+        <setting>
+            <key>meschain_sync_interval</key>
+            <value>300</value>
+            <type>integer</type>
+            <description>Auto Sync Interval (seconds)</description>
+        </setting>
+        <setting>
+            <key>meschain_debug_mode</key>
+            <value>0</value>
+            <type>boolean</type>
+            <description>Enable Debug Mode</description>
+        </setting>
+        <setting>
+            <key>meschain_log_level</key>
+            <value>info</value>
+            <type>string</type>
+            <description>Log Level (debug, info, warning, error)</description>
+        </setting>
+        <setting>
+            <key>meschain_batch_size</key>
+            <value>50</value>
+            <type>integer</type>
+            <description>Batch Processing Size</description>
+        </setting>
+        <setting>
+            <key>meschain_memory_limit</key>
+            <value>256M</value>
+            <type>string</type>
+            <description>Memory Limit for Sync Operations</description>
+        </setting>
+        <setting>
+            <key>meschain_max_execution_time</key>
+            <value>300</value>
+            <type>integer</type>
+            <description>Maximum Execution Time (seconds)</description>
+        </setting>
+    </settings>
+    
+    <!-- Cron Jobs -->
+    <cron_jobs>
+        <job>
+            <name>MesChain Auto Sync</name>
+            <command>php -f system/library/meschain/cron/auto_sync.php</command>
+            <schedule>*/5 * * * *</schedule>
+            <description>Automatic synchronization every 5 minutes</description>
+        </job>
+        <job>
+            <name>MesChain Cleanup</name>
+            <command>php -f system/library/meschain/cron/cleanup.php</command>
+            <schedule>0 2 * * *</schedule>
+            <description>Daily cleanup of old logs and temporary data</description>
+        </job>
+        <job>
+            <name>MesChain Health Check</name>
+            <command>php -f system/library/meschain/cron/health_check.php</command>
+            <schedule>*/15 * * * *</schedule>
+            <description>System health monitoring every 15 minutes</description>
+        </job>
+    </cron_jobs>
+    
+    <!-- Webhook Endpoints -->
+    <webhooks>
+        <endpoint>
+            <name>Trendyol Webhook</name>
+            <path>catalog/controller/extension/meschain/webhook/trendyol</path>
+            <methods>POST</methods>
+            <authentication>api_key</authentication>
+        </endpoint>
+        <endpoint>
+            <name>Amazon Webhook</name>
+            <path>catalog/controller/extension/meschain/webhook/amazon</path>
+            <methods>POST</methods>
+            <authentication>signature</authentication>
+        </endpoint>
+        <endpoint>
+            <name>General Marketplace Webhook</name>
+            <path>catalog/controller/extension/meschain/webhook/general</path>
+            <methods>POST,PUT</methods>
+            <authentication>token</authentication>
+        </endpoint>
+    </webhooks>
+    
+    <!-- Database Schema -->
+    <database>
+        <table>
+            <name>meschain_registry</name>
+            <engine>InnoDB</engine>
+            <charset>utf8mb4</charset>
+            <collate>utf8mb4_unicode_ci</collate>
+        </table>
+        <table>
+            <name>meschain_marketplaces</name>
+            <engine>InnoDB</engine>
+            <charset>utf8mb4</charset>
+            <collate>utf8mb4_unicode_ci</collate>
+        </table>
+        <table>
+            <name>meschain_product_mappings</name>
+            <engine>InnoDB</engine>
+            <charset>utf8mb4</charset>
+            <collate>utf8mb4_unicode_ci</collate>
+        </table>
+        <table>
+            <name>meschain_order_mappings</name>
+            <engine>InnoDB</engine>
+            <charset>utf8mb4</charset>
+            <collate>utf8mb4_unicode_ci</collate>
+        </table>
+        <table>
+            <name>meschain_sync_logs</name>
+            <engine>InnoDB</engine>
+            <charset>utf8mb4</charset>
+            <collate>utf8mb4_unicode_ci</collate>
+            <partitioning>true</partitioning>
+        </table>
+        <table>
+            <name>meschain_analytics</name>
+            <engine>InnoDB</engine>
+            <charset>utf8mb4</charset>
+            <collate>utf8mb4_unicode_ci</collate>
+        </table>
+    </database>
+    
+    <!-- Performance Optimizations -->
+    <performance>
+        <caching>
+            <enabled>true</enabled>
+            <ttl>3600</ttl>
+            <prefix>meschain.</prefix>
+        </caching>
+        <indexing>
+            <auto_optimize>true</auto_optimize>
+            <analyze_frequency>daily</analyze_frequency>
+        </indexing>
+        <compression>
+            <gzip>true</gzip>
+            <level>6</level>
+        </compression>
+    </performance>
+    
+    <!-- Security Features -->
+    <security>
+        <encryption>
+            <algorithm>AES-256-GCM</algorithm>
+            <key_rotation>monthly</key_rotation>
+        </encryption>
+        <validation>
+            <input_sanitization>true</input_sanitization>
+            <csrf_protection>true</csrf_protection>
+            <sql_injection_prevention>true</sql_injection_prevention>
+        </validation>
+        <rate_limiting>
+            <enabled>true</enabled>
+            <requests_per_minute>100</requests_per_minute>
+        </rate_limiting>
+    </security>
+    
+    <!-- Monitoring and Logging -->
+    <monitoring>
+        <metrics>
+            <performance>true</performance>
+            <errors>true</errors>
+            <api_calls>true</api_calls>
+            <memory_usage>true</memory_usage>
+        </metrics>
+        <alerts>
+            <email_notifications>true</email_notifications>
+            <error_threshold>5</error_threshold>
+            <response_time_threshold>5000</response_time_threshold>
+        </alerts>
+    </monitoring>
+    
+    <!-- Compatibility Information -->
+    <compatibility>
+        <tested_versions>
+            <opencart>4.0.2.3</opencart>
+            <php>8.1.0</php>
+            <mysql>8.0.30</mysql>
+        </tested_versions>
+        <requirements>
+            <min_php>8.0.0</min_php>
+            <min_mysql>8.0.0</min_mysql>
+            <min_opencart>4.0.2.3</min_opencart>
+            <memory_limit>256M</memory_limit>
+            <max_execution_time>300</max_execution_time>
+        </requirements>
+    </compatibility>
+</modification>

@@ -15,31 +15,9 @@
                     <h1 class="font-bold text-lg text-gray-900 dark:text-white">MesChain-Sync</h1>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Super Admin v5.0 - Enterprise</p>
                 </div>
-                
-                <!-- 🔒 ULTRA SECURE Badge & Threat Level Indicator -->
-                <div class="flex items-center space-x-3 ml-6">
-                    <!-- Security Badge -->
-                    <div class="ultra-secure-badge flex items-center space-x-2 bg-green-500/20 dark:bg-green-400/20 border border-green-500/30 dark:border-green-400/30 rounded-full px-3 py-1 backdrop-blur-sm">
-                        <div class="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full animate-pulse"></div>
-                        <span class="text-xs font-semibold text-green-700 dark:text-green-300">ULTRA SECURE</span>
-                        <i class="ph ph-shield-check text-green-600 dark:text-green-400 text-sm"></i>
-                    </div>
-                    
-                    <!-- Threat Level Indicator -->
-                    <div class="threat-level-low flex items-center space-x-2 bg-blue-500/20 dark:bg-blue-400/20 border border-blue-500/30 dark:border-blue-400/30 rounded-lg px-2 py-1 backdrop-blur-sm">
-                        <div class="threat-indicator flex space-x-1">
-                            <div class="w-1 h-3 bg-green-500 rounded-full"></div>
-                            <div class="w-1 h-3 bg-green-500 rounded-full"></div>
-                            <div class="w-1 h-3 bg-yellow-500 rounded-full"></div>
-                            <div class="w-1 h-3 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
-                            <div class="w-1 h-3 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
-                        </div>
-                        <span class="text-xs font-medium text-blue-700 dark:text-blue-300">LOW</span>
-                    </div>
-                </div>
             </div>
         </div>
-        
+
         <!-- Center - Quick Access Menu -->
         <div class="hidden lg:flex items-center space-x-3">
             <div class="relative">
@@ -71,167 +49,7 @@
                 </div>
             </div>
 
-            <!-- 🏪 MARKETPLACE QUICK ACCESS TOOLBAR -->
-            <div class="relative">
-                <button onclick="toggleMarketplaceToolbar()" class="flex items-center space-x-1.5 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-600/30 dark:to-blue-600/30 backdrop-blur-lg border border-purple-300/30 dark:border-purple-400/30 rounded-lg px-3 py-1.5 hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-300 transform hover:scale-105">
-                    <i class="ph ph-storefront text-base text-purple-600 dark:text-purple-400"></i>
-                    <span class="font-medium text-sm text-purple-700 dark:text-purple-300">Marketplaces</span>
-                    <i class="ph ph-caret-down text-xs text-purple-600 dark:text-purple-400"></i>
-                </button>
-                <div id="marketplaceToolbar" class="absolute top-full left-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 opacity-0 invisible z-50 transform translate-y-2 transition-all duration-300">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-gray-800 dark:text-white flex items-center">
-                            <i class="ph ph-storefront text-purple-600 mr-2"></i>
-                            Marketplace Hub
-                        </h3>
-                        <div class="text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-2 py-1 rounded-full">
-                            7 Active
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <!-- Trendyol -->
-                        <button onclick="openMarketplace('trendyol')" class="marketplace-quick-btn trendyol-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all duration-300">
-                            <div class="flex items-center space-x-2 relative z-10">
-                                <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
-                                    <span class="text-white text-xs font-bold">T</span>
-                                </div>
-                                <div class="text-left">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Trendyol</div>
-                                    <div class="text-xs text-orange-600 dark:text-orange-400">Port 3012</div>
-                                </div>
-                            </div>
-                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-orange-600 transition-colors"></i>
-                        </button>
 
-                        <!-- Amazon -->
-                        <button onclick="openMarketplace('amazon')" class="marketplace-quick-btn amazon-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-all duration-300">
-                            <div class="flex items-center space-x-2 relative z-10">
-                                <div class="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center">
-                                    <span class="text-white text-xs font-bold">A</span>
-                                </div>
-                                <div class="text-left">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Amazon</div>
-                                    <div class="text-xs text-yellow-600 dark:text-yellow-400">Port 3011</div>
-                                </div>
-                            </div>
-                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-yellow-600 transition-colors"></i>
-                        </button>
-
-                        <!-- N11 -->
-                        <button onclick="openMarketplace('n11')" class="marketplace-quick-btn n11-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300">
-                            <div class="flex items-center space-x-2 relative z-10">
-                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                                    <span class="text-white text-xs font-bold">N</span>
-                                </div>
-                                <div class="text-left">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">N11</div>
-                                    <div class="text-xs text-orange-600 dark:text-orange-400">DURAKLATILDI</div>
-                                </div>
-                            </div>
-                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-blue-600 transition-colors"></i>
-                        </button>
-
-                        <!-- Hepsiburada -->
-                        <button onclick="openMarketplace('hepsiburada')" class="marketplace-quick-btn hepsiburada-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300">
-                            <div class="flex items-center space-x-2 relative z-10">
-                                <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
-                                    <span class="text-white text-xs font-bold">H</span>
-                                </div>
-                                <div class="text-left">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Hepsiburada</div>
-                                    <div class="text-xs text-blue-600 dark:text-blue-400">KURULUM</div>
-                                </div>
-                            </div>
-                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-red-600 transition-colors"></i>
-                        </button>
-
-                        <!-- eBay -->
-                        <button onclick="openMarketplace('ebay')" class="marketplace-quick-btn ebay-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-300">
-                            <div class="flex items-center space-x-2 relative z-10">
-                                <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                                    <span class="text-white text-xs font-bold">E</span>
-                                </div>
-                                <div class="text-left">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">eBay</div>
-                                    <div class="text-xs text-green-600 dark:text-green-400">AKTİF</div>
-                                </div>
-                            </div>
-                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-green-600 transition-colors"></i>
-                        </button>
-
-                        <!-- Cross-Platform -->
-                        <button onclick="openMarketplace('cross-marketplace')" class="marketplace-quick-btn cross-btn group relative overflow-hidden bg-white/50 dark:bg-gray-700/50 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300">
-                            <div class="flex items-center space-x-2 relative z-10">
-                                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
-                                    <span class="text-white text-xs font-bold">∞</span>
-                                </div>
-                                <div class="text-left">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Cross-Platform</div>
-                                    <div class="text-xs text-purple-600 dark:text-purple-400">AKTİF</div>
-                                </div>
-                            </div>
-                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-purple-600 transition-colors"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- Quick Actions -->
-                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <div class="flex justify-between text-xs">
-                            <button onclick="openAllMarketplaces()" class="text-blue-600 hover:text-blue-700 font-medium">Open All</button>
-                            <button onclick="showMarketplaceStatus()" class="text-purple-600 hover:text-purple-700 font-medium">Status Check</button>
-                            <button onclick="refreshMarketplaces()" class="text-green-600 hover:text-green-700 font-medium">Refresh</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Session Timer & Security Monitoring -->
-        <div class="hidden lg:flex items-center space-x-4">
-            <!-- 🔥 Session Security Timer -->
-            <div class="session-normal flex items-center space-x-2 bg-amber-500/20 dark:bg-amber-400/20 border border-amber-500/30 dark:border-amber-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm">
-                <i class="ph ph-timer text-amber-600 dark:text-amber-400 text-sm animate-pulse"></i>
-                <span class="text-xs font-semibold text-amber-700 dark:text-amber-300">Session: <span id="sessionTimer">29:45</span></span>
-            </div>
-            
-            <!-- 🎯 Maximum Security Access Indicator -->
-            <div class="max-security-indicator flex items-center space-x-2 bg-red-500/20 dark:bg-red-400/20 border border-red-500/30 dark:border-red-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm">
-                <div class="relative">
-                    <i class="ph ph-lock-key text-red-600 dark:text-red-400 text-sm"></i>
-                    <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
-                </div>
-                <span class="text-xs font-bold text-red-700 dark:text-red-300">MAXIMUM SECURITY ACCESS</span>
-            </div>
-            
-            <!-- Quick Access Menu -->
-            <div class="relative">
-                <button onclick="toggleQuickAccess()" class="flex items-center space-x-1.5 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-lg px-3 py-1.5 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
-                    <i class="ph ph-lightning text-base"></i>
-                    <span class="font-medium text-sm">Quick Access</span>
-                    <i class="ph ph-caret-down text-xs"></i>
-                </button>
-                <div id="quickAccessMenu" class="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 opacity-0 invisible z-50">
-                    <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Quick Actions</h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="openUsageGuide()" class="flex items-center space-x-2 p-3 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
-                            <i class="ph ph-book-open text-blue-600 text-lg"></i>
-                            <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Usage Guide</span>
-                        </button>
-                        <button onclick="openTechnicalManual()" class="flex items-center space-x-2 p-3 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors">
-                            <i class="ph ph-file-code text-purple-600 text-lg"></i>
-                            <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Tech Manual</span>
-                        </button>
-                        <button onclick="generateSystemReport()" class="flex items-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors">
-                            <i class="ph ph-chart-line text-green-600 text-lg"></i>
-                            <span class="text-sm font-medium text-green-700 dark:text-green-300">System Report</span>
-                        </button>
-                        <button onclick="openBackupManager()" class="flex items-center space-x-2 p-3 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg transition-colors">
-                            <i class="ph ph-database text-orange-600 text-lg"></i>
-                            <span class="text-sm font-medium text-orange-700 dark:text-orange-300">Backup Manager</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
             <!-- 🏪 MARKETPLACE QUICK ACCESS TOOLBAR -->
             <div class="relative">
                 <button onclick="toggleMarketplaceToolbar()" class="flex items-center space-x-1.5 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-600/30 dark:to-blue-600/30 backdrop-blur-lg border border-purple-300/30 dark:border-purple-400/30 rounded-lg px-3 py-1.5 hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-300 transform hover:scale-105">
@@ -274,7 +92,7 @@
                                 </div>
                                 <div class="text-left">
                                     <div class="text-sm font-medium text-gray-900 dark:text-white">Amazon</div>
-                                    <div class="text-xs text-yellow-600 dark:text-yellow-400">Port 3002</div>
+                                    <div class="text-xs text-yellow-600 dark:text-yellow-400">Port 3011</div>
                                 </div>
                             </div>
                             <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-yellow-600 transition-colors"></i>
@@ -282,282 +100,372 @@
 
                         <!-- N11 -->
                         <button onclick="openMarketplace('n11')" class="marketplace-quick-btn n11-btn group relative overflow-hidden">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             <div class="flex items-center space-x-2 relative z-10">
-                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
                                     <span class="text-white text-xs font-bold">N</span>
                                 </div>
                                 <div class="text-left">
                                     <div class="text-sm font-medium text-gray-900 dark:text-white">N11</div>
-                                    <div class="text-xs text-blue-600 dark:text-blue-400">Port 3018</div>
+                                    <div class="text-xs text-blue-600 dark:text-blue-400">Port 3014</div>
                                 </div>
                             </div>
                             <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-blue-600 transition-colors"></i>
                         </button>
 
-                        <!-- HepsiBurada -->
-                        <button onclick="openMarketplace('hepsiburada')" class="marketplace-quick-btn hepsi-btn group relative overflow-hidden">
-                            <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <!-- Hepsiburada -->
+                        <button onclick="openMarketplace('hepsiburada')" class="marketplace-quick-btn hepsiburada-btn group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             <div class="flex items-center space-x-2 relative z-10">
-                                <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                                <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
                                     <span class="text-white text-xs font-bold">H</span>
                                 </div>
                                 <div class="text-left">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">HepsiBurada</div>
-                                    <div class="text-xs text-green-600 dark:text-green-400">Port 3019</div>
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Hepsiburada</div>
+                                    <div class="text-xs text-red-600 dark:text-red-400">Port 3010</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-red-600 transition-colors"></i>
+                        </button>
+
+                        <!-- eBay -->
+                        <button onclick="openMarketplace('ebay')" class="marketplace-quick-btn ebay-btn group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">E</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">eBay</div>
+                                    <div class="text-xs text-green-600 dark:text-green-400">Port 3015</div>
                                 </div>
                             </div>
                             <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-green-600 transition-colors"></i>
                         </button>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <button onclick="openMarketplaceManager()" class="w-full flex items-center justify-center space-x-2 p-2 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors">
-                            <i class="ph ph-gear text-purple-600"></i>
-                            <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Manage All</span>
+
+                        <!-- Cross-Platform -->
+                        <button onclick="openMarketplace('cross-marketplace')" class="marketplace-quick-btn cross-btn group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="flex items-center space-x-2 relative z-10">
+                                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">∞</span>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Cross-Platform</div>
+                                    <div class="text-xs text-purple-600 dark:text-purple-400">Port 3009</div>
+                                </div>
+                            </div>
+                            <i class="ph ph-arrow-square-out absolute top-2 right-2 text-gray-400 group-hover:text-purple-600 transition-colors"></i>
                         </button>
                     </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Right Side - Admin Info & Security Controls -->
-        <div class="flex items-center space-x-4">
-            <!-- 👨‍💼 Super Admin Profile Info -->
-            <div class="admin-profile-container hidden md:flex items-center space-x-3 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 dark:from-indigo-600/30 dark:to-purple-600/30 backdrop-blur-lg border border-indigo-300/30 dark:border-indigo-400/30 rounded-xl px-4 py-2">
-                <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                    <i class="ph ph-user-gear text-white text-sm"></i>
+                    <!-- Quick Actions -->
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between text-xs">
+                            <button onclick="openAllMarketplaces()" class="text-blue-600 hover:text-blue-700 font-medium">Open All</button>
+                            <button onclick="showMarketplaceStatus()" class="text-purple-600 hover:text-purple-700 font-medium">Status Check</button>
+                            <button onclick="refreshMarketplaces()" class="text-green-600 hover:text-green-700 font-medium">Refresh</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="text-left">
-                    <div class="text-sm font-bold text-indigo-700 dark:text-indigo-300">Super Admin</div>
-                    <div class="text-xs text-indigo-600 dark:text-indigo-400">MezBjen | ID: SA001</div>
-                </div>
-                <div class="admin-status-dot w-3 h-3 bg-green-500 rounded-full"></div>
-            </div>
-            
-            <!-- Health Status Indicator -->
-            <div class="relative">
-                <div id="healthIndicator" class="healthy w-3 h-3 rounded-full"></div>
-                <div class="absolute -inset-1 bg-green-400 rounded-full animate-ping opacity-75"></div>
             </div>
 
-            <!-- Language Selector -->
+            <!-- 🎯 YENİ EKLENTİLER VE UYARILAR - UZUN AÇILIR MENÜ -->
             <div class="relative">
-                <button onclick="toggleLanguage()" class="flex items-center space-x-1.5 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-lg px-3 py-1.5 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
-                    <i class="ph ph-globe text-base"></i>
-                    <span id="currentLanguage" class="font-medium text-sm">TR</span>
+                <button onclick="toggleAlertsMenu()" class="flex items-center space-x-1.5 bg-gradient-to-r from-red-500/20 to-orange-500/20 dark:from-red-600/30 dark:to-orange-600/30 backdrop-blur-lg border border-red-300/30 dark:border-red-400/30 rounded-lg px-3 py-1.5 hover:from-red-500/30 hover:to-orange-500/30 transition-all duration-300 transform hover:scale-105">
+                    <i class="ph ph-warning text-base text-red-600 dark:text-red-400"></i>
+                    <span class="font-medium text-sm text-red-700 dark:text-red-300">Uyarılar & Eklentiler</span>
+                    <i class="ph ph-caret-down text-xs text-red-600 dark:text-red-400"></i>
+                </button>
+                <div id="alertsMenu" class="absolute top-full left-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 opacity-0 invisible z-50 transform translate-y-2 transition-all duration-300">
+                    <!-- Tabs for switching between Alerts and Extensions -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex space-x-4">
+                            <button id="alertsTab" onclick="switchAlertsTab('alerts')" class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 font-medium text-sm">
+                                <i class="ph ph-warning"></i>
+                                <span>Uyarılar</span>
+                                <span class="text-xs bg-red-200 dark:bg-red-800 px-2 py-1 rounded-full">12</span>
+                            </button>
+                            <button id="extensionsTab" onclick="switchAlertsTab('extensions')" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 font-medium text-sm">
+                                <i class="ph ph-puzzle-piece"></i>
+                                <span>Eklentiler</span>
+                                <span class="text-xs bg-green-200 dark:bg-green-800 px-2 py-1 rounded-full">8</span>
+                            </button>
+                        </div>
+                        <button onclick="toggleAllAlertsExtensions()" class="text-xs text-blue-600 hover:text-blue-700 font-medium">Tümünü Aç/Kapat</button>
+                    </div>
+
+                    <!-- Alerts Content -->
+                    <div id="alertsContent" class="space-y-3 max-h-96 overflow-y-auto">
+                        <!-- Kod Düzeltici Uyarısı -->
+                        <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="ph ph-bug text-red-600"></i>
+                                <span class="font-medium text-red-700 dark:text-red-300">Kod Düzeltici</span>
+                                <span class="text-xs bg-red-200 dark:bg-red-800 text-red-700 dark:text-red-300 px-2 py-1 rounded">KRITIK</span>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">2100+ hata tespit edildi</p>
+                        </div>
+
+                        <!-- Backup Sistem Uyarısı -->
+                        <div class="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="ph ph-hard-drives text-orange-600"></i>
+                                <span class="font-medium text-orange-700 dark:text-orange-300">Yedekleme Sistemi</span>
+                                <span class="text-xs bg-orange-200 dark:bg-orange-800 text-orange-700 dark:text-orange-300 px-2 py-1 rounded">UYARI</span>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Son yedekleme 3 gün önce</p>
+                        </div>
+
+                        <!-- Log İzleyici -->
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="ph ph-file-text text-blue-600"></i>
+                                <span class="font-medium text-blue-700 dark:text-blue-300">Log İzleyici</span>
+                                <span class="text-xs bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">BİLGİ</span>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Yeni log dosyaları mevcut</p>
+                        </div>
+
+                        <!-- Performans Optimize Edici -->
+                        <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="ph ph-rocket-launch text-yellow-600"></i>
+                                <span class="font-medium text-yellow-700 dark:text-yellow-300">Performans Optimize</span>
+                                <span class="text-xs bg-yellow-200 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-300 px-2 py-1 rounded">ÖNERİ</span>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Optimizasyon önerileri var</p>
+                        </div>
+
+                        <!-- AI Analitik Motoru -->
+                        <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="ph ph-brain text-purple-600"></i>
+                                <span class="font-medium text-purple-700 dark:text-purple-300">AI Analitik</span>
+                                <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">%96.4 doğruluk oranı</p>
+                        </div>
+
+                        <!-- Güvenlik Merkezi -->
+                        <div class="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="ph ph-shield text-indigo-600"></i>
+                                <span class="font-medium text-indigo-700 dark:text-indigo-300">Güvenlik Merkezi</span>
+                                <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">GÜVENLİ</span>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Tüm güvenlik kontrolleri OK</p>
+                        </div>
+                    </div>
+
+                    <!-- Extensions Content -->
+                    <div id="extensionsContent" class="space-y-3 max-h-96 overflow-y-auto hidden">
+                        <!-- Marketplace Manager Eklentisi -->
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-storefront text-blue-600"></i>
+                                    <span class="font-medium text-blue-700 dark:text-blue-300">Marketplace Manager</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('marketplace')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">7 marketplace entegrasyonu yönetimi</p>
+                        </div>
+
+                        <!-- Real-time Analytics Eklentisi -->
+                        <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-chart-line text-purple-600"></i>
+                                    <span class="font-medium text-purple-700 dark:text-purple-300">Real-time Analytics</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('analytics')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Canlı performans ve satış analizi</p>
+                        </div>
+
+                        <!-- Security Monitor Eklentisi -->
+                        <div class="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-shield-check text-indigo-600"></i>
+                                    <span class="font-medium text-indigo-700 dark:text-indigo-300">Security Monitor</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('security')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Güvenlik tehdidi izleme ve korunma</p>
+                        </div>
+
+                        <!-- Automated Backup Eklentisi -->
+                        <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-hard-drives text-green-600"></i>
+                                    <span class="font-medium text-green-700 dark:text-green-300">Automated Backup</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('backup')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Otomatik günlük ve haftalık yedekleme</p>
+                        </div>
+
+                        <!-- AI Assistant Eklentisi -->
+                        <div class="p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg hover:bg-cyan-100 dark:hover:bg-cyan-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-brain text-cyan-600"></i>
+                                    <span class="font-medium text-cyan-700 dark:text-cyan-300">AI Assistant</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-orange-200 dark:bg-orange-800 text-orange-700 dark:text-orange-300 px-2 py-1 rounded">BETA</span>
+                                    <button onclick="toggleExtension('ai')" class="w-8 h-4 bg-orange-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Akıllı öneri ve otomatizasyon sistemi</p>
+                        </div>
+
+                        <!-- Mobile App Connector Eklentisi -->
+                        <div class="p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-device-mobile text-pink-600"></i>
+                                    <span class="font-medium text-pink-700 dark:text-pink-300">Mobile App Connector</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('mobile')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">iOS ve Android app senkronizasyonu</p>
+                        </div>
+
+                        <!-- API Manager Eklentisi -->
+                        <div class="p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-code text-teal-600"></i>
+                                    <span class="font-medium text-teal-700 dark:text-teal-300">API Manager</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 px-2 py-1 rounded">AKTİF</span>
+                                    <button onclick="toggleExtension('api')" class="w-8 h-4 bg-green-500 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">RESTful API yönetimi ve dokümantasyon</p>
+                        </div>
+
+                        <!-- Custom Dashboard Builder Eklentisi -->
+                        <div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="ph ph-layout text-amber-600"></i>
+                                    <span class="font-medium text-amber-700 dark:text-amber-300">Dashboard Builder</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">DEVRE DIŞI</span>
+                                    <button onclick="toggleExtension('dashboard')" class="w-8 h-4 bg-gray-400 rounded-full relative">
+                                        <div class="w-3 h-3 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Özelleştirilebilir dashboard oluşturucu</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between text-xs">
+                            <button onclick="openSystemDiagnostics()" class="text-red-600 hover:text-red-700 font-medium">Sistem Tanılama</button>
+                            <button onclick="runAutoFix()" class="text-blue-600 hover:text-blue-700 font-medium">Otomatik Düzelt</button>
+                            <button onclick="viewAllAlerts()" class="text-purple-600 hover:text-purple-700 font-medium">Eklenti Mağazası</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Theme Selector -->
+            <div class="relative">
+                <button onclick="toggleThemeSelector()" class="flex items-center space-x-1.5 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-lg px-3 py-1.5 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
+                    <i id="themeSelectorIcon" class="ph ph-sun text-base"></i>
+                    <span class="font-medium text-sm" data-tr="Tema" data-en="Theme">Tema</span>
                     <i class="ph ph-caret-down text-xs"></i>
                 </button>
-                <div id="languageMenu" class="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-2 opacity-0 invisible z-50">
-                    <button onclick="setLanguage('tr')" class="flex items-center space-x-3 w-full p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                        <span class="text-lg">🇹🇷</span>
-                        <span class="font-medium">Türkçe</span>
-                    </button>
-                    <button onclick="setLanguage('en')" class="flex items-center space-x-3 w-full p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                        <span class="text-lg">🇺🇸</span>
-                        <span class="font-medium">English</span>
-                    </button>
-                    <button onclick="setLanguage('de')" class="flex items-center space-x-3 w-full p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                        <span class="text-lg">🇩🇪</span>
-                        <span class="font-medium">Deutsch</span>
-                    </button>
-                    <button onclick="setLanguage('fr')" class="flex items-center space-x-3 w-full p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                        <span class="text-lg">🇫🇷</span>
-                        <span class="font-medium">Français</span>
-                    </button>
-                </div>
-            </div>
+                <div id="themeSelector" class="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 opacity-0 invisible z-50">
+                    <h3 class="font-semibold text-gray-800 dark:text-white mb-4" data-tr="Tema Seçin" data-en="Select Theme">Tema Seçin</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Light Theme -->
+                        <button onclick="setTheme('light')" class="theme-option group flex flex-col items-center space-y-2 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 border-2 border-transparent hover:border-blue-200">
+                            <div class="flex items-center space-x-2">
+                                <i class="ph ph-sun text-2xl text-yellow-500"></i>
+                                <div class="w-8 h-8 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg border border-gray-200"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300" data-tr="Aydınlık" data-en="Light">Aydınlık</span>
+                        </button>
 
-            <!-- Theme Toggle -->
-            <button onclick="toggleTheme()" class="theme-toggle">
-                <i id="themeIcon" class="ph ph-moon theme-toggle-icon"></i>
-                <span id="themeText">Dark</span>
-            </button>
+                        <!-- Dark Theme -->
+                        <button onclick="setTheme('dark')" class="theme-option group flex flex-col items-center space-y-2 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 border-2 border-transparent hover:border-gray-400">
+                            <div class="flex items-center space-x-2">
+                                <i class="ph ph-moon text-2xl text-blue-400"></i>
+                                <div class="w-8 h-8 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg border border-gray-600"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300" data-tr="Karanlık" data-en="Dark">Karanlık</span>
+                        </button>
 
-            <!-- Notifications -->
-            <div class="relative">
-                <button onclick="toggleNotifications()" class="flex items-center space-x-1.5 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-lg p-2 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
-                    <i class="ph ph-bell text-base"></i>
-                    <span id="notificationBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">3</span>
-                </button>
-                <div id="notificationMenu" class="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 opacity-0 invisible z-50">
-                    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="font-semibold text-gray-800 dark:text-white">Notifications</h3>
+                        <!-- Neon Theme -->
+                        <button onclick="setTheme('neon')" class="theme-option group flex flex-col items-center space-y-2 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 border-2 border-transparent hover:border-cyan-200">
+                            <div class="flex items-center space-x-2">
+                                <i class="ph ph-lightning text-2xl text-cyan-400"></i>
+                                <div class="w-8 h-8 bg-gradient-to-br from-cyan-400 to-pink-500 rounded-lg shadow-lg"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300" data-tr="Neon" data-en="Neon">Neon</span>
+                        </button>
+
+                        <!-- Nature Theme -->
+                        <button onclick="setTheme('nature')" class="theme-option group flex flex-col items-center space-y-2 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 border-2 border-transparent hover:border-green-200">
+                            <div class="flex items-center space-x-2">
+                                <i class="ph ph-leaf text-2xl text-green-500"></i>
+                                <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-600 rounded-lg"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300" data-tr="Doğa" data-en="Nature">Doğa</span>
+                        </button>
                     </div>
-                    <div class="max-h-64 overflow-y-auto">
-                        <div class="p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <div class="flex items-start space-x-3">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white">System Update Available</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">New features and security improvements</p>
-                                    <span class="text-xs text-gray-400 dark:text-gray-500">2 min ago</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <div class="flex items-start space-x-3">
-                                <div class="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white">Trendyol Sync Completed</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">1,247 products synchronized successfully</p>
-                                    <span class="text-xs text-gray-400 dark:text-gray-500">5 min ago</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <div class="flex items-start space-x-3">
-                                <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white">Performance Alert</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">High API response time detected</p>
-                                    <span class="text-xs text-gray-400 dark:text-gray-500">10 min ago</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-                        <button class="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
-                            View All Notifications
+
+                    <!-- Auto Theme Detection -->
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <button onclick="setTheme('auto')" class="w-full flex items-center justify-center space-x-2 p-3 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
+                            <i class="ph ph-magic-wand text-blue-600"></i>
+                            <span class="text-sm font-medium text-blue-700 dark:text-blue-300" data-tr="Otomatik (Sistem)" data-en="Auto (System)">Otomatik (Sistem)</span>
                         </button>
                     </div>
                 </div>
             </div>
-
-            <!-- 🕐 Session Timer & Admin Info -->
-            <div class="flex items-center space-x-4">
-                <!-- Session Timer -->
-                <div class="flex items-center space-x-2 bg-orange-500/20 dark:bg-orange-400/20 border border-orange-500/30 dark:border-orange-400/30 rounded-lg px-3 py-1 backdrop-blur-sm">
-                    <i class="ph ph-timer text-orange-600 dark:text-orange-400 text-sm"></i>
-                    <span class="text-xs font-mono text-orange-700 dark:text-orange-300" id="sessionTimer">29:47</span>
-                    <span class="text-xs text-orange-600 dark:text-orange-400">min</span>
-                </div>
-
-                <!-- Admin Info -->
-                <div class="flex items-center space-x-3 bg-purple-500/20 dark:bg-purple-400/20 border border-purple-500/30 dark:border-purple-400/30 rounded-lg px-3 py-2 backdrop-blur-sm">
-                    <div class="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
-                        <i class="ph ph-crown text-white text-xs"></i>
-                    </div>
-                    <div class="text-left">
-                        <div class="text-xs font-semibold text-purple-700 dark:text-purple-300">SUPER ADMIN</div>
-                        <div class="text-xs text-purple-600 dark:text-purple-400">MezBjen</div>
-                    </div>
-                </div>
-
-                <!-- 🛡️ Advanced Security Menu Dropdown -->
-                <div class="relative">
-                    <button onclick="toggleSecurityMenu()" class="flex items-center space-x-1.5 bg-gradient-to-r from-red-500/20 to-orange-500/20 dark:from-red-600/30 dark:to-orange-600/30 backdrop-blur-lg border border-red-300/30 dark:border-red-400/30 rounded-lg p-2 hover:from-red-500/30 hover:to-orange-500/30 transition-all duration-300">
-                        <i class="ph ph-shield-warning text-red-600 dark:text-red-400 text-base"></i>
-                        <i class="ph ph-caret-down text-red-600 dark:text-red-400 text-xs"></i>
-                    </button>
-                    <div id="securityMenu" class="absolute top-full right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 opacity-0 invisible z-50">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-bold text-gray-800 dark:text-white flex items-center">
-                                <i class="ph ph-shield-check text-red-600 mr-2"></i>
-                                Security Control Center
-                            </h3>
-                            <div class="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-1 rounded-full">
-                                SECURE
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            <button onclick="viewSecurityLogs()" class="w-full text-left flex items-center space-x-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                                <i class="ph ph-file-text text-blue-500 text-lg"></i>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">Security Logs</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">View system access logs</div>
-                                </div>
-                            </button>
-                            <button onclick="viewAuditTrail()" class="w-full text-left flex items-center space-x-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                                <i class="ph ph-detective text-purple-500 text-lg"></i>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">Audit Trail</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Track all admin actions</div>
-                                </div>
-                            </button>
-                            <button onclick="manageTwoFA()" class="w-full text-left flex items-center space-x-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                                <i class="ph ph-key text-green-500 text-lg"></i>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">2FA Management</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Configure authentication</div>
-                                </div>
-                            </button>
-                            <button onclick="ipBlacklist()" class="w-full text-left flex items-center space-x-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                                <i class="ph ph-prohibit text-yellow-500 text-lg"></i>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">IP Blacklist</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Manage blocked IPs</div>
-                                </div>
-                            </button>
-                            <!-- 🧪 AUTH SYSTEM TEST BUTTONS -->
-                            <button onclick="runAuthTests()" class="w-full text-left flex items-center space-x-3 p-3 hover:bg-green-100 dark:hover:bg-green-900/20 rounded-lg transition-colors">
-                                <i class="ph ph-test-tube text-green-500 text-lg"></i>
-                                <div>
-                                    <div class="text-sm font-medium text-green-600 dark:text-green-400">Auth Tests</div>
-                                    <div class="text-xs text-green-500 dark:text-green-400">Run security test suite</div>
-                                </div>
-                            </button>
-                            <button onclick="runAuthDiagnostics()" class="w-full text-left flex items-center space-x-3 p-3 hover:bg-blue-100 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
-                                <i class="ph ph-stethoscope text-blue-500 text-lg"></i>
-                                <div>
-                                    <div class="text-sm font-medium text-blue-600 dark:text-blue-400">Auth Diagnostics</div>
-                                    <div class="text-xs text-blue-500 dark:text-blue-400">System health check</div>
-                                </div>
-                            </button>
-                            <hr class="border-gray-200 dark:border-gray-700 my-2">
-                            <button onclick="emergencyLock()" class="w-full text-left flex items-center space-x-3 p-3 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                                <i class="ph ph-lock text-red-500 text-lg"></i>
-                                <div>
-                                    <div class="text-sm font-medium text-red-600 dark:text-red-400">Emergency Lock</div>
-                                    <div class="text-xs text-red-500 dark:text-red-400">Lock all systems immediately</div>
-                                </div>
-                            </button>
-                            <hr class="border-gray-200 dark:border-gray-700 my-2">
-                            <button onclick="secureLogout()" class="w-full text-left flex items-center space-x-3 p-3 hover:bg-orange-100 dark:hover:bg-orange-900/20 rounded-lg transition-colors">
-                                <i class="ph ph-sign-out text-orange-500 text-lg"></i>
-                                <div>
-                                    <div class="text-sm font-medium text-orange-600 dark:text-orange-400">Secure Logout</div>
-                                    <div class="text-xs text-orange-500 dark:text-orange-400">End session securely</div>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings -->
-            <div class="relative">
-                <button onclick="toggleSettings()" class="flex items-center space-x-1.5 bg-white/20 dark:bg-gray-700/50 backdrop-blur-lg border border-white/30 dark:border-gray-600/30 rounded-lg p-2 hover:bg-white/30 dark:hover:bg-gray-600/50 transition-all duration-300">
-                    <i class="ph ph-gear text-base"></i>
-                </button>
-                <div id="settingsMenu" class="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 opacity-0 invisible z-50">
-                    <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Settings</h3>
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-300">Auto-sync</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer" checked>
-                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                            </label>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-300">Notifications</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer" checked>
-                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                            </label>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-300">Debug Mode</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer">
-                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-        
+
         <!-- Right Side - System Status and Profile -->
         <div class="flex items-center space-x-3">
             <!-- Dynamic System Health Indicator -->
@@ -617,7 +525,7 @@
                     <i class="ph ph-bell text-base"></i>
                     <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
                 </button>
-                <!-- Notifications Dropdown Menu -->
+                <!-- A+++++ Quality Notifications Dropdown Menu -->
                 <div class="absolute top-full right-0 mt-2 w-96 bg-white/95 dark:bg-gray-800/95 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 opacity-0 invisible transition-all duration-300 z-50 notification-menu backdrop-blur-xl" style="transform: translateY(-10px); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center space-x-3">
@@ -708,3 +616,6 @@
                     <div class="text-xs text-gray-600 dark:text-gray-400">Full Access v5.0</div>
                 </div>
             </div>
+        </div>
+    </div>
+</header>

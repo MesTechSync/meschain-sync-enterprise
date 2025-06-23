@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>MesChain Sync - Trendyol Integration Module</name>
+    <code>meschain_trendyol</code>
+    <version>1.0.0</version>
+    <author>MesChain Development Team</author>
+    <link>https://meschain.com</link>
+    <description>Trendyol marketplace integration for OpenCart with advanced synchronization
+        features</description>
+
+    <!-- Admin Language Files -->
+    <file path="admin/language/tr-tr/extension/extension.php">
+        <operation>
+            <search><![CDATA[$_['text_module']     = 'Modüller';]]></search>
+            <add position="after"><![CDATA[
+$_['text_meschain_trendyol'] = 'MesChain Trendyol';]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/language/en-gb/extension/extension.php">
+        <operation>
+            <search><![CDATA[$_['text_module']     = 'Modules';]]></search>
+            <add position="after"><![CDATA[
+$_['text_meschain_trendyol'] = 'MesChain Trendyol';]]></add>
+        </operation>
+    </file>
+
+    <!-- Admin Controller -->
+    <file path="admin/controller/extension/extension/module.php">
+        <operation>
+            <search><![CDATA[protected function getList() {]]></search>
+            <add position="before"><![CDATA[
+    public function meschain_trendyol() {
+        $this->load->language('extension/module/meschain_trendyol');
+        $this->document->setTitle($this->language->get('heading_title'));
+        $data['breadcrumbs'] = array();
+        $data['breadcrumbs'][] = array(
+            'text' => $this->language->get('text_home'),
+            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
+        );
+        $data['breadcrumbs'][] = array(
+            'text' => $this->language->get('heading_title'),
+            'href' => $this->url->link('extension/module/meschain_trendyol', 'user_token=' . $this->session->data['user_token'], true)
+        );
+        $data['header'] = $this->load->controller('common/header');
+        $data['column_left'] = $this->load->controller('common/column_left');
+        $data['footer'] = $this->load->controller('common/footer');
+        $this->response->setOutput($this->load->view('extension/module/meschain_trendyol', $data));
+    }
+]]></add>
+        </operation>
+    </file>
+
+    <!-- Admin Menu Integration -->
+    <file path="admin/view/template/common/column_left.twig">
+        <operation>
+            <search><![CDATA[<li><a href="{{ extension }}">{{ text_extension }}</a></li>]]></search>
+            <add position="after"><![CDATA[
+                <li><a href="{{ meschain_trendyol }}">{{ text_meschain_trendyol }}</a></li>]]></add>
+        </operation>
+    </file>
+
+    <!-- Database Schema -->
+    <file path="install/opencart.sql">
+        <operation>
+            <search><![CDATA[CREATE TABLE `oc_zone` (]]></search>
+            <add position="before"><![CDATA[
+CREATE TABLE `oc_meschain_trendyol_products` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_id` int(11) NOT NULL,
+  `trendyol_product_id` varchar(255) DEFAULT NULL,
+  `barcode` varchar(255) DEFAULT NULL,
+  `brand_id` int(11) DEFAULT NULL,
+  `category_id` int(11) DEFAULT NULL,
+  `stock_quantity` int(11) DEFAULT 0,
+  `price` decimal(15,4) DEFAULT 0.0000,
+  `sale_price` decimal(15,4) DEFAULT 0.0000,
+  `status` tinyint(1) DEFAULT 1,
+  `sync_status` enum('pending','synced','error') DEFAULT 'pending',
+  `last_sync` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  KEY `trendyol_product_id` (`trendyol_product_id`),
+  KEY `sync_status` (`sync_status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `oc_meschain_trendyol_orders` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_id` int(11) NOT NULL,
+  `trendyol_order_id` varchar(255) NOT NULL,
+  `shipment_package_id` varchar(255) DEFAULT NULL,
+  `order_status` varchar(50) DEFAULT NULL,
+  `cargo_tracking_number` varchar(255) DEFAULT NULL,
+  `sync_status` enum('pending','synced','error') DEFAULT 'pending',
+  `last_sync` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  KEY `trendyol_order_id` (`trendyol_order_id`),
+  KEY `sync_status` (`sync_status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `oc_meschain_trendyol_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `setting_key` varchar(255) NOT NULL,
+  `setting_value` text,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `setting_key` (`setting_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+]]></add>
+        </operation>
+    </file>
+</modification>

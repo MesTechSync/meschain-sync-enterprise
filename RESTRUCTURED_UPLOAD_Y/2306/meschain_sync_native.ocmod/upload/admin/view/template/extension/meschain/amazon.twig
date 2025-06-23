@@ -1,0 +1,249 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-amazon" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fa-solid fa-save"></i>
+        </button>
+        <a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-secondary">
+          <i class="fa-solid fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_warning }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa-solid fa-circle-check"></i> {{ success }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    
+    <div class="card">
+      <div class="card-header">
+        <i class="fab fa-amazon"></i> {{ text_edit }}
+      </div>
+      <div class="card-body">
+        <form id="form-amazon" action="{{ action }}" method="post" data-oc-toggle="ajax">
+          <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" href="#tab-general" data-bs-toggle="tab">{{ tab_general }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab-api" data-bs-toggle="tab">{{ tab_api }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab-products" data-bs-toggle="tab">{{ tab_products }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab-orders" data-bs-toggle="tab">{{ tab_orders }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab-logs" data-bs-toggle="tab">{{ tab_logs }}</a></li>
+          </ul>
+          
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-general">
+              <div class="row mb-3">
+                <label for="input-status" class="col-sm-2 col-form-label">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <div class="form-check form-switch form-switch-lg">
+                    <input type="hidden" name="meschain_amazon_status" value="0"/>
+                    <input type="checkbox" name="meschain_amazon_status" value="1" id="input-status" class="form-check-input"{% if meschain_amazon_status %} checked{% endif %}/>
+                  </div>
+                  <div class="form-text">{{ help_status }}</div>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <label for="input-debug" class="col-sm-2 col-form-label">{{ entry_debug }}</label>
+                <div class="col-sm-10">
+                  <div class="form-check form-switch form-switch-lg">
+                    <input type="hidden" name="meschain_amazon_debug" value="0"/>
+                    <input type="checkbox" name="meschain_amazon_debug" value="1" id="input-debug" class="form-check-input"{% if meschain_amazon_debug %} checked{% endif %}/>
+                  </div>
+                  <div class="form-text">{{ help_debug }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="tab-pane fade" id="tab-api">
+              <div class="row mb-3">
+                <label for="input-access-key" class="col-sm-2 col-form-label">{{ entry_access_key }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="meschain_amazon_access_key" value="{{ meschain_amazon_access_key }}" placeholder="{{ entry_access_key }}" id="input-access-key" class="form-control"/>
+                  <div class="form-text">{{ help_access_key }}</div>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <label for="input-secret-key" class="col-sm-2 col-form-label">{{ entry_secret_key }}</label>
+                <div class="col-sm-10">
+                  <input type="password" name="meschain_amazon_secret_key" value="{{ meschain_amazon_secret_key }}" placeholder="{{ entry_secret_key }}" id="input-secret-key" class="form-control"/>
+                  <div class="form-text">{{ help_secret_key }}</div>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <label for="input-seller-id" class="col-sm-2 col-form-label">{{ entry_seller_id }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="meschain_amazon_seller_id" value="{{ meschain_amazon_seller_id }}" placeholder="{{ entry_seller_id }}" id="input-seller-id" class="form-control"/>
+                  <div class="form-text">{{ help_seller_id }}</div>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <label for="input-marketplace-id" class="col-sm-2 col-form-label">{{ entry_marketplace_id }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="meschain_amazon_marketplace_id" value="{{ meschain_amazon_marketplace_id }}" placeholder="{{ entry_marketplace_id }}" id="input-marketplace-id" class="form-control"/>
+                  <div class="form-text">{{ help_marketplace_id }}</div>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <label for="input-region" class="col-sm-2 col-form-label">{{ entry_region }}</label>
+                <div class="col-sm-10">
+                  <select name="meschain_amazon_region" id="input-region" class="form-select">
+                    {% for region in amazon_regions %}
+                    <option value="{{ region.value }}"{% if region.value == meschain_amazon_region %} selected{% endif %}>{{ region.text }}</option>
+                    {% endfor %}
+                  </select>
+                  <div class="form-text">{{ help_region }}</div>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <label class="col-sm-2 col-form-label">{{ entry_test_connection }}</label>
+                <div class="col-sm-10">
+                  <button type="button" id="button-test-connection" class="btn btn-info">
+                    <i class="fab fa-amazon"></i> {{ button_test_connection }}
+                  </button>
+                  <div id="test-result" class="mt-2"></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="tab-pane fade" id="tab-products">
+              <div class="row mb-3">
+                <label for="input-auto-sync" class="col-sm-2 col-form-label">{{ entry_auto_sync }}</label>
+                <div class="col-sm-10">
+                  <div class="form-check form-switch form-switch-lg">
+                    <input type="hidden" name="meschain_amazon_auto_sync" value="0"/>
+                    <input type="checkbox" name="meschain_amazon_auto_sync" value="1" id="input-auto-sync" class="form-check-input"{% if meschain_amazon_auto_sync %} checked{% endif %}/>
+                  </div>
+                  <div class="form-text">{{ help_auto_sync }}</div>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <label for="input-sync-interval" class="col-sm-2 col-form-label">{{ entry_sync_interval }}</label>
+                <div class="col-sm-10">
+                  <select name="meschain_amazon_sync_interval" id="input-sync-interval" class="form-select">
+                    {% for interval in sync_intervals %}
+                    <option value="{{ interval.value }}"{% if interval.value == meschain_amazon_sync_interval %} selected{% endif %}>{{ interval.text }}</option>
+                    {% endfor %}
+                  </select>
+                  <div class="form-text">{{ help_sync_interval }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="tab-pane fade" id="tab-orders">
+              <div class="row mb-3">
+                <label for="input-order-status" class="col-sm-2 col-form-label">{{ entry_order_status }}</label>
+                <div class="col-sm-10">
+                  <select name="meschain_amazon_order_status" id="input-order-status" class="form-select">
+                    {% for order_status in order_statuses %}
+                    <option value="{{ order_status.order_status_id }}"{% if order_status.order_status_id == meschain_amazon_order_status %} selected{% endif %}>{{ order_status.name }}</option>
+                    {% endfor %}
+                  </select>
+                  <div class="form-text">{{ help_order_status }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="tab-pane fade" id="tab-logs">
+              <div class="row mb-3">
+                <label for="input-log-level" class="col-sm-2 col-form-label">{{ entry_log_level }}</label>
+                <div class="col-sm-10">
+                  <select name="meschain_amazon_log_level" id="input-log-level" class="form-select">
+                    {% for log_level in log_levels %}
+                    <option value="{{ log_level.value }}"{% if log_level.value == meschain_amazon_log_level %} selected{% endif %}>{{ log_level.text }}</option>
+                    {% endfor %}
+                  </select>
+                  <div class="form-text">{{ help_log_level }}</div>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <label class="col-sm-2 col-form-label">{{ entry_clear_logs }}</label>
+                <div class="col-sm-10">
+                  <button type="button" id="button-clear-logs" class="btn btn-warning">
+                    <i class="fa-solid fa-trash"></i> {{ button_clear_logs }}
+                  </button>
+                  <div class="form-text">{{ help_clear_logs }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$('#button-test-connection').on('click', function() {
+    var button = $(this);
+    var original = button.html();
+    
+    button.html('<i class="fa-solid fa-spinner fa-spin"></i> {{ text_testing }}');
+    button.prop('disabled', true);
+    
+    $.ajax({
+        url: 'index.php?route=extension/meschain/amazon.testConnection&user_token={{ user_token }}',
+        type: 'post',
+        data: {
+            'access_key': $('input[name="meschain_amazon_access_key"]').val(),
+            'secret_key': $('input[name="meschain_amazon_secret_key"]').val(),
+            'seller_id': $('input[name="meschain_amazon_seller_id"]').val(),
+            'marketplace_id': $('input[name="meschain_amazon_marketplace_id"]').val(),
+            'region': $('select[name="meschain_amazon_region"]').val()
+        },
+        dataType: 'json',
+        success: function(json) {
+            if (json['success']) {
+                $('#test-result').html('<div class="alert alert-success"><i class="fa-solid fa-check-circle"></i> ' + json['success'] + '</div>');
+            } else if (json['error']) {
+                $('#test-result').html('<div class="alert alert-danger"><i class="fa-solid fa-exclamation-triangle"></i> ' + json['error'] + '</div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            $('#test-result').html('<div class="alert alert-danger"><i class="fa-solid fa-exclamation-triangle"></i> {{ error_connection }}</div>');
+        },
+        complete: function() {
+            button.html(original);
+            button.prop('disabled', false);
+        }
+    });
+});
+
+$('#button-clear-logs').on('click', function() {
+    if (confirm('{{ text_confirm_clear_logs }}')) {
+        $.ajax({
+            url: 'index.php?route=extension/meschain/amazon.clearLogs&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                if (json['success']) {
+                    $('#content').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                }
+            }
+        });
+    }
+});
+</script>
+
+{{ footer }}

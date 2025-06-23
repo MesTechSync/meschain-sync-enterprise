@@ -1,0 +1,261 @@
+{{ header }}{{ column_left }}
+
+<div id="content">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="float-end">
+				<a href="{{ sync_products }}" class="btn btn-primary" data-bs-toggle="tooltip" title="Ürünleri Senkronize Et">
+					<i class="fa-solid fa-sync"></i>
+					Senkronize Et
+				</a>
+				<a href="{{ settings }}" class="btn btn-light" data-bs-toggle="tooltip" title="Ayarlar">
+					<i class="fa-solid fa-cog"></i>
+				</a>
+			</div>
+			<h1>{{ heading_title }}</h1>
+			<ol class="breadcrumb">
+				{% for breadcrumb in breadcrumbs %}
+					<li class="breadcrumb-item">
+						<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+					</li>
+				{% endfor %}
+			</ol>
+		</div>
+	</div>
+
+	<div
+		class="container-fluid">
+		<!-- Statistics Cards -->
+		<div class="row mb-4">
+			<div class="col-md-3">
+				<div class="card text-white bg-primary">
+					<div class="card-body">
+						<h5 class="card-title">Toplam Ürün</h5>
+						<h2>{{ total_products }}</h2>
+						<small>OpenCart'ta kayıtlı</small>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card text-white bg-success">
+					<div class="card-body">
+						<h5 class="card-title">Senkronize Ürün</h5>
+						<h2>{{ synced_products }}</h2>
+						<small>Hepsiburada ile eşleşmiş</small>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card text-white bg-warning">
+					<div class="card-body">
+						<h5 class="card-title">Bekleyen Sipariş</h5>
+						<h2>{{ pending_orders }}</h2>
+						<small>İşlem bekliyor</small>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card text-white bg-info">
+					<div class="card-body">
+						<h5 class="card-title">Toplam Gelir</h5>
+						<h2>₺{{ total_revenue|number_format(2, ',', '.') }}</h2>
+						<small>Bu ay</small>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Quick Actions -->
+		<div class="card mb-4">
+			<div class="card-header">
+				<h3 class="card-title">
+					<i class="fa-solid fa-bolt"></i>
+					Hızlı İşlemler</h3>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-md-3">
+						<a href="{{ sync_products }}" class="btn btn-primary btn-block mb-2">
+							<i class="fa-solid fa-sync"></i>
+							Ürünleri Senkronize Et
+						</a>
+					</div>
+					<div class="col-md-3">
+						<a href="{{ orders }}" class="btn btn-success btn-block mb-2">
+							<i class="fa-solid fa-shopping-cart"></i>
+							Siparişleri Yönet
+						</a>
+					</div>
+					<div class="col-md-3">
+						<a href="{{ analytics }}" class="btn btn-info btn-block mb-2">
+							<i class="fa-solid fa-chart-line"></i>
+							Analitik Raporu
+						</a>
+					</div>
+					<div class="col-md-3">
+						<a href="{{ settings }}" class="btn btn-warning btn-block mb-2">
+							<i class="fa-solid fa-cog"></i>
+							Ayarları Düzenle
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Recent Activities -->
+		<div class="row">
+			<div class="col-md-8">
+				<div class="card">
+					<div class="card-header">
+						<h3 class="card-title">
+							<i class="fa-solid fa-clock"></i>
+							Son Aktiviteler</h3>
+					</div>
+					<div class="card-body">
+						<div class="table-responsive">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>Tarih</th>
+										<th>İşlem</th>
+										<th>Durum</th>
+										<th>Detay</th>
+									</tr>
+								</thead>
+								<tbody id="activity-log">
+									<tr>
+										<td colspan="4" class="text-center">Yükleniyor...</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="card">
+					<div class="card-header">
+						<h3 class="card-title">
+							<i class="fa-solid fa-info-circle"></i>
+							Sistem Durumu</h3>
+					</div>
+					<div class="card-body">
+						<ul class="list-group">
+							<li class="list-group-item d-flex justify-content-between align-items-center">
+								API Bağlantısı
+								<span class="badge bg-success" id="api-status">Aktif</span>
+							</li>
+							<li class="list-group-item d-flex justify-content-between align-items-center">
+								Son Senkronizasyon
+								<span class="badge bg-secondary" id="last-sync">-</span>
+							</li>
+							<li class="list-group-item d-flex justify-content-between align-items-center">
+								Webhook Durumu
+								<span class="badge bg-warning" id="webhook-status">Pasif</span>
+							</li>
+							<li class="list-group-item d-flex justify-content-between align-items-center">
+								API Limiti
+								<span class="badge bg-info" id="api-limit">1000/1000</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function () { // Load activity log
+loadActivityLog();
+
+// Load system status
+loadSystemStatus();
+
+// Auto refresh every 30 seconds
+setInterval(function () {
+loadActivityLog();
+loadSystemStatus();
+}, 30000);
+
+// Sync products button
+$('a[href*="syncProducts"]').click(function (e) {
+e.preventDefault();
+if (confirm('Ürünleri senkronize etmek istediğinize emin misiniz?')) {
+syncProducts();
+}
+});
+});
+
+function loadActivityLog() {
+$.ajax({
+url: 'index.php?route=extension/module/meschain_hepsiburada/getActivityLog&user_token=' + getURLVar('user_token'),
+dataType: 'json',
+success: function (json) {
+var html = '';
+if (json.activities && json.activities.length > 0) {
+$.each(json.activities, function (i, activity) {
+html += '<tr>';
+html += '<td>' + activity.date + '</td>';
+html += '<td>' + activity.action + '</td>';
+html += '<td><span class="badge bg-' + activity.status_class + '">' + activity.status + '</span></td>';
+html += '<td>' + activity.detail + '</td>';
+html += '</tr>';
+});
+} else {
+html = '<tr><td colspan="4" class="text-center">Aktivite bulunamadı</td></tr>';
+}
+$('#activity-log').html(html);
+}
+});
+}
+
+function loadSystemStatus() {
+$.ajax({
+url: 'index.php?route=extension/module/meschain_hepsiburada/getSystemStatus&user_token=' + getURLVar('user_token'),
+dataType: 'json',
+success: function (json) {
+if (json.api_status) {
+$('#api-status').removeClass().addClass('badge bg-' + json.api_status.class).text(json.api_status.text);
+}
+if (json.last_sync) {
+$('#last-sync').text(json.last_sync);
+}
+if (json.webhook_status) {
+$('#webhook-status').removeClass().addClass('badge bg-' + json.webhook_status.class).text(json.webhook_status.text);
+}
+if (json.api_limit) {
+$('#api-limit').text(json.api_limit);
+}
+}
+});
+}
+
+function syncProducts() {
+$.ajax({
+url: '{{ sync_products }}',
+type: 'POST',
+dataType: 'json',
+beforeSend: function () {
+$('a[href*="syncProducts"]').prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Senkronize ediliyor...');
+},
+success: function (json) {
+if (json.success) {
+alert(json.message);
+location.reload();
+} else if (json.error) {
+alert('Hata: ' + json.error);
+}
+},
+error: function (xhr, ajaxOptions, thrownError) {
+alert('AJAX Hatası: ' + thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+},
+complete: function () {
+$('a[href*="syncProducts"]').prop('disabled', false).html('<i class="fa-solid fa-sync"></i> Senkronize Et');
+}
+});
+}
+</script>
+
+{{ footer }}

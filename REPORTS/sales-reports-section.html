@@ -1,0 +1,209 @@
+<!-- Satış Raporları - Port 3018 -->
+<section id="satış-raporları" class="meschain-section hidden">
+    <div class="mb-4 md:mb-6 lg:mb-8">
+        <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3 lg:mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <i class="ph ph-currency-dollar mr-2"></i> Satış Raporları
+        </h2>
+        <p class="text-xl text-gray-600 dark:text-gray-300">Detaylı satış analizi ve raporlama (Port: 3018)</p>
+    </div>
+
+    <!-- Sales Overview Dashboard -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6 lg:mb-8">
+        <div class="meschain-metric-card fade-in-up">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-shopping-cart-simple text-white text-xl"></i>
+                </div>
+                <span class="trend-badge positive">
+                    <i class="ph ph-trend-up"></i> 12%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">₺428,560</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Aylık Toplam Satış</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.1s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-tag text-white text-xl"></i>
+                </div>
+                <span class="trend-badge positive">
+                    <i class="ph ph-trend-up"></i> 8%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">₺86.42</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Ortalama Sepet Tutarı</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.2s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-shopping-bag text-white text-xl"></i>
+                </div>
+                <span class="trend-badge positive">
+                    <i class="ph ph-trend-up"></i> 15%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">5,247</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Toplam Sipariş</p>
+        </div>
+
+        <div class="meschain-metric-card fade-in-up" style="animation-delay: 0.3s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center">
+                    <i class="ph ph-arrow-bend-down-right text-white text-xl"></i>
+                </div>
+                <span class="trend-badge negative">
+                    <i class="ph ph-trend-down"></i> 3%
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">2.4%</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">İade Oranı</p>
+        </div>
+    </div>
+
+    <!-- Sales Analysis Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Aylık Satış Trendi</h3>
+                <div class="flex space-x-2">
+                    <select class="form-select-sm">
+                        <option value="30">Son 30 Gün</option>
+                        <option value="90">Son 3 Ay</option>
+                        <option value="365">Son 1 Yıl</option>
+                    </select>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="monthlySalesChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+        
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Satış Kanalları</h3>
+                <div class="flex space-x-2">
+                    <select class="form-select-sm">
+                        <option value="30">Son 30 Gün</option>
+                        <option value="90">Son 3 Ay</option>
+                        <option value="365">Son 1 Yıl</option>
+                    </select>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="salesChannelsChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products & Categories -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">En Çok Satan Ürünler</h3>
+                <button class="btn-secondary-sm">
+                    <i class="ph ph-file-csv mr-2"></i>
+                    Dışa Aktar
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Ürün</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Satış Adedi</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Toplam Tutar</th>
+                            <th class="py-3 px-4 bg-gray-100 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200">Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Turkish Coffee Set</td>
+                            <td class="py-3 px-4">543</td>
+                            <td class="py-3 px-4">₺48,870</td>
+                            <td class="py-3 px-4"><span class="trend-indicator positive"><i class="ph ph-trend-up"></i> 18%</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Evil Eye Bracelet</td>
+                            <td class="py-3 px-4">487</td>
+                            <td class="py-3 px-4">₺29,220</td>
+                            <td class="py-3 px-4"><span class="trend-indicator positive"><i class="ph ph-trend-up"></i> 12%</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Handmade Ceramic Bowl</td>
+                            <td class="py-3 px-4">412</td>
+                            <td class="py-3 px-4">₺32,960</td>
+                            <td class="py-3 px-4"><span class="trend-indicator positive"><i class="ph ph-trend-up"></i> 5%</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Turkish Delight Box</td>
+                            <td class="py-3 px-4">387</td>
+                            <td class="py-3 px-4">₺23,220</td>
+                            <td class="py-3 px-4"><span class="trend-indicator negative"><i class="ph ph-trend-down"></i> 3%</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4">Organic Olive Oil</td>
+                            <td class="py-3 px-4">356</td>
+                            <td class="py-3 px-4">₺31,324</td>
+                            <td class="py-3 px-4"><span class="trend-indicator positive"><i class="ph ph-trend-up"></i> 7%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="meschain-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Kategori Analizi</h3>
+                <button class="btn-secondary-sm">
+                    <i class="ph ph-file-csv mr-2"></i>
+                    Dışa Aktar
+                </button>
+            </div>
+            <div class="h-80">
+                <canvas id="categorySalesChart" width="400" height="320"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sales Reports Tools -->
+    <div class="meschain-card mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Satış Raporu Oluştur</h3>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="form-group">
+                <label for="report-type" class="form-label">Rapor Türü</label>
+                <select id="report-type" class="form-select">
+                    <option value="daily">Günlük Satış</option>
+                    <option value="weekly">Haftalık Satış</option>
+                    <option value="monthly">Aylık Satış</option>
+                    <option value="channel">Kanal Bazlı</option>
+                    <option value="product">Ürün Bazlı</option>
+                    <option value="category">Kategori Bazlı</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="report-date-start" class="form-label">Başlangıç Tarihi</label>
+                <input type="date" id="report-date-start" class="form-input" value="2025-05-17">
+            </div>
+            <div class="form-group">
+                <label for="report-date-end" class="form-label">Bitiş Tarihi</label>
+                <input type="date" id="report-date-end" class="form-input" value="2025-06-16">
+            </div>
+        </div>
+        
+        <div class="flex justify-end">
+            <button class="btn-secondary mr-2">
+                <i class="ph ph-eye mr-2"></i>
+                Önizleme
+            </button>
+            <button class="btn-primary">
+                <i class="ph ph-download mr-2"></i>
+                Raporu İndir
+            </button>
+        </div>
+    </div>
+</section>

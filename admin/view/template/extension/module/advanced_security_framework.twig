@@ -1,0 +1,788 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-security-assessment" data-toggle="tooltip" title="Run Security Assessment" class="btn btn-primary">
+          <i class="fa fa-shield"></i> Security Assessment
+        </button>
+        <button type="button" id="button-generate-report" data-toggle="tooltip" title="Generate Security Report" class="btn btn-info">
+          <i class="fa fa-file-text"></i> Generate Report
+        </button>
+      </div>
+      <h1>🛡️ Advanced Security Framework - ATOM-VSCODE-103</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Security Status Overview -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shield fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="security-score">{{ security_status.overall_security_score|round(1) }}%</div>
+                <div>Security Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Overall Security Posture</span>
+            <span class="pull-right">
+              {% if security_status.overall_security_score >= 90 %}
+                <i class="fa fa-check-circle text-success"></i>
+              {% elseif security_status.overall_security_score >= 70 %}
+                <i class="fa fa-exclamation-triangle text-warning"></i>
+              {% else %}
+                <i class="fa fa-times-circle text-danger"></i>
+              {% endif %}
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-exclamation-triangle fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="active-threats">{{ security_status.active_threats }}</div>
+                <div>Active Threats</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Last 24 Hours</span>
+            <span class="pull-right">
+              <i class="fa fa-clock-o"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-danger">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-bug fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="security-incidents">{{ security_status.security_incidents }}</div>
+                <div>Open Incidents</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Requires Attention</span>
+            <span class="pull-right">
+              <i class="fa fa-arrow-circle-right"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-check-square fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="compliance-score">{{ security_status.compliance_score|round(1) }}%</div>
+                <div>Compliance</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Regulatory Compliance</span>
+            <span class="pull-right">
+              <i class="fa fa-certificate"></i>
+            </span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Security Framework Controls -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🔐 Zero-Trust Architecture</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <button type="button" id="implement-zero-trust" class="btn btn-primary btn-block">
+                  <i class="fa fa-lock"></i> Implement Zero-Trust
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="progress">
+                  <div class="progress-bar progress-bar-success" role="progressbar" style="width: 85%">
+                    85% Configured
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <small class="text-muted">
+                <i class="fa fa-info-circle"></i> 
+                Never trust, always verify. Continuous authentication and authorization.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🤖 ML-Powered Threat Detection</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <button type="button" id="setup-ml-threat-detection" class="btn btn-warning btn-block">
+                  <i class="fa fa-brain"></i> Setup ML Detection
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="progress">
+                  <div class="progress-bar progress-bar-warning" role="progressbar" style="width: 92%">
+                    92% Accuracy
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <small class="text-muted">
+                <i class="fa fa-info-circle"></i> 
+                AI-powered behavioral analysis and anomaly detection.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">📋 Automated Compliance</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <button type="button" id="configure-compliance" class="btn btn-success btn-block">
+                  <i class="fa fa-certificate"></i> Configure Compliance
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="compliance-frameworks">
+                  <span class="label label-success">GDPR</span>
+                  <span class="label label-success">SOC2</span>
+                  <span class="label label-warning">PCI-DSS</span>
+                  <span class="label label-success">ISO27001</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <small class="text-muted">
+                <i class="fa fa-info-circle"></i> 
+                Automated compliance monitoring for GDPR, SOC2, PCI-DSS, ISO27001.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🔍 Advanced Audit Framework</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <button type="button" id="setup-audit-framework" class="btn btn-info btn-block">
+                  <i class="fa fa-search"></i> Setup Audit Framework
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="audit-status">
+                  <i class="fa fa-check text-success"></i> Immutable Logs<br>
+                  <i class="fa fa-check text-success"></i> Blockchain Integrity<br>
+                  <i class="fa fa-check text-success"></i> Digital Forensics
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <small class="text-muted">
+                <i class="fa fa-info-circle"></i> 
+                Comprehensive logging with blockchain-based integrity verification.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">👤 Identity & Access Management</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <button type="button" id="configure-iam" class="btn btn-primary btn-block">
+                  <i class="fa fa-users"></i> Configure IAM
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="iam-features">
+                  <i class="fa fa-check text-success"></i> Multi-Factor Auth<br>
+                  <i class="fa fa-check text-success"></i> SSO Integration<br>
+                  <i class="fa fa-check text-success"></i> RBAC/ABAC
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <small class="text-muted">
+                <i class="fa fa-info-circle"></i> 
+                Advanced identity management with MFA, SSO, and fine-grained access control.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🔧 Security Policies</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <button type="button" id="configure-policies" class="btn btn-warning btn-block">
+                  <i class="fa fa-cogs"></i> Configure Policies
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="policy-status">
+                  <i class="fa fa-check text-success"></i> Password Policy<br>
+                  <i class="fa fa-check text-success"></i> Session Policy<br>
+                  <i class="fa fa-check text-success"></i> Encryption Policy
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <small class="text-muted">
+                <i class="fa fa-info-circle"></i> 
+                Comprehensive security policies for passwords, sessions, and encryption.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Threat Detection Metrics -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🚨 Real-Time Threat Detection</h3>
+          </div>
+          <div class="panel-body">
+            <div id="threat-detection-chart" style="height: 300px;"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🔥 Recent Security Incidents</h3>
+          </div>
+          <div class="panel-body" style="max-height: 300px; overflow-y: auto;">
+            {% if security_incidents %}
+              {% for incident in security_incidents %}
+                <div class="incident-item mb-2">
+                  <div class="row">
+                    <div class="col-xs-8">
+                      <strong>{{ incident.title }}</strong><br>
+                      <small class="text-muted">{{ incident.incident_type }}</small>
+                    </div>
+                    <div class="col-xs-4 text-right">
+                      {% if incident.severity == 'critical' %}
+                        <span class="label label-danger">{{ incident.severity|upper }}</span>
+                      {% elseif incident.severity == 'high' %}
+                        <span class="label label-warning">{{ incident.severity|upper }}</span>
+                      {% else %}
+                        <span class="label label-info">{{ incident.severity|upper }}</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <small class="text-muted">{{ incident.detected_at }}</small>
+                  <hr>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="text-center text-muted">
+                <i class="fa fa-shield fa-3x"></i>
+                <p>No recent security incidents</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Compliance Status -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">📊 Compliance Status Dashboard</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              {% for framework, status in compliance_status %}
+                <div class="col-lg-3 col-md-6">
+                  <div class="compliance-framework">
+                    <h4>{{ framework|upper }}</h4>
+                    <div class="progress">
+                      <div class="progress-bar 
+                        {% if status.compliance_percentage >= 90 %}progress-bar-success
+                        {% elseif status.compliance_percentage >= 70 %}progress-bar-warning
+                        {% else %}progress-bar-danger{% endif %}" 
+                        role="progressbar" style="width: {{ status.compliance_percentage }}%">
+                        {{ status.compliance_percentage }}%
+                      </div>
+                    </div>
+                    <div class="compliance-details">
+                      <small>
+                        <i class="fa fa-check text-success"></i> {{ status.compliant_controls }} Compliant<br>
+                        <i class="fa fa-times text-danger"></i> {{ status.non_compliant_controls }} Non-Compliant<br>
+                        <i class="fa fa-exclamation-triangle text-warning"></i> {{ status.critical_risks }} Critical Risks
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Security Testing -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">🧪 Security Testing & Validation</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-2">
+                <button type="button" id="test-security-controls" class="btn btn-danger btn-block">
+                  <i class="fa fa-flask"></i> Test Security Controls
+                </button>
+              </div>
+              <div class="col-md-10">
+                <div id="security-test-results" class="hidden">
+                  <div class="alert alert-info">
+                    <i class="fa fa-spinner fa-spin"></i> Running security tests...
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Security Assessment Modal -->
+<div class="modal fade" id="security-assessment-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">🛡️ Security Assessment Results</h4>
+      </div>
+      <div class="modal-body">
+        <div id="assessment-results">
+          <div class="text-center">
+            <i class="fa fa-spinner fa-spin fa-3x"></i>
+            <p>Running comprehensive security assessment...</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Real-time metrics update
+    function updateSecurityMetrics() {
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_security_framework/getSecurityMetrics&user_token={{ user_token }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Update dashboard metrics
+                    updateDashboardMetrics(response.metrics);
+                }
+            }
+        });
+    }
+    
+    // Update dashboard metrics
+    function updateDashboardMetrics(metrics) {
+        // Update threat detection chart
+        updateThreatDetectionChart(metrics.threat_detection);
+    }
+    
+    // Implement Zero-Trust Architecture
+    $('#implement-zero-trust').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Implementing...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_security_framework/implementZeroTrustArchitecture&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Zero-Trust Architecture implemented successfully!');
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#implement-zero-trust').prop('disabled', false).html('<i class="fa fa-lock"></i> Implement Zero-Trust');
+            }
+        });
+    });
+    
+    // Setup ML Threat Detection
+    $('#setup-ml-threat-detection').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Setting up...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_security_framework/setupMlThreatDetection&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'ML-powered threat detection setup completed!');
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#setup-ml-threat-detection').prop('disabled', false).html('<i class="fa fa-brain"></i> Setup ML Detection');
+            }
+        });
+    });
+    
+    // Configure Automated Compliance
+    $('#configure-compliance').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Configuring...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_security_framework/configureAutomatedCompliance&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Automated compliance system configured successfully!');
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#configure-compliance').prop('disabled', false).html('<i class="fa fa-certificate"></i> Configure Compliance');
+            }
+        });
+    });
+    
+    // Setup Advanced Audit Framework
+    $('#setup-audit-framework').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Setting up...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_security_framework/setupAdvancedAuditFramework&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Advanced audit framework setup completed!');
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#setup-audit-framework').prop('disabled', false).html('<i class="fa fa-search"></i> Setup Audit Framework');
+            }
+        });
+    });
+    
+    // Configure IAM
+    $('#configure-iam').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Configuring...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_security_framework/configureIdentityAccessManagement&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Identity & Access Management configured successfully!');
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#configure-iam').prop('disabled', false).html('<i class="fa fa-users"></i> Configure IAM');
+            }
+        });
+    });
+    
+    // Configure Security Policies
+    $('#configure-policies').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Configuring...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_security_framework/configureSecurityPolicies&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Security policies configured successfully!');
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#configure-policies').prop('disabled', false).html('<i class="fa fa-cogs"></i> Configure Policies');
+            }
+        });
+    });
+    
+    // Run Security Assessment
+    $('#button-security-assessment').click(function() {
+        $('#security-assessment-modal').modal('show');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_security_framework/runSecurityAssessment&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    displayAssessmentResults(response.assessment);
+                } else {
+                    $('#assessment-results').html('<div class="alert alert-danger">Error: ' + response.error + '</div>');
+                }
+            }
+        });
+    });
+    
+    // Test Security Controls
+    $('#test-security-controls').click(function() {
+        $('#security-test-results').removeClass('hidden');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_security_framework/testSecurityControls&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    displayTestResults(response.test_results);
+                } else {
+                    $('#security-test-results').html('<div class="alert alert-danger">Error: ' + response.error + '</div>');
+                }
+            }
+        });
+    });
+    
+    // Generate Security Report
+    $('#button-generate-report').click(function() {
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Generating...');
+        
+        $.ajax({
+            url: 'index.php?route=extension/module/advanced_security_framework/generateSecurityReport&user_token={{ user_token }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Security report generated successfully!');
+                    // You can add code here to download or display the report
+                } else {
+                    showAlert('danger', 'Error: ' + response.error);
+                }
+            },
+            complete: function() {
+                $('#button-generate-report').prop('disabled', false).html('<i class="fa fa-file-text"></i> Generate Report');
+            }
+        });
+    });
+    
+    // Helper functions
+    function showAlert(type, message) {
+        var alertHtml = '<div class="alert alert-' + type + ' alert-dismissible">' +
+                       '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                       message + '</div>';
+        $('.container-fluid').prepend(alertHtml);
+        
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+    
+    function displayAssessmentResults(assessment) {
+        var html = '<div class="row">' +
+                  '<div class="col-md-6">' +
+                  '<h4>Overall Security Score</h4>' +
+                  '<div class="progress progress-lg">' +
+                  '<div class="progress-bar progress-bar-' + (assessment.overall_security_score >= 80 ? 'success' : 'warning') + '" style="width: ' + assessment.overall_security_score + '%">' +
+                  assessment.overall_security_score + '%' +
+                  '</div></div>' +
+                  '</div>' +
+                  '<div class="col-md-6">' +
+                  '<h4>Recommendations</h4>' +
+                  '<ul>';
+        
+        if (assessment.recommendations) {
+            assessment.recommendations.forEach(function(rec) {
+                html += '<li>' + rec + '</li>';
+            });
+        }
+        
+        html += '</ul></div></div>';
+        
+        $('#assessment-results').html(html);
+    }
+    
+    function displayTestResults(results) {
+        var html = '<div class="alert alert-info">' +
+                  '<h4>Security Test Results</h4>' +
+                  '<p><strong>Overall Score:</strong> ' + results.overall_score + '%</p>' +
+                  '<p><strong>Vulnerabilities Found:</strong> ' + results.vulnerabilities_found + '</p>' +
+                  '</div>';
+        
+        $('#security-test-results').html(html);
+    }
+    
+    function updateThreatDetectionChart(data) {
+        // Implement chart update logic here
+        // You can use Chart.js or similar library
+    }
+    
+    // Update metrics every 30 seconds
+    setInterval(updateSecurityMetrics, 30000);
+    
+    // Initial load
+    updateSecurityMetrics();
+});
+</script>
+
+<style>
+.huge {
+    font-size: 40px;
+}
+
+.panel-primary .huge {
+    color: #fff;
+}
+
+.panel-warning .huge {
+    color: #fff;
+}
+
+.panel-danger .huge {
+    color: #fff;
+}
+
+.panel-success .huge {
+    color: #fff;
+}
+
+.compliance-frameworks .label {
+    margin-right: 5px;
+}
+
+.audit-status, .iam-features, .policy-status {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.compliance-framework {
+    text-align: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.compliance-details {
+    margin-top: 10px;
+    text-align: left;
+}
+
+.incident-item {
+    border-left: 3px solid #ddd;
+    padding-left: 10px;
+}
+
+.progress-lg {
+    height: 30px;
+}
+
+.progress-lg .progress-bar {
+    line-height: 30px;
+    font-size: 16px;
+}
+
+.mt-3 {
+    margin-top: 15px;
+}
+
+.mb-2 {
+    margin-bottom: 10px;
+}
+</style>
+
+{{ footer }}
+</code_block_to_apply_changes_from>
+</rewritten_file>

@@ -1,0 +1,511 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="button" id="test-webhook-btn" class="btn btn-info" onclick="testPazaramaWebhook()">
+          <i class="fa fa-flask"></i> {{ button_test_webhook }}
+        </button>
+        <button type="button" id="configure-webhooks-btn" class="btn btn-primary" onclick="configureWebhooks()">
+          <i class="fa fa-cog"></i> {{ button_configure }}
+        </button>
+        <a href="{{ cancel }}" class="btn btn-secondary">
+          <i class="fa fa-reply"></i> {{ button_cancel }}
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <nav>
+        <ol class="breadcrumb">
+          {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item">
+            {% if breadcrumb.href %}
+            <a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+            {% else %}
+            {{ breadcrumb.text }}
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ol>
+      </nav>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    
+    <div class="card">
+      <div class="card-header">
+        <i class="fa fa-list"></i> {{ text_webhook_list }}
+      </div>
+      <div class="card-body">
+        <!-- Webhook Statistics -->
+        <div class="row mb-4">
+          <div class="col-sm-3">
+            <div class="card bg-primary text-white">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h4 id="total-webhooks">{{ webhook_stats.total_webhooks|default(0) }}</h4>
+                    <p class="mb-0">{{ text_total_webhooks }}</p>
+                  </div>
+                  <div class="align-self-center">
+                    <i class="fa fa-webhook fa-2x"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="card bg-success text-white">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h4 id="active-webhooks">{{ webhook_stats.active_webhooks|default(0) }}</h4>
+                    <p class="mb-0">{{ text_active_webhooks }}</p>
+                  </div>
+                  <div class="align-self-center">
+                    <i class="fa fa-check-circle fa-2x"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="card bg-info text-white">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h4 id="events-today">{{ webhook_stats.events_today|default(0) }}</h4>
+                    <p class="mb-0">{{ text_events_today }}</p>
+                  </div>
+                  <div class="align-self-center">
+                    <i class="fa fa-calendar fa-2x"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="card bg-warning text-white">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h4 id="success-rate">{{ webhook_stats.success_rate|default(0) }}%</h4>
+                    <p class="mb-0">{{ text_success_rate }}</p>
+                  </div>
+                  <div class="align-self-center">
+                    <i class="fa fa-chart-line fa-2x"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Webhook Management Tabs -->
+        <ul class="nav nav-tabs" id="webhook-tabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="webhooks-tab" data-bs-toggle="tab" data-bs-target="#webhooks" type="button" role="tab">
+              <i class="fa fa-webhook"></i> {{ tab_webhooks }}
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
+              <i class="fa fa-list"></i> {{ tab_events }}
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">
+              <i class="fa fa-bell"></i> {{ tab_notifications }}
+            </button>
+          </li>
+        </ul>
+        
+        <div class="tab-content" id="webhook-tab-content">
+          <!-- Webhooks Tab -->
+          <div class="tab-pane fade show active" id="webhooks" role="tabpanel">
+            <div class="row mt-3">
+              <div class="col-md-12">
+                <!-- Add New Webhook Form -->
+                <div class="card mb-4">
+                  <div class="card-header">
+                    <i class="fa fa-plus"></i> {{ text_add_webhook }}
+                  </div>
+                  <div class="card-body">
+                    <form id="add-webhook-form" action="{{ action }}" method="post">
+                      <div class="row">
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label for="event-type">{{ entry_event_type }}</label>
+                            <select name="event_type" id="event-type" class="form-control">
+                              <option value="">{{ text_select }}</option>
+                              <option value="order_created">{{ text_order_created }}</option>
+                              <option value="order_updated">{{ text_order_updated }}</option>
+                              <option value="order_cancelled">{{ text_order_cancelled }}</option>
+                              <option value="product_approved">{{ text_product_approved }}</option>
+                              <option value="product_rejected">{{ text_product_rejected }}</option>
+                              <option value="inventory_updated">{{ text_inventory_updated }}</option>
+                              <option value="payment_completed">{{ text_payment_completed }}</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label for="webhook-url">{{ entry_webhook_url }}</label>
+                            <input type="url" name="url" id="webhook-url" class="form-control" placeholder="https://example.com/webhook" required>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label for="webhook-secret">{{ entry_webhook_secret }}</label>
+                            <input type="text" name="secret" id="webhook-secret" class="form-control" placeholder="{{ text_optional }}">
+                          </div>
+                        </div>
+                        <div class="col-md-2">
+                          <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-primary form-control">
+                              <i class="fa fa-plus"></i> {{ button_add }}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                
+                <!-- Webhook List -->
+                <div class="table-responsive">
+                  <table class="table table-bordered table-hover">
+                    <thead>
+                      <tr>
+                        <th>{{ column_event_type }}</th>
+                        <th>{{ column_url }}</th>
+                        <th>{{ column_status }}</th>
+                        <th class="text-center">{{ column_success_count }}</th>
+                        <th class="text-center">{{ column_error_count }}</th>
+                        <th>{{ column_last_triggered }}</th>
+                        <th class="text-center">{{ column_action }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% if webhooks %}
+                      {% for webhook in webhooks %}
+                      <tr>
+                        <td>
+                          <span class="badge bg-info">{{ webhook.event_type }}</span>
+                        </td>
+                        <td>
+                          <a href="{{ webhook.url }}" target="_blank" class="text-decoration-none">
+                            {{ webhook.url|truncate(50) }}
+                            <i class="fa fa-external-link-alt fa-sm"></i>
+                          </a>
+                        </td>
+                        <td>
+                          {% if webhook.status %}
+                          <span class="badge bg-success">{{ text_enabled }}</span>
+                          {% else %}
+                          <span class="badge bg-danger">{{ text_disabled }}</span>
+                          {% endif %}
+                        </td>
+                        <td class="text-center">
+                          <span class="badge bg-success">{{ webhook.success_count }}</span>
+                        </td>
+                        <td class="text-center">
+                          {% if webhook.error_count > 0 %}
+                          <span class="badge bg-danger">{{ webhook.error_count }}</span>
+                          {% else %}
+                          <span class="badge bg-secondary">0</span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if webhook.last_triggered %}
+                          <small>{{ webhook.last_triggered }}</small>
+                          {% else %}
+                          <span class="text-muted">{{ text_never }}</span>
+                          {% endif %}
+                        </td>
+                        <td class="text-center">
+                          <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-info" onclick="testWebhook({{ webhook.webhook_id }})" title="{{ button_test }}">
+                              <i class="fa fa-flask"></i>
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="toggleWebhookStatus({{ webhook.webhook_id }})" title="{{ webhook.status ? button_disable : button_enable }}">
+                              <i class="fa fa-{{ webhook.status ? 'pause' : 'play' }}"></i>
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="deleteWebhook({{ webhook.webhook_id }})" title="{{ button_delete }}">
+                              <i class="fa fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                      {% else %}
+                      <tr>
+                        <td colspan="7" class="text-center text-muted">
+                          <i class="fa fa-info-circle"></i> {{ text_no_webhooks }}
+                        </td>
+                      </tr>
+                      {% endif %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Events/Logs Tab -->
+          <div class="tab-pane fade" id="events" role="tabpanel">
+            <div class="row mt-3">
+              <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5>{{ text_recent_events }}</h5>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshLogs()">
+                      <i class="fa fa-refresh"></i> {{ button_refresh }}
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearWebhookLogs()">
+                      <i class="fa fa-trash"></i> {{ button_clear_logs }}
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="table-responsive">
+                  <table class="table table-sm table-striped">
+                    <thead>
+                      <tr>
+                        <th>{{ column_event_type }}</th>
+                        <th>{{ column_webhook }}</th>
+                        <th class="text-center">{{ column_status }}</th>
+                        <th class="text-center">{{ column_response_code }}</th>
+                        <th class="text-center">{{ column_execution_time }}</th>
+                        <th>{{ column_date }}</th>
+                        <th class="text-center">{{ column_action }}</th>
+                      </tr>
+                    </thead>
+                    <tbody id="webhook-logs-tbody">
+                      {% if webhook_logs %}
+                      {% for log in webhook_logs %}
+                      <tr>
+                        <td>
+                          <span class="badge bg-secondary">{{ log.event_type }}</span>
+                        </td>
+                        <td>
+                          {% if log.webhook_url %}
+                          <small>{{ log.webhook_url|truncate(30) }}</small>
+                          {% else %}
+                          <span class="text-muted">{{ text_system_event }}</span>
+                          {% endif %}
+                        </td>
+                        <td class="text-center">
+                          {% if log.status == 'success' %}
+                          <span class="badge bg-success">{{ text_success }}</span>
+                          {% elseif log.status == 'error' %}
+                          <span class="badge bg-danger">{{ text_error }}</span>
+                          {% else %}
+                          <span class="badge bg-warning">{{ log.status }}</span>
+                          {% endif %}
+                        </td>
+                        <td class="text-center">
+                          {% if log.response_code %}
+                          <span class="badge bg-{{ log.response_code >= 200 and log.response_code < 300 ? 'success' : 'danger' }}">
+                            {{ log.response_code }}
+                          </span>
+                          {% else %}
+                          <span class="text-muted">-</span>
+                          {% endif %}
+                        </td>
+                        <td class="text-center">
+                          {% if log.execution_time %}
+                          <small>{{ log.execution_time }}s</small>
+                          {% else %}
+                          <span class="text-muted">-</span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          <small>{{ log.date_added }}</small>
+                        </td>
+                        <td class="text-center">
+                          <button type="button" class="btn btn-sm btn-outline-info" onclick="viewLogDetails({{ log.event_id }})" title="{{ button_view_details }}">
+                            <i class="fa fa-eye"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                      {% else %}
+                      <tr>
+                        <td colspan="7" class="text-center text-muted">
+                          <i class="fa fa-info-circle"></i> {{ text_no_events }}
+                        </td>
+                      </tr>
+                      {% endif %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Notifications Tab -->
+          <div class="tab-pane fade" id="notifications" role="tabpanel">
+            <div class="row mt-3">
+              <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5>{{ text_notifications }}</h5>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="markAllNotificationsRead()">
+                    <i class="fa fa-check"></i> {{ button_mark_all_read }}
+                  </button>
+                </div>
+                
+                <div id="notifications-list">
+                  {% if notifications %}
+                  {% for notification in notifications %}
+                  <div class="alert alert-{{ notification.status }} alert-dismissible{% if not notification.read_status %} border-start border-primary border-3{% endif %}" role="alert">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div>
+                        <h6 class="alert-heading">
+                          <i class="fa fa-{{ notification.status == 'success' ? 'check-circle' : (notification.status == 'error' ? 'exclamation-triangle' : (notification.status == 'warning' ? 'exclamation-circle' : 'info-circle')) }}"></i>
+                          {{ notification.type|replace('_', ' ')|title }}
+                        </h6>
+                        <p class="mb-1">{{ notification.message }}</p>
+                        <small class="text-muted">{{ notification.date_added }}</small>
+                      </div>
+                      <div class="btn-group btn-group-sm">
+                        {% if not notification.read_status %}
+                        <button type="button" class="btn btn-outline-primary" onclick="markNotificationRead({{ notification.notification_id }})" title="{{ button_mark_read }}">
+                          <i class="fa fa-check"></i>
+                        </button>
+                        {% endif %}
+                        <button type="button" class="btn btn-outline-danger" onclick="deleteNotification({{ notification.notification_id }})" title="{{ button_delete }}">
+                          <i class="fa fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                  {% else %}
+                  <div class="text-center text-muted py-5">
+                    <i class="fa fa-bell-slash fa-3x"></i>
+                    <p class="mt-3">{{ text_no_notifications }}</p>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Test Results Modal -->
+<div class="modal fade" id="test-results-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ text_test_results }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="test-results-content">
+          <!-- Test results will be populated here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ button_close }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Log Details Modal -->
+<div class="modal fade" id="log-details-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ text_log_details }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="log-details-content">
+          <!-- Log details will be populated here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ button_close }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Include Pazarama Integration JavaScript
+{% if pazarama_integration_js %}
+{{ pazarama_integration_js|raw }}
+{% endif %}
+
+// Webhook-specific functions
+function testWebhook(webhookId) {
+    // Implementation will be handled by pazarama_integration.js
+    if (window.pazaramaIntegration) {
+        window.pazaramaIntegration.testSpecificWebhook(webhookId);
+    }
+}
+
+function toggleWebhookStatus(webhookId) {
+    if (confirm('{{ text_confirm_toggle }}')) {
+        window.location.href = '{{ toggle_webhook_url }}&webhook_id=' + webhookId;
+    }
+}
+
+function deleteWebhook(webhookId) {
+    if (confirm('{{ text_confirm_delete }}')) {
+        window.location.href = '{{ delete_webhook_url }}&webhook_id=' + webhookId;
+    }
+}
+
+function refreshLogs() {
+    if (window.pazaramaIntegration) {
+        window.pazaramaIntegration.refreshWebhookLogs();
+    }
+}
+
+function viewLogDetails(eventId) {
+    if (window.pazaramaIntegration) {
+        window.pazaramaIntegration.viewLogDetails(eventId);
+    }
+}
+
+function markNotificationRead(notificationId) {
+    if (window.pazaramaIntegration) {
+        window.pazaramaIntegration.markNotificationRead(notificationId);
+    }
+}
+
+function deleteNotification(notificationId) {
+    if (confirm('{{ text_confirm_delete_notification }}')) {
+        window.location.href = '{{ delete_notification_url }}&notification_id=' + notificationId;
+    }
+}
+
+function markAllNotificationsRead() {
+    if (window.pazaramaIntegration) {
+        window.pazaramaIntegration.markAllNotificationsRead();
+    }
+}
+</script>
+
+{{ footer }}

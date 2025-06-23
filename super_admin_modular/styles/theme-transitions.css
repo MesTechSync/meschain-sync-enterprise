@@ -1,0 +1,359 @@
+/* 
+ * 🎨 MESCHAIN-SYNC THEME TRANSITIONS 
+ * Advanced theme transition system with smooth color scheme changes
+ * Sprint-3 UI/UX Enhancements - A+++++ Quality Implementation
+ * 
+ * Features:
+ * - Seamless light/dark mode transitions
+ * - Custom theme color palette transitions
+ * - Hardware-accelerated animations
+ * - Accessibility-optimized transitions
+ * - Variable transition speeds (normal/reduced)
+ */
+
+:root {
+  /* Base transition duration for theme changes */
+  --theme-transition-duration: 400ms;
+  --theme-transition-timing: cubic-bezier(0.16, 1, 0.3, 1);
+  
+  /* Theme transition properties */
+  --theme-transition-props: background-color, color, border-color, fill, stroke, box-shadow;
+}
+
+/* Apply transitions to all theme-affected elements */
+html.theme-transition-active,
+html.theme-transition-active * {
+  transition-property: var(--theme-transition-props);
+  transition-duration: var(--theme-transition-duration);
+  transition-timing-function: var(--theme-transition-timing);
+  
+  /* GPU acceleration to prevent jank */
+  will-change: auto;
+  backface-visibility: hidden;
+}
+
+/* Optimize performance during transitions */
+html.theme-transition-active {
+  contain: layout;
+  will-change: background-color;
+  
+  /* Optimize rendering performance */
+  content-visibility: auto;
+  /* Prevent flickering during transition */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Theme transition overlay effect */
+.theme-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  background: radial-gradient(
+    circle at var(--theme-transition-x, 50%) var(--theme-transition-y, 50%), 
+    rgba(255, 255, 255, 0.15),
+    transparent 70%
+  );
+  transition: opacity 0.6s var(--theme-transition-timing);
+}
+
+html.dark .theme-transition-overlay {
+  background: radial-gradient(
+    circle at var(--theme-transition-x, 50%) var(--theme-transition-y, 50%), 
+    rgba(0, 0, 0, 0.15),
+    transparent 70%
+  );
+}
+
+.theme-transition-overlay.active {
+  opacity: 1;
+}
+
+/* Theme Button Active State */
+.theme-toggle-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1) translate(-50%, -50%);
+  transform-origin: 0% 0%;
+}
+
+.theme-toggle-btn:active::after {
+  opacity: 1;
+  transform: scale(20) translate(-50%, -50%);
+  transition: transform 0.6s, opacity 0.6s;
+}
+
+/* Prevent animation flicker on page load */
+.preload * {
+  transition: none !important;
+}
+
+/* Color Schemes - Theme Palette Transitions */
+
+/* Default (Light) Theme */
+:root {
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-200: #bae6fd;
+  --primary-300: #7dd3fc;
+  --primary-400: #38bdf8;
+  --primary-500: #0ea5e9;
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+  --primary-800: #075985;
+  --primary-900: #0c4a6e;
+  
+  --bg-main: #ffffff;
+  --bg-element: #f8f9fa;
+  --bg-element-hover: #f1f3f5;
+  --bg-element-active: #e9ecef;
+  
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-tertiary: #868e96;
+  
+  --border-light: #dee2e6;
+  --border-medium: #ced4da;
+  --border-dark: #adb5bd;
+  
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.03);
+}
+
+/* Dark Theme */
+html.dark {
+  --primary-50: #0c4a6e;
+  --primary-100: #075985;
+  --primary-200: #0369a1;
+  --primary-300: #0284c7;
+  --primary-400: #0ea5e9;
+  --primary-500: #38bdf8;
+  --primary-600: #7dd3fc;
+  --primary-700: #bae6fd;
+  --primary-800: #e0f2fe;
+  --primary-900: #f0f9ff;
+
+  --bg-main: #18181b;
+  --bg-element: #27272a;
+  --bg-element-hover: #3f3f46;
+  --bg-element-active: #52525b;
+  
+  --text-primary: #f8f9fa;
+  --text-secondary: #e9ecef;
+  --text-tertiary: #dee2e6;
+  
+  --border-light: #3f3f46;
+  --border-medium: #52525b;
+  --border-dark: #71717a;
+  
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.15);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -2px rgba(0,0,0,0.15);
+}
+
+/* Enterprise Theme */
+html.theme-enterprise {
+  --primary-50: #eef2ff;
+  --primary-100: #e0e7ff;
+  --primary-200: #c7d2fe;
+  --primary-300: #a5b4fc;
+  --primary-400: #818cf8;
+  --primary-500: #6366f1;
+  --primary-600: #4f46e5;
+  --primary-700: #4338ca;
+  --primary-800: #3730a3;
+  --primary-900: #312e81;
+}
+
+/* Premium Theme */
+html.theme-premium {
+  --primary-50: #fdf2f8;
+  --primary-100: #fce7f3;
+  --primary-200: #fbcfe8;
+  --primary-300: #f9a8d4;
+  --primary-400: #f472b6;
+  --primary-500: #ec4899;
+  --primary-600: #db2777;
+  --primary-700: #be185d;
+  --primary-800: #9d174d;
+  --primary-900: #831843;
+}
+
+/* Success Theme (Green) */
+html.theme-success {
+  --primary-50: #ecfdf5;
+  --primary-100: #d1fae5;
+  --primary-200: #a7f3d0;
+  --primary-300: #6ee7b7;
+  --primary-400: #34d399;
+  --primary-500: #10b981;
+  --primary-600: #059669;
+  --primary-700: #047857;
+  --primary-800: #065f46;
+  --primary-900: #064e3b;
+}
+
+/* Warning Theme (Amber) */
+html.theme-warning {
+  --primary-50: #fffbeb;
+  --primary-100: #fef3c7;
+  --primary-200: #fde68a;
+  --primary-300: #fcd34d;
+  --primary-400: #fbbf24;
+  --primary-500: #f59e0b;
+  --primary-600: #d97706;
+  --primary-700: #b45309;
+  --primary-800: #92400e;
+  --primary-900: #78350f;
+}
+
+/* Branded Theme (MesChain Orange) */
+html.theme-meschain {
+  --primary-50: #fff7ed;
+  --primary-100: #ffedd5;
+  --primary-200: #fed7aa;
+  --primary-300: #fdba74;
+  --primary-400: #fb923c;
+  --primary-500: #f97316;
+  --primary-600: #ea580c;
+  --primary-700: #c2410c;
+  --primary-800: #9a3412;
+  --primary-900: #7c2d12;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --theme-transition-duration: 0.1ms;
+  }
+  
+  .theme-transition-overlay,
+  .theme-toggle-btn::after,
+  .theme-switch-ripple,
+  .theme-switch-notification {
+    transition: none !important;
+    animation: none !important;
+    opacity: 0 !important;
+    display: none !important;
+  }
+  
+  /* Completely disable transitions for reduced motion */
+  html.theme-transition-active,
+  html.theme-transition-active * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Theme Switch Animation */
+@keyframes theme-switch-ripple {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+.theme-switch-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--primary-500);
+  transform: scale(0);
+  pointer-events: none;
+  opacity: 0.4;
+  z-index: 9998;
+  animation: theme-switch-ripple 0.8s ease-out forwards;
+}
+
+/* Custom Scrollbar for Themed Content */
+html:not(.prefers-reduced-motion) .custom-scrollbar::-webkit-scrollbar-thumb {
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+/* Theme Switch Notification */
+.theme-switch-notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 20px;
+  background: var(--bg-element);
+  color: var(--text-primary);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+}
+
+.theme-switch-notification.active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.theme-switch-notification .icon {
+  font-size: 1.5rem;
+}
+
+/* Responsive adjustments for theme notification */
+@media (max-width: 768px) {
+  .theme-switch-notification {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+    width: calc(100% - 32px);
+    justify-content: center;
+    padding: 16px;
+  }
+  
+  /* Mobile-friendly theme transitions */
+  html.theme-transition-active,
+  html.theme-transition-active * {
+    transition-duration: calc(var(--theme-transition-duration) * 0.8);
+  }
+  
+  /* Optimize theme ripple effect for mobile */
+  .theme-switch-ripple {
+    animation-duration: 0.6s;
+  }
+}
+
+/* High-performance mode - reduces animation complexity when browser indicates high load */
+@media (prefers-reduced-data: reduce) {
+  /* More efficient transitions when data-saving mode is enabled */
+  html.theme-transition-active,
+  html.theme-transition-active * {
+    transition-property: background-color, color;
+    transition-duration: 0.2s;
+  }
+  
+  .theme-transition-overlay,
+  .theme-switch-ripple {
+    display: none;
+  }
+}

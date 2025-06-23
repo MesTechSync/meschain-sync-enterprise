@@ -1,0 +1,560 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ dashboard_url }}" data-toggle="tooltip" title="{{ button_dashboard }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }} - {{ text_help }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-question-circle"></i> {{ text_help_general }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <h4>MesTech Sync Nedir?</h4>
+            <p>MesTech Sync, OpenCart mağazanızı çeşitli pazaryerleri ile senkronize etmenizi sağlayan kapsamlı bir entegrasyon çözümüdür. Bu modül sayesinde ürünlerinizi, stok durumlarını, fiyatları ve siparişleri tek bir noktadan yönetebilirsiniz.</p>
+            
+            <h4>Temel Özellikler</h4>
+            <ul>
+              <li>Çoklu pazaryeri entegrasyonu (Trendyol, Amazon, n11, eBay, Hepsiburada, Ozon)</li>
+              <li>Ürün bilgilerinin otomatik senkronizasyonu</li>
+              <li>Stok ve fiyat güncellemelerinin otomatik yönetimi</li>
+              <li>Sipariş takibi ve yönetimi</li>
+              <li>Detaylı raporlama ve istatistikler</li>
+              <li>Özelleştirilebilir tema seçenekleri</li>
+            </ul>
+            
+            <h4>Başlarken</h4>
+            <p>MesTech Sync'i kullanmaya başlamak için öncelikle entegre etmek istediğiniz pazaryerlerinin API bilgilerini edinmeniz gerekmektedir. Her pazaryeri için ayrı ayarlar sayfası bulunmaktadır. API bilgilerinizi ilgili alanlara girdikten sonra, ürünlerinizi senkronize etmeye başlayabilirsiniz.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-shopping-bag"></i> {{ text_help_trendyol }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <h4>Trendyol Entegrasyonu</h4>
+            <p>Trendyol entegrasyonu için aşağıdaki adımları takip edin:</p>
+            
+            <h5>API Bilgilerini Edinme</h5>
+            <ol>
+              <li>Trendyol Satıcı Paneline giriş yapın (<a href="https://partner.trendyol.com" target="_blank">https://partner.trendyol.com</a>)</li>
+              <li>Hesabım > Entegrasyon bilgileri menüsüne gidin</li>
+              <li>API anahtarınızı, API gizli anahtarınızı ve Tedarikçi ID'nizi not edin</li>
+            </ol>
+            
+            <h5>Entegrasyonu Yapılandırma</h5>
+            <ol>
+              <li>MesTech Sync panelinde "Trendyol" sekmesine tıklayın</li>
+              <li>API Anahtarı, API Secret ve Tedarikçi ID alanlarını doldurun</li>
+              <li>Ayarları kaydedin</li>
+            </ol>
+            
+            <h5>Ürün Senkronizasyonu</h5>
+            <p>Trendyol'a ürün göndermek için aşağıdaki gereksinimlere dikkat edin:</p>
+            <ul>
+              <li>Ürünlerinizin barkod numaraları olmalıdır</li>
+              <li>Ürün görselleri en az 800x800 piksel boyutunda olmalıdır</li>
+              <li>Ürün açıklamaları HTML formatında olabilir</li>
+              <li>Kategori eşleştirmesi doğru yapılmalıdır</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-amazon"></i> {{ text_help_amazon }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <h4>Amazon Entegrasyonu</h4>
+            <p>Amazon entegrasyonu için aşağıdaki adımları takip edin:</p>
+            
+            <h5>API Bilgilerini Edinme</h5>
+            <ol>
+              <li>Amazon Seller Central hesabınıza giriş yapın</li>
+              <li>Ayarlar > Kullanıcı İzinleri menüsüne gidin</li>
+              <li>Yeni bir geliştirici hesabı oluşturun ve API anahtarlarınızı alın</li>
+              <li>MWS (Marketplace Web Service) kimlik bilgilerinizi not edin</li>
+            </ol>
+            
+            <h5>Entegrasyonu Yapılandırma</h5>
+            <ol>
+              <li>MesTech Sync panelinde "Amazon" sekmesine tıklayın</li>
+              <li>API Anahtarı, Secret Key, Satıcı ID ve Token alanlarını doldurun</li>
+              <li>Ayarları kaydedin</li>
+            </ol>
+            
+            <h5>Ürün Senkronizasyonu</h5>
+            <p>Amazon'a ürün göndermek için aşağıdaki gereksinimlere dikkat edin:</p>
+            <ul>
+              <li>Ürünlerinizin UPC, EAN, ISBN veya ASIN numaraları olmalıdır</li>
+              <li>Ürün görselleri beyaz arka planlı ve yüksek çözünürlüklü olmalıdır</li>
+              <li>Ürün başlıkları Amazon kurallarına uygun olmalıdır</li>
+              <li>Ürün açıklamaları HTML içermemelidir</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-shopping-cart"></i> {{ text_help_n11 }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <h4>n11 Entegrasyonu</h4>
+            <p>n11 entegrasyonu için aşağıdaki adımları takip edin:</p>
+            
+            <h5>API Bilgilerini Edinme</h5>
+            <ol>
+              <li>n11 Satıcı Paneline giriş yapın</li>
+              <li>Hesabım > API Erişim Bilgileri menüsüne gidin</li>
+              <li>API Anahtarı ve API Şifresi bilgilerinizi not edin</li>
+            </ol>
+            
+            <h5>Entegrasyonu Yapılandırma</h5>
+            <ol>
+              <li>MesTech Sync panelinde "n11" sekmesine tıklayın</li>
+              <li>API Anahtarı ve API Şifresi alanlarını doldurun</li>
+              <li>Ayarları kaydedin</li>
+            </ol>
+            
+            <h5>Ürün Senkronizasyonu</h5>
+            <p>n11'e ürün göndermek için aşağıdaki gereksinimlere dikkat edin:</p>
+            <ul>
+              <li>Ürünlerinizin stok kodları benzersiz olmalıdır</li>
+              <li>Ürün görselleri en az 500x500 piksel boyutunda olmalıdır</li>
+              <li>Kategori seçimi doğru yapılmalıdır</li>
+              <li>Ürün özellikleri kategori gereksinimlerine uygun olmalıdır</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-shopping-basket"></i> {{ text_help_ebay }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <h4>eBay Entegrasyonu</h4>
+            <p>eBay entegrasyonu için aşağıdaki adımları takip edin:</p>
+            
+            <h5>API Bilgilerini Edinme</h5>
+            <ol>
+              <li>eBay Developer Portal'a kaydolun (<a href="https://developer.ebay.com" target="_blank">https://developer.ebay.com</a>)</li>
+              <li>Yeni bir uygulama oluşturun</li>
+              <li>Geliştirici ID, Uygulama ID ve Sertifika ID bilgilerinizi not edin</li>
+              <li>OAuth token alın</li>
+            </ol>
+            
+            <h5>Entegrasyonu Yapılandırma</h5>
+            <ol>
+              <li>MesTech Sync panelinde "eBay" sekmesine tıklayın</li>
+              <li>Geliştirici ID, Uygulama ID, Sertifika ID ve Token alanlarını doldurun</li>
+              <li>Ayarları kaydedin</li>
+            </ol>
+            
+            <h5>Ürün Senkronizasyonu</h5>
+            <p>eBay'e ürün göndermek için aşağıdaki gereksinimlere dikkat edin:</p>
+            <ul>
+              <li>Ürün başlıkları 80 karakteri geçmemelidir</li>
+              <li>Ürün açıklamaları HTML formatında olabilir</li>
+              <li>Ürün görselleri en az 500x500 piksel boyutunda olmalıdır</li>
+              <li>Doğru kargo seçenekleri belirtilmelidir</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-shopping-bag"></i> {{ text_help_hepsiburada }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <h4>Hepsiburada Entegrasyonu</h4>
+            <p>Hepsiburada entegrasyonu için aşağıdaki adımları takip edin:</p>
+            
+            <h5>API Bilgilerini Edinme</h5>
+            <ol>
+              <li>Hepsiburada Satıcı Paneline giriş yapın</li>
+              <li>Hesabım > API Entegrasyonu menüsüne gidin</li>
+              <li>Kullanıcı adı, şifre ve satıcı ID bilgilerinizi not edin</li>
+            </ol>
+            
+            <h5>Entegrasyonu Yapılandırma</h5>
+            <ol>
+              <li>MesTech Sync panelinde "Hepsiburada" sekmesine tıklayın</li>
+              <li>Kullanıcı adı, şifre ve satıcı ID alanlarını doldurun</li>
+              <li>Ayarları kaydedin</li>
+            </ol>
+            
+            <h5>Ürün Senkronizasyonu</h5>
+            <p>Hepsiburada'ya ürün göndermek için aşağıdaki gereksinimlere dikkat edin:</p>
+            <ul>
+              <li>Ürünlerinizin barkod numaraları olmalıdır</li>
+              <li>Ürün görselleri en az 800x800 piksel boyutunda olmalıdır</li>
+              <li>Kategori eşleştirmesi doğru yapılmalıdır</li>
+              <li>Ürün özellikleri kategori gereksinimlerine uygun olmalıdır</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-globe"></i> {{ text_help_ozon }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <h4>Ozon Entegrasyonu</h4>
+            <p>Ozon (Rus pazaryeri) entegrasyonu için aşağıdaki adımları takip edin:</p>
+            
+            <h5>API Bilgilerini Edinme</h5>
+            <ol>
+              <li>Ozon Satıcı Paneline giriş yapın</li>
+              <li>Ayarlar > API Erişimi menüsüne gidin</li>
+              <li>Client ID ve API Key bilgilerinizi not edin</li>
+            </ol>
+            
+            <h5>Entegrasyonu Yapılandırma</h5>
+            <ol>
+              <li>MesTech Sync panelinde "Ozon" sekmesine tıklayın</li>
+              <li>Client ID ve API Key alanlarını doldurun</li>
+              <li>Ayarları kaydedin</li>
+            </ol>
+            
+            <h5>Ürün Senkronizasyonu</h5>
+            <p>Ozon'a ürün göndermek için aşağıdaki gereksinimlere dikkat edin:</p>
+            <ul>
+              <li>Ürün başlıkları ve açıklamaları Rusça olmalıdır</li>
+              <li>Ürün görselleri en az 1000x1000 piksel boyutunda olmalıdır</li>
+              <li>Ürünlerinizin barkod numaraları olmalıdır</li>
+              <li>Kategori eşleştirmesi doğru yapılmalıdır</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sık Sorulan Sorular -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-question-circle"></i> Sık Sorulan Sorular</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel-group" id="accordion-faq">
+              <!-- Genel Sorular -->
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion-faq" href="#collapse-faq-general">
+                      <i class="fa fa-info-circle"></i> Genel Sorular
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapse-faq-general" class="panel-collapse collapse in">
+                  <div class="panel-body">
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> MesTech Sync'i kullanmak için herhangi bir ek yazılıma ihtiyacım var mı?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> Hayır, MesTech Sync tamamen OpenCart ile entegre çalışan bir modüldür. Herhangi bir ek yazılıma ihtiyaç duymazsınız. Sadece entegre etmek istediğiniz pazaryerlerinin API bilgilerine ihtiyacınız vardır.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Birden fazla pazaryerini aynı anda kullanabilir miyim?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> Evet, MesTech Sync ile istediğiniz kadar pazaryeri entegrasyonunu aynı anda kullanabilirsiniz. Her pazaryeri için ayrı ayarlar yapmanız gerekir.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Ürün senkronizasyonu ne sıklıkla yapılır?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> Ürün senkronizasyonu manuel olarak yapılabilir veya otomatik olarak belirli aralıklarla çalışacak şekilde ayarlanabilir. Varsayılan olarak, stok ve fiyat güncellemeleri günde bir kez otomatik olarak yapılır.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> MesTech Sync'i nasıl güncelleyebilirim?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> MesTech Sync güncellemeleri OpenCart'ın uzantı yöneticisi üzerinden yapılabilir. Yeni bir güncelleme mevcut olduğunda, yönetim panelinde bir bildirim alacaksınız.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Ürün Senkronizasyonu -->
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion-faq" href="#collapse-faq-products">
+                      <i class="fa fa-cubes"></i> Ürün Senkronizasyonu
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapse-faq-products" class="panel-collapse collapse">
+                  <div class="panel-body">
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Tüm ürünlerimi pazaryerlerine göndermek zorunda mıyım?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> Hayır, hangi ürünlerin hangi pazaryerine gönderileceğini seçebilirsiniz. Ürün filtreleme seçenekleri ile belirli kategorilerdeki veya belirli özelliklere sahip ürünleri seçebilirsiniz.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Ürün resimleri nasıl senkronize edilir?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> MesTech Sync, OpenCart'taki ürün resimlerini pazaryerlerine otomatik olarak gönderir. Ancak, her pazaryerinin resim boyutları ve gereksinimleri farklı olabilir. Modül, resimleri pazaryeri gereksinimlerine uygun şekilde otomatik olarak boyutlandırır.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Kategori eşleştirmesi nasıl yapılır?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> MesTech Sync, OpenCart kategorilerinizi pazaryeri kategorileri ile eşleştirmenizi sağlar. Her pazaryeri için ayrı bir kategori eşleştirme sayfası bulunur. Bu sayfada, OpenCart kategorilerinizi pazaryeri kategorileri ile eşleştirebilirsiniz.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Ürün varyasyonları nasıl senkronize edilir?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> MesTech Sync, OpenCart'taki ürün seçeneklerini pazaryerlerindeki varyasyonlara dönüştürür. Her pazaryerinin varyasyon yapısı farklı olabilir, ancak modül bu farklılıkları otomatik olarak yönetir.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Sipariş Yönetimi -->
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion-faq" href="#collapse-faq-orders">
+                      <i class="fa fa-shopping-cart"></i> Sipariş Yönetimi
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapse-faq-orders" class="panel-collapse collapse">
+                  <div class="panel-body">
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Pazaryerlerinden gelen siparişler OpenCart'ta nasıl görünür?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> Pazaryerlerinden gelen siparişler, normal OpenCart siparişleri olarak görünür ancak sipariş kaynağı belirtilir. Böylece hangi siparişin hangi pazaryerinden geldiğini kolayca görebilirsiniz.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Sipariş durumu güncellemeleri pazaryerlerine iletiliyor mu?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> Evet, OpenCart'ta bir siparişin durumunu değiştirdiğinizde, bu değişiklik ilgili pazaryerine otomatik olarak iletilir. Örneğin, bir siparişi "Kargoya Verildi" olarak işaretlerseniz, bu bilgi pazaryerine de iletilir.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Kargo takip numaraları nasıl yönetilir?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> OpenCart'ta bir siparişe kargo takip numarası eklediğinizde, bu bilgi ilgili pazaryerine otomatik olarak iletilir. Böylece müşteriler siparişlerini takip edebilirler.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> İade ve iptal işlemleri nasıl yönetilir?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> Pazaryerlerinden gelen iade ve iptal talepleri, OpenCart'ta ilgili siparişin durumu güncellenerek yönetilir. Ayrıca, iade ve iptal işlemleri için özel bir panel bulunur.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Sorun Giderme -->
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion-faq" href="#collapse-faq-troubleshooting">
+                      <i class="fa fa-wrench"></i> Sorun Giderme
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapse-faq-troubleshooting" class="panel-collapse collapse">
+                  <div class="panel-body">
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> API bağlantı hatası alıyorum, ne yapmalıyım?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> İlk olarak API bilgilerinizin doğru olduğundan emin olun. Ardından, pazaryeri API servislerinin çalışıp çalışmadığını kontrol edin. Sorun devam ederse, log dosyalarını inceleyerek daha fazla bilgi edinebilirsiniz.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Ürünlerim pazaryerine gönderilmiyor, ne yapmalıyım?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> Ürünlerinizin pazaryeri gereksinimlerini karşıladığından emin olun. Örneğin, barkod numarası, kategori eşleştirmesi ve gerekli ürün özellikleri gibi. Log dosyalarını inceleyerek hangi ürünlerin neden gönderilmediğini görebilirsiniz.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Stok ve fiyat güncellemeleri yapılmıyor, ne yapmalıyım?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> Otomatik güncelleme ayarlarınızı kontrol edin. Manuel olarak güncelleme yapmayı deneyin. Sorun devam ederse, log dosyalarını inceleyerek daha fazla bilgi edinebilirsiniz.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                      <h5><i class="fa fa-question-circle text-primary"></i> Modül çok yavaş çalışıyor, ne yapmalıyım?</h5>
+                      <p><i class="fa fa-info-circle text-info"></i> Sunucu kaynaklarınızı kontrol edin. Ayrıca, çok fazla ürün veya sipariş varsa, bunları daha küçük gruplar halinde işlemeyi deneyin. Performans ayarlarını optimize etmek için belgeleri inceleyin.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Video Eğitimler -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-film"></i> Video Eğitimler</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="alert alert-info">
+              <p>Aşağıdaki video eğitimler, MesTech Sync modülünün kullanımı hakkında size yardımcı olacaktır.</p>
+            </div>
+            
+            <div class="row">
+              <!-- Genel Kullanım -->
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">Genel Kullanım</h4>
+                  </div>
+                  <div class="panel-body">
+                    <div class="embed-responsive embed-responsive-16by9">
+                      <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                    </div>
+                    <div class="caption">
+                      <h5>MesTech Sync Genel Kullanım Eğitimi</h5>
+                      <p>Bu video, MesTech Sync modülünün genel kullanımını ve temel özelliklerini anlatmaktadır.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Trendyol Entegrasyonu -->
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">Trendyol Entegrasyonu</h4>
+                  </div>
+                  <div class="panel-body">
+                    <div class="embed-responsive embed-responsive-16by9">
+                      <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                    </div>
+                    <div class="caption">
+                      <h5>Trendyol Entegrasyonu Kurulumu</h5>
+                      <p>Bu video, Trendyol entegrasyonunun nasıl kurulacağını ve yapılandırılacağını anlatmaktadır.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Amazon Entegrasyonu -->
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">Amazon Entegrasyonu</h4>
+                  </div>
+                  <div class="panel-body">
+                    <div class="embed-responsive embed-responsive-16by9">
+                      <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                    </div>
+                    <div class="caption">
+                      <h5>Amazon Entegrasyonu Kurulumu</h5>
+                      <p>Bu video, Amazon entegrasyonunun nasıl kurulacağını ve yapılandırılacağını anlatmaktadır.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- N11 Entegrasyonu -->
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">N11 Entegrasyonu</h4>
+                  </div>
+                  <div class="panel-body">
+                    <div class="embed-responsive embed-responsive-16by9">
+                      <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                    </div>
+                    <div class="caption">
+                      <h5>N11 Entegrasyonu Kurulumu</h5>
+                      <p>Bu video, N11 entegrasyonunun nasıl kurulacağını ve yapılandırılacağını anlatmaktadır.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Sorun Giderme -->
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">Sorun Giderme</h4>
+                  </div>
+                  <div class="panel-body">
+                    <div class="embed-responsive embed-responsive-16by9">
+                      <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                    </div>
+                    <div class="caption">
+                      <h5>MesTech Sync Sorun Giderme</h5>
+                      <p>Bu video, MesTech Sync modülünde karşılaşabileceğiniz yaygın sorunları ve çözümlerini anlatmaktadır.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- İleri Seviye Özellikler -->
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">İleri Seviye Özellikler</h4>
+                  </div>
+                  <div class="panel-body">
+                    <div class="embed-responsive embed-responsive-16by9">
+                      <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                    </div>
+                    <div class="caption">
+                      <h5>MesTech Sync İleri Seviye Özellikler</h5>
+                      <p>Bu video, MesTech Sync modülünün ileri seviye özelliklerini ve optimizasyon ipuçlarını anlatmaktadır.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <style>
+    .faq-item {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+    .faq-item h5 {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    </style>
+  </div>
+</div>
+{{ footer }} 

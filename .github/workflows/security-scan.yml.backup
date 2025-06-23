@@ -1,0 +1,229 @@
+name: 🛡️ Security Scan & Vulnerability Management
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Weekly security scan at 02:00 UTC (Mondays only)
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  dependency-security:
+    name: 🔍 Dependency Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run npm audit
+      run: |
+        npm audit --audit-level=moderate --production
+        npm audit --json > audit-results.json || true
+        
+    - name: Security vulnerability check
+      run: |
+        echo "🔍 Checking for high severity vulnerabilities..."
+        HIGH_VULNS=$(npm audit --audit-level=high --json | jq '.metadata.vulnerabilities.high // 0')
+        CRITICAL_VULNS=$(npm audit --audit-level=critical --json | jq '.metadata.vulnerabilities.critical // 0')
+        
+        echo "High severity vulnerabilities: $HIGH_VULNS"
+        echo "Critical severity vulnerabilities: $CRITICAL_VULNS"
+        
+        if [ "$CRITICAL_VULNS" -gt 0 ]; then
+          echo "❌ CRITICAL vulnerabilities found! Failing the build."
+          exit 1
+        elif [ "$HIGH_VULNS" -gt 5 ]; then
+          echo "⚠️ Too many HIGH vulnerabilities found! Please address them."
+          exit 1
+        else
+          echo "✅ Security check passed!"
+        fi
+
+  code-security:
+    name: 🔒 Code Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run CodeQL Analysis
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript, typescript
+        
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+      
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+  security-headers:
+    name: 🌐 Security Headers Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check security policy file
+      run: |
+        if [ ! -f "security-policy.json" ]; then
+          echo "❌ Security policy file not found!"
+          exit 1
+        else
+          echo "✅ Security policy file exists"
+          cat security-policy.json | jq '.security.securityHeaders'
+        fi
+
+  license-compliance:
+    name: 📄 License Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install license checker
+      run: npm install -g license-checker
+      
+    - name: Check licenses
+      run: |
+        echo "🔍 Checking package licenses..."
+        license-checker --summary --production --excludePrivatePackages
+        
+        # Check for prohibited licenses
+        PROHIBITED_LICENSES=$(license-checker --json --production --excludePrivatePackages | jq -r '
+          to_entries[] | 
+          select(.value.licenses | type == "string" and (
+            contains("GPL") or contains("AGPL") or contains("LGPL")
+          )) | 
+          .key + ": " + .value.licenses'
+        )
+        
+        if [ -n "$PROHIBITED_LICENSES" ]; then
+          echo "❌ Prohibited licenses found:"
+          echo "$PROHIBITED_LICENSES"
+          exit 1
+        else
+          echo "✅ All licenses are compliant"
+        fi
+
+  security-report:
+    name: 📊 Security Report
+    runs-on: ubuntu-latest
+    needs: [dependency-security, code-security, security-headers, license-compliance]
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Generate security report
+      run: |
+        echo "# 🛡️ Security Scan Report" > security-report.md
+        echo "**Date**: $(date)" >> security-report.md
+        echo "**Commit**: ${{ github.sha }}" >> security-report.md
+        echo "" >> security-report.md
+        
+        echo "## 📊 Scan Results" >> security-report.md
+        echo "- **Dependency Security**: ${{ needs.dependency-security.result }}" >> security-report.md
+        echo "- **Code Security**: ${{ needs.code-security.result }}" >> security-report.md
+        echo "- **Security Headers**: ${{ needs.security-headers.result }}" >> security-report.md
+        echo "- **License Compliance**: ${{ needs.license-compliance.result }}" >> security-report.md
+        echo "" >> security-report.md
+        
+        if [ "${{ needs.dependency-security.result }}" = "success" ] && 
+           [ "${{ needs.code-security.result }}" = "success" ] && 
+           [ "${{ needs.security-headers.result }}" = "success" ] && 
+           [ "${{ needs.license-compliance.result }}" = "success" ]; then
+          echo "## ✅ Overall Status: PASSED" >> security-report.md
+          echo "All security checks passed successfully!" >> security-report.md
+        else
+          echo "## ❌ Overall Status: FAILED" >> security-report.md
+          echo "One or more security checks failed. Please review and fix." >> security-report.md
+        fi
+        
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: security-report.md
+        retention-days: 30
+
+  auto-fix:
+    name: 🔧 Auto-fix Security Issues
+    runs-on: ubuntu-latest
+    needs: dependency-security
+    if: needs.dependency-security.result == 'failure' && github.event_name != 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Auto-fix vulnerabilities
+      run: |
+        echo "🔧 Attempting to auto-fix vulnerabilities..."
+        npm audit fix --force || true
+        
+    - name: Check if changes were made
+      run: |
+        if [ -n "$(git diff --name-only)" ]; then
+          echo "CHANGES_MADE=true" >> $GITHUB_ENV
+        else
+          echo "CHANGES_MADE=false" >> $GITHUB_ENV
+        fi
+        
+    - name: Commit and push changes
+      if: env.CHANGES_MADE == 'true'
+      run: |
+        git config --local user.email "security-bot@meschain.com"
+        git config --local user.name "MesChain Security Bot"
+        git add .
+        git commit -m "🛡️ Auto-fix security vulnerabilities [skip ci]"
+        git push
+
+  notify:
+    name: 📢 Security Notifications
+    runs-on: ubuntu-latest
+    needs: [dependency-security, code-security, security-headers, license-compliance]
+    if: failure() && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Send security alert
+      run: |
+        echo "🚨 SECURITY ALERT: Security scan failed on main branch!"
+        echo "Please check the security report and fix issues immediately."
+        echo "Commit: ${{ github.sha }}"
+        echo "Actor: ${{ github.actor }}"
+        # In production, this would send to Slack/email/etc. 
