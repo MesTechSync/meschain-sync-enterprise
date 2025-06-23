@@ -1,0 +1,267 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="float-end">
+                <button type="submit" form="form-module" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fas fa-save"></i></button>
+                <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i class="fas fa-reply"></i></a>
+            </div>
+            <h1>{{ heading_title }}</h1>
+            <ol class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                    <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% if error_warning %}
+            <div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> {{ error_warning }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endif %}
+        <div class="card">
+            <div class="card-header"><i class="fas fa-pencil-alt"></i> {{ text_edit }}</div>
+            <div class="card-body">
+                <form id="form-module" action="{{ save }}" method="post" data-oc-toggle="ajax">
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">{{ entry_status }}</label>
+                        <div class="col-sm-10">
+                            <div class="form-check form-switch form-switch-lg">
+                                <input type="hidden" name="module_meschain_sync_status" value="0"/>
+                                <input type="checkbox" name="module_meschain_sync_status" value="1" id="input-status" class="form-check-input" {% if module_meschain_sync_status %} checked {% endif %}/>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Trendyol Integration Settings -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-store"></i> Trendyol Entegrasyonu</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">Satıcı ID (Cari ID)</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="module_meschain_sync_trendyol_seller_id" value="{{ module_meschain_sync_trendyol_seller_id|default('') }}" placeholder="Örnek: 1076956" class="form-control"/>
+                                    <small class="form-text text-muted">Trendyol satıcı hesabınızın benzersiz ID numarası</small>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">Entegrasyon Referans Kodu</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="module_meschain_sync_trendyol_integration_code" value="{{ module_meschain_sync_trendyol_integration_code|default('') }}" placeholder="Örnek: 11603dd4-4355-44b7-86d2-d22f83ced699" class="form-control"/>
+                                    <small class="form-text text-muted">Trendyol entegrasyon referans kodu (UUID formatında)</small>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">API Key</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="module_meschain_sync_trendyol_api_key" value="{{ module_meschain_sync_trendyol_api_key|default('') }}" placeholder="Trendyol API Key" class="form-control"/>
+                                    <small class="form-text text-muted">Trendyol API erişim anahtarı</small>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">API Secret</label>
+                                <div class="col-sm-9">
+                                    <input type="password" name="module_meschain_sync_trendyol_api_secret" value="{{ module_meschain_sync_trendyol_api_secret|default('') }}" placeholder="Trendyol API Secret" class="form-control"/>
+                                    <small class="form-text text-muted">Trendyol API gizli anahtarı</small>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">Token</label>
+                                <div class="col-sm-9">
+                                    <textarea name="module_meschain_sync_trendyol_token" rows="3" placeholder="Base64 kodlanmış token" class="form-control">{{ module_meschain_sync_trendyol_token|default('') }}</textarea>
+                                    <small class="form-text text-muted">Trendyol API token (Base64 formatında)</small>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">Mağaza ID</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="module_meschain_sync_trendyol_store_id" value="{{ module_meschain_sync_trendyol_store_id|default('') }}" placeholder="Mağaza ID numarası" class="form-control"/>
+                                    <small class="form-text text-muted">Trendyol mağaza kimlik numarası (önemli)</small>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-12">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" id="btn-test-trendyol" class="btn btn-info">
+                                            <i class="fas fa-plug"></i> Bağlantı Testi
+                                        </button>
+                                        <button type="button" id="btn-sync-trendyol" class="btn btn-success">
+                                            <i class="fas fa-sync"></i> Şimdi Senkronize Et
+                                        </button>
+                                    </div>
+                                    <div id="trendyol-test-result" class="mt-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- General API Settings -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-cog"></i> Genel API Ayarları</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">{{ entry_api_key }}</label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="module_meschain_sync_api_key" value="{{ module_meschain_sync_api_key|default('') }}" placeholder="{{ entry_api_key }}" class="form-control"/>
+                                    {% if error_api_key %}
+                                        <div class="invalid-feedback d-block">{{ error_api_key }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">MesChain genel API anahtarı</small>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">{{ entry_api_secret }}</label>
+                                <div class="col-sm-9">
+                                    <input type="password" name="module_meschain_sync_api_secret" value="{{ module_meschain_sync_api_secret|default('') }}" placeholder="{{ entry_api_secret }}" class="form-control"/>
+                                    {% if error_api_secret %}
+                                        <div class="invalid-feedback d-block">{{ error_api_secret }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">MesChain genel API gizli anahtarı</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sync Settings -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-sync"></i> Senkronizasyon Ayarları</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">Otomatik Senkronizasyon</label>
+                                <div class="col-sm-9">
+                                    <div class="form-check form-switch">
+                                        <input type="hidden" name="module_meschain_sync_auto_sync" value="0"/>
+                                        <input type="checkbox" name="module_meschain_sync_auto_sync" value="1" id="input-auto-sync" class="form-check-input" {% if module_meschain_sync_auto_sync %} checked {% endif %}/>
+                                        <label class="form-check-label" for="input-auto-sync">Otomatik ürün ve stok senkronizasyonu</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">Senkronizasyon Aralığı</label>
+                                <div class="col-sm-9">
+                                    <select name="module_meschain_sync_interval" class="form-select">
+                                        <option value="5" {% if module_meschain_sync_interval == '5' %} selected {% endif %}>5 dakika</option>
+                                        <option value="15" {% if module_meschain_sync_interval == '15' %} selected {% endif %}>15 dakika</option>
+                                        <option value="30" {% if module_meschain_sync_interval == '30' %} selected {% endif %}>30 dakika</option>
+                                        <option value="60" {% if module_meschain_sync_interval == '60' %} selected {% endif %}>1 saat</option>
+                                        <option value="180" {% if module_meschain_sync_interval == '180' %} selected {% endif %}>3 saat</option>
+                                        <option value="360" {% if module_meschain_sync_interval == '360' %} selected {% endif %}>6 saat</option>
+                                    </select>
+                                    <small class="form-text text-muted">Otomatik senkronizasyon çalışma aralığı</small>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">Stok Uyarı Limiti</label>
+                                <div class="col-sm-9">
+                                    <input type="number" name="module_meschain_sync_stock_warning" value="{{ module_meschain_sync_stock_warning|default('10') }}" min="0" class="form-control"/>
+                                    <small class="form-text text-muted">Bu sayının altında stok uyarısı gönderilir</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>MesChain-Sync Enterprise</strong><br>
+                                Bu modül 7+ pazaryeri entegrasyonu, gerçek zamanlı stok yönetimi ve Azure bulut entegrasyonu sağlar.
+                                Detaylı ayarlar için pazaryeri yönetim panelini kullanın.
+                                <hr>
+                                <strong>Desteklenen Pazaryerleri:</strong> Trendyol, Amazon, N11, Hepsiburada, GittiGidiyor, Çiçeksepeti, Pazarama
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript"><!--
+// Test Trendyol Connection
+$('#btn-test-trendyol').on('click', function() {
+    var button = $(this);
+    var resultDiv = $('#trendyol-test-result');
+
+    button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Test Ediliyor...');
+    resultDiv.empty();
+
+    // Get form data
+    var formData = $('#form-module').serialize();
+
+    $.ajax({
+        url: 'index.php?route=extension/meschain_sync/module/meschain_sync.testTrendyolConnection&user_token={{ user_token }}',
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                resultDiv.html('<div class="alert alert-success"><i class="fas fa-check-circle"></i> ' + json.success + '</div>');
+                if (json.data) {
+                    resultDiv.append('<div class="alert alert-info"><strong>Satıcı Bilgileri:</strong><br><pre>' + JSON.stringify(json.data, null, 2) + '</pre></div>');
+                }
+            } else if (json.error) {
+                resultDiv.html('<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> ' + json.error + '</div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            resultDiv.html('<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Bağlantı hatası: ' + thrownError + '</div>');
+        },
+        complete: function() {
+            button.prop('disabled', false).html('<i class="fas fa-plug"></i> Bağlantı Testi');
+        }
+    });
+});
+
+// Sync to Trendyol
+$('#btn-sync-trendyol').on('click', function() {
+    var button = $(this);
+    var resultDiv = $('#trendyol-test-result');
+
+    if (!confirm('Ürünleri Trendyol\'a senkronize etmek istediğinizden emin misiniz?')) {
+        return;
+    }
+
+    button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Senkronize Ediliyor...');
+    resultDiv.empty();
+
+    $.ajax({
+        url: 'index.php?route=extension/meschain_sync/module/meschain_sync.syncToTrendyol&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                resultDiv.html('<div class="alert alert-success"><i class="fas fa-check-circle"></i> ' + json.success + '</div>');
+                if (json.warning) {
+                    resultDiv.append('<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> ' + json.warning + '</div>');
+                }
+            } else if (json.error) {
+                resultDiv.html('<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> ' + json.error + '</div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            resultDiv.html('<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Senkronizasyon hatası: ' + thrownError + '</div>');
+        },
+        complete: function() {
+            button.prop('disabled', false).html('<i class="fas fa-sync"></i> Şimdi Senkronize Et');
+        }
+    });
+});
+//--></script>
+
+{{ footer }}

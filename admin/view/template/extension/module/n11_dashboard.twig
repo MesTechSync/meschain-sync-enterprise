@@ -1,0 +1,339 @@
+{#
+  n11_dashboard.twig
+  Amaç: n11 modülünün dashboard arayüz şablonu.
+  Standart: Her değişiklikte log tutulmalı (n11_view.log).
+#}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ settings }}" data-toggle="tooltip" title="{{ button_settings }}" class="btn btn-default"><i class="fa fa-cog"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <div class="row">
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-shopping-cart"></i> {{ text_products }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-6 text-center">
+                <h1>{{ product_count }}</h1>
+                <div>{{ text_total_products }}</div>
+              </div>
+              <div class="col-xs-6 text-center">
+                <a href="{{ sync_products }}" id="button-sync-products" class="btn btn-primary btn-lg btn-block">
+                  <i class="fa fa-refresh"></i> {{ button_sync }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_orders }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-6 text-center">
+                <h1>{{ order_count }}</h1>
+                <div>{{ text_total_orders }}</div>
+              </div>
+              <div class="col-xs-6 text-center">
+                <a href="{{ get_orders }}" id="button-get-orders" class="btn btn-success btn-lg btn-block">
+                  <i class="fa fa-download"></i> {{ button_get_orders }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cubes"></i> {{ text_stock }}</h3>
+          </div>
+          <div class="panel-body">
+            <a href="{{ update_stock }}" id="button-update-stock" class="btn btn-info btn-lg btn-block">
+              <i class="fa fa-refresh"></i> {{ button_update_stock }}
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-money"></i> {{ text_prices }}</h3>
+          </div>
+          <div class="panel-body">
+            <a href="{{ update_prices }}" id="button-update-prices" class="btn btn-warning btn-lg btn-block">
+              <i class="fa fa-refresh"></i> {{ button_update_prices }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cogs"></i> {{ text_api_connection }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-8">
+                <p>{{ text_api_description }}</p>
+                <ul>
+                  <li>{{ text_api_username }}: <strong>{{ module_n11_app_key }}</strong></li>
+                  <li>{{ text_api_merchant_id }}: <strong>{{ module_n11_app_secret }}</strong></li>
+                </ul>
+              </div>
+              <div class="col-md-4 text-center">
+                <a href="{{ test_connection }}" id="button-test-connection" class="btn btn-primary btn-lg">
+                  <i class="fa fa-plug"></i> {{ button_test_connection }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-support"></i> {{ text_quick_links }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-4">
+                <a href="{{ orders_url }}" class="btn btn-default btn-lg btn-block">
+                  <i class="fa fa-list"></i> {{ text_view_orders }}
+                </a>
+              </div>
+              <div class="col-md-4">
+                <a href="https://so.n11.com" target="_blank" class="btn btn-default btn-lg btn-block">
+                  <i class="fa fa-external-link"></i> {{ text_merchant_panel }}
+                </a>
+              </div>
+              <div class="col-md-4">
+                <a href="https://api.n11.com/ws" target="_blank" class="btn btn-default btn-lg btn-block">
+                  <i class="fa fa-code"></i> {{ text_api_docs }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+$('#button-sync-products').on('click', function(e) {
+  e.preventDefault();
+  
+  $.ajax({
+    url: $(this).attr('href'),
+    type: 'POST',
+    dataType: 'json',
+    data: {
+      'limit': 20
+    },
+    beforeSend: function() {
+      $('#button-sync-products').button('loading');
+    },
+    complete: function() {
+      $('#button-sync-products').button('reset');
+    },
+    success: function(json) {
+      $('.alert').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['warning']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-warning alert-dismissible"><i class="fa fa-exclamation-triangle"></i> ' + json['warning'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      $('html, body').animate({ scrollTop: 0 }, 'slow');
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      $('.alert').remove();
+      $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> Ürün senkronizasyonu sırasında bir hata oluştu. <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+    }
+  });
+});
+
+$('#button-get-orders').on('click', function(e) {
+  e.preventDefault();
+  
+  $.ajax({
+    url: $(this).attr('href'),
+    type: 'POST',
+    dataType: 'json',
+    data: {
+      'limit': 50,
+      'status': 'New'
+    },
+    beforeSend: function() {
+      $('#button-get-orders').button('loading');
+    },
+    complete: function() {
+      $('#button-get-orders').button('reset');
+    },
+    success: function(json) {
+      $('.alert').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        
+        // Sipariş sayısını güncelle
+        setTimeout(function() {
+          location.reload();
+        }, 2000);
+      }
+      
+      $('html, body').animate({ scrollTop: 0 }, 'slow');
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      $('.alert').remove();
+      $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> Sipariş çekme sırasında bir hata oluştu. <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+    }
+  });
+});
+
+$('#button-update-stock').on('click', function(e) {
+  e.preventDefault();
+  
+  $.ajax({
+    url: $(this).attr('href'),
+    type: 'POST',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-update-stock').button('loading');
+    },
+    complete: function() {
+      $('#button-update-stock').button('reset');
+    },
+    success: function(json) {
+      $('.alert').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      $('html, body').animate({ scrollTop: 0 }, 'slow');
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      $('.alert').remove();
+      $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> Stok güncelleme sırasında bir hata oluştu. <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+    }
+  });
+});
+
+$('#button-update-prices').on('click', function(e) {
+  e.preventDefault();
+  
+  $.ajax({
+    url: $(this).attr('href'),
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-update-prices').button('loading');
+    },
+    complete: function() {
+      $('#button-update-prices').button('reset');
+    },
+    success: function(json) {
+      $('.alert').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      $('html, body').animate({ scrollTop: 0 }, 'slow');
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('#button-test-connection').on('click', function(e) {
+  e.preventDefault();
+  
+  $.ajax({
+    url: $(this).attr('href'),
+    type: 'POST',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-test-connection').button('loading');
+    },
+    complete: function() {
+      $('#button-test-connection').button('reset');
+    },
+    success: function(json) {
+      $('.alert').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+      
+      $('html, body').animate({ scrollTop: 0 }, 'slow');
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      $('.alert').remove();
+      $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> Bağlantı testi sırasında bir hata oluştu. <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+    }
+  });
+});
+//--></script>
+
+{{ footer }} 

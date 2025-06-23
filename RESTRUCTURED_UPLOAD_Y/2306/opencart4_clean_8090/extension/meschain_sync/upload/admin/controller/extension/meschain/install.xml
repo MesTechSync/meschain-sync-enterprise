@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>MesChain Trendyol Integration</name>
+    <code>meschain_trendyol</code>
+    <version>1.0.0</version>
+    <author>MesChain Development Team</author>
+    <link>https://meschain.com</link>
+    <description>
+        <![CDATA[
+        MesChain Trendyol Integration for OpenCart 4.x
+
+        Features:
+        - Complete Trendyol marketplace integration
+        - Product synchronization
+        - Order management
+        - Webhook support
+        - E-Invoice integration
+        - Barcode generation
+        - Multi-language support (Turkish/English)
+        - Modern responsive admin interface
+
+        Requirements:
+        - OpenCart 4.0.2.3 or higher
+        - PHP 7.4 or higher
+        - cURL extension
+        - GD extension (for barcode generation)
+        - Valid Trendyol Seller Center API credentials
+        ]]>
+    </description>
+
+    <file path="admin/controller/extension/meschain/trendyol.php">
+        <operation>add</operation>
+    </file>
+
+    <file path="admin/model/extension/meschain/trendyol.php">
+        <operation>add</operation>
+    </file>
+
+    <file path="admin/view/template/extension/meschain/trendyol.twig">
+        <operation>add</operation>
+    </file>
+
+    <file path="admin/view/template/extension/meschain/trendyol_dashboard.twig">
+        <operation>add</operation>
+    </file>
+
+    <file path="admin/view/template/extension/meschain/trendyol_products.twig">
+        <operation>add</operation>
+    </file>
+
+    <file path="admin/view/template/extension/meschain/trendyol_orders.twig">
+        <operation>add</operation>
+    </file>
+
+    <file path="admin/language/tr-tr/extension/meschain/trendyol.php">
+        <operation>add</operation>
+    </file>
+
+    <file path="admin/language/en-gb/extension/meschain/trendyol.php">
+        <operation>add</operation>
+    </file>
+
+    <file path="catalog/controller/extension/meschain/webhook/trendyol.php">
+        <operation>add</operation>
+    </file>
+
+    <file path="system/library/meschain/api/trendyol_client.php">
+        <operation>add</operation>
+    </file>
+
+    <file path="system/library/meschain/api/einvoice_client.php">
+        <operation>add</operation>
+    </file>
+
+    <file path="system/library/meschain/barcode/barcode_generator.php">
+        <operation>add</operation>
+    </file>
+
+    <!-- Admin Menu Integration -->
+    <file path="admin/view/template/common/column_left.twig">
+        <operation>add</operation>
+        <search><![CDATA[<li><a href="{{ marketplace }}">{{ text_marketplace }}</a></li>]]></search>
+        <add position="after"><![CDATA[
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapse-meschain" aria-expanded="false">
+                    <i class="fas fa-store nav-icon"></i>
+                    <p>MesChain <i class="fas fa-angle-left right"></i></p>
+                </a>
+                <ul class="nav nav-treeview collapse" id="collapse-meschain">
+                    <li class="nav-item">
+                        <a href="{{ trendyol_dashboard }}" class="nav-link">
+                            <i class="fas fa-tachometer-alt nav-icon"></i>
+                            <p>Trendyol Dashboard</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ trendyol_products }}" class="nav-link">
+                            <i class="fas fa-box nav-icon"></i>
+                            <p>Trendyol Products</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ trendyol_orders }}" class="nav-link">
+                            <i class="fas fa-shopping-cart nav-icon"></i>
+                            <p>Trendyol Orders</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ trendyol_settings }}" class="nav-link">
+                            <i class="fas fa-cog nav-icon"></i>
+                            <p>Trendyol Settings</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        ]]></add>
+    </file>
+
+    <!-- Database Tables Creation -->
+    <file path="install/meschain_trendyol_install.sql">
+        <operation>add</operation>
+    </file>
+
+    <!-- Extension Settings -->
+    <file path="admin/controller/startup/meschain_trendyol.php">
+        <operation>add</operation>
+    </file>
+
+    <!-- Cron Job Support -->
+    <file path="system/library/meschain/cron/trendyol_sync.php">
+        <operation>add</operation>
+    </file>
+
+    <!-- Event Handlers -->
+    <file path="catalog/controller/event/meschain_trendyol.php">
+        <operation>add</operation>
+    </file>
+
+    <!-- API Routes -->
+    <file path="catalog/controller/api/meschain/trendyol.php">
+        <operation>add</operation>
+    </file>
+</modification>

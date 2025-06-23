@@ -1,0 +1,60 @@
+{
+    "name": "meschain/trendyol-integration",
+    "description": "MesChain Trendyol Integration for OpenCart - Complete e-commerce marketplace integration",
+    "type": "opencart-extension",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "MesChain Development Team",
+            "email": "dev@meschain.com"
+        }
+    ],
+    "keywords": [
+        "opencart",
+        "trendyol",
+        "e-commerce",
+        "marketplace",
+        "integration",
+        "sync"
+    ],
+    "require": {
+        "php": ">=7.4",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "guzzlehttp/guzzle": "^7.0",
+        "monolog/monolog": "^2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "phpstan/phpstan": "^1.0",
+        "squizlabs/php_codesniffer": "^3.6",
+        "facebook/webdriver": "^1.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "MesChain\\TrendyolIntegration\\": "src/",
+            "MesChain\\TrendyolIntegration\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-unit": "phpunit tests/unit",
+        "test-integration": "phpunit tests/integration",
+        "test-e2e": "phpunit tests/e2e",
+        "test-performance": "phpunit tests/performance",
+        "test-security": "phpunit tests/security",
+        "analyze": "phpstan analyse src tests --level=7",
+        "cs-check": "phpcs src tests --standard=PSR12",
+        "cs-fix": "phpcbf src tests --standard=PSR12",
+        "build": "./build.sh",
+        "deploy": "./deployment/deploy.sh"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

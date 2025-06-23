@@ -1,0 +1,538 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="export-scaling-report" class="btn btn-primary">
+          <i class="fa fa-download"></i> {{ text_export_report }}
+        </button>
+        <button type="button" id="refresh-scaling-data" class="btn btn-success">
+          <i class="fa fa-refresh"></i> {{ text_refresh }}
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Infrastructure Overview Cards -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cubes fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="microservices-count">0</div>
+                <div>{{ text_microservices_ready }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left" id="microservices-status">{{ text_evaluating }}</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-expand fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="scaling-capacity">100%</div>
+                <div>{{ text_scaling_capacity }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left" id="scaling-status">{{ text_ready }}</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-docker fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="container-count">0</div>
+                <div>{{ text_containers_active }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left" id="container-status">{{ text_initializing }}</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-database fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="db-cluster-nodes">1</div>
+                <div>{{ text_database_nodes }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left" id="db-cluster-status">{{ text_single_node }}</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scaling Metrics Charts -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-line-chart fa-fw"></i> {{ text_scaling_trends }}
+          </div>
+          <div class="panel-body">
+            <canvas id="scalingTrendsChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-pie-chart fa-fw"></i> {{ text_resource_distribution }}
+          </div>
+          <div class="panel-body">
+            <canvas id="resourceDistributionChart" width="200" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Infrastructure Components Status -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-server fa-fw"></i> {{ text_load_balancer_status }}
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>{{ text_endpoint }}</th>
+                    <th>{{ text_status }}</th>
+                    <th>{{ text_response_time }}</th>
+                    <th>{{ text_load }}</th>
+                  </tr>
+                </thead>
+                <tbody id="load-balancer-table">
+                  <tr>
+                    <td colspan="4" class="text-center">{{ text_loading }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-cogs fa-fw"></i> {{ text_cicd_pipeline }}
+          </div>
+          <div class="panel-body">
+            <div class="progress-group">
+              <span class="progress-text">{{ text_build_stage }}</span>
+              <span class="float-right"><b id="build-progress">0</b>/100</span>
+              <div class="progress progress-sm">
+                <div class="progress-bar bg-primary" id="build-bar" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="progress-group">
+              <span class="progress-text">{{ text_test_stage }}</span>
+              <span class="float-right"><b id="test-progress">0</b>/100</span>
+              <div class="progress progress-sm">
+                <div class="progress-bar bg-success" id="test-bar" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="progress-group">
+              <span class="progress-text">{{ text_deploy_stage }}</span>
+              <span class="float-right"><b id="deploy-progress">0</b>/100</span>
+              <div class="progress progress-sm">
+                <div class="progress-bar bg-warning" id="deploy-bar" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kubernetes Cluster Status -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-ship fa-fw"></i> {{ text_kubernetes_cluster }}
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-3">
+                <div class="description-block border-right">
+                  <span class="description-percentage text-green" id="k8s-cpu-usage">0%</span>
+                  <h5 class="description-header">{{ text_cpu_usage }}</h5>
+                  <span class="description-text">{{ text_cluster_wide }}</span>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="description-block border-right">
+                  <span class="description-percentage text-blue" id="k8s-memory-usage">0%</span>
+                  <h5 class="description-header">{{ text_memory_usage }}</h5>
+                  <span class="description-text">{{ text_cluster_wide }}</span>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="description-block border-right">
+                  <span class="description-percentage text-yellow" id="k8s-pods-running">0</span>
+                  <h5 class="description-header">{{ text_pods_running }}</h5>
+                  <span class="description-text">{{ text_active_pods }}</span>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="description-block">
+                  <span class="description-percentage text-red" id="k8s-nodes-ready">0</span>
+                  <h5 class="description-header">{{ text_nodes_ready }}</h5>
+                  <span class="description-text">{{ text_cluster_nodes }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scaling Recommendations -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <i class="fa fa-lightbulb-o fa-fw"></i> {{ text_scaling_recommendations }}
+          </div>
+          <div class="panel-body">
+            <div id="recommendations-list">
+              <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i> {{ text_analyzing_recommendations }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.panel-green {
+  border-color: #5cb85c;
+}
+.panel-green > .panel-heading {
+  border-color: #5cb85c;
+  color: white;
+  background-color: #5cb85c;
+}
+.panel-green > a {
+  color: #5cb85c;
+}
+.panel-green > a:hover {
+  color: #3d8b3d;
+}
+
+.panel-yellow {
+  border-color: #f0ad4e;
+}
+.panel-yellow > .panel-heading {
+  border-color: #f0ad4e;
+  color: white;
+  background-color: #f0ad4e;
+}
+
+.panel-red {
+  border-color: #d9534f;
+}
+.panel-red > .panel-heading {
+  border-color: #d9534f;
+  color: white;
+  background-color: #d9534f;
+}
+
+.huge {
+  font-size: 40px;
+}
+
+.progress-group {
+  margin-bottom: 15px;
+}
+
+.description-block {
+  text-align: center;
+  padding: 15px;
+}
+
+.description-percentage {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.description-header {
+  margin: 10px 0 5px 0;
+  font-size: 16px;
+}
+
+.description-text {
+  color: #999;
+  font-size: 12px;
+}
+
+.border-right {
+  border-right: 1px solid #f0f0f0;
+}
+
+.text-green { color: #5cb85c !important; }
+.text-blue { color: #337ab7 !important; }
+.text-yellow { color: #f0ad4e !important; }
+.text-red { color: #d9534f !important; }
+
+.bg-primary { background-color: #337ab7 !important; }
+.bg-success { background-color: #5cb85c !important; }
+.bg-warning { background-color: #f0ad4e !important; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+$(document).ready(function() {
+  let scalingTrendsChart, resourceDistributionChart;
+  
+  // Initialize Charts
+  function initializeCharts() {
+    // Scaling Trends Chart
+    const scalingCtx = document.getElementById('scalingTrendsChart').getContext('2d');
+    scalingTrendsChart = new Chart(scalingCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: '{{ text_cpu_usage }}',
+          data: [],
+          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.1
+        }, {
+          label: '{{ text_memory_usage }}',
+          data: [],
+          borderColor: 'rgb(255, 99, 132)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          tension: 0.1
+        }, {
+          label: '{{ text_network_io }}',
+          data: [],
+          borderColor: 'rgb(54, 162, 235)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100
+          }
+        }
+      }
+    });
+
+    // Resource Distribution Chart
+    const resourceCtx = document.getElementById('resourceDistributionChart').getContext('2d');
+    resourceDistributionChart = new Chart(resourceCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['{{ text_web_servers }}', '{{ text_databases }}', '{{ text_cache_servers }}', '{{ text_queue_workers }}'],
+        datasets: [{
+          data: [40, 25, 20, 15],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 205, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+
+  // Load Infrastructure Data
+  function loadInfrastructureData() {
+    $.ajax({
+      url: 'index.php?route=extension/module/infrastructure_scaling_dashboard/getScalingMetrics&user_token={{ user_token }}',
+      type: 'GET',
+      dataType: 'json',
+      success: function(data) {
+        updateDashboard(data);
+      },
+      error: function() {
+        console.error('Failed to load infrastructure data');
+      }
+    });
+  }
+
+  // Update Dashboard
+  function updateDashboard(data) {
+    // Update overview cards
+    $('#microservices-count').text(data.microservices.ready_count || 0);
+    $('#microservices-status').text(data.microservices.status || '{{ text_evaluating }}');
+    
+    $('#scaling-capacity').text((data.scaling.current_capacity || 100) + '%');
+    $('#scaling-status').text(data.scaling.status || '{{ text_ready }}');
+    
+    $('#container-count').text(data.containers.active_count || 0);
+    $('#container-status').text(data.containers.status || '{{ text_initializing }}');
+    
+    $('#db-cluster-nodes').text(data.database.cluster_nodes || 1);
+    $('#db-cluster-status').text(data.database.status || '{{ text_single_node }}');
+
+    // Update Kubernetes metrics
+    $('#k8s-cpu-usage').text((data.kubernetes.cpu_usage || 0) + '%');
+    $('#k8s-memory-usage').text((data.kubernetes.memory_usage || 0) + '%');
+    $('#k8s-pods-running').text(data.kubernetes.pods_running || 0);
+    $('#k8s-nodes-ready').text(data.kubernetes.nodes_ready || 0);
+
+    // Update CI/CD Pipeline
+    updatePipelineProgress(data.cicd || {});
+
+    // Update Load Balancer Table
+    updateLoadBalancerTable(data.load_balancer || []);
+
+    // Update Charts
+    updateCharts(data.metrics || {});
+
+    // Update Recommendations
+    updateRecommendations(data.recommendations || []);
+  }
+
+  // Update Pipeline Progress
+  function updatePipelineProgress(cicd) {
+    $('#build-progress').text(cicd.build_progress || 0);
+    $('#build-bar').css('width', (cicd.build_progress || 0) + '%');
+    
+    $('#test-progress').text(cicd.test_progress || 0);
+    $('#test-bar').css('width', (cicd.test_progress || 0) + '%');
+    
+    $('#deploy-progress').text(cicd.deploy_progress || 0);
+    $('#deploy-bar').css('width', (cicd.deploy_progress || 0) + '%');
+  }
+
+  // Update Load Balancer Table
+  function updateLoadBalancerTable(loadBalancers) {
+    let html = '';
+    if (loadBalancers.length === 0) {
+      html = '<tr><td colspan="4" class="text-center">{{ text_no_load_balancers }}</td></tr>';
+    } else {
+      loadBalancers.forEach(function(lb) {
+        const statusClass = lb.status === 'healthy' ? 'success' : 'danger';
+        html += `
+          <tr>
+            <td>${lb.endpoint}</td>
+            <td><span class="label label-${statusClass}">${lb.status}</span></td>
+            <td>${lb.response_time}ms</td>
+            <td>${lb.load}%</td>
+          </tr>
+        `;
+      });
+    }
+    $('#load-balancer-table').html(html);
+  }
+
+  // Update Charts
+  function updateCharts(metrics) {
+    if (metrics.timeline) {
+      scalingTrendsChart.data.labels = metrics.timeline;
+      scalingTrendsChart.data.datasets[0].data = metrics.cpu_usage || [];
+      scalingTrendsChart.data.datasets[1].data = metrics.memory_usage || [];
+      scalingTrendsChart.data.datasets[2].data = metrics.network_io || [];
+      scalingTrendsChart.update();
+    }
+
+    if (metrics.resource_distribution) {
+      resourceDistributionChart.data.datasets[0].data = metrics.resource_distribution;
+      resourceDistributionChart.update();
+    }
+  }
+
+  // Update Recommendations
+  function updateRecommendations(recommendations) {
+    let html = '';
+    if (recommendations.length === 0) {
+      html = '<div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_no_recommendations }}</div>';
+    } else {
+      recommendations.forEach(function(rec) {
+        const alertClass = rec.priority === 'high' ? 'danger' : (rec.priority === 'medium' ? 'warning' : 'info');
+        html += `
+          <div class="alert alert-${alertClass}">
+            <i class="fa fa-${rec.icon || 'info-circle'}"></i>
+            <strong>${rec.title}</strong><br>
+            ${rec.description}
+          </div>
+        `;
+      });
+    }
+    $('#recommendations-list').html(html);
+  }
+
+  // Event Handlers
+  $('#refresh-scaling-data').click(function() {
+    loadInfrastructureData();
+  });
+
+  $('#export-scaling-report').click(function() {
+    window.location.href = 'index.php?route=extension/module/infrastructure_scaling_dashboard/exportReport&user_token={{ user_token }}';
+  });
+
+  // Initialize
+  initializeCharts();
+  loadInfrastructureData();
+  
+  // Auto-refresh every 10 seconds
+  setInterval(loadInfrastructureData, 10000);
+});
+</script>
+
+{{ footer }}

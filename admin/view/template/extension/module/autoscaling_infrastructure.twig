@@ -1,0 +1,1018 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="btn-execute-scaling" class="btn btn-success" title="Execute Scaling">
+          <i class="fa fa-expand"></i> Execute Scaling
+        </button>
+        <button type="button" id="btn-refresh-data" class="btn btn-info" title="Refresh Data">
+          <i class="fa fa-refresh"></i> Refresh
+        </button>
+      </div>
+      <h1>🚀 Auto-Scaling Infrastructure - ATOM-M013</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    
+    <!-- Real-time Status Overview -->
+    <div class="row" style="margin-bottom: 20px;">
+      <div class="col-md-3">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-expand-arrows-alt"></i> Horizontal Scaling</h3>
+          </div>
+          <div class="panel-body">
+            <div id="horizontal-scaling-status">
+              <div class="text-center">
+                <i class="fa fa-spinner fa-spin fa-2x"></i>
+                <p>Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-arrows-alt-v"></i> Vertical Scaling</h3>
+          </div>
+          <div class="panel-body">
+            <div id="vertical-scaling-status">
+              <div class="text-center">
+                <i class="fa fa-spinner fa-spin fa-2x"></i>
+                <p>Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-brain"></i> Predictive Scaling</h3>
+          </div>
+          <div class="panel-body">
+            <div id="predictive-scaling-status">
+              <div class="text-center">
+                <i class="fa fa-spinner fa-spin fa-2x"></i>
+                <p>Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-server"></i> Cluster Scaling</h3>
+          </div>
+          <div class="panel-body">
+            <div id="cluster-scaling-status">
+              <div class="text-center">
+                <i class="fa fa-spinner fa-spin fa-2x"></i>
+                <p>Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Real-time Metrics Dashboard -->
+    <div class="row" style="margin-bottom: 20px;">
+      <div class="col-md-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-chart-line"></i> Real-time Scaling Metrics</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <canvas id="cpu-utilization-chart" width="400" height="300"></canvas>
+              </div>
+              <div class="col-md-6">
+                <canvas id="memory-utilization-chart" width="400" height="300"></canvas>
+              </div>
+            </div>
+            <div class="row" style="margin-top: 20px;">
+              <div class="col-md-6">
+                <canvas id="network-io-chart" width="400" height="300"></canvas>
+              </div>
+              <div class="col-md-6">
+                <canvas id="scaling-history-chart" width="400" height="300"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-tachometer-alt"></i> Overall Health</h3>
+          </div>
+          <div class="panel-body">
+            <div id="overall-health-metrics">
+              <div class="text-center">
+                <i class="fa fa-spinner fa-spin fa-2x"></i>
+                <p>Loading health metrics...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-dollar-sign"></i> Cost Efficiency</h3>
+          </div>
+          <div class="panel-body">
+            <div id="cost-efficiency-metrics">
+              <div class="text-center">
+                <i class="fa fa-spinner fa-spin fa-2x"></i>
+                <p>Loading cost metrics...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Scaling Policies Management -->
+    <div class="row" style="margin-bottom: 20px;">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cogs"></i> Scaling Policies Management</h3>
+          </div>
+          <div class="panel-body">
+            <ul class="nav nav-tabs" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#horizontal-policies" aria-controls="horizontal-policies" role="tab" data-toggle="tab">
+                  <i class="fa fa-expand-arrows-alt"></i> Horizontal Policies
+                </a>
+              </li>
+              <li role="presentation">
+                <a href="#vertical-policies" aria-controls="vertical-policies" role="tab" data-toggle="tab">
+                  <i class="fa fa-arrows-alt-v"></i> Vertical Policies
+                </a>
+              </li>
+              <li role="presentation">
+                <a href="#predictive-policies" aria-controls="predictive-policies" role="tab" data-toggle="tab">
+                  <i class="fa fa-brain"></i> Predictive Policies
+                </a>
+              </li>
+              <li role="presentation">
+                <a href="#cost-policies" aria-controls="cost-policies" role="tab" data-toggle="tab">
+                  <i class="fa fa-dollar-sign"></i> Cost Optimization
+                </a>
+              </li>
+            </ul>
+            
+            <div class="tab-content" style="margin-top: 20px;">
+              <div role="tabpanel" class="tab-pane active" id="horizontal-policies">
+                <div id="horizontal-policies-content">
+                  <div class="text-center">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                    <p>Loading horizontal scaling policies...</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div role="tabpanel" class="tab-pane" id="vertical-policies">
+                <div id="vertical-policies-content">
+                  <div class="text-center">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                    <p>Loading vertical scaling policies...</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div role="tabpanel" class="tab-pane" id="predictive-policies">
+                <div id="predictive-policies-content">
+                  <div class="text-center">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                    <p>Loading predictive scaling policies...</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div role="tabpanel" class="tab-pane" id="cost-policies">
+                <div id="cost-optimization-content">
+                  <div class="text-center">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                    <p>Loading cost optimization data...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Performance Metrics Table -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-chart-bar"></i> Performance Metrics & Scaling History</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped" id="scaling-history-table">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Action</th>
+                    <th>Type</th>
+                    <th>Before</th>
+                    <th>After</th>
+                    <th>Trigger</th>
+                    <th>Duration (s)</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="scaling-history-tbody">
+                  <tr>
+                    <td colspan="8" class="text-center">
+                      <i class="fa fa-spinner fa-spin"></i> Loading scaling history...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Scaling Execution Modal -->
+<div class="modal fade" id="scaling-execution-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><i class="fa fa-expand"></i> Execute Scaling Operation</h4>
+      </div>
+      <div class="modal-body">
+        <form id="scaling-execution-form">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="scaling-action">Scaling Action</label>
+                <select class="form-control" id="scaling-action" name="action">
+                  <option value="SCALE_OUT">Scale Out (Horizontal)</option>
+                  <option value="SCALE_IN">Scale In (Horizontal)</option>
+                  <option value="SCALE_UP">Scale Up (Vertical)</option>
+                  <option value="SCALE_DOWN">Scale Down (Vertical)</option>
+                  <option value="ADD_NODE">Add Cluster Node</option>
+                  <option value="REMOVE_NODE">Remove Cluster Node</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="scaling-type">Scaling Type</label>
+                <select class="form-control" id="scaling-type" name="type">
+                  <option value="HORIZONTAL">Horizontal Scaling</option>
+                  <option value="VERTICAL">Vertical Scaling</option>
+                  <option value="CLUSTER">Cluster Scaling</option>
+                  <option value="PREDICTIVE">Predictive Scaling</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="scaling-magnitude">Scaling Magnitude</label>
+                <input type="number" class="form-control" id="scaling-magnitude" name="magnitude" value="1" min="1" max="10">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="scaling-priority">Priority</label>
+                <select class="form-control" id="scaling-priority" name="priority">
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM" selected>Medium</option>
+                  <option value="HIGH">High</option>
+                  <option value="EMERGENCY">Emergency</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i> This operation will be executed immediately. Make sure you understand the impact on your infrastructure.
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" id="confirm-scaling-execution">
+          <i class="fa fa-expand"></i> Execute Scaling
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Global variables
+    let cpuChart, memoryChart, networkChart, historyChart;
+    let refreshInterval;
+    
+    // Initialize dashboard
+    initializeDashboard();
+    
+    // Auto-refresh every 5 seconds
+    refreshInterval = setInterval(function() {
+        loadScalingStatus();
+        loadScalingMetrics();
+    }, 5000);
+    
+    /**
+     * Initialize the dashboard
+     */
+    function initializeDashboard() {
+        loadScalingStatus();
+        loadScalingMetrics();
+        loadScalingPolicies();
+        initializeCharts();
+        
+        console.log('[AUTOSCALING-INFRASTRUCTURE] Dashboard initialized');
+    }
+    
+    /**
+     * Load scaling status
+     */
+    function loadScalingStatus() {
+        $.ajax({
+            url: '{{ ajax_scaling_status }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    updateScalingStatus(response.data);
+                } else {
+                    console.error('[AUTOSCALING-INFRASTRUCTURE] Error loading status:', response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('[AUTOSCALING-INFRASTRUCTURE] AJAX error loading status:', error);
+            }
+        });
+    }
+    
+    /**
+     * Load scaling metrics
+     */
+    function loadScalingMetrics() {
+        $.ajax({
+            url: '{{ ajax_scaling_metrics }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    updateScalingMetrics(response.data);
+                    updateCharts(response.data);
+                } else {
+                    console.error('[AUTOSCALING-INFRASTRUCTURE] Error loading metrics:', response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('[AUTOSCALING-INFRASTRUCTURE] AJAX error loading metrics:', error);
+            }
+        });
+    }
+    
+    /**
+     * Load scaling policies
+     */
+    function loadScalingPolicies() {
+        $.ajax({
+            url: '{{ ajax_scaling_policies }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    updateScalingPolicies(response.data);
+                } else {
+                    console.error('[AUTOSCALING-INFRASTRUCTURE] Error loading policies:', response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('[AUTOSCALING-INFRASTRUCTURE] AJAX error loading policies:', error);
+            }
+        });
+    }
+    
+    /**
+     * Load cost optimization data
+     */
+    function loadCostOptimization() {
+        $.ajax({
+            url: '{{ ajax_cost_optimization }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    updateCostOptimization(response.data);
+                } else {
+                    console.error('[AUTOSCALING-INFRASTRUCTURE] Error loading cost data:', response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('[AUTOSCALING-INFRASTRUCTURE] AJAX error loading cost data:', error);
+            }
+        });
+    }
+    
+    /**
+     * Update scaling status display
+     */
+    function updateScalingStatus(data) {
+        // Horizontal Scaling Status
+        $('#horizontal-scaling-status').html(`
+            <div class="text-center">
+                <h2 class="text-primary">${data.horizontal_scaling.current_instances}</h2>
+                <p><strong>Current Instances</strong></p>
+                <div class="progress" style="margin: 10px 0;">
+                    <div class="progress-bar progress-bar-info" style="width: ${data.horizontal_scaling.current_cpu_utilization}%">
+                        ${data.horizontal_scaling.current_cpu_utilization}% CPU
+                    </div>
+                </div>
+                <small class="text-muted">Target: ${data.horizontal_scaling.target_cpu_utilization}%</small><br>
+                <small class="text-muted">Range: ${data.horizontal_scaling.min_instances}-${data.horizontal_scaling.max_instances}</small>
+            </div>
+        `);
+        
+        // Vertical Scaling Status
+        $('#vertical-scaling-status').html(`
+            <div class="text-center">
+                <h2 class="text-success">${data.vertical_scaling.current_cpu_cores}C / ${data.vertical_scaling.current_memory_gb}GB</h2>
+                <p><strong>CPU / Memory</strong></p>
+                <div class="progress" style="margin: 5px 0;">
+                    <div class="progress-bar progress-bar-warning" style="width: ${data.vertical_scaling.cpu_utilization}%">
+                        ${data.vertical_scaling.cpu_utilization}% CPU
+                    </div>
+                </div>
+                <div class="progress" style="margin: 5px 0;">
+                    <div class="progress-bar progress-bar-info" style="width: ${data.vertical_scaling.memory_utilization}%">
+                        ${data.vertical_scaling.memory_utilization}% Memory
+                    </div>
+                </div>
+            </div>
+        `);
+        
+        // Predictive Scaling Status
+        $('#predictive-scaling-status').html(`
+            <div class="text-center">
+                <h2 class="text-warning">${data.predictive_scaling.prediction_accuracy}%</h2>
+                <p><strong>Prediction Accuracy</strong></p>
+                <p><small>Predictions: ${data.predictive_scaling.predictions_made}</small></p>
+                <p><small>Successful: ${data.predictive_scaling.successful_predictions}</small></p>
+                <div class="alert alert-info" style="margin: 10px 0; padding: 5px;">
+                    <small><strong>Next Event:</strong><br>
+                    ${data.predictive_scaling.next_scaling_event.predicted_action} in ~30min<br>
+                    Confidence: ${data.predictive_scaling.next_scaling_event.confidence}%</small>
+                </div>
+            </div>
+        `);
+        
+        // Cluster Scaling Status
+        $('#cluster-scaling-status').html(`
+            <div class="text-center">
+                <h2 class="text-info">${data.cluster_scaling.current_nodes}</h2>
+                <p><strong>Cluster Nodes</strong></p>
+                <div class="progress" style="margin: 10px 0;">
+                    <div class="progress-bar progress-bar-success" style="width: ${data.cluster_scaling.node_utilization}%">
+                        ${data.cluster_scaling.node_utilization}% Utilized
+                    </div>
+                </div>
+                <small class="text-muted">On-Demand: ${data.cluster_scaling.node_groups.on_demand}</small><br>
+                <small class="text-muted">Spot: ${data.cluster_scaling.node_groups.spot_instances}</small>
+            </div>
+        `);
+        
+        // Overall Health
+        $('#overall-health-metrics').html(`
+            <div class="text-center">
+                <div class="alert alert-success">
+                    <h3><i class="fa fa-check-circle"></i> ${data.overall_health.status}</h3>
+                    <h2>${data.overall_health.health_score}/100</h2>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <small><strong>Performance:</strong> ${data.overall_health.performance_score}/100</small>
+                    </div>
+                    <div class="col-xs-6">
+                        <small><strong>Availability:</strong> ${data.overall_health.availability}%</small>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-xs-6">
+                        <small><strong>Cost Efficiency:</strong> ${data.overall_health.cost_efficiency}/100</small>
+                    </div>
+                    <div class="col-xs-6">
+                        <small><strong>Active Alerts:</strong> ${data.overall_health.active_alerts}</small>
+                    </div>
+                </div>
+            </div>
+        `);
+    }
+    
+    /**
+     * Update scaling metrics display
+     */
+    function updateScalingMetrics(data) {
+        // Update cost efficiency metrics
+        $('#cost-efficiency-metrics').html(`
+            <div class="text-center">
+                <h3 class="text-success">$${data.cost_metrics.current_hourly_cost}/hour</h3>
+                <p><strong>Current Cost</strong></p>
+                <div class="alert alert-info" style="margin: 10px 0; padding: 10px;">
+                    <small><strong>Monthly Projected:</strong> $${data.cost_metrics.projected_monthly_cost}</small><br>
+                    <small><strong>Cost per Request:</strong> $${data.cost_metrics.cost_per_request}</small><br>
+                    <small><strong>Efficiency Score:</strong> ${data.cost_metrics.efficiency_score}/100</small><br>
+                    <small class="text-success"><strong>Savings:</strong> ${data.cost_metrics.cost_savings}%</small>
+                </div>
+            </div>
+        `);
+        
+        // Update scaling history table
+        updateScalingHistoryTable(data.scaling_history);
+    }
+    
+    /**
+     * Update scaling history table
+     */
+    function updateScalingHistoryTable(historyData) {
+        let tbody = '';
+        historyData.forEach(function(item) {
+            tbody += `
+                <tr>
+                    <td>${item.timestamp}</td>
+                    <td><span class="label label-primary">${item.action}</span></td>
+                    <td><span class="label label-info">${item.type}</span></td>
+                    <td>${item.before}</td>
+                    <td>${item.after}</td>
+                    <td><span class="label label-warning">${item.trigger}</span></td>
+                    <td>${item.duration}s</td>
+                    <td><span class="label label-success">SUCCESS</span></td>
+                </tr>
+            `;
+        });
+        $('#scaling-history-tbody').html(tbody);
+    }
+    
+    /**
+     * Update scaling policies display
+     */
+    function updateScalingPolicies(data) {
+        // Horizontal Policies
+        let horizontalPoliciesHtml = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>Policy Name</th><th>Status</th><th>Metric</th><th>Thresholds</th><th>Instances</th><th>Actions</th></tr></thead><tbody>';
+        data.horizontal_scaling_policies.forEach(function(policy) {
+            horizontalPoliciesHtml += `
+                <tr>
+                    <td><strong>${policy.name}</strong></td>
+                    <td><span class="label label-success">${policy.status}</span></td>
+                    <td>${policy.metric}</td>
+                    <td>↑${policy.threshold_up}% / ↓${policy.threshold_down}%</td>
+                    <td>${policy.min_instances}-${policy.max_instances}</td>
+                    <td>
+                        <button class="btn btn-xs btn-info" onclick="editPolicy('horizontal', '${policy.name}')">
+                            <i class="fa fa-edit"></i> Edit
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        horizontalPoliciesHtml += '</tbody></table></div>';
+        $('#horizontal-policies-content').html(horizontalPoliciesHtml);
+        
+        // Vertical Policies
+        let verticalPoliciesHtml = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>Policy Name</th><th>Status</th><th>Resource</th><th>Thresholds</th><th>Range</th><th>Actions</th></tr></thead><tbody>';
+        data.vertical_scaling_policies.forEach(function(policy) {
+            verticalPoliciesHtml += `
+                <tr>
+                    <td><strong>${policy.name}</strong></td>
+                    <td><span class="label label-success">${policy.status}</span></td>
+                    <td>${policy.resource}</td>
+                    <td>↑${policy.threshold_up}% / ↓${policy.threshold_down}%</td>
+                    <td>${policy.min_value}-${policy.max_value}</td>
+                    <td>
+                        <button class="btn btn-xs btn-info" onclick="editPolicy('vertical', '${policy.name}')">
+                            <i class="fa fa-edit"></i> Edit
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        verticalPoliciesHtml += '</tbody></table></div>';
+        $('#vertical-policies-content').html(verticalPoliciesHtml);
+        
+        // Predictive Policies
+        let predictivePoliciesHtml = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>Policy Name</th><th>Algorithm</th><th>Accuracy</th><th>Window</th><th>Cost Savings</th><th>Actions</th></tr></thead><tbody>';
+        data.predictive_scaling_policies.forEach(function(policy) {
+            predictivePoliciesHtml += `
+                <tr>
+                    <td><strong>${policy.name}</strong></td>
+                    <td>${policy.algorithm}</td>
+                    <td><span class="text-success">${policy.accuracy}%</span></td>
+                    <td>${policy.prediction_window / 60} min</td>
+                    <td><span class="text-success">${policy.cost_savings}%</span></td>
+                    <td>
+                        <button class="btn btn-xs btn-info" onclick="editPolicy('predictive', '${policy.name}')">
+                            <i class="fa fa-edit"></i> Edit
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        predictivePoliciesHtml += '</tbody></table></div>';
+        $('#predictive-policies-content').html(predictivePoliciesHtml);
+        
+        // Load cost optimization when cost policies tab is shown
+        $('a[href="#cost-policies"]').on('shown.bs.tab', function() {
+            loadCostOptimization();
+        });
+    }
+    
+    /**
+     * Update cost optimization display
+     */
+    function updateCostOptimization(data) {
+        let costHtml = `
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h4>Current Costs</h4>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <tr><td>Hourly Cost:</td><td><strong>$${data.current_costs.hourly_cost}</strong></td></tr>
+                                <tr><td>Daily Cost:</td><td><strong>$${data.current_costs.daily_cost}</strong></td></tr>
+                                <tr><td>Monthly Projected:</td><td><strong>$${data.current_costs.monthly_cost_projected}</strong></td></tr>
+                                <tr><td>Annual Projected:</td><td><strong>$${data.current_costs.annual_cost_projected}</strong></td></tr>
+                                <tr><td>Cost Trend:</td><td><span class="text-success">${data.current_costs.cost_trend} (${data.current_costs.cost_change_percentage}%)</span></td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-success">
+                        <div class="panel-heading">
+                            <h4>ROI Analysis</h4>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <tr><td>Current Monthly Savings:</td><td><strong>$${data.roi_analysis.current_monthly_savings}</strong></td></tr>
+                                <tr><td>Potential Additional Savings:</td><td><strong>$${data.roi_analysis.potential_additional_savings}</strong></td></tr>
+                                <tr><td>Total Potential Savings:</td><td><strong>$${data.roi_analysis.total_potential_savings}</strong></td></tr>
+                                <tr><td>ROI Percentage:</td><td><span class="text-success"><strong>${data.roi_analysis.roi_percentage}%</strong></span></td></tr>
+                                <tr><td>Payback Period:</td><td><strong>${data.roi_analysis.payback_period_months} months</strong></td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h4>Optimization Opportunities</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Opportunity</th>
+                                    <th>Potential Savings</th>
+                                    <th>Risk Level</th>
+                                    <th>Implementation Effort</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+        `;
+        
+        data.optimization_opportunities.forEach(function(opportunity) {
+            costHtml += `
+                <tr>
+                    <td><strong>${opportunity.opportunity}</strong></td>
+                    <td><span class="text-success">$${opportunity.potential_savings}</span></td>
+                    <td><span class="label label-${opportunity.risk_level === 'LOW' ? 'success' : (opportunity.risk_level === 'MEDIUM' ? 'warning' : 'danger')}">${opportunity.risk_level}</span></td>
+                    <td><span class="label label-${opportunity.implementation_effort === 'LOW' ? 'success' : (opportunity.implementation_effort === 'MEDIUM' ? 'warning' : 'danger')}">${opportunity.implementation_effort}</span></td>
+                    <td>
+                        <button class="btn btn-xs btn-success" onclick="implementOptimization('${opportunity.opportunity}')">
+                            <i class="fa fa-check"></i> Implement
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        costHtml += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#cost-optimization-content').html(costHtml);
+    }
+    
+    /**
+     * Initialize charts
+     */
+    function initializeCharts() {
+        // CPU Utilization Chart
+        const cpuCtx = document.getElementById('cpu-utilization-chart').getContext('2d');
+        cpuChart = new Chart(cpuCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'CPU Utilization (%)',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'CPU Utilization Over Time'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+        
+        // Memory Utilization Chart
+        const memoryCtx = document.getElementById('memory-utilization-chart').getContext('2d');
+        memoryChart = new Chart(memoryCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Memory Utilization (%)',
+                    data: [],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Memory Utilization Over Time'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+        
+        // Network I/O Chart
+        const networkCtx = document.getElementById('network-io-chart').getContext('2d');
+        networkChart = new Chart(networkCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Ingress (Mbps)',
+                    data: [],
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.1
+                }, {
+                    label: 'Egress (Mbps)',
+                    data: [],
+                    borderColor: 'rgb(255, 206, 86)',
+                    backgroundColor: 'rgba(255, 206, 86, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Network I/O Over Time'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Scaling History Chart
+        const historyCtx = document.getElementById('scaling-history-chart').getContext('2d');
+        historyChart = new Chart(historyCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Instance Count',
+                    data: [],
+                    backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                    borderColor: 'rgb(153, 102, 255)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Instance Count History'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    /**
+     * Update charts with new data
+     */
+    function updateCharts(data) {
+        const now = new Date().toLocaleTimeString();
+        
+        // Update CPU chart
+        cpuChart.data.labels.push(now);
+        cpuChart.data.datasets[0].data.push(data.real_time_metrics.cpu_utilization.current);
+        if (cpuChart.data.labels.length > 20) {
+            cpuChart.data.labels.shift();
+            cpuChart.data.datasets[0].data.shift();
+        }
+        cpuChart.update();
+        
+        // Update Memory chart
+        memoryChart.data.labels.push(now);
+        memoryChart.data.datasets[0].data.push(data.real_time_metrics.memory_utilization.current);
+        if (memoryChart.data.labels.length > 20) {
+            memoryChart.data.labels.shift();
+            memoryChart.data.datasets[0].data.shift();
+        }
+        memoryChart.update();
+        
+        // Update Network chart
+        networkChart.data.labels.push(now);
+        networkChart.data.datasets[0].data.push(data.real_time_metrics.network_io.ingress_mbps);
+        networkChart.data.datasets[1].data.push(data.real_time_metrics.network_io.egress_mbps);
+        if (networkChart.data.labels.length > 20) {
+            networkChart.data.labels.shift();
+            networkChart.data.datasets[0].data.shift();
+            networkChart.data.datasets[1].data.shift();
+        }
+        networkChart.update();
+    }
+    
+    /**
+     * Event handlers
+     */
+    
+    // Refresh button
+    $('#btn-refresh-data').click(function() {
+        loadScalingStatus();
+        loadScalingMetrics();
+        loadScalingPolicies();
+        $(this).find('i').addClass('fa-spin');
+        setTimeout(() => {
+            $(this).find('i').removeClass('fa-spin');
+        }, 1000);
+    });
+    
+    // Execute scaling button
+    $('#btn-execute-scaling').click(function() {
+        $('#scaling-execution-modal').modal('show');
+    });
+    
+    // Confirm scaling execution
+    $('#confirm-scaling-execution').click(function() {
+        executeScaling();
+    });
+    
+    /**
+     * Execute scaling operation
+     */
+    function executeScaling() {
+        const formData = {
+            action: $('#scaling-action').val(),
+            type: $('#scaling-type').val(),
+            parameters: {
+                magnitude: $('#scaling-magnitude').val(),
+                priority: $('#scaling-priority').val()
+            }
+        };
+        
+        $.ajax({
+            url: '{{ ajax_execute_scaling }}',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#scaling-execution-modal').modal('hide');
+                    showAlert('success', 'Scaling operation executed successfully!', response.message);
+                    loadScalingStatus();
+                    loadScalingMetrics();
+                } else {
+                    showAlert('danger', 'Error executing scaling operation', response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                showAlert('danger', 'AJAX Error', 'Failed to execute scaling operation: ' + error);
+            }
+        });
+    }
+    
+    /**
+     * Show alert message
+     */
+    function showAlert(type, title, message) {
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong>${title}</strong> ${message}
+            </div>
+        `;
+        $('#content').prepend(alertHtml);
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+    
+    // Clean up on page unload
+    $(window).on('beforeunload', function() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+    });
+});
+
+/**
+ * Edit policy function (global scope)
+ */
+function editPolicy(type, policyName) {
+    alert('Edit ' + type + ' policy: ' + policyName + '\n(Feature coming soon)');
+}
+
+/**
+ * Implement optimization function (global scope)
+ */
+function implementOptimization(opportunity) {
+    if (confirm('Are you sure you want to implement: ' + opportunity + '?')) {
+        alert('Implementing optimization: ' + opportunity + '\n(Feature coming soon)');
+    }
+}
+</script>
+
+{{ footer }}
+</rewritten_file>

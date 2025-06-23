@@ -1,0 +1,313 @@
+{{ header }}{{ column_left }}
+<div id="content">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="pull-right">
+				<button type="button" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-info" onclick="location.reload();">
+					<i class="fa fa-refresh"></i>
+				</button>
+			</div>
+			<h1>{{ heading_title }}</h1>
+			<ul class="breadcrumb">
+				{% for breadcrumb in breadcrumbs %}
+					<li>
+						<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							<i class="fa fa-shopping-cart"></i>
+							{{ text_marketplace_modules }}</h3>
+					</div>
+					<div class="panel-body">
+						<div class="row">
+							{% for key, module in modules %}
+								<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="info-box">
+										<span class="info-box-icon bg-{{ module.status ? 'green' : 'red' }}">
+											<i class="fa {{ module.icon }}"></i>
+										</span>
+										<div class="info-box-content">
+											<span class="info-box-text">{{ module.name }}</span>
+											<span class="info-box-number">
+												{% if module.status %}
+													<span class="label label-success">{{ text_enabled }}</span>
+												{% else %}
+													<span class="label label-danger">{{ text_disabled }}</span>
+												{% endif %}
+											</span>
+											<div class="progress">
+												<div class="progress-bar" style="width: {{ module.status ? '100' : '0' }}%"></div>
+											</div>
+											<span class="progress-description">{{ module.description }}</span>
+											<div class="btn-group btn-group-sm" style="margin-top: 10px;">
+												<a href="{{ module.edit }}" class="btn btn-primary">
+													<i class="fa fa-edit"></i>
+													{{ button_edit }}
+												</a>
+												<button type="button" class="btn btn-{{ module.status ? 'danger' : 'success' }}" onclick="toggleModule('{{ key }}', {{ module.status ? 0 : 1 }})">
+													<i class="fa fa-{{ module.status ? 'times' : 'check' }}"></i>
+													{{ module.status ? button_disable : button_enable }}
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- İstatistik Kartları -->
+		<div class="row">
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<div class="info-box">
+					<span class="info-box-icon bg-aqua">
+						<i class="fa fa-shopping-cart"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">{{ text_total_products }}</span>
+						<span class="info-box-number" id="total-products">-</span>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<div class="info-box">
+					<span class="info-box-icon bg-red">
+						<i class="fa fa-sync"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">{{ text_sync_today }}</span>
+						<span class="info-box-number" id="sync-today">-</span>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<div class="info-box">
+					<span class="info-box-icon bg-green">
+						<i class="fa fa-check"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">{{ text_active_modules }}</span>
+						<span class="info-box-number" id="active-modules">{{ modules|length }}</span>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<div class="info-box">
+					<span class="info-box-icon bg-yellow">
+						<i class="fa fa-exclamation-triangle"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">{{ text_errors_today }}</span>
+						<span class="info-box-number" id="errors-today">-</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Son Aktiviteler -->
+		<div class="row">
+			<div class="col-md-12">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							<i class="fa fa-history"></i>
+							{{ text_recent_activity }}</h3>
+					</div>
+					<div class="panel-body">
+						<div id="recent-activity">
+							<div class="text-center">
+								<i class="fa fa-spinner fa-spin"></i>
+								{{ text_loading }}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	function toggleModule(module, status) {
+$.ajax({
+url: 'index.php?route=extension/module/meschain_sync/toggle&user_token= {{ user_token }}&module=' + module + '&status=' + status,
+dataType: 'json',
+success: function (json) {
+if (json['error']) {
+alert(json['error']);
+}
+
+if (json['success']) {
+location.reload();
+}
+},
+error: function (xhr, ajaxOptions, thrownError) {
+alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+}
+});
+}
+
+// Sayfa yüklendiğinde istatistikleri getir
+$(document).ready(function () {
+loadStats();
+loadRecentActivity();
+});
+
+function loadStats() {
+$.ajax({
+url: 'index.php?route=extension/module/meschain_sync/getStats&user_token= {{ user_token }}',
+dataType: 'json',
+success: function (json) {
+if (json['total_products']) {
+$('#total-products').text(json['total_products']);
+}
+if (json['sync_today']) {
+$('#sync-today').text(json['sync_today']);
+}
+if (json['errors_today']) {
+$('#errors-today').text(json['errors_today']);
+}
+}
+});
+}
+
+function loadRecentActivity() {
+$.ajax({
+url: 'index.php?route=extension/module/meschain_sync/getActivity&user_token= {{ user_token }}',
+dataType: 'json',
+success: function (json) {
+var html = '';
+if (json.length > 0) {
+html += '<div class="table-responsive">';
+html += '<table class="table table-striped">';
+html += '<thead>';
+html += '<tr>';
+html += '<th> {{ column_time }}</th>';
+html += '<th> {{ column_module }}</th>';
+html += '<th> {{ column_action }}</th>';
+html += '<th> {{ column_status }}</th>';
+html += '</tr>';
+html += '</thead>';
+html += '<tbody>';
+
+for (var i = 0; i < json.length; i++) {
+html += '<tr>';
+html += '<td>' + json[i]['time'] + '</td>';
+html += '<td>' + json[i]['module'] + '</td>';
+html += '<td>' + json[i]['action'] + '</td>';
+html += '<td>';
+if (json[i]['status'] == 'success') {
+html += '<span class="label label-success">' + json[i]['status'] + '</span>';
+} else {
+html += '<span class="label label-danger">' + json[i]['status'] + '</span>';
+} html += '</td>';
+html += '</tr>';
+}
+
+html += '</tbody>';
+html += '</table>';
+html += '</div>';
+} else {
+html = '<div class="text-center text-muted"> {{ text_no_activity }}</div>';
+}
+
+$('#recent-activity').html(html);
+}
+});
+}
+</script>
+
+<style>
+	.info-box {
+		display: block;
+		min-height: 90px;
+		background: #fff;
+		width: 100%;
+		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+		border-radius: 2px;
+		margin-bottom: 15px;
+	}
+
+	.info-box-icon {
+		border-top-left-radius: 2px;
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+		border-bottom-left-radius: 2px;
+		display: block;
+		float: left;
+		height: 90px;
+		width: 90px;
+		text-align: center;
+		font-size: 45px;
+		line-height: 90px;
+		background: rgba(0, 0, 0, 0.2);
+	}
+
+	.info-box-icon > i {
+		color: #fff;
+	}
+
+	.info-box-content {
+		padding: 5px 10px;
+		margin-left: 90px;
+	}
+
+	.info-box-number {
+		display: block;
+		font-weight: bold;
+		font-size: 18px;
+	}
+
+	.info-box-text {
+		display: block;
+		font-size: 14px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.bg-red {
+		background-color: #dd4b39 !important;
+	}
+
+	.bg-green {
+		background-color: #00a65a !important;
+	}
+
+	.bg-yellow {
+		background-color: #f39c12 !important;
+	}
+
+	.bg-aqua {
+		background-color: #00c0ef !important;
+	}
+
+	.progress {
+		background: rgba(0, 0, 0, 0.2);
+		margin: 5px -10px;
+		height: 2px;
+	}
+
+	.progress-bar {
+		background: #fff;
+		height: 2px;
+	}
+
+	.progress-description {
+		font-size: 12px;
+		color: #999;
+	}
+</style>
+
+{{ footer }}

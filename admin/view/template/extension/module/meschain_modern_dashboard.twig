@@ -1,0 +1,884 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <button type="button" id="refresh-dashboard" class="btn btn-primary">
+                    <i class="fa fa-refresh"></i> {{ text_refresh }}
+                </button>
+            </div>
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <div class="container-fluid">
+        <!-- Real-time Status Bar -->
+        <div class="meschain-status-bar">
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="status-widget bg-primary">
+                        <div class="status-content">
+                            <div class="status-icon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </div>
+                            <div class="status-text">
+                                <h3 id="total-sales">{{ total_sales|default('₺0') }}</h3>
+                                <span>Toplam Satış</span>
+                            </div>
+                        </div>
+                        <div class="status-progress">
+                            <div class="progress-bar" style="width: 75%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="status-widget bg-success">
+                        <div class="status-content">
+                            <div class="status-icon">
+                                <i class="fa fa-cube"></i>
+                            </div>
+                            <div class="status-text">
+                                <h3 id="active-products">{{ active_products|default('0') }}</h3>
+                                <span>Aktif Ürün</span>
+                            </div>
+                        </div>
+                        <div class="status-progress">
+                            <div class="progress-bar" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="status-widget bg-warning">
+                        <div class="status-content">
+                            <div class="status-icon">
+                                <i class="fa fa-clock-o"></i>
+                            </div>
+                            <div class="status-text">
+                                <h3 id="pending-orders">{{ pending_orders|default('0') }}</h3>
+                                <span>Bekleyen Sipariş</span>
+                            </div>
+                        </div>
+                        <div class="status-progress">
+                            <div class="progress-bar" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="status-widget bg-info">
+                        <div class="status-content">
+                            <div class="status-icon">
+                                <i class="fa fa-tachometer"></i>
+                            </div>
+                            <div class="status-text">
+                                <h3 id="api-response-time">{{ api_response_time|default('0ms') }}</h3>
+                                <span>API Yanıt Süresi</span>
+                            </div>
+                        </div>
+                        <div class="status-progress">
+                            <div class="progress-bar" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Dashboard Grid -->
+        <div class="row">
+            <!-- Sales Trend Chart -->
+            <div class="col-lg-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <i class="fa fa-line-chart"></i> Satış Trendi (Haftalık)
+                        </h3>
+                        <div class="panel-actions">
+                            <span class="panel-status" id="sales-chart-status">🟢 Canlı</span>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="chart-container">
+                            <canvas id="salesChart" height="100"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Marketplace Distribution -->
+            <div class="col-lg-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <i class="fa fa-pie-chart"></i> Marketplace Dağılımı
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="chart-container">
+                            <canvas id="marketplaceChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Second Row -->
+        <div class="row">
+            <!-- Real-time Orders Chart -->
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <i class="fa fa-area-chart"></i> Gerçek Zamanlı Siparişler
+                        </h3>
+                        <div class="panel-actions">
+                            <span class="real-time-indicator">🔴 CANLI</span>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="chart-container">
+                            <canvas id="ordersChart" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Marketplace Status -->
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <i class="fa fa-heartbeat"></i> Marketplace API Durumu
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="marketplace-status-grid" id="marketplace-status">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Performance -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <i class="fa fa-server"></i> Sistem Performansı
+                        </h3>
+                        <div class="panel-actions">
+                            <button class="btn btn-sm btn-default" id="performance-refresh">
+                                <i class="fa fa-refresh"></i> Yenile
+                            </button>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="performance-metric">
+                                    <div class="metric-icon bg-primary">
+                                        <i class="fa fa-memory"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h4 id="memory-usage">45MB</h4>
+                                        <span>Bellek Kullanımı</span>
+                                        <div class="metric-progress">
+                                            <div class="progress-bar bg-primary" style="width: 45%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-3">
+                                <div class="performance-metric">
+                                    <div class="metric-icon bg-success">
+                                        <i class="fa fa-microchip"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h4 id="cpu-usage">12%</h4>
+                                        <span>CPU Kullanımı</span>
+                                        <div class="metric-progress">
+                                            <div class="progress-bar bg-success" style="width: 12%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-3">
+                                <div class="performance-metric">
+                                    <div class="metric-icon bg-warning">
+                                        <i class="fa fa-database"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h4 id="db-queries">25</h4>
+                                        <span>DB Sorguları</span>
+                                        <div class="metric-progress">
+                                            <div class="progress-bar bg-warning" style="width: 35%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-3">
+                                <div class="performance-metric">
+                                    <div class="metric-icon bg-info">
+                                        <i class="fa fa-flash"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h4 id="cache-hit-rate">89%</h4>
+                                        <span>Cache Hit Rate</span>
+                                        <div class="metric-progress">
+                                            <div class="progress-bar bg-info" style="width: 89%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activities -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <i class="fa fa-history"></i> Son Aktiviteler
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="activity-timeline" id="recent-activities">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modern CSS Styles -->
+<style>
+.meschain-status-bar {
+    margin-bottom: 30px;
+}
+
+.status-widget {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    padding: 20px;
+    color: white;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.status-widget.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.status-widget.bg-success {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+}
+
+.status-widget.bg-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.status-widget.bg-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.status-content {
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.status-icon {
+    font-size: 2.5em;
+    margin-right: 15px;
+    opacity: 0.8;
+}
+
+.status-text h3 {
+    margin: 0;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.status-text span {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.status-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+}
+
+.status-progress .progress-bar {
+    height: 100%;
+    background: rgba(255,255,255,0.5);
+    transition: width 0.3s ease;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin: 10px 0;
+}
+
+.panel {
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: none;
+    margin-bottom: 20px;
+}
+
+.panel-heading {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid #dee2e6;
+    position: relative;
+}
+
+.panel-actions {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.panel-status {
+    background: #28a745;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.real-time-indicator {
+    background: #dc3545;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.marketplace-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.marketplace-item {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.marketplace-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.marketplace-item.connected {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.marketplace-item.disconnected {
+    border-color: #dc3545;
+    background: #f8d7da;
+}
+
+.performance-metric {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+}
+
+.metric-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5em;
+    margin-right: 15px;
+}
+
+.metric-content {
+    flex: 1;
+}
+
+.metric-content h4 {
+    margin: 0;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.metric-content span {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.metric-progress {
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    margin-top: 5px;
+}
+
+.metric-progress .progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.activity-timeline {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: white;
+}
+
+.activity-icon.order {
+    background: #28a745;
+}
+
+.activity-icon.sync {
+    background: #007bff;
+}
+
+.activity-icon.product {
+    background: #ffc107;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-content strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.activity-content small {
+    color: #666;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .status-widget {
+        margin-bottom: 15px;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+    
+    .performance-metric {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .metric-icon {
+        margin: 0 0 10px 0;
+    }
+}
+
+/* PWA Support */
+@media (display-mode: standalone) {
+    .page-header {
+        padding-top: 20px;
+    }
+}
+</style>
+
+<!-- Chart.js ve Modern Dashboard JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Modern Dashboard Controller
+class MeschainModernDashboard {
+    constructor() {
+        this.apiEndpoint = 'index.php?route=extension/module/meschain_cursor_integration';
+        this.updateInterval = 30000; // 30 saniye
+        this.charts = {};
+        this.isRealTimeActive = true;
+        
+        this.init();
+    }
+    
+    init() {
+        this.setupCharts();
+        this.loadInitialData();
+        this.startRealTimeUpdates();
+        this.setupEventListeners();
+        
+        console.log('🚀 MesChain Modern Dashboard başlatıldı');
+    }
+    
+    setupCharts() {
+        // Sales Trend Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        this.charts.sales = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Satışlar',
+                    data: [],
+                    borderColor: '#2196F3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuad'
+                }
+            }
+        });
+        
+        // Marketplace Distribution Chart
+        const marketplaceCtx = document.getElementById('marketplaceChart').getContext('2d');
+        this.charts.marketplace = new Chart(marketplaceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        '#FF9800', '#4CAF50', '#F44336', 
+                        '#9C27B0', '#00BCD4', '#FFC107'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    duration: 1500
+                }
+            }
+        });
+        
+        // Real-time Orders Chart
+        const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+        this.charts.orders = new Chart(ordersCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Siparişler',
+                    data: [],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                animation: {
+                    duration: 500
+                }
+            }
+        });
+    }
+    
+    async loadInitialData() {
+        try {
+            const response = await fetch(`${this.apiEndpoint}&action=getDashboardData`);
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                this.updateCharts(data.charts);
+                this.updateWidgets(data.widgets);
+                this.updateRealTimeData(data.real_time);
+            }
+        } catch (error) {
+            console.error('Dashboard veri yükleme hatası:', error);
+            this.showError('Dashboard verileri yüklenirken hata oluştu');
+        }
+    }
+    
+    updateCharts(chartData) {
+        // Sales Trend Chart Update
+        if (chartData.sales_trend) {
+            this.charts.sales.data.labels = chartData.sales_trend.labels;
+            this.charts.sales.data.datasets[0].data = chartData.sales_trend.datasets[0].data;
+            this.charts.sales.update();
+        }
+        
+        // Marketplace Distribution Update
+        if (chartData.marketplace_distribution) {
+            this.charts.marketplace.data.labels = chartData.marketplace_distribution.labels;
+            this.charts.marketplace.data.datasets[0].data = chartData.marketplace_distribution.datasets[0].data;
+            this.charts.marketplace.update();
+        }
+        
+        // Real-time Orders Update
+        if (chartData.real_time_orders) {
+            this.charts.orders.data.labels = chartData.real_time_orders.labels;
+            this.charts.orders.data.datasets[0].data = chartData.real_time_orders.datasets[0].data;
+            this.charts.orders.update();
+        }
+    }
+    
+    updateWidgets(widgets) {
+        if (widgets.total_sales) {
+            document.getElementById('total-sales').textContent = widgets.total_sales;
+        }
+        if (widgets.active_products) {
+            document.getElementById('active-products').textContent = widgets.active_products;
+        }
+        if (widgets.pending_orders) {
+            document.getElementById('pending-orders').textContent = widgets.pending_orders;
+        }
+        if (widgets.api_response_time) {
+            document.getElementById('api-response-time').textContent = widgets.api_response_time;
+        }
+    }
+    
+    updateRealTimeData(realTimeData) {
+        // System health indicator
+        const statusElement = document.getElementById('sales-chart-status');
+        if (realTimeData.system_health === 'excellent') {
+            statusElement.textContent = '🟢 Mükemmel';
+        } else if (realTimeData.system_health === 'good') {
+            statusElement.textContent = '🟡 İyi';
+        } else {
+            statusElement.textContent = '🔴 Dikkat';
+        }
+    }
+    
+    async loadMarketplaceStatus() {
+        try {
+            const response = await fetch(`${this.apiEndpoint}&action=getMarketplaceApiStatus`);
+            const data = await response.json();
+            
+            this.updateMarketplaceStatus(data.marketplaces);
+        } catch (error) {
+            console.error('Marketplace durum yükleme hatası:', error);
+        }
+    }
+    
+    updateMarketplaceStatus(marketplaces) {
+        const container = document.getElementById('marketplace-status');
+        container.innerHTML = '';
+        
+        Object.keys(marketplaces).forEach(marketplace => {
+            const status = marketplaces[marketplace];
+            const isConnected = status.status === 'connected';
+            
+            const item = document.createElement('div');
+            item.className = `marketplace-item ${isConnected ? 'connected' : 'disconnected'}`;
+            item.innerHTML = `
+                <h5>${marketplace.toUpperCase()}</h5>
+                <p>${isConnected ? '🟢 Bağlı' : '🔴 Bağlantı Kesildi'}</p>
+                <small>Yanıt: ${status.response_time || 'N/A'}</small><br>
+                <small>Son Sync: ${status.last_sync || 'N/A'}</small>
+            `;
+            
+            container.appendChild(item);
+        });
+    }
+    
+    async loadRecentActivities() {
+        try {
+            const response = await fetch(`${this.apiEndpoint}&action=getMobileData`);
+            const data = await response.json();
+            
+            this.updateRecentActivities(data.recent_activities);
+        } catch (error) {
+            console.error('Son aktiviteler yükleme hatası:', error);
+        }
+    }
+    
+    updateRecentActivities(activities) {
+        const container = document.getElementById('recent-activities');
+        container.innerHTML = '';
+        
+        activities.forEach(activity => {
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+            item.innerHTML = `
+                <div class="activity-icon ${activity.type}">
+                    <i class="fa fa-${this.getActivityIcon(activity.type)}"></i>
+                </div>
+                <div class="activity-content">
+                    <strong>${activity.message}</strong>
+                    <small>${activity.time}</small>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+    }
+    
+    getActivityIcon(type) {
+        const icons = {
+            'order': 'shopping-cart',
+            'sync': 'refresh',
+            'product': 'cube',
+            'system': 'cog'
+        };
+        return icons[type] || 'info';
+    }
+    
+    startRealTimeUpdates() {
+        if (this.updateInterval) {
+            setInterval(() => {
+                if (this.isRealTimeActive) {
+                    this.loadInitialData();
+                    this.loadMarketplaceStatus();
+                    this.loadRecentActivities();
+                }
+            }, this.updateInterval);
+        }
+    }
+    
+    setupEventListeners() {
+        // Refresh button
+        document.getElementById('refresh-dashboard').addEventListener('click', () => {
+            this.loadInitialData();
+            this.loadMarketplaceStatus();
+            this.loadRecentActivities();
+            this.showSuccess('Dashboard yenilendi');
+        });
+        
+        // Performance refresh
+        document.getElementById('performance-refresh').addEventListener('click', () => {
+            this.loadInitialData();
+        });
+        
+        // Page visibility API for battery optimization
+        document.addEventListener('visibilitychange', () => {
+            this.isRealTimeActive = !document.hidden;
+        });
+    }
+    
+    showSuccess(message) {
+        // Başarı mesajı göster
+        console.log('✅ ' + message);
+    }
+    
+    showError(message) {
+        // Hata mesajı göster
+        console.error('❌ ' + message);
+    }
+}
+
+// Dashboard'ı başlat
+document.addEventListener('DOMContentLoaded', function() {
+    window.meschainDashboard = new MeschainModernDashboard();
+});
+
+// PWA Support
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/meschain-sw.js')
+            .then(registration => {
+                console.log('MesChain PWA Service Worker registered');
+            })
+            .catch(error => {
+                console.log('Service Worker registration failed');
+            });
+    });
+}
+</script>
+
+{{ footer }} 

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MesChain Sync API Test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px; 
+            background-color: #f8f9fa;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border-radius: 5px; 
+            border-left: 4px solid #007bff;
+        }
+        .success { 
+            background-color: #d4edda; 
+            border-left-color: #28a745; 
+            color: #155724; 
+        }
+        .error { 
+            background-color: #f8d7da; 
+            border-left-color: #dc3545; 
+            color: #721c24; 
+        }
+        .info { 
+            background-color: #d1ecf1; 
+            border-left-color: #17a2b8; 
+            color: #0c5460; 
+        }
+        button { 
+            padding: 12px 24px; 
+            margin: 10px 5px; 
+            cursor: pointer; 
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-primary { 
+            background-color: #007bff; 
+            color: white; 
+        }
+        .btn-primary:hover { 
+            background-color: #0056b3; 
+        }
+        .btn-success { 
+            background-color: #28a745; 
+            color: white; 
+        }
+        .btn-success:hover { 
+            background-color: #1e7e34; 
+        }
+        pre { 
+            background-color: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 4px; 
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .api-info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007bff;
+        }
+        .credentials {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 MesChain Sync API Test Sayfası</h1>
+            <p>Bu sayfa standalone API server'ımızı test etmek için oluşturulmuştur.</p>
+        </div>
+        
+        <div class="api-info">
+            <h3>📡 API Server Bilgileri</h3>
+            <p><strong>API Server URL:</strong> http://localhost:8091</p>
+            <p><strong>Test Endpoint:</strong> http://localhost:8091/?action=test</p>
+            <p><strong>Durum:</strong> <span id="server-status">Kontrol ediliyor...</span></p>
+        </div>
+
+        <div class="credentials">
+            <h3>🔑 Trendyol API Bilgileri</h3>
+            <p><strong>Seller ID:</strong> 1076956</p>
+            <p><strong>API Key:</strong> f4KhSfv7ihjXcJFlJiem</p>
+            <p><strong>API Secret:</strong> GLs2YLpJwPJtEX6dSPbi</p>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎯 Trendyol API Bağlantı Testi</h2>
+            <button class="btn-primary" onclick="testTrendyolConnection()">
+                <i>🔌</i> Bağlantıyı Test Et
+            </button>
+            <button class="btn-success" onclick="checkServerStatus()">
+                <i>📊</i> Server Durumunu Kontrol Et
+            </button>
+            
+            <div id="test-result" class="test-result info" style="display: none;">
+                Test sonuçları burada görünecek...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 Test Geçmişi</h2>
+            <div id="test-history"></div>
+        </div>
+    </div>
+
+    <script>
+        let testHistory = [];
+
+        // Sayfa yüklendiğinde server durumunu kontrol et
+        $(document).ready(function() {
+            checkServerStatus();
+        });
+
+        function addToHistory(test, result, details) {
+            const timestamp = new Date().toLocaleString('tr-TR');
+            testHistory.unshift({
+                timestamp: timestamp,
+                test: test,
+                result: result,
+                details: details
+            });
+            
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            let html = '';
+            testHistory.slice(0, 5).forEach(function(item) {
+                const statusClass = item.result === 'success' ? 'success' : 'error';
+                html += `
+                    <div class="test-result ${statusClass}">
+                        <strong>${item.timestamp}</strong> - ${item.test}<br>
+                        <small>${item.details}</small>
+                    </div>
+                `;
+            });
+            $('#test-history').html(html);
+        }
+
+        function checkServerStatus() {
+            $('#server-status').text('Kontrol ediliyor...');
+            
+            $.ajax({
+                url: 'http://localhost:8091/?action=ping',
+                method: 'GET',
+                timeout: 5000,
+                success: function(response) {
+                    $('#server-status').html('<span style="color: #28a745;">✅ Çalışıyor</span>');
+                    addToHistory('Server Durum Kontrolü', 'success', 'API server başarıyla yanıt verdi');
+                },
+                error: function(xhr, status, error) {
+                    $('#server-status').html('<span style="color: #dc3545;">❌ Çalışmıyor</span>');
+                    addToHistory('Server Durum Kontrolü', 'error', 'API server yanıt vermiyor: ' + error);
+                }
+            });
+        }
+
+        function testTrendyolConnection() {
+            const resultDiv = $('#test-result');
+            resultDiv.show();
+            resultDiv.removeClass('success error').addClass('info');
+            resultDiv.html('<i>⏳</i> Bağlantı test ediliyor...');
+            
+            // Direct AJAX call to standalone API server
+            $.ajax({
+                url: 'http://localhost:8091/?action=test',
+                method: 'GET',
+                dataType: 'json',
+                crossDomain: true,
+                timeout: 15000,
+                success: function(response) {
+                    console.log('API Response:', response);
+                    
+                    if (response.success) {
+                        let message = '✅ Bağlantı başarılı!';
+                        if (response.message) {
+                            message += '<br><small>' + response.message + '</small>';
+                        }
+                        if (response.data && response.data.response_time) {
+                            message += '<br><small>Yanıt süresi: ' + response.data.response_time + 'ms</small>';
+                        }
+                        
+                        resultDiv.removeClass('info error').addClass('success');
+                        resultDiv.html(message);
+                        addToHistory('Trendyol API Testi', 'success', response.message || 'Bağlantı başarılı');
+                    } else {
+                        let errorMsg = '❌ Bağlantı hatası: ' + (response.error || 'Bilinmeyen hata');
+                        if (response.message) {
+                            errorMsg += '<br><small>' + response.message + '</small>';
+                        }
+                        if (response.http_code) {
+                            errorMsg += '<br><small>HTTP Kodu: ' + response.http_code + '</small>';
+                        }
+                        
+                        resultDiv.removeClass('info success').addClass('error');
+                        resultDiv.html(errorMsg);
+                        addToHistory('Trendyol API Testi', 'error', response.error || 'Bağlantı hatası');
+                    }
+                    
+                    // Show full response in console
+                    if (response) {
+                        resultDiv.append('<br><br><strong>Tam Yanıt:</strong><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('XHR Error - Status:', status);
+                    console.log('XHR Error - Error:', error);
+                    console.log('XHR Response:', xhr.responseText);
+                    
+                    let errorMessage = '❌ API sunucusuna erişilemiyor';
+                    
+                    if (status === 'timeout') {
+                        errorMessage = '⏰ Bağlantı zaman aşımına uğradı';
+                    } else if (xhr.status === 0) {
+                        errorMessage = '🚫 API sunucusu çalışmıyor (Port 8091)';
+                    } else if (xhr.responseText) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            errorMessage = '❌ ' + (response.error || errorMessage);
+                        } catch (e) {
+                            errorMessage = '❌ API yanıtı işlenemedi';
+                        }
+                    }
+                    
+                    resultDiv.removeClass('info success').addClass('error');
+                    resultDiv.html(errorMessage);
+                    addToHistory('Trendyol API Testi', 'error', errorMessage);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

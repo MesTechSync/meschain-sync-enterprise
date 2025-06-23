@@ -1,0 +1,898 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="btn-infrastructure-health-check" class="btn btn-info" data-toggle="tooltip" title="Execute Infrastructure Health Check">
+          <i class="fa fa-heartbeat"></i> Health Check
+        </button>
+        <button type="button" id="btn-generate-scaling-report" class="btn btn-warning" data-toggle="tooltip" title="Generate Infrastructure Scaling Report">
+          <i class="fa fa-file-text-o"></i> Generate Report
+        </button>
+        <button type="button" id="btn-optimize-costs" class="btn btn-success" data-toggle="tooltip" title="Optimize Infrastructure Costs">
+          <i class="fa fa-dollar"></i> Optimize Costs
+        </button>
+      </div>
+      <h1>🏗️ Enterprise Infrastructure Scaling - ATOM-M013</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Infrastructure Status Overview -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-server fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="infrastructure-components">{{ infrastructure_status|length }}</div>
+                <div>Infrastructure Components</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Active Scaling</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cubes fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="microservices-count">{{ microservices_status|length }}</div>
+                <div>Microservices</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Deployed & Healthy</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-globe fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="global-regions">{{ global_infrastructure|length }}</div>
+                <div>Global Regions</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Multi-Region Active</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-line-chart fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="scaling-efficiency">96.2%</div>
+                <div>Scaling Efficiency</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Auto-Scaling Active</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Infrastructure Scaling Controls -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cogs"></i> Infrastructure Scaling Controls</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <button type="button" id="btn-implement-microservices" class="btn btn-primary btn-block btn-lg">
+                  <i class="fa fa-cubes"></i><br>
+                  Implement Microservices Architecture
+                </button>
+              </div>
+              <div class="col-md-6">
+                <button type="button" id="btn-configure-autoscaling" class="btn btn-success btn-block btn-lg">
+                  <i class="fa fa-expand"></i><br>
+                  Configure Auto-Scaling
+                </button>
+              </div>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+              <div class="col-md-6">
+                <button type="button" id="btn-prepare-global" class="btn btn-warning btn-block btn-lg">
+                  <i class="fa fa-globe"></i><br>
+                  Prepare Global Infrastructure
+                </button>
+              </div>
+              <div class="col-md-6">
+                <button type="button" id="btn-optimize-performance" class="btn btn-info btn-block btn-lg">
+                  <i class="fa fa-rocket"></i><br>
+                  Optimize Performance
+                </button>
+              </div>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+              <div class="col-md-6">
+                <button type="button" id="btn-implement-containers" class="btn btn-default btn-block btn-lg">
+                  <i class="fa fa-docker"></i><br>
+                  Container Orchestration
+                </button>
+              </div>
+              <div class="col-md-6">
+                <button type="button" id="btn-configure-monitoring" class="btn btn-danger btn-block btn-lg">
+                  <i class="fa fa-dashboard"></i><br>
+                  Configure Monitoring
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-line-chart"></i> Real-Time Infrastructure Metrics</h3>
+          </div>
+          <div class="panel-body">
+            <div id="infrastructure-metrics-chart" style="height: 300px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Infrastructure Status Tables -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-server"></i> Infrastructure Components Status</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>Component</th>
+                    <th>Status</th>
+                    <th>Capacity</th>
+                    <th>Utilization</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="infrastructure-status-table">
+                  {% for component in infrastructure_status %}
+                  <tr>
+                    <td>
+                      <strong>{{ component.component_name }}</strong><br>
+                      <small class="text-muted">{{ component.component_type }}</small>
+                    </td>
+                    <td>
+                      {% if component.scaling_status == 'active' %}
+                        <span class="label label-success">{{ component.scaling_status|title }}</span>
+                      {% elseif component.scaling_status == 'scaling' %}
+                        <span class="label label-warning">{{ component.scaling_status|title }}</span>
+                      {% else %}
+                        <span class="label label-default">{{ component.scaling_status|title }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {{ component.current_capacity }}/{{ component.target_capacity }}
+                      <div class="progress progress-sm">
+                        <div class="progress-bar progress-bar-info" style="width: {{ (component.current_capacity / component.target_capacity * 100)|round }}%"></div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge {% if component.utilization_percentage > 80 %}badge-danger{% elseif component.utilization_percentage > 60 %}badge-warning{% else %}badge-success{% endif %}">
+                        {{ component.utilization_percentage }}%
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn btn-xs btn-primary" onclick="scaleComponent('{{ component.component_name }}', 'up')">
+                        <i class="fa fa-plus"></i>
+                      </button>
+                      <button class="btn btn-xs btn-warning" onclick="scaleComponent('{{ component.component_name }}', 'down')">
+                        <i class="fa fa-minus"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cubes"></i> Microservices Status</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>Service</th>
+                    <th>Status</th>
+                    <th>Instances</th>
+                    <th>Resources</th>
+                    <th>Health</th>
+                  </tr>
+                </thead>
+                <tbody id="microservices-status-table">
+                  {% for service in microservices_status %}
+                  <tr>
+                    <td>
+                      <strong>{{ service.service_name }}</strong><br>
+                      <small class="text-muted">{{ service.service_type }}</small>
+                    </td>
+                    <td>
+                      {% if service.deployment_status == 'deployed' %}
+                        <span class="label label-success">{{ service.deployment_status|title }}</span>
+                      {% elseif service.deployment_status == 'deploying' %}
+                        <span class="label label-warning">{{ service.deployment_status|title }}</span>
+                      {% else %}
+                        <span class="label label-danger">{{ service.deployment_status|title }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <span class="badge badge-info">{{ service.instance_count }}</span>
+                    </td>
+                    <td>
+                      <small>
+                        CPU: {{ service.cpu_allocation }}<br>
+                        RAM: {{ service.memory_allocation }}MB
+                      </small>
+                    </td>
+                    <td>
+                      {% if service.health_status == 'healthy' %}
+                        <span class="label label-success"><i class="fa fa-heart"></i> {{ service.health_status|title }}</span>
+                      {% elseif service.health_status == 'degraded' %}
+                        <span class="label label-warning"><i class="fa fa-exclamation-triangle"></i> {{ service.health_status|title }}</span>
+                      {% else %}
+                        <span class="label label-danger"><i class="fa fa-times"></i> {{ service.health_status|title }}</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Global Infrastructure and Auto-Scaling Configuration -->
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-globe"></i> Global Infrastructure</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>Region</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Capacity</th>
+                    <th>Latency</th>
+                    <th>Cost/Hour</th>
+                  </tr>
+                </thead>
+                <tbody id="global-infrastructure-table">
+                  {% for region in global_infrastructure %}
+                  <tr>
+                    <td>
+                      <strong>{{ region.region_name }}</strong><br>
+                      <small class="text-muted">{{ region.region_code }}</small>
+                    </td>
+                    <td>
+                      {% if region.datacenter_type == 'primary' %}
+                        <span class="label label-primary">{{ region.datacenter_type|title }}</span>
+                      {% elseif region.datacenter_type == 'secondary' %}
+                        <span class="label label-warning">{{ region.datacenter_type|title }}</span>
+                      {% else %}
+                        <span class="label label-info">{{ region.datacenter_type|title }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if region.status == 'active' %}
+                        <span class="label label-success">{{ region.status|title }}</span>
+                      {% else %}
+                        <span class="label label-default">{{ region.status|title }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="progress progress-sm">
+                        <div class="progress-bar progress-bar-{% if region.capacity_percentage > 80 %}danger{% elseif region.capacity_percentage > 60 %}warning{% else %}success{% endif %}" 
+                             style="width: {{ region.capacity_percentage }}%"></div>
+                      </div>
+                      <small>{{ region.capacity_percentage }}%</small>
+                    </td>
+                    <td>
+                      <span class="badge {% if region.latency_ms < 10 %}badge-success{% elseif region.latency_ms < 20 %}badge-warning{% else %}badge-danger{% endif %}">
+                        {{ region.latency_ms }}ms
+                      </span>
+                    </td>
+                    <td>
+                      <small>${{ region.cost_per_hour }}</small>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-expand"></i> Auto-Scaling Configuration</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              {% for config_name, config in auto_scaling_config %}
+              <div class="col-md-6">
+                <div class="panel panel-{% if config.enabled %}success{% else %}default{% endif %}">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">{{ config_name|replace('_', ' ')|title }}</h4>
+                  </div>
+                  <div class="panel-body">
+                    <p><strong>Status:</strong> 
+                      {% if config.enabled %}
+                        <span class="label label-success">Enabled</span>
+                      {% else %}
+                        <span class="label label-default">Disabled</span>
+                      {% endif %}
+                    </p>
+                    {% if config.threshold_up is defined %}
+                      <p><strong>Scale Up:</strong> {{ config.threshold_up }}%</p>
+                      <p><strong>Scale Down:</strong> {{ config.threshold_down }}%</p>
+                    {% endif %}
+                    {% if config.threshold is defined %}
+                      <p><strong>Threshold:</strong> {{ config.threshold }}</p>
+                    {% endif %}
+                    {% if config.cooldown is defined %}
+                      <p><strong>Cooldown:</strong> {{ config.cooldown }}s</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Scaling Events and Performance Metrics -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-history"></i> Recent Scaling Events & Performance Analytics</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h4>Scaling Events (Last 24 Hours)</h4>
+                <div class="table-responsive">
+                  <table class="table table-condensed">
+                    <thead>
+                      <tr>
+                        <th>Event Type</th>
+                        <th>Count</th>
+                        <th>Avg Time</th>
+                        <th>Success Rate</th>
+                        <th>Cost Impact</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for metric in scaling_metrics %}
+                      <tr>
+                        <td>
+                          {% if metric.event_type == 'scale_up' %}
+                            <span class="label label-success">{{ metric.event_type|replace('_', ' ')|title }}</span>
+                          {% elseif metric.event_type == 'scale_down' %}
+                            <span class="label label-warning">{{ metric.event_type|replace('_', ' ')|title }}</span>
+                          {% else %}
+                            <span class="label label-info">{{ metric.event_type|replace('_', ' ')|title }}</span>
+                          {% endif %}
+                        </td>
+                        <td><span class="badge">{{ metric.event_count }}</span></td>
+                        <td>{{ metric.avg_execution_time }}s</td>
+                        <td>{{ ((metric.successful_events / metric.event_count) * 100)|round }}%</td>
+                        <td>
+                          {% if metric.avg_cost_impact > 0 %}
+                            <span class="text-danger">+${{ metric.avg_cost_impact }}</span>
+                          {% else %}
+                            <span class="text-success">${{ metric.avg_cost_impact }}</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <h4>Infrastructure Performance Trends</h4>
+                <div id="performance-trends-chart" style="height: 200px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Infrastructure Health Check Modal -->
+<div class="modal fade" id="health-check-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><i class="fa fa-heartbeat"></i> Infrastructure Health Check Results</h4>
+      </div>
+      <div class="modal-body">
+        <div id="health-check-results">
+          <div class="text-center">
+            <i class="fa fa-spinner fa-spin fa-3x"></i>
+            <p>Executing comprehensive health check...</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scaling Report Modal -->
+<div class="modal fade" id="scaling-report-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><i class="fa fa-file-text-o"></i> Infrastructure Scaling Report</h4>
+      </div>
+      <div class="modal-body">
+        <div id="scaling-report-content">
+          <div class="text-center">
+            <i class="fa fa-spinner fa-spin fa-3x"></i>
+            <p>Generating comprehensive scaling report...</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="downloadReport()">
+          <i class="fa fa-download"></i> Download Report
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    // Auto-refresh infrastructure metrics every 30 seconds
+    setInterval(function() {
+        refreshInfrastructureMetrics();
+    }, 30000);
+    
+    // Initialize charts
+    initializeInfrastructureMetricsChart();
+    initializePerformanceTrendsChart();
+    
+    // Infrastructure scaling controls
+    $('#btn-implement-microservices').click(function() {
+        implementMicroservicesArchitecture();
+    });
+    
+    $('#btn-configure-autoscaling').click(function() {
+        configureAutoScalingInfrastructure();
+    });
+    
+    $('#btn-prepare-global').click(function() {
+        prepareGlobalInfrastructure();
+    });
+    
+    $('#btn-optimize-performance').click(function() {
+        optimizePerformanceInfrastructure();
+    });
+    
+    $('#btn-implement-containers').click(function() {
+        implementContainerOrchestration();
+    });
+    
+    $('#btn-configure-monitoring').click(function() {
+        configureInfrastructureMonitoring();
+    });
+    
+    // Health check and reporting
+    $('#btn-infrastructure-health-check').click(function() {
+        executeInfrastructureHealthCheck();
+    });
+    
+    $('#btn-generate-scaling-report').click(function() {
+        generateInfrastructureScalingReport();
+    });
+    
+    $('#btn-optimize-costs').click(function() {
+        optimizeInfrastructureCosts();
+    });
+});
+
+function implementMicroservicesArchitecture() {
+    showLoadingButton('#btn-implement-microservices');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/enterprise_infrastructure_scaling/implementMicroservicesArchitecture&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Microservices Architecture Implemented Successfully!', 
+                    'Services Deployed: ' + response.services_deployed + '<br>' +
+                    'Scalability Score: ' + response.scalability_score.overall_score + '%');
+                refreshInfrastructureMetrics();
+            } else {
+                showAlert('danger', 'Implementation Failed', response.error);
+            }
+        },
+        error: function() {
+            showAlert('danger', 'Error', 'Failed to implement microservices architecture');
+        },
+        complete: function() {
+            hideLoadingButton('#btn-implement-microservices', '<i class="fa fa-cubes"></i><br>Implement Microservices Architecture');
+        }
+    });
+}
+
+function configureAutoScalingInfrastructure() {
+    showLoadingButton('#btn-configure-autoscaling');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/enterprise_infrastructure_scaling/configureAutoScalingInfrastructure&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Auto-Scaling Infrastructure Configured!', 
+                    'Scaling Efficiency: ' + response.scaling_efficiency.efficiency_score + '%<br>' +
+                    'Response Time: ' + response.scaling_efficiency.response_time);
+                refreshInfrastructureMetrics();
+            } else {
+                showAlert('danger', 'Configuration Failed', response.error);
+            }
+        },
+        error: function() {
+            showAlert('danger', 'Error', 'Failed to configure auto-scaling infrastructure');
+        },
+        complete: function() {
+            hideLoadingButton('#btn-configure-autoscaling', '<i class="fa fa-expand"></i><br>Configure Auto-Scaling');
+        }
+    });
+}
+
+function prepareGlobalInfrastructure() {
+    showLoadingButton('#btn-prepare-global');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/enterprise_infrastructure_scaling/prepareGlobalInfrastructure&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Global Infrastructure Prepared!', 
+                    'Global Coverage: ' + response.global_coverage.coverage_percentage + '%<br>' +
+                    'Regions Active: ' + response.global_coverage.regions_active + '<br>' +
+                    'Compliance Score: ' + response.compliance_score.compliance_score + '%');
+                refreshInfrastructureMetrics();
+            } else {
+                showAlert('danger', 'Preparation Failed', response.error);
+            }
+        },
+        error: function() {
+            showAlert('danger', 'Error', 'Failed to prepare global infrastructure');
+        },
+        complete: function() {
+            hideLoadingButton('#btn-prepare-global', '<i class="fa fa-globe"></i><br>Prepare Global Infrastructure');
+        }
+    });
+}
+
+function optimizePerformanceInfrastructure() {
+    showLoadingButton('#btn-optimize-performance');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/enterprise_infrastructure_scaling/optimizePerformanceInfrastructure&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Performance Infrastructure Optimized!', 
+                    'Performance Gain: ' + response.performance_improvement.performance_gain + '<br>' +
+                    'Latency Reduction: ' + response.performance_improvement.latency_reduction + '<br>' +
+                    'Throughput Increase: ' + response.performance_improvement.throughput_increase);
+                refreshInfrastructureMetrics();
+            } else {
+                showAlert('danger', 'Optimization Failed', response.error);
+            }
+        },
+        error: function() {
+            showAlert('danger', 'Error', 'Failed to optimize performance infrastructure');
+        },
+        complete: function() {
+            hideLoadingButton('#btn-optimize-performance', '<i class="fa fa-rocket"></i><br>Optimize Performance');
+        }
+    });
+}
+
+function implementContainerOrchestration() {
+    showLoadingButton('#btn-implement-containers');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/enterprise_infrastructure_scaling/implementContainerOrchestration&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Container Orchestration Implemented!', 
+                    'Deployment Speed: ' + response.deployment_efficiency.deployment_speed + ' faster<br>' +
+                    'Success Rate: ' + response.deployment_efficiency.success_rate);
+                refreshInfrastructureMetrics();
+            } else {
+                showAlert('danger', 'Implementation Failed', response.error);
+            }
+        },
+        error: function() {
+            showAlert('danger', 'Error', 'Failed to implement container orchestration');
+        },
+        complete: function() {
+            hideLoadingButton('#btn-implement-containers', '<i class="fa fa-docker"></i><br>Container Orchestration');
+        }
+    });
+}
+
+function configureInfrastructureMonitoring() {
+    showLoadingButton('#btn-configure-monitoring');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/enterprise_infrastructure_scaling/configureInfrastructureMonitoring&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Infrastructure Monitoring Configured!', 
+                    'Observability Score: ' + response.observability_score.observability_score + '%<br>' +
+                    'Monitoring Coverage: ' + response.observability_score.monitoring_coverage);
+                refreshInfrastructureMetrics();
+            } else {
+                showAlert('danger', 'Configuration Failed', response.error);
+            }
+        },
+        error: function() {
+            showAlert('danger', 'Error', 'Failed to configure infrastructure monitoring');
+        },
+        complete: function() {
+            hideLoadingButton('#btn-configure-monitoring', '<i class="fa fa-dashboard"></i><br>Configure Monitoring');
+        }
+    });
+}
+
+function executeInfrastructureHealthCheck() {
+    $('#health-check-modal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/enterprise_infrastructure_scaling/executeInfrastructureHealthCheck&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                displayHealthCheckResults(response.health_check_results, response.overall_health_score);
+            } else {
+                $('#health-check-results').html('<div class="alert alert-danger">Health check failed: ' + response.error + '</div>');
+            }
+        },
+        error: function() {
+            $('#health-check-results').html('<div class="alert alert-danger">Failed to execute health check</div>');
+        }
+    });
+}
+
+function generateInfrastructureScalingReport() {
+    $('#scaling-report-modal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/enterprise_infrastructure_scaling/generateInfrastructureScalingReport&user_token={{ user_token }}',
+        type: 'GET',
+        data: { type: 'comprehensive', period: '24_hours' },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                displayScalingReport(response.report);
+            } else {
+                $('#scaling-report-content').html('<div class="alert alert-danger">Report generation failed: ' + response.error + '</div>');
+            }
+        },
+        error: function() {
+            $('#scaling-report-content').html('<div class="alert alert-danger">Failed to generate scaling report</div>');
+        }
+    });
+}
+
+function optimizeInfrastructureCosts() {
+    showLoadingButton('#btn-optimize-costs');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/enterprise_infrastructure_scaling/optimizeInfrastructureCosts&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Infrastructure Costs Optimized!', 
+                    'Monthly Savings: ' + response.cost_savings.monthly_savings + '<br>' +
+                    'Annual Savings: ' + response.cost_savings.annual_savings + '<br>' +
+                    'Optimization: ' + response.cost_savings.optimization_percentage);
+            } else {
+                showAlert('danger', 'Optimization Failed', response.error);
+            }
+        },
+        error: function() {
+            showAlert('danger', 'Error', 'Failed to optimize infrastructure costs');
+        },
+        complete: function() {
+            hideLoadingButton('#btn-optimize-costs', '<i class="fa fa-dollar"></i> Optimize Costs');
+        }
+    });
+}
+
+function scaleComponent(componentName, direction) {
+    $.ajax({
+        url: 'index.php?route=extension/module/enterprise_infrastructure_scaling/scaleComponent&user_token={{ user_token }}',
+        type: 'POST',
+        data: { component: componentName, direction: direction },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Component Scaled', 'Successfully scaled ' + componentName + ' ' + direction);
+                refreshInfrastructureMetrics();
+            } else {
+                showAlert('danger', 'Scaling Failed', response.error);
+            }
+        },
+        error: function() {
+            showAlert('danger', 'Error', 'Failed to scale component');
+        }
+    });
+}
+
+function refreshInfrastructureMetrics() {
+    // Refresh infrastructure status tables and metrics
+    location.reload();
+}
+
+function initializeInfrastructureMetricsChart() {
+    // Initialize real-time infrastructure metrics chart
+    // Implementation would use Chart.js or similar library
+}
+
+function initializePerformanceTrendsChart() {
+    // Initialize performance trends chart
+    // Implementation would use Chart.js or similar library
+}
+
+function displayHealthCheckResults(results, overallScore) {
+    var html = '<div class="row">';
+    html += '<div class="col-md-12">';
+    html += '<div class="alert alert-info"><h4>Overall Health Score: ' + overallScore.health_score + '%</h4></div>';
+    html += '</div>';
+    
+    for (var category in results) {
+        html += '<div class="col-md-6">';
+        html += '<div class="panel panel-default">';
+        html += '<div class="panel-heading"><h4>' + category.replace('_', ' ').toUpperCase() + '</h4></div>';
+        html += '<div class="panel-body">';
+        html += '<pre>' + JSON.stringify(results[category], null, 2) + '</pre>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+    }
+    
+    html += '</div>';
+    $('#health-check-results').html(html);
+}
+
+function displayScalingReport(report) {
+    var html = '<div class="row">';
+    html += '<div class="col-md-12">';
+    html += '<h4>Executive Summary</h4>';
+    html += '<div class="well">' + JSON.stringify(report.executive_summary, null, 2) + '</div>';
+    html += '<h4>Infrastructure Analysis</h4>';
+    html += '<pre>' + JSON.stringify(report, null, 2) + '</pre>';
+    html += '</div>';
+    html += '</div>';
+    $('#scaling-report-content').html(html);
+}
+
+function downloadReport() {
+    // Implementation for downloading the report
+    window.open('index.php?route=extension/module/enterprise_infrastructure_scaling/downloadReport&user_token={{ user_token }}', '_blank');
+}
+
+function showLoadingButton(selector) {
+    $(selector).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+}
+
+function hideLoadingButton(selector, originalText) {
+    $(selector).prop('disabled', false).html(originalText);
+}
+
+function showAlert(type, title, message) {
+    var alertHtml = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">';
+    alertHtml += '<button type="button" class="close" data-dismiss="alert" aria-label="Close">';
+    alertHtml += '<span aria-hidden="true">&times;</span>';
+    alertHtml += '</button>';
+    alertHtml += '<strong>' + title + '</strong><br>' + message;
+    alertHtml += '</div>';
+    
+    $('#content .container-fluid').prepend(alertHtml);
+    
+    setTimeout(function() {
+        $('.alert').fadeOut();
+    }, 5000);
+}
+</script>
+
+{{ footer }}
+</rewritten_file>

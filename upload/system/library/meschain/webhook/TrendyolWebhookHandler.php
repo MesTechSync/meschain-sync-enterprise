@@ -41,7 +41,7 @@ class TrendyolWebhookHandler {
         $this->createWebhookTables();
     }
 
-        /**
+    /**
      * Validates an incoming webhook request from Trendyol.
      * @param object $request The OpenCart request object.
      * @return bool True if the signature is valid, false otherwise.
@@ -92,15 +92,15 @@ class TrendyolWebhookHandler {
             $result = ['success' => false, 'message' => 'Unknown error'];
 
             // Process based on event type
-            switch ($eventType) {
+        switch ($eventType) {
                 case 'ORDER_CREATED':
-                case 'NewOrder':
-                case 'OrderCreated':
+            case 'NewOrder':
+            case 'OrderCreated':
                     $result = $this->processOrderCreated($payload);
                     break;
 
                 case 'ORDER_STATUS_CHANGED':
-                case 'OrderStatusChanged':
+            case 'OrderStatusChanged':
                     $result = $this->processOrderStatusChanged($payload);
                     break;
 
@@ -139,7 +139,7 @@ class TrendyolWebhookHandler {
                     $result = $this->processReturnInitiated($payload);
                     break;
 
-                default:
+            default:
                     $result = ['success' => false, 'message' => "Unsupported event type: {$eventType}"];
             }
 

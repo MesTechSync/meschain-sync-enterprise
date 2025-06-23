@@ -1,0 +1,165 @@
+{#
+  trendyol_order_detail.twig
+  Amaç: Trendyol modülünün sipariş detayları arayüz şablonu.
+  Standart: Her değişiklikte log tutulmalı (trendyol_view.log).
+#}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        {% if not order.opencart_order_id %}
+        <a href="{{ convert_url }}" data-toggle="tooltip" title="{{ button_convert }}" class="btn btn-primary"><i class="fa fa-exchange"></i> {{ button_convert }}</a>
+        {% endif %}
+        <a href="{{ back }}" data-toggle="tooltip" title="{{ button_back }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="row">
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-shopping-cart"></i> {{ text_order_detail }}</h3>
+          </div>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td style="width: 50%;"><strong>{{ column_order_id }}:</strong></td>
+                <td>{{ order.order_id }}</td>
+              </tr>
+              <tr>
+                <td><strong>{{ column_order_number }}:</strong></td>
+                <td>{{ order.order_number }}</td>
+              </tr>
+              <tr>
+                <td><strong>{{ column_date_added }}:</strong></td>
+                <td>{{ order.date_added }}</td>
+              </tr>
+              <tr>
+                <td><strong>{{ column_status }}:</strong></td>
+                <td>{{ order.status }}</td>
+              </tr>
+              {% if order.opencart_order_id %}
+              <tr>
+                <td><strong>{{ column_opencart_order_id }}:</strong></td>
+                <td><a href="{{ order.opencart_order_url }}" target="_blank">{{ order.opencart_order_id }}</a></td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-user"></i> {{ text_customer_detail }}</h3>
+          </div>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td style="width: 50%;"><strong>{{ text_customer_name }}:</strong></td>
+                <td>{{ order.customer_name }}</td>
+              </tr>
+              <tr>
+                <td><strong>{{ text_customer_email }}:</strong></td>
+                <td>{{ order.customer_email }}</td>
+              </tr>
+              <tr>
+                <td><strong>{{ text_customer_phone }}:</strong></td>
+                <td>{{ order.customer_phone }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-truck"></i> {{ text_shipping_detail }}</h3>
+          </div>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td style="width: 50%;"><strong>{{ text_shipping_address }}:</strong></td>
+                <td>{{ order.shipping_address }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_product_detail }}</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <td class="text-center">{{ column_image }}</td>
+              <td class="text-left">{{ column_product }}</td>
+              <td class="text-left">{{ column_model }}</td>
+              <td class="text-right">{{ column_quantity }}</td>
+              <td class="text-right">{{ column_price }}</td>
+              <td class="text-right">{{ column_total }}</td>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in order.products %}
+            <tr>
+              <td class="text-center">
+                {% if product.image %}
+                <img src="{{ product.image }}" alt="{{ product.name }}" class="img-thumbnail" width="50" height="50" />
+                {% else %}
+                <span class="img-thumbnail"><i class="fa fa-camera fa-2x"></i></span>
+                {% endif %}
+              </td>
+              <td class="text-left">{{ product.name }}</td>
+              <td class="text-left">{{ product.barcode }}</td>
+              <td class="text-right">{{ product.quantity }}</td>
+              <td class="text-right">{{ product.price }}</td>
+              <td class="text-right">{{ product.total }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" class="text-right"><strong>{{ column_sub_total }}:</strong></td>
+              <td class="text-right">{{ order.sub_total }}</td>
+            </tr>
+            <tr>
+              <td colspan="5" class="text-right"><strong>{{ column_shipping }}:</strong></td>
+              <td class="text-right">{{ order.shipping_cost }}</td>
+            </tr>
+            <tr>
+              <td colspan="5" class="text-right"><strong>{{ column_commission }}:</strong></td>
+              <td class="text-right">{{ order.commission }}</td>
+            </tr>
+            <tr>
+              <td colspan="5" class="text-right"><strong>{{ column_total }}:</strong></td>
+              <td class="text-right">{{ order.total }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }} 

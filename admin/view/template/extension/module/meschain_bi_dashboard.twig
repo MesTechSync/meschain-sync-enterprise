@@ -1,0 +1,847 @@
+{% extends "base" %}
+{% block title %}🔥 MesChain Business Intelligence Dashboard - Musti Team{% endblock %}
+{% block content %}
+
+{# 📊 ADVANCED BUSINESS INTELLIGENCE DASHBOARD - MUSTI TEAM #}
+{# Date: June 6, 2025 #}
+{# Phase: Enterprise Analytics & Real-Time Insights #}
+{# Features: AI Analytics, Predictive Insights, Performance Metrics #}
+
+<div class="meschain-bi-dashboard">
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="dashboard-title">
+                <i class="fa fa-chart-line"></i>
+                MesChain Business Intelligence Dashboard
+            </h1>
+            <div class="header-stats">
+                <div class="stat-card">
+                    <div class="stat-value">{{ total_revenue|number_format }}</div>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-change positive">+15.3%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ total_orders|number_format }}</div>
+                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-change positive">+23.7%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ active_marketplaces }}</div>
+                    <div class="stat-label">Active Marketplaces</div>
+                    <div class="stat-change neutral">{{ marketplace_growth }}%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ performance_score }}/100</div>
+                    <div class="stat-label">Performance Score</div>
+                    <div class="stat-change positive">+{{ performance_improvement }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-controls">
+        <div class="control-group">
+            <label for="date-range">Date Range:</label>
+            <select id="date-range" class="form-control">
+                <option value="today">Today</option>
+                <option value="week" selected>This Week</option>
+                <option value="month">This Month</option>
+                <option value="quarter">This Quarter</option>
+                <option value="year">This Year</option>
+                <option value="custom">Custom Range</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="marketplace-filter">Marketplace:</label>
+            <select id="marketplace-filter" class="form-control">
+                <option value="all" selected>All Marketplaces</option>
+                <option value="trendyol">Trendyol</option>
+                <option value="n11">N11</option>
+                <option value="amazon">Amazon</option>
+                <option value="walmart">Walmart</option>
+                <option value="shopee">Shopee</option>
+                <option value="magento">Magento B2B</option>
+                <option value="etsy">Etsy</option>
+                <option value="facebook">Facebook</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <button class="btn btn-primary" onclick="refreshDashboard()">
+                <i class="fa fa-refresh"></i> Refresh
+            </button>
+            <button class="btn btn-success" onclick="exportReport()">
+                <i class="fa fa-download"></i> Export
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        {# 📈 SALES PERFORMANCE SECTION #}
+        <div class="dashboard-section sales-performance">
+            <div class="section-header">
+                <h3><i class="fa fa-line-chart"></i> Sales Performance Analytics</h3>
+                <div class="section-controls">
+                    <button class="btn btn-sm btn-outline-primary" onclick="toggleChart('sales')">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="section-content">
+                <div class="chart-container">
+                    <canvas id="salesChart" width="400" height="200"></canvas>
+                </div>
+                <div class="performance-metrics">
+                    <div class="metric">
+                        <div class="metric-value">{{ sales_growth }}%</div>
+                        <div class="metric-label">Sales Growth</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">{{ avg_order_value|number_format }}</div>
+                        <div class="metric-label">Avg Order Value</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">{{ conversion_rate }}%</div>
+                        <div class="metric-label">Conversion Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# 🌍 MARKETPLACE PERFORMANCE #}
+        <div class="dashboard-section marketplace-performance">
+            <div class="section-header">
+                <h3><i class="fa fa-globe"></i> Marketplace Performance</h3>
+            </div>
+            <div class="section-content">
+                <div class="marketplace-grid">
+                    {% for marketplace in marketplaces %}
+                    <div class="marketplace-card {{ marketplace.status }}">
+                        <div class="marketplace-icon">
+                            <img src="{{ marketplace.icon }}" alt="{{ marketplace.name }}">
+                        </div>
+                        <div class="marketplace-info">
+                            <h4>{{ marketplace.name }}</h4>
+                            <div class="marketplace-stats">
+                                <div class="stat">
+                                    <span class="value">{{ marketplace.orders|number_format }}</span>
+                                    <span class="label">Orders</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="value">{{ marketplace.revenue|number_format }}</span>
+                                    <span class="label">Revenue</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="value">{{ marketplace.performance }}%</span>
+                                    <span class="label">Performance</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="marketplace-trend">
+                            <i class="fa fa-arrow-{{ marketplace.trend > 0 ? 'up' : 'down' }} {{ marketplace.trend > 0 ? 'text-success' : 'text-danger' }}"></i>
+                            <span>{{ marketplace.trend|abs }}%</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {# 🤖 AI INSIGHTS SECTION #}
+        <div class="dashboard-section ai-insights">
+            <div class="section-header">
+                <h3><i class="fa fa-brain"></i> AI-Powered Insights</h3>
+                <div class="ai-status">
+                    <span class="ai-indicator active"></span>
+                    <span>AI Engine Active</span>
+                </div>
+            </div>
+            <div class="section-content">
+                <div class="insights-container">
+                    {% for insight in ai_insights %}
+                    <div class="insight-card {{ insight.priority }}">
+                        <div class="insight-icon">
+                            <i class="fa fa-{{ insight.icon }}"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h5>{{ insight.title }}</h5>
+                            <p>{{ insight.description }}</p>
+                            <div class="insight-metrics">
+                                <span class="confidence">{{ insight.confidence }}% Confidence</span>
+                                <span class="impact">{{ insight.impact }} Impact</span>
+                            </div>
+                        </div>
+                        <div class="insight-actions">
+                            <button class="btn btn-sm btn-primary" onclick="applyInsight('{{ insight.id }}')">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {# 📊 PREDICTIVE ANALYTICS #}
+        <div class="dashboard-section predictive-analytics">
+            <div class="section-header">
+                <h3><i class="fa fa-crystal-ball"></i> Predictive Analytics</h3>
+            </div>
+            <div class="section-content">
+                <div class="predictions-grid">
+                    <div class="prediction-card">
+                        <div class="prediction-header">
+                            <h4>Sales Forecast</h4>
+                            <span class="accuracy">{{ sales_forecast_accuracy }}% Accuracy</span>
+                        </div>
+                        <div class="prediction-chart">
+                            <canvas id="salesForecastChart" width="300" height="150"></canvas>
+                        </div>
+                        <div class="prediction-summary">
+                            <p>Predicted {{ sales_forecast_period }} sales: <strong>{{ sales_forecast_value|number_format }}</strong></p>
+                        </div>
+                    </div>
+                    <div class="prediction-card">
+                        <div class="prediction-header">
+                            <h4>Inventory Optimization</h4>
+                            <span class="accuracy">{{ inventory_forecast_accuracy }}% Accuracy</span>
+                        </div>
+                        <div class="prediction-content">
+                            <div class="inventory-alerts">
+                                {% for alert in inventory_alerts %}
+                                <div class="alert-item {{ alert.type }}">
+                                    <i class="fa fa-{{ alert.icon }}"></i>
+                                    <span>{{ alert.message }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="prediction-card">
+                        <div class="prediction-header">
+                            <h4>Market Trends</h4>
+                            <span class="accuracy">{{ trend_forecast_accuracy }}% Accuracy</span>
+                        </div>
+                        <div class="prediction-content">
+                            <div class="trend-indicators">
+                                {% for trend in market_trends %}
+                                <div class="trend-item">
+                                    <div class="trend-name">{{ trend.category }}</div>
+                                    <div class="trend-value {{ trend.direction }}">
+                                        <i class="fa fa-arrow-{{ trend.direction }}"></i>
+                                        {{ trend.percentage }}%
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ⚡ PERFORMANCE MONITORING #}
+        <div class="dashboard-section performance-monitoring">
+            <div class="section-header">
+                <h3><i class="fa fa-tachometer-alt"></i> System Performance</h3>
+                <div class="performance-status {{ system_status }}">
+                    <span class="status-indicator"></span>
+                    <span>{{ system_status|title }}</span>
+                </div>
+            </div>
+            <div class="section-content">
+                <div class="performance-grid">
+                    <div class="performance-metric">
+                        <div class="metric-header">
+                            <h5>API Response Time</h5>
+                            <span class="metric-value">{{ api_response_time }}ms</span>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="progress">
+                                <div class="progress-bar {{ api_status }}" style="width: {{ api_performance }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="performance-metric">
+                        <div class="metric-header">
+                            <h5>Database Performance</h5>
+                            <span class="metric-value">{{ db_performance }}%</span>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="progress">
+                                <div class="progress-bar {{ db_status }}" style="width: {{ db_performance }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="performance-metric">
+                        <div class="metric-header">
+                            <h5>Memory Usage</h5>
+                            <span class="metric-value">{{ memory_usage }}%</span>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="progress">
+                                <div class="progress-bar {{ memory_status }}" style="width: {{ memory_usage }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="performance-metric">
+                        <div class="metric-header">
+                            <h5>Cache Hit Rate</h5>
+                            <span class="metric-value">{{ cache_hit_rate }}%</span>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="progress">
+                                <div class="progress-bar success" style="width: {{ cache_hit_rate }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# 📈 REAL-TIME ANALYTICS #}
+        <div class="dashboard-section real-time-analytics">
+            <div class="section-header">
+                <h3><i class="fa fa-broadcast-tower"></i> Real-Time Analytics</h3>
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    <span>LIVE</span>
+                </div>
+            </div>
+            <div class="section-content">
+                <div class="real-time-grid">
+                    <div class="real-time-card">
+                        <h5>Active Orders</h5>
+                        <div class="real-time-value" id="active-orders">{{ active_orders }}</div>
+                        <div class="real-time-change">+{{ orders_change }} in last hour</div>
+                    </div>
+                    <div class="real-time-card">
+                        <h5>Revenue Today</h5>
+                        <div class="real-time-value" id="revenue-today">{{ revenue_today|number_format }}</div>
+                        <div class="real-time-change">+{{ revenue_change }}% vs yesterday</div>
+                    </div>
+                    <div class="real-time-card">
+                        <h5>Conversion Rate</h5>
+                        <div class="real-time-value" id="conversion-rate">{{ real_time_conversion }}%</div>
+                        <div class="real-time-change">{{ conversion_trend }}{{ conversion_change }}%</div>
+                    </div>
+                    <div class="real-time-card">
+                        <h5>System Load</h5>
+                        <div class="real-time-value" id="system-load">{{ system_load }}%</div>
+                        <div class="real-time-change {{ load_status }}">{{ load_description }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# 🔍 ADVANCED FILTERS #}
+        <div class="dashboard-section advanced-filters">
+            <div class="section-header">
+                <h3><i class="fa fa-filter"></i> Advanced Analytics Filters</h3>
+            </div>
+            <div class="section-content">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Product Categories</label>
+                        <select class="form-control" multiple id="category-filter">
+                            {% for category in product_categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Customer Segments</label>
+                        <select class="form-control" multiple id="segment-filter">
+                            {% for segment in customer_segments %}
+                            <option value="{{ segment.id }}">{{ segment.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Geographic Regions</label>
+                        <select class="form-control" multiple id="region-filter">
+                            {% for region in geographic_regions %}
+                            <option value="{{ region.id }}">{{ region.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+                        <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+                        <button class="btn btn-info" onclick="saveFilterSet()">Save Filter Set</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# 🎯 ACTION CENTER #}
+    <div class="action-center">
+        <div class="action-header">
+            <h3><i class="fa fa-tasks"></i> Recommended Actions</h3>
+        </div>
+        <div class="action-grid">
+            {% for action in recommended_actions %}
+            <div class="action-card {{ action.priority }}">
+                <div class="action-icon">
+                    <i class="fa fa-{{ action.icon }}"></i>
+                </div>
+                <div class="action-content">
+                    <h5>{{ action.title }}</h5>
+                    <p>{{ action.description }}</p>
+                    <div class="action-impact">
+                        <span class="impact-label">Potential Impact:</span>
+                        <span class="impact-value {{ action.impact_type }}">{{ action.impact_value }}</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-sm btn-primary" onclick="executeAction('{{ action.id }}')">
+                        Execute
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="scheduleAction('{{ action.id }}')">
+                        Schedule
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{# 🎨 DASHBOARD STYLES #}
+<style>
+.meschain-bi-dashboard {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dashboard-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-title {
+    color: #2d3748;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.header-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+}
+
+.stat-change {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.stat-change.positive {
+    color: #48bb78;
+}
+
+.stat-change.negative {
+    color: #f56565;
+}
+
+.stat-change.neutral {
+    color: #ed8936;
+}
+
+.dashboard-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.dashboard-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.section-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-content {
+    padding: 1.5rem;
+}
+
+.marketplace-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.marketplace-card {
+    background: #f8f9ff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.marketplace-card:hover {
+    transform: translateY(-5px);
+}
+
+.marketplace-card.active {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.ai-insights .insights-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.insight-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.insight-card.high {
+    border-left-color: #f56565;
+    background: #fed7d7;
+}
+
+.insight-card.medium {
+    border-left-color: #ed8936;
+    background: #feebc8;
+}
+
+.insight-card.low {
+    border-left-color: #48bb78;
+    background: #c6f6d5;
+}
+
+.predictions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.prediction-card {
+    background: #f8f9ff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 2px solid #e2e8f0;
+}
+
+.performance-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.performance-metric {
+    background: #f8f9ff;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.progress {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.progress-bar.success {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.progress-bar.warning {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+}
+
+.progress-bar.danger {
+    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+}
+
+.real-time-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.real-time-card {
+    background: #f8f9ff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.real-time-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #4facfe;
+    margin: 0.5rem 0;
+}
+
+.live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: #48bb78;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.action-center {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.action-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid;
+}
+
+.action-card.high {
+    border-left-color: #f56565;
+    background: #fed7d7;
+}
+
+.action-card.medium {
+    border-left-color: #ed8936;
+    background: #feebc8;
+}
+
+.action-card.low {
+    border-left-color: #48bb78;
+    background: #c6f6d5;
+}
+
+.ai-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #48bb78;
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+.ai-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.filter-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+}
+
+.btn-secondary {
+    background: #718096;
+    color: white;
+}
+
+.btn-outline-primary {
+    border: 2px solid #4facfe;
+    color: #4facfe;
+    background: transparent;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .header-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .dashboard-controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+</style>
+
+{# 📊 DASHBOARD JAVASCRIPT #}
+<script>
+// Real-time data updates
+function updateRealTimeData() {
+    // Simulate real-time data updates
+    const elements = {
+        'active-orders': Math.floor(Math.random() * 100) + 450,
+        'revenue-today': Math.floor(Math.random() * 50000) + 250000,
+        'conversion-rate': (Math.random() * 5 + 12).toFixed(1),
+        'system-load': Math.floor(Math.random() * 30) + 60
+    };
+    
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = typeof value === 'number' ? value.toLocaleString() : value;
+        }
+    });
+}
+
+// Dashboard functions
+function refreshDashboard() {
+    console.log('Refreshing dashboard...');
+    updateRealTimeData();
+    // Add actual refresh logic here
+}
+
+function exportReport() {
+    console.log('Exporting report...');
+    // Add export logic here
+}
+
+function applyFilters() {
+    console.log('Applying filters...');
+    // Add filter logic here
+}
+
+function resetFilters() {
+    console.log('Resetting filters...');
+    // Add reset logic here
+}
+
+function applyInsight(insightId) {
+    console.log('Applying insight:', insightId);
+    // Add insight application logic here
+}
+
+function executeAction(actionId) {
+    console.log('Executing action:', actionId);
+    // Add action execution logic here
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    updateRealTimeData();
+    setInterval(updateRealTimeData, 30000); // Update every 30 seconds
+    
+    // Initialize charts (Chart.js integration would go here)
+    console.log('Dashboard initialized');
+});
+</script>
+
+{% endblock %} 

@@ -1,0 +1,830 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-trendyol-cron" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fa-solid fa-floppy-disk"></i>
+        </button>
+        <a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light">
+          <i class="fa-solid fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+      <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-circle-exclamation"></i> {{ error_warning }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endif %}
+    {% if success %}
+      <div class="alert alert-success alert-dismissible">
+        <i class="fa-solid fa-circle-check"></i> {{ success }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endif %}
+
+    <div class="card">
+      <div class="card-header">
+        <i class="fa-solid fa-cog"></i> {{ text_edit }}
+      </div>
+      <div class="card-body">
+        <form id="form-trendyol-cron" action="{{ action }}" method="post" data-oc-toggle="ajax">
+
+          <!-- Navigation Tabs -->
+          <ul class="nav nav-tabs" id="cronTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+                <i class="fa-solid fa-cog"></i> {{ tab_general }}
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="monitoring-tab" data-bs-toggle="tab" data-bs-target="#monitoring" type="button" role="tab">
+                <i class="fa-solid fa-chart-line"></i> {{ tab_monitoring }}
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs" type="button" role="tab">
+                <i class="fa-solid fa-file-lines"></i> {{ tab_logs }}
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="setup-tab" data-bs-toggle="tab" data-bs-target="#setup" type="button" role="tab">
+                <i class="fa-solid fa-terminal"></i> {{ tab_setup }}
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="cronTabsContent">
+
+            <!-- General Settings Tab -->
+            <div class="tab-pane fade show active" id="general" role="tabpanel">
+              <div class="row mt-3">
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="fa-solid fa-toggle-on"></i> {{ text_cron_settings }}</h5>
+                    </div>
+                    <div class="card-body">
+
+                      <!-- Master Enable/Disable -->
+                      <div class="row mb-3">
+                        <label for="input-status" class="col-sm-4 col-form-label">{{ entry_status }}</label>
+                        <div class="col-sm-8">
+                          <div class="form-check form-switch">
+                            <input type="hidden" name="meschain_trendyol_cron_status" value="0">
+                            <input class="form-check-input" type="checkbox" name="meschain_trendyol_cron_status" value="1" id="input-status" {% if meschain_trendyol_cron_status %}checked{% endif %}>
+                            <label class="form-check-label" for="input-status">{{ text_enabled }}</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Product Sync -->
+                      <div class="row mb-3">
+                        <label for="input-product-sync" class="col-sm-4 col-form-label">{{ entry_product_sync }}</label>
+                        <div class="col-sm-8">
+                          <div class="form-check form-switch">
+                            <input type="hidden" name="meschain_trendyol_cron_product_sync_enabled" value="0">
+                            <input class="form-check-input" type="checkbox" name="meschain_trendyol_cron_product_sync_enabled" value="1" id="input-product-sync" {% if meschain_trendyol_cron_product_sync_enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="input-product-sync">{{ text_enabled }}</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Order Sync -->
+                      <div class="row mb-3">
+                        <label for="input-order-sync" class="col-sm-4 col-form-label">{{ entry_order_sync }}</label>
+                        <div class="col-sm-8">
+                          <div class="form-check form-switch">
+                            <input type="hidden" name="meschain_trendyol_cron_order_sync_enabled" value="0">
+                            <input class="form-check-input" type="checkbox" name="meschain_trendyol_cron_order_sync_enabled" value="1" id="input-order-sync" {% if meschain_trendyol_cron_order_sync_enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="input-order-sync">{{ text_enabled }}</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Stock Sync -->
+                      <div class="row mb-3">
+                        <label for="input-stock-sync" class="col-sm-4 col-form-label">{{ entry_stock_sync }}</label>
+                        <div class="col-sm-8">
+                          <div class="form-check form-switch">
+                            <input type="hidden" name="meschain_trendyol_cron_stock_sync_enabled" value="0">
+                            <input class="form-check-input" type="checkbox" name="meschain_trendyol_cron_stock_sync_enabled" value="1" id="input-stock-sync" {% if meschain_trendyol_cron_stock_sync_enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="input-stock-sync">{{ text_enabled }}</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Webhook Processing -->
+                      <div class="row mb-3">
+                        <label for="input-webhook-processing" class="col-sm-4 col-form-label">{{ entry_webhook_processing }}</label>
+                        <div class="col-sm-8">
+                          <div class="form-check form-switch">
+                            <input type="hidden" name="meschain_trendyol_cron_webhook_processing_enabled" value="0">
+                            <input class="form-check-input" type="checkbox" name="meschain_trendyol_cron_webhook_processing_enabled" value="1" id="input-webhook-processing" {% if meschain_trendyol_cron_webhook_processing_enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="input-webhook-processing">{{ text_enabled }}</label>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="fa-solid fa-clock"></i> {{ text_intervals }}</h5>
+                    </div>
+                    <div class="card-body">
+
+                      <!-- Product Sync Interval -->
+                      <div class="row mb-3">
+                        <label for="input-product-interval" class="col-sm-6 col-form-label">{{ entry_product_interval }}</label>
+                        <div class="col-sm-6">
+                          <div class="input-group">
+                            <input type="number" name="meschain_trendyol_cron_product_sync_interval" value="{{ meschain_trendyol_cron_product_sync_interval }}" placeholder="{{ entry_product_interval }}" id="input-product-interval" class="form-control" min="5" max="1440">
+                            <span class="input-group-text">{{ text_minutes }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Order Sync Interval -->
+                      <div class="row mb-3">
+                        <label for="input-order-interval" class="col-sm-6 col-form-label">{{ entry_order_interval }}</label>
+                        <div class="col-sm-6">
+                          <div class="input-group">
+                            <input type="number" name="meschain_trendyol_cron_order_sync_interval" value="{{ meschain_trendyol_cron_order_sync_interval }}" placeholder="{{ entry_order_interval }}" id="input-order-interval" class="form-control" min="1" max="60">
+                            <span class="input-group-text">{{ text_minutes }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Stock Sync Interval -->
+                      <div class="row mb-3">
+                        <label for="input-stock-interval" class="col-sm-6 col-form-label">{{ entry_stock_interval }}</label>
+                        <div class="col-sm-6">
+                          <div class="input-group">
+                            <input type="number" name="meschain_trendyol_cron_stock_sync_interval" value="{{ meschain_trendyol_cron_stock_sync_interval }}" placeholder="{{ entry_stock_interval }}" id="input-stock-interval" class="form-control" min="5" max="120">
+                            <span class="input-group-text">{{ text_minutes }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Webhook Processing Interval -->
+                      <div class="row mb-3">
+                        <label for="input-webhook-interval" class="col-sm-6 col-form-label">{{ entry_webhook_interval }}</label>
+                        <div class="col-sm-6">
+                          <div class="input-group">
+                            <input type="number" name="meschain_trendyol_cron_webhook_processing_interval" value="{{ meschain_trendyol_cron_webhook_processing_interval }}" placeholder="{{ entry_webhook_interval }}" id="input-webhook-interval" class="form-control" min="1" max="30">
+                            <span class="input-group-text">{{ text_minutes }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Alert Settings -->
+              <div class="row mt-3">
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="fa-solid fa-bell"></i> {{ text_alert_settings }}</h5>
+                    </div>
+                    <div class="card-body">
+
+                      <!-- Alert Email -->
+                      <div class="row mb-3">
+                        <label for="input-alert-email" class="col-sm-4 col-form-label">{{ entry_alert_email }}</label>
+                        <div class="col-sm-8">
+                          <input type="email" name="meschain_trendyol_cron_alert_email" value="{{ meschain_trendyol_cron_alert_email }}" placeholder="{{ entry_alert_email }}" id="input-alert-email" class="form-control">
+                        </div>
+                      </div>
+
+                      <!-- Alert on Error -->
+                      <div class="row mb-3">
+                        <label for="input-alert-error" class="col-sm-4 col-form-label">{{ entry_alert_on_error }}</label>
+                        <div class="col-sm-8">
+                          <div class="form-check form-switch">
+                            <input type="hidden" name="meschain_trendyol_cron_alert_on_error" value="0">
+                            <input class="form-check-input" type="checkbox" name="meschain_trendyol_cron_alert_on_error" value="1" id="input-alert-error" {% if meschain_trendyol_cron_alert_on_error %}checked{% endif %}>
+                            <label class="form-check-label" for="input-alert-error">{{ text_enabled }}</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Alert on Low Stock -->
+                      <div class="row mb-3">
+                        <label for="input-alert-stock" class="col-sm-4 col-form-label">{{ entry_alert_on_low_stock }}</label>
+                        <div class="col-sm-8">
+                          <div class="form-check form-switch">
+                            <input type="hidden" name="meschain_trendyol_cron_alert_on_low_stock" value="0">
+                            <input class="form-check-input" type="checkbox" name="meschain_trendyol_cron_alert_on_low_stock" value="1" id="input-alert-stock" {% if meschain_trendyol_cron_alert_on_low_stock %}checked{% endif %}>
+                            <label class="form-check-label" for="input-alert-stock">{{ text_enabled }}</label>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="fa-solid fa-tachometer-alt"></i> {{ text_performance_settings }}</h5>
+                    </div>
+                    <div class="card-body">
+
+                      <!-- Batch Size -->
+                      <div class="row mb-3">
+                        <label for="input-batch-size" class="col-sm-6 col-form-label">{{ entry_batch_size }}</label>
+                        <div class="col-sm-6">
+                          <input type="number" name="meschain_trendyol_cron_batch_size" value="{{ meschain_trendyol_cron_batch_size }}" placeholder="{{ entry_batch_size }}" id="input-batch-size" class="form-control" min="10" max="200">
+                        </div>
+                      </div>
+
+                      <!-- Max Execution Time -->
+                      <div class="row mb-3">
+                        <label for="input-max-time" class="col-sm-6 col-form-label">{{ entry_max_execution_time }}</label>
+                        <div class="col-sm-6">
+                          <div class="input-group">
+                            <input type="number" name="meschain_trendyol_cron_max_execution_time" value="{{ meschain_trendyol_cron_max_execution_time }}" placeholder="{{ entry_max_execution_time }}" id="input-max-time" class="form-control" min="60" max="3600">
+                            <span class="input-group-text">{{ text_seconds }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Memory Limit -->
+                      <div class="row mb-3">
+                        <label for="input-memory-limit" class="col-sm-6 col-form-label">{{ entry_memory_limit }}</label>
+                        <div class="col-sm-6">
+                          <input type="text" name="meschain_trendyol_cron_memory_limit" value="{{ meschain_trendyol_cron_memory_limit }}" placeholder="{{ entry_memory_limit }}" id="input-memory-limit" class="form-control">
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Manual Sync Controls -->
+              <div class="row mt-3">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="fa-solid fa-play"></i> {{ text_manual_sync }}</h5>
+                    </div>
+                    <div class="card-body">
+                      <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-info" onclick="manualSync('product')">
+                          <i class="fa-solid fa-box"></i> {{ button_sync_products }}
+                        </button>
+                        <button type="button" class="btn btn-warning" onclick="manualSync('order')">
+                          <i class="fa-solid fa-shopping-cart"></i> {{ button_sync_orders }}
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="manualSync('stock')">
+                          <i class="fa-solid fa-warehouse"></i> {{ button_sync_stock }}
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="manualSync('webhook')">
+                          <i class="fa-solid fa-webhook"></i> {{ button_process_webhooks }}
+                        </button>
+                        <button type="button" class="btn btn-dark" onclick="manualSync('all')">
+                          <i class="fa-solid fa-sync"></i> {{ button_sync_all }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Monitoring Tab -->
+            <div class="tab-pane fade" id="monitoring" role="tabpanel">
+              <div class="row mt-3">
+
+                <!-- Current Status -->
+                <div class="col-md-12">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="fa-solid fa-heartbeat"></i> {{ text_current_status }}</h5>
+                      <button type="button" class="btn btn-sm btn-outline-primary float-end" onclick="refreshStats()">
+                        <i class="fa-solid fa-refresh"></i> {{ button_refresh }}
+                      </button>
+                    </div>
+                    <div class="card-body">
+                      <div class="row" id="cron-status">
+                        <!-- Status will be loaded via AJAX -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="fa-solid fa-chart-bar"></i> {{ text_today_stats }}</h5>
+                    </div>
+                    <div class="card-body">
+                      <div id="today-stats">
+                        <!-- Stats will be loaded via AJAX -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Queue Status -->
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="fa-solid fa-list"></i> {{ text_queue_status }}</h5>
+                    </div>
+                    <div class="card-body">
+                      <div id="queue-status">
+                        <!-- Queue status will be loaded via AJAX -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Weekly Chart -->
+                <div class="col-md-12 mt-3">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="fa-solid fa-chart-line"></i> {{ text_weekly_chart }}</h5>
+                    </div>
+                    <div class="card-body">
+                      <canvas id="weeklyChart" width="400" height="100"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Logs Tab -->
+            <div class="tab-pane fade" id="logs" role="tabpanel">
+              <div class="row mt-3">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="fa-solid fa-file-lines"></i> {{ text_sync_logs }}</h5>
+                      <div class="float-end">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearLogs()">
+                          <i class="fa-solid fa-trash"></i> {{ button_clear_logs }}
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="refreshLogs()">
+                          <i class="fa-solid fa-refresh"></i> {{ button_refresh }}
+                        </button>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        <table class="table table-striped" id="logs-table">
+                          <thead>
+                            <tr>
+                              <th>{{ column_sync_type }}</th>
+                              <th>{{ column_status }}</th>
+                              <th>{{ column_message }}</th>
+                              <th>{{ column_execution_time }}</th>
+                              <th>{{ column_date }}</th>
+                            </tr>
+                          </thead>
+                          <tbody id="logs-tbody">
+                            <!-- Logs will be loaded via AJAX -->
+                          </tbody>
+                        </table>
+                      </div>
+                      <div id="logs-pagination">
+                        <!-- Pagination will be loaded via AJAX -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Setup Tab -->
+            <div class="tab-pane fade" id="setup" role="tabpanel">
+              <div class="row mt-3">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="fa-solid fa-terminal"></i> {{ text_cron_setup }}</h5>
+                    </div>
+                    <div class="card-body">
+                      <p>{{ text_cron_setup_help }}</p>
+
+                      <div class="alert alert-info">
+                        <h6><i class="fa-solid fa-info-circle"></i> {{ text_setup_instructions }}</h6>
+                        <ol>
+                          <li>{{ text_step_1 }}</li>
+                          <li>{{ text_step_2 }}</li>
+                          <li>{{ text_step_3 }}</li>
+                          <li>{{ text_step_4 }}</li>
+                        </ol>
+                      </div>
+
+                      <div class="mb-3">
+                        <a href="{{ generate_script }}" class="btn btn-primary">
+                          <i class="fa-solid fa-download"></i> {{ button_download_script }}
+                        </a>
+                      </div>
+
+                      <h6>{{ text_manual_cron_setup }}</h6>
+                      <div class="alert alert-secondary">
+                        <pre><code># Add these lines to your crontab (crontab -e)
+
+# Main Trendyol sync (every 15 minutes)
+*/15 * * * * /usr/bin/php {{ opencart_path }}system/library/meschain/cron/trendyol_sync.php >/dev/null 2>&1
+
+# Product sync (every hour)
+0 * * * * /usr/bin/php {{ opencart_path }}system/library/meschain/cron/product_sync.php >/dev/null 2>&1
+
+# Stock sync (every 30 minutes)
+*/30 * * * * /usr/bin/php {{ opencart_path }}system/library/meschain/cron/stock_sync.php >/dev/null 2>&1
+
+# Webhook processor (every 5 minutes)
+*/5 * * * * /usr/bin/php {{ opencart_path }}system/library/meschain/cron/webhook_processor.php >/dev/null 2>&1</code></pre>
+                      </div>
+
+                      <div class="alert alert-warning">
+                        <h6><i class="fa-solid fa-exclamation-triangle"></i> {{ text_important_notes }}</h6>
+                        <ul>
+                          <li>{{ text_note_1 }}</li>
+                          <li>{{ text_note_2 }}</li>
+                          <li>{{ text_note_3 }}</li>
+                          <li>{{ text_note_4 }}</li>
+                        </ul>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+// Manual sync function
+function manualSync(type) {
+    $.ajax({
+        url: 'index.php?route=extension/meschain/cron/trendyol.manualSync&user_token={{ user_token }}',
+        type: 'post',
+        data: {sync_type: type},
+        dataType: 'json',
+        beforeSend: function() {
+            $('button[onclick="manualSync(\'' + type + '\')"]').prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> {{ text_processing }}');
+        },
+        complete: function() {
+            $('button[onclick="manualSync(\'' + type + '\')"]').prop('disabled', false);
+        },
+        success: function(json) {
+            if (json.error) {
+                $('#content').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json.error + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+
+            if (json.success) {
+                $('#content').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-circle-check"></i> ' + json.success + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+
+            // Restore button text
+            switch(type) {
+                case 'product':
+                    $('button[onclick="manualSync(\'product\')"]').html('<i class="fa-solid fa-box"></i> {{ button_sync_products }}');
+                    break;
+                case 'order':
+                    $('button[onclick="manualSync(\'order\')"]').html('<i class="fa-solid fa-shopping-cart"></i> {{ button_sync_orders }}');
+                    break;
+                case 'stock':
+                    $('button[onclick="manualSync(\'stock\')"]').html('<i class="fa-solid fa-warehouse"></i> {{ button_sync_stock }}');
+                    break;
+                case 'webhook':
+                    $('button[onclick="manualSync(\'webhook\')"]').html('<i class="fa-solid fa-webhook"></i> {{ button_process_webhooks }}');
+                    break;
+                case 'all':
+                    $('button[onclick="manualSync(\'all\')"]').html('<i class="fa-solid fa-sync"></i> {{ button_sync_all }}');
+                    break;
+            }
+
+            // Refresh stats if monitoring tab is active
+            if ($('#monitoring-tab').hasClass('active')) {
+                refreshStats();
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+}
+
+// Refresh statistics
+function refreshStats() {
+    $.ajax({
+        url: 'index.php?route=extension/meschain/cron/trendyol.getStats&user_token={{ user_token }}',
+        type: 'get',
+        dataType: 'json',
+        success: function(json) {
+            if (json.error) {
+                console.log(json.error);
+                return;
+            }
+
+            // Update status indicators
+            updateStatusIndicators(json);
+
+            // Update today's stats
+            updateTodayStats(json.today || {});
+
+            // Update queue status
+            updateQueueStatus(json.queues || {});
+
+            // Update weekly chart
+            updateWeeklyChart(json.week || []);
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+}
+
+// Update status indicators
+function updateStatusIndicators(data) {
+    var html = '';
+    var statuses = ['trendyol_sync', 'product_sync', 'order_sync', 'stock_sync', 'webhook_processor'];
+
+    statuses.forEach(function(status) {
+        var isRunning = data.cron_status && data.cron_status[status] && data.cron_status[status].running;
+        var lastRun = data.cron_status && data.cron_status[status] ? data.cron_status[status].last_run : 'Never';
+
+        html += '<div class="col-md-2 text-center">';
+        html += '<div class="card ' + (isRunning ? 'border-success' : 'border-secondary') + '">';
+        html += '<div class="card-body">';
+        html += '<h5 class="card-title">' + status.replace('_', ' ').toUpperCase() + '</h5>';
+        html += '<p class="card-text">';
+        html += '<span class="badge ' + (isRunning ? 'bg-success' : 'bg-secondary') + '">' + (isRunning ? 'RUNNING' : 'STOPPED') + '</span><br>';
+        html += '<small class="text-muted">Last run: ' + lastRun + '</small>';
+        html += '</p>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+    });
+
+    $('#cron-status').html(html);
+}
+
+// Update today's statistics
+function updateTodayStats(stats) {
+    var html = '';
+
+    if (Object.keys(stats).length === 0) {
+        html = '<p class="text-muted">No sync activity today</p>';
+    } else {
+        Object.keys(stats).forEach(function(syncType) {
+            var stat = stats[syncType];
+            var successRate = stat.total > 0 ? Math.round((stat.success / stat.total) * 100) : 0;
+
+            html += '<div class="row mb-2">';
+            html += '<div class="col-4"><strong>' + syncType.replace('_', ' ').toUpperCase() + '</strong></div>';
+            html += '<div class="col-2"><span class="badge bg-primary">' + stat.total + '</span></div>';
+            html += '<div class="col-2"><span class="badge bg-success">' + stat.success + '</span></div>';
+            html += '<div class="col-2"><span class="badge bg-danger">' + stat.errors + '</span></div>';
+            html += '<div class="col-2"><small>' + successRate + '%</small></div>';
+            html += '</div>';
+        });
+
+        html = '<div class="row mb-2"><div class="col-4"><strong>Type</strong></div><div class="col-2"><strong>Total</strong></div><div class="col-2"><strong>Success</strong></div><div class="col-2"><strong>Errors</strong></div><div class="col-2"><strong>Rate</strong></div></div>' + html;
+    }
+
+    $('#today-stats').html(html);
+}
+
+// Update queue status
+function updateQueueStatus(queues) {
+    var html = '';
+
+    if (Object.keys(queues).length === 0) {
+        html = '<p class="text-muted">No pending items in queues</p>';
+    } else {
+        Object.keys(queues).forEach(function(queueType) {
+            var count = queues[queueType];
+            var badgeClass = count > 0 ? 'bg-warning' : 'bg-success';
+
+            html += '<div class="d-flex justify-content-between align-items-center mb-2">';
+            html += '<span>' + queueType.charAt(0).toUpperCase() + queueType.slice(1) + '</span>';
+            html += '<span class="badge ' + badgeClass + '">' + count + '</span>';
+            html += '</div>';
+        });
+    }
+
+    $('#queue-status').html(html);
+}
+
+// Update weekly chart
+function updateWeeklyChart(weekData) {
+    var ctx = document.getElementById('weeklyChart').getContext('2d');
+
+    // Destroy existing chart if it exists
+    if (window.weeklyChart) {
+        window.weeklyChart.destroy();
+    }
+
+    var labels = [];
+    var successData = [];
+    var errorData = [];
+
+    weekData.forEach(function(day) {
+        labels.push(day.date);
+        successData.push(day.success);
+        errorData.push(day.errors);
+    });
+
+    window.weeklyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Success',
+                data: successData,
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }, {
+                label: 'Errors',
+                data: errorData,
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Weekly Sync Performance'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Load logs
+function loadLogs(page = 1) {
+    $.ajax({
+        url: 'index.php?route=extension/meschain/cron/trendyol.getLogs&user_token={{ user_token }}&page=' + page,
+        type: 'get',
+        dataType: 'json',
+        success: function(json) {
+            if (json.error) {
+                console.log(json.error);
+                return;
+            }
+
+            var html = '';
+            if (json.logs && json.logs.length > 0) {
+                json.logs.forEach(function(log) {
+                    var statusClass = log.status === 'success' ? 'text-success' : 'text-danger';
+                    var statusIcon = log.status === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+
+                    html += '<tr>';
+                    html += '<td>' + log.sync_type.replace('_', ' ').toUpperCase() + '</td>';
+                    html += '<td><i class="fa-solid ' + statusIcon + ' ' + statusClass + '"></i> ' + log.status.toUpperCase() + '</td>';
+                    html += '<td>' + (log.message || '-') + '</td>';
+                    html += '<td>' + (log.execution_time || '-') + 's</td>';
+                    html += '<td>' + log.created_at + '</td>';
+                    html += '</tr>';
+                });
+            } else {
+                html = '<tr><td colspan="5" class="text-center text-muted">No logs found</td></tr>';
+            }
+
+            $('#logs-tbody').html(html);
+
+            // Update pagination
+            updateLogsPagination(json.page, json.pages, json.total);
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+}
+
+// Update logs pagination
+function updateLogsPagination(currentPage, totalPages, totalRecords) {
+    var html = '';
+
+    if (totalPages > 1) {
+        html += '<nav aria-label="Logs pagination">';
+        html += '<ul class="pagination justify-content-center">';
+
+        // Previous button
+        if (currentPage > 1) {
+            html += '<li class="page-item"><a class="page-link" href="#" onclick="loadLogs(' + (currentPage - 1) + ')">Previous</a></li>';
+        }
+
+        // Page numbers
+        for (var i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+            var activeClass = i === currentPage ? ' active' : '';
+            html += '<li class="page-item' + activeClass + '"><a class="page-link" href="#" onclick="loadLogs(' + i + ')">' + i + '</a></li>';
+        }
+
+        // Next button
+        if (currentPage < totalPages) {
+            html += '<li class="page-item"><a class="page-link" href="#" onclick="loadLogs(' + (currentPage + 1) + ')">Next</a></li>';
+        }
+
+        html += '</ul>';
+        html += '</nav>';
+        html += '<p class="text-center text-muted">Showing page ' + currentPage + ' of ' + totalPages + ' (' + totalRecords + ' total records)</p>';
+    }
+
+    $('#logs-pagination').html(html);
+}
+
+// Refresh logs
+function refreshLogs() {
+    loadLogs(1);
+}
+
+// Clear logs
+function clearLogs() {
+    if (!confirm('Are you sure you want to clear old logs? This action cannot be undone.')) {
+        return;
+    }
+
+    var days = prompt('Clear logs older than how many days?', '30');
+    if (!days || isNaN(days)) {
+        return;
+    }
+
+    $.ajax({
+        url: 'index.php?route=extension/meschain/cron/trendyol.clearLogs&user_token={{ user_token }}',
+        type: 'post',
+        data: {days: days},
+        dataType: 'json',
+        success: function(json) {
+            if (json.error) {
+                alert('Error: ' + json.error);
+            }
+
+            if (json.success) {
+                alert(json.success);
+                refreshLogs();
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+}
+
+// Initialize when document is ready
+$(document).ready(function() {
+    // Load initial data for monitoring tab
+    refreshStats();
+
+    // Load initial logs
+    loadLogs(1);
+
+    // Auto-refresh stats every 30 seconds if monitoring tab is active
+    setInterval(function() {
+        if ($('#monitoring-tab').hasClass('active')) {
+            refreshStats();
+        }
+    }, 30000);
+
+    // Auto-refresh logs every 60 seconds if logs tab is active
+    setInterval(function() {
+        if ($('#logs-tab').hasClass('active')) {
+            refreshLogs();
+        }
+    }, 60000);
+});
+</script>
+
+{{ footer }}

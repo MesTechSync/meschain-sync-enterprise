@@ -1,0 +1,439 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <div class="btn-group">
+          <button type="button" class="btn btn-success" onclick="refreshDashboard()">
+            <i class="fa fa-refresh"></i> Yenile
+          </button>
+          <button type="button" class="btn btn-primary" onclick="restartSystem()">
+            <i class="fa fa-power-off"></i> Restart
+          </button>
+          <button type="button" class="btn btn-danger" onclick="emergencyStop()">
+            <i class="fa fa-stop"></i> Acil Durdur
+          </button>
+        </div>
+      </div>
+      <h1><i class="fa fa-dashboard"></i> MesChain Super Admin Panel</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- Genel Sistem Durumu -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="alert alert-{{ system_status.overall_status == 'healthy' ? 'success' : (system_status.overall_status == 'warning' ? 'warning' : 'danger') }}">
+          <h4>
+            <i class="fa fa-{{ system_status.overall_status == 'healthy' ? 'check-circle' : (system_status.overall_status == 'warning' ? 'exclamation-triangle' : 'times-circle') }}"></i>
+            Sistem Durumu: 
+            {% if system_status.overall_status == 'healthy' %}
+              Sağlıklı
+            {% elseif system_status.overall_status == 'warning' %}
+              Dikkat
+            {% else %}
+              Kritik
+            {% endif %}
+          </h4>
+          <p>Son güncelleme: {{ "now"|date("d.m.Y H:i:s") }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Hızlı İstatistikler -->
+    {% if quick_stats %}
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ quick_stats.today_orders }}</div>
+                <div>Bugünkü Siparişler</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-money fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ quick_stats.week_revenue|number_format(0) }}₺</div>
+                <div>Haftalık Gelir</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cubes fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ quick_stats.active_products }}</div>
+                <div>Aktif Ürünler</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-line-chart fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ quick_stats.api_success_rate }}%</div>
+                <div>API Başarı</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Sistem Bileşenleri -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-server"></i> Sistem Bileşenleri
+            </h3>
+          </div>
+          <div class="panel-body">
+            {% if system_status %}
+            <div class="row">
+              <div class="col-md-6">
+                <div class="component-status">
+                  <h4>
+                    <i class="fa fa-database"></i> Database
+                    <span class="status-badge status-{{ system_status.database.status }}">
+                      {{ system_status.database.status == 'healthy' ? 'OK' : 'ERROR' }}
+                    </span>
+                  </h4>
+                  <ul>
+                    <li>Tablolar: {{ system_status.database.existing_tables ?? 0 }}</li>
+                    <li>Son 24h: {{ system_status.database.recent_records ?? 0 }}</li>
+                    <li>Response: {{ system_status.database.response_time ?? 0 }}ms</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="component-status">
+                  <h4>
+                    <i class="fa fa-hdd-o"></i> Cache
+                    <span class="status-badge status-{{ system_status.cache.status }}">
+                      {{ system_status.cache.status == 'healthy' ? 'OK' : 'ERROR' }}
+                    </span>
+                  </h4>
+                  <ul>
+                    <li>Çalışıyor: {{ system_status.cache.is_working ? 'Evet' : 'Hayır' }}</li>
+                    <li>Boyut: {{ system_status.cache.size_mb ?? 0 }} MB</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="component-status">
+                  <h4>
+                    <i class="fa fa-list"></i> Queue
+                    <span class="status-badge status-{{ system_status.queue.status }}">
+                      {{ system_status.queue.status == 'healthy' ? 'OK' : 'WARNING' }}
+                    </span>
+                  </h4>
+                  <ul>
+                    <li>Bekleyen: {{ system_status.queue.pending ?? 0 }}</li>
+                    <li>İşlenen: {{ system_status.queue.processing ?? 0 }}</li>
+                    <li>Başarısız: {{ system_status.queue.failed ?? 0 }}</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="component-status">
+                  <h4>
+                    <i class="fa fa-clock-o"></i> Cron Jobs
+                    <span class="status-badge status-{{ system_status.cron.status }}">
+                      {{ system_status.cron.status == 'healthy' ? 'OK' : 'WARNING' }}
+                    </span>
+                  </h4>
+                  <ul>
+                    <li>Aktif: {{ system_status.cron.active_jobs ?? 0 }}</li>
+                    <li>Son 1h: {{ system_status.cron.recent_runs ?? 0 }}</li>
+                    <li>Başarısız: {{ system_status.cron.failed_jobs ?? 0 }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-bolt"></i> Hızlı İşlemler
+            </h3>
+          </div>
+          <div class="panel-body">
+            <a href="index.php?route=extension/module/meschain_real_time_dashboard&user_token={{ user_token }}" class="btn btn-info btn-block">
+              <i class="fa fa-tachometer"></i> Real-Time Dashboard
+            </a>
+            
+            <a href="index.php?route=extension/module/meschain_analytics&user_token={{ user_token }}" class="btn btn-primary btn-block">
+              <i class="fa fa-bar-chart"></i> Analytics
+            </a>
+            
+            <a href="index.php?route=extension/module/meschain_cron_manager&user_token={{ user_token }}" class="btn btn-warning btn-block">
+              <i class="fa fa-clock-o"></i> Cron Jobs
+            </a>
+            
+            <button type="button" class="btn btn-success btn-block" onclick="runAllCrons()">
+              <i class="fa fa-play"></i> Tüm Cron'ları Çalıştır
+            </button>
+            
+            <hr>
+            
+            <button type="button" class="btn btn-danger btn-block" onclick="confirmEmergencyStop()">
+              <i class="fa fa-stop-circle"></i> ACİL DURDUR
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Marketplace Durumları -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-shopping-bag"></i> Marketplace Durumları
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              {% if marketplace_status %}
+              {% for marketplace, status in marketplace_status %}
+              <div class="col-md-2">
+                <div class="marketplace-card">
+                  <h5>{{ marketplace|title }}</h5>
+                  <div class="status-indicator status-{{ status.status }}">
+                    {% if status.status == 'profitable' %}
+                      <i class="fa fa-money"></i> Kar
+                    {% elseif status.status == 'active' %}
+                      <i class="fa fa-check"></i> Aktif
+                    {% else %}
+                      <i class="fa fa-times"></i> Pasif
+                    {% endif %}
+                  </div>
+                  <small>
+                    <strong>Ürün:</strong> {{ status.products }}<br>
+                    <strong>Bugün:</strong> {{ status.orders_today }}
+                  </small>
+                </div>
+              </div>
+              {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.huge {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.panel-green {
+    border-color: #5cb85c;
+}
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+.panel-red > .panel-heading {
+    border-color: #d9534f;
+    color: white;
+    background-color: #d9534f;
+}
+
+.component-status {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.status-badge {
+    float: right;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.status-healthy {
+    background-color: #5cb85c;
+    color: white;
+}
+
+.status-warning {
+    background-color: #f0ad4e;
+    color: white;
+}
+
+.status-error {
+    background-color: #d9534f;
+    color: white;
+}
+
+.marketplace-card {
+    text-align: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.status-indicator {
+    padding: 5px;
+    border-radius: 3px;
+    margin: 10px 0;
+    font-size: 12px;
+}
+
+.status-profitable {
+    background-color: #5cb85c;
+    color: white;
+}
+
+.status-active {
+    background-color: #5bc0de;
+    color: white;
+}
+
+.status-inactive {
+    background-color: #999;
+    color: white;
+}
+</style>
+
+<script>
+function refreshDashboard() {
+    location.reload();
+}
+
+function restartSystem() {
+    if (confirm('Sistemi yeniden başlatmak istediğinizden emin misiniz?')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/meschain_super_admin/restartSystem&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    alert(json.success);
+                    setTimeout(function() {
+                        location.reload();
+                    }, 2000);
+                } else if (json.error) {
+                    alert(json.error);
+                }
+            }
+        });
+    }
+}
+
+function emergencyStop() {
+    $.ajax({
+        url: 'index.php?route=extension/module/meschain_super_admin/emergencyStop&user_token={{ user_token }}',
+        type: 'POST',
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                alert(json.success);
+                location.reload();
+            } else if (json.error) {
+                alert(json.error);
+            }
+        }
+    });
+}
+
+function confirmEmergencyStop() {
+    if (confirm('ACİL DURDURMA: Bu işlem tüm sistemleri durdurur!\n\nDevam etmek istediğinizden emin misiniz?')) {
+        emergencyStop();
+    }
+}
+
+function runAllCrons() {
+    if (confirm('Tüm cron jobları çalıştırılsın mı?')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/meschain_cron_manager/runCron&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    alert(json.success);
+                } else if (json.error) {
+                    alert(json.error);
+                }
+            }
+        });
+    }
+}
+
+// Otomatik yenileme (2 dakikada bir)
+setInterval(function() {
+    refreshDashboard();
+}, 120000);
+</script>
+
+{{ footer }} 

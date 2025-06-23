@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>MesChain Sync - Main Module</name>
+    <code>meschain_sync_main</code>
+    <version>1.0.0</version>
+    <author>MesChain Development Team</author>
+    <link>https://meschain.com</link>
+
+    <file path="admin/controller/startup/startup.php">
+        <operation>
+            <search><![CDATA[// Registry]]></search>
+            <add position="after"><![CDATA[
+        // MesChain Sync Auto Load
+        if (file_exists(DIR_SYSTEM . 'library/meschain/autoload.php')) {
+            require_once(DIR_SYSTEM . 'library/meschain/autoload.php');
+        }
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/view/template/common/column_left.twig">
+        <operation>
+            <search><![CDATA[<li id="menu-system">]]></search>
+            <add position="before"><![CDATA[
+            <li id="menu-meschain">
+                <a href="#" class="parent"><i class="fa fa-shopping-cart fa-fw"></i> <span>MesChain Sync</span> <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
+                <ul class="treeview-menu">
+                    <li><a href="{{ link('extension/module/meschain_sync', 'user_token=' ~ user_token) }}"><i class="fa fa-circle-o"></i> Dashboard</a></li>
+                    <li><a href="{{ link('extension/module/meschain_trendyol', 'user_token=' ~ user_token) }}"><i class="fa fa-circle-o"></i> Trendyol</a></li>
+                    <li><a href="{{ link('extension/module/meschain_n11', 'user_token=' ~ user_token) }}"><i class="fa fa-circle-o"></i> N11</a></li>
+                    <li><a href="{{ link('extension/module/meschain_hepsiburada', 'user_token=' ~ user_token) }}"><i class="fa fa-circle-o"></i> Hepsiburada</a></li>
+                    <li><a href="{{ link('extension/module/meschain_amazon', 'user_token=' ~ user_token) }}"><i class="fa fa-circle-o"></i> Amazon</a></li>
+                    <li><a href="{{ link('extension/module/meschain_ozon', 'user_token=' ~ user_token) }}"><i class="fa fa-circle-o"></i> Ozon</a></li>
+                    <li><a href="{{ link('extension/module/meschain_ebay', 'user_token=' ~ user_token) }}"><i class="fa fa-circle-o"></i> eBay</a></li>
+                </ul>
+            </li>
+            ]]></add>
+        </operation>
+    </file>
+</modification>

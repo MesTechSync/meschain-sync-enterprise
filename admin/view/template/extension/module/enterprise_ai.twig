@@ -1,0 +1,594 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-save" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>🤖 {{ heading_title }} - ATOM-M021</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <!-- AI Dashboard Overview -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-brain fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="active-models">{{ ai_dashboard.active_models }}</div>
+                <div>Active AI Models</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Quantum Enhanced</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-chart-line fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="predictions-24h">{{ ai_dashboard.total_predictions_24h }}</div>
+                <div>Predictions (24h)</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">{{ ai_dashboard.quantum_acceleration }}</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-bullseye fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge" id="accuracy-score">{{ ai_dashboard.accuracy_score }}%</div>
+                <div>Accuracy Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">AI Performance</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-rocket fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ ai_dashboard.business_impact.revenue_optimization }}%</div>
+                <div>Revenue Boost</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span class="pull-left">Business Impact</span>
+            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- AI Control Panels -->
+    <div class="row">
+      <!-- Price Optimization Panel -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-dollar-sign"></i> AI Price Optimization</h3>
+          </div>
+          <div class="panel-body">
+            <form id="price-optimization-form">
+              <div class="form-group">
+                <label for="product-id">Product ID:</label>
+                <input type="text" id="product-id" name="product_id" class="form-control" placeholder="Enter Product ID">
+              </div>
+              <div class="form-group">
+                <label for="current-price">Current Price:</label>
+                <input type="number" id="current-price" name="current_price" class="form-control" step="0.01" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label for="category">Category:</label>
+                <input type="text" id="category" name="category" class="form-control" placeholder="Product Category">
+              </div>
+              <button type="button" id="optimize-price" class="btn btn-primary">
+                <i class="fa fa-magic"></i> Optimize Price with AI
+              </button>
+            </form>
+            
+            <div id="price-optimization-result" class="mt-3" style="display: none;">
+              <h4>Optimization Result:</h4>
+              <div class="alert alert-info">
+                <strong>Optimized Price:</strong> <span id="optimized-price"></span><br>
+                <strong>Price Change:</strong> <span id="price-change"></span>%<br>
+                <strong>Expected Revenue Increase:</strong> <span id="revenue-increase"></span>%<br>
+                <strong>Confidence Score:</strong> <span id="confidence-score"></span>%
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Customer Behavior Analysis Panel -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-users"></i> Customer Behavior Analysis</h3>
+          </div>
+          <div class="panel-body">
+            <form id="behavior-analysis-form">
+              <div class="form-group">
+                <label for="customer-id">Customer ID:</label>
+                <input type="text" id="customer-id" name="customer_id" class="form-control" placeholder="Enter Customer ID">
+              </div>
+              <button type="button" id="analyze-behavior" class="btn btn-success">
+                <i class="fa fa-search"></i> Analyze Customer Behavior
+              </button>
+            </form>
+            
+            <div id="behavior-analysis-result" class="mt-3" style="display: none;">
+              <h4>Analysis Result:</h4>
+              <div class="alert alert-success">
+                <strong>Purchase Probability:</strong> <span id="purchase-probability"></span>%<br>
+                <strong>Churn Risk:</strong> <span id="churn-risk"></span>%<br>
+                <strong>Lifetime Value:</strong> $<span id="lifetime-value"></span><br>
+                <strong>Behavior Score:</strong> <span id="behavior-score"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <!-- Smart Recommendations Panel -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-lightbulb"></i> Smart Recommendations</h3>
+          </div>
+          <div class="panel-body">
+            <form id="recommendations-form">
+              <div class="form-group">
+                <label for="user-id">User ID:</label>
+                <input type="text" id="user-id" name="user_id" class="form-control" placeholder="Enter User ID">
+              </div>
+              <button type="button" id="generate-recommendations" class="btn btn-warning">
+                <i class="fa fa-star"></i> Generate Smart Recommendations
+              </button>
+            </form>
+            
+            <div id="recommendations-result" class="mt-3" style="display: none;">
+              <h4>Recommendations:</h4>
+              <div class="alert alert-warning">
+                <strong>Recommendation Score:</strong> <span id="recommendation-score"></span><br>
+                <strong>Personalization Level:</strong> <span id="personalization-level"></span>%<br>
+                <strong>Expected Conversion:</strong> <span id="expected-conversion"></span>%<br>
+                <div id="recommended-products"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Market Trends Panel -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-chart-area"></i> Market Trend Prediction</h3>
+          </div>
+          <div class="panel-body">
+            <form id="market-trends-form">
+              <div class="form-group">
+                <label for="market-segment">Market Segment:</label>
+                <select id="market-segment" name="segment" class="form-control">
+                  <option value="">Select Segment</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="fashion">Fashion</option>
+                  <option value="home_garden">Home & Garden</option>
+                  <option value="books">Books</option>
+                  <option value="sports">Sports</option>
+                </select>
+              </div>
+              <button type="button" id="predict-trends" class="btn btn-info">
+                <i class="fa fa-crystal-ball"></i> Predict Market Trends
+              </button>
+            </form>
+            
+            <div id="market-trends-result" class="mt-3" style="display: none;">
+              <h4>Trend Prediction:</h4>
+              <div class="alert alert-info">
+                <strong>Trend Direction:</strong> <span id="trend-direction"></span><br>
+                <strong>Trend Strength:</strong> <span id="trend-strength"></span><br>
+                <strong>Confidence Interval:</strong> <span id="confidence-interval"></span><br>
+                <div id="demand-forecast"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- AI Model Performance -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-tachometer-alt"></i> AI Model Performance Dashboard</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Model Name</th>
+                    <th>Accuracy</th>
+                    <th>Predictions Today</th>
+                    <th>Status</th>
+                    <th>Quantum Enhanced</th>
+                    <th>Last Updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for model_name, performance in ai_dashboard.model_performance %}
+                  <tr>
+                    <td><strong>{{ model_name|title|replace({'_': ' '}) }}</strong></td>
+                    <td>
+                      <span class="badge badge-success">{{ performance.accuracy }}%</span>
+                    </td>
+                    <td>{{ performance.predictions_today ?? performance.analyses_today ?? performance.forecasts_today ?? performance.recommendations_today }}</td>
+                    <td>
+                      <span class="label label-success">Active</span>
+                    </td>
+                    <td>
+                      <i class="fa fa-check text-success"></i> Yes
+                    </td>
+                    <td>{{ ai_dashboard.timestamp }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quantum Performance Metrics -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-atom"></i> Quantum Performance Metrics</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="metric-box text-center">
+                  <h4>Quantum Acceleration</h4>
+                  <div class="metric-value text-primary">{{ quantum_metrics.quantum_acceleration }}</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-box text-center">
+                  <h4>Quantum Fidelity</h4>
+                  <div class="metric-value text-success">{{ quantum_metrics.quantum_fidelity }}%</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-box text-center">
+                  <h4>Error Rate</h4>
+                  <div class="metric-value text-warning">{{ quantum_metrics.quantum_error_rate }}%</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-box text-center">
+                  <h4>Computing Units</h4>
+                  <div class="metric-value text-info">{{ quantum_metrics.quantum_computing_units }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.huge {
+    font-size: 40px;
+}
+
+.panel-green {
+    border-color: #5cb85c;
+}
+
+.panel-green > .panel-heading {
+    border-color: #5cb85c;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.panel-green > a {
+    color: #5cb85c;
+}
+
+.panel-green > a:hover {
+    color: #3d8b3d;
+}
+
+.panel-yellow {
+    border-color: #f0ad4e;
+}
+
+.panel-yellow > .panel-heading {
+    border-color: #f0ad4e;
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.panel-yellow > a {
+    color: #f0ad4e;
+}
+
+.panel-yellow > a:hover {
+    color: #df8a13;
+}
+
+.panel-red {
+    border-color: #d9534f;
+}
+
+.panel-red > .panel-heading {
+    border-color: #d9534f;
+    color: white;
+    background-color: #d9534f;
+}
+
+.panel-red > a {
+    color: #d9534f;
+}
+
+.panel-red > a:hover {
+    color: #b52b27;
+}
+
+.metric-box {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+</style>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Auto-refresh dashboard every 30 seconds
+    setInterval(function() {
+        refreshDashboard();
+    }, 30000);
+    
+    // Price Optimization
+    $('#optimize-price').click(function() {
+        var formData = $('#price-optimization-form').serialize();
+        
+        $.ajax({
+            url: '{{ api_endpoints.price_optimization }}',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            beforeSend: function() {
+                $('#optimize-price').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Optimizing...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    $('#optimized-price').text('$' + json.optimized_price);
+                    $('#price-change').text(json.price_change_percentage);
+                    $('#revenue-increase').text(json.expected_revenue_increase);
+                    $('#confidence-score').text(json.confidence_score);
+                    $('#price-optimization-result').show();
+                    
+                    alert('Price optimization completed successfully!');
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            error: function() {
+                alert('An error occurred while optimizing price.');
+            },
+            complete: function() {
+                $('#optimize-price').prop('disabled', false).html('<i class="fa fa-magic"></i> Optimize Price with AI');
+            }
+        });
+    });
+    
+    // Customer Behavior Analysis
+    $('#analyze-behavior').click(function() {
+        var formData = $('#behavior-analysis-form').serialize();
+        
+        $.ajax({
+            url: '{{ api_endpoints.customer_behavior }}',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            beforeSend: function() {
+                $('#analyze-behavior').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Analyzing...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    $('#purchase-probability').text(json.purchase_probability);
+                    $('#churn-risk').text(json.churn_risk);
+                    $('#lifetime-value').text(json.lifetime_value_prediction);
+                    $('#behavior-score').text(json.behavior_score);
+                    $('#behavior-analysis-result').show();
+                    
+                    alert('Customer behavior analysis completed successfully!');
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            error: function() {
+                alert('An error occurred while analyzing customer behavior.');
+            },
+            complete: function() {
+                $('#analyze-behavior').prop('disabled', false).html('<i class="fa fa-search"></i> Analyze Customer Behavior');
+            }
+        });
+    });
+    
+    // Smart Recommendations
+    $('#generate-recommendations').click(function() {
+        var formData = $('#recommendations-form').serialize();
+        
+        $.ajax({
+            url: '{{ api_endpoints.smart_recommendations }}',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            beforeSend: function() {
+                $('#generate-recommendations').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Generating...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    $('#recommendation-score').text(json.recommendation_score);
+                    $('#personalization-level').text(json.personalization_level);
+                    $('#expected-conversion').text(json.expected_conversion_rate);
+                    
+                    var productsHtml = '<strong>Recommended Products:</strong><br>';
+                    if (json.recommended_products && json.recommended_products.length > 0) {
+                        json.recommended_products.forEach(function(product) {
+                            productsHtml += '• Product ID: ' + product.product_id + ' (Score: ' + product.score + ')<br>';
+                        });
+                    }
+                    $('#recommended-products').html(productsHtml);
+                    $('#recommendations-result').show();
+                    
+                    alert('Smart recommendations generated successfully!');
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            error: function() {
+                alert('An error occurred while generating recommendations.');
+            },
+            complete: function() {
+                $('#generate-recommendations').prop('disabled', false).html('<i class="fa fa-star"></i> Generate Smart Recommendations');
+            }
+        });
+    });
+    
+    // Market Trends Prediction
+    $('#predict-trends').click(function() {
+        var formData = $('#market-trends-form').serialize();
+        
+        $.ajax({
+            url: '{{ api_endpoints.market_trends }}',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            beforeSend: function() {
+                $('#predict-trends').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Predicting...');
+            },
+            success: function(json) {
+                if (json.success) {
+                    $('#trend-direction').text(json.trend_direction);
+                    $('#trend-strength').text(json.trend_strength);
+                    $('#confidence-interval').text(json.confidence_interval[0] + ' - ' + json.confidence_interval[1]);
+                    
+                    var forecastHtml = '<strong>Demand Forecast:</strong><br>';
+                    if (json.demand_forecast) {
+                        forecastHtml += '• Next Week: ' + json.demand_forecast.next_week + '<br>';
+                        forecastHtml += '• Next Month: ' + json.demand_forecast.next_month + '<br>';
+                        forecastHtml += '• Next Quarter: ' + json.demand_forecast.next_quarter + '<br>';
+                    }
+                    $('#demand-forecast').html(forecastHtml);
+                    $('#market-trends-result').show();
+                    
+                    alert('Market trend prediction completed successfully!');
+                } else {
+                    alert('Error: ' + json.error);
+                }
+            },
+            error: function() {
+                alert('An error occurred while predicting market trends.');
+            },
+            complete: function() {
+                $('#predict-trends').prop('disabled', false).html('<i class="fa fa-crystal-ball"></i> Predict Market Trends');
+            }
+        });
+    });
+    
+    function refreshDashboard() {
+        $.ajax({
+            url: '{{ api_endpoints.dashboard }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    $('#active-models').text(json.active_models);
+                    $('#predictions-24h').text(json.total_predictions_24h);
+                    $('#accuracy-score').text(json.accuracy_score + '%');
+                }
+            }
+        });
+    }
+});
+</script>
+
+{{ footer }} 

@@ -1,0 +1,472 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-save" data-toggle="tooltip" title="Kaydet" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <button type="button" id="button-test" data-toggle="tooltip" title="Test Et" class="btn btn-warning"><i class="fa fa-play"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="İptal" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1><i class="fa fa-gavel"></i> eBay Webhook Yönetimi</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> eBay Notification Ayarları</h3>
+      </div>
+      <div class="panel-body">
+        <form id="form-ebay-webhook" class="form-horizontal">
+          
+          <!-- Webhook URL'leri -->
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Notification URL'leri</label>
+            <div class="col-sm-10">
+              <div class="well">
+                <p><strong>Siparişler:</strong> <code>{{ webhook_urls.orders }}</code></p>
+                <p><strong>Ürünler:</strong> <code>{{ webhook_urls.items }}</code></p>
+                <p><strong>Teklif/Satış:</strong> <code>{{ webhook_urls.bidding }}</code></p>
+                <p><strong>Geri Bildirim:</strong> <code>{{ webhook_urls.feedback }}</code></p>
+                <p><strong>Ödeme:</strong> <code>{{ webhook_urls.payment }}</code></p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Notification Aktivasyon -->
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Sipariş Notifications</label>
+            <div class="col-sm-10">
+              <label class="checkbox-inline">
+                <input type="checkbox" name="orders_enabled" value="1" {% if orders_enabled %}checked{% endif %}> Aktif
+              </label>
+              <span class="help-block">eBay sipariş durumu değişikliklerini dinle</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Ürün Notifications</label>
+            <div class="col-sm-10">
+              <label class="checkbox-inline">
+                <input type="checkbox" name="items_enabled" value="1" {% if items_enabled %}checked{% endif %}> Aktif
+              </label>
+              <span class="help-block">Ürün listeleme ve değişiklik bildirimleri</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Teklif/Satış Notifications</label>
+            <div class="col-sm-10">
+              <label class="checkbox-inline">
+                <input type="checkbox" name="bidding_enabled" value="1" {% if bidding_enabled %}checked{% endif %}> Aktif
+              </label>
+              <span class="help-block">Teklif verme ve satış bildirimleri</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Geri Bildirim Notifications</label>
+            <div class="col-sm-10">
+              <label class="checkbox-inline">
+                <input type="checkbox" name="feedback_enabled" value="1" {% if feedback_enabled %}checked{% endif %}> Aktif
+              </label>
+              <span class="help-block">Müşteri geri bildirim bildirimleri</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Ödeme Notifications</label>
+            <div class="col-sm-10">
+              <label class="checkbox-inline">
+                <input type="checkbox" name="payment_enabled" value="1" {% if payment_enabled %}checked{% endif %}> Aktif
+              </label>
+              <span class="help-block">PayPal ve ödeme durumu bildirimleri</span>
+            </div>
+          </div>
+          
+          <!-- eBay API Ayarları -->
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="input-app-id">App ID (Client ID)</label>
+            <div class="col-sm-10">
+              <input type="text" name="app_id" value="{{ app_id }}" placeholder="eBay App ID" id="input-app-id" class="form-control" />
+              <span class="help-block">eBay Developer hesabından alınan App ID</span>
+            </div>
+          </div>
+          
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="input-cert-id">Cert ID (Client Secret)</label>
+            <div class="col-sm-10">
+              <input type="password" name="cert_id" value="{{ cert_id }}" placeholder="eBay Cert ID" id="input-cert-id" class="form-control" />
+              <span class="help-block">eBay Developer hesabından alınan Cert ID</span>
+            </div>
+          </div>
+          
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="input-dev-id">Dev ID</label>
+            <div class="col-sm-10">
+              <input type="text" name="dev_id" value="{{ dev_id }}" placeholder="eBay Dev ID" id="input-dev-id" class="form-control" />
+              <span class="help-block">eBay Developer ID</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-user-token">User Token</label>
+            <div class="col-sm-10">
+              <input type="password" name="user_token" value="{{ user_token_ebay }}" placeholder="eBay User Token" id="input-user-token" class="form-control" />
+              <span class="help-block">OAuth ile alınan kullanıcı token'ı</span>
+            </div>
+          </div>
+          
+          <!-- Ortam Ayarları -->
+          <div class="form-group">
+            <label class="col-sm-2 control-label">API Ortamı</label>
+            <div class="col-sm-10">
+              <label class="radio-inline">
+                <input type="radio" name="environment" value="sandbox" {% if environment == 'sandbox' %}checked{% endif %}> Sandbox (Test)
+              </label>
+              <label class="radio-inline">
+                <input type="radio" name="environment" value="production" {% if environment == 'production' %}checked{% endif %}> Production (Canlı)
+              </label>
+              <span class="help-block">Test için Sandbox, canlı kullanım için Production seçin</span>
+            </div>
+          </div>
+          
+          <!-- Rate Limit Ayarları -->
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Rate Limit Ayarları</label>
+            <div class="col-sm-10">
+              <div class="row">
+                <div class="col-sm-4">
+                  <label>Dakika başına çağrı</label>
+                  <input type="number" name="calls_per_minute" value="{{ rate_limits.calls_per_minute|default(35) }}" class="form-control" min="1" max="100">
+                </div>
+                <div class="col-sm-4">
+                  <label>Günlük çağrı</label>
+                  <input type="number" name="calls_per_day" value="{{ rate_limits.calls_per_day|default(5000) }}" class="form-control" min="1" max="50000">
+                </div>
+                <div class="col-sm-4">
+                  <label>Aylık çağrı</label>
+                  <input type="number" name="calls_per_month" value="{{ rate_limits.calls_per_month|default(100000) }}" class="form-control" min="1" max="1000000">
+                </div>
+              </div>
+              <span class="help-block">eBay API günlük ve aylık limitler vardır</span>
+            </div>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+    
+    <!-- OAuth Yetkilendirme -->
+    <div class="panel panel-warning">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-key"></i> OAuth Yetkilendirme</h3>
+      </div>
+      <div class="panel-body">
+        <div class="alert alert-warning">
+          <i class="fa fa-exclamation-triangle"></i> 
+          <strong>OAuth Yetkilendirme Gerekli:</strong> 
+          eBay API'lerini kullanmak için OAuth 2.0 yetkilendirmesi yapmalısınız.
+        </div>
+        
+        <div class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Yetkilendirme Durumu</label>
+            <div class="col-sm-10">
+              {% if oauth_authorized %}
+                <span class="label label-success"><i class="fa fa-check"></i> Yetkilendirildi</span>
+                <span class="help-block">OAuth token geçerli ve kullanıma hazır</span>
+              {% else %}
+                <span class="label label-danger"><i class="fa fa-times"></i> Yetkilendirme Gerekli</span>
+                <span class="help-block">OAuth yetkilendirmesi yapılmamış</span>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="button" id="authorize-oauth" class="btn btn-warning">
+                <i class="fa fa-key"></i> OAuth Yetkilendirme Başlat
+              </button>
+              <button type="button" id="refresh-token" class="btn btn-info">
+                <i class="fa fa-refresh"></i> Token Yenile
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Test Bölümü -->
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-flask"></i> Notification Test</h3>
+      </div>
+      <div class="panel-body">
+        <div class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Test Tipi</label>
+            <div class="col-sm-4">
+              <select id="notification-test-type" class="form-control">
+                <option value="orders">Siparişler</option>
+                <option value="items">Ürünler</option>
+                <option value="bidding">Teklif/Satış</option>
+                <option value="feedback">Geri Bildirim</option>
+                <option value="payment">Ödeme</option>
+              </select>
+            </div>
+            <div class="col-sm-2">
+              <button type="button" id="test-notification" class="btn btn-info">
+                <i class="fa fa-play"></i> Test Et
+              </button>
+            </div>
+            <div class="col-sm-2">
+              <button type="button" id="verify-notification" class="btn btn-success">
+                <i class="fa fa-shield"></i> Doğrula
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div id="test-results" style="display: none;">
+          <hr>
+          <div id="test-output"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Notification Subscription -->
+    <div class="panel panel-success">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-bell"></i> Notification Subscription</h3>
+      </div>
+      <div class="panel-body">
+        <div class="alert alert-info">
+          <i class="fa fa-info-circle"></i> 
+          <strong>eBay Platform Notifications:</strong> 
+          eBay'de notification'lar için subscription oluşturmanız gerekir. 
+          Bu işlem eBay Developer Console'dan yapılabilir.
+        </div>
+        
+        <div class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Subscription URL</label>
+            <div class="col-sm-10">
+              <input type="text" id="subscription-url" class="form-control" value="{{ base_url }}index.php?route=extension/module/ebay_webhook" readonly>
+              <span class="help-block">Bu URL'yi eBay Developer Console'da notification endpoint olarak kullanın</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Verification Token</label>
+            <div class="col-sm-10">
+              <input type="text" id="verification-token" class="form-control" value="{{ verification_token }}" readonly>
+              <span class="help-block">eBay notification doğrulama için kullanılan token</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="button" id="generate-token" class="btn btn-primary">
+                <i class="fa fa-refresh"></i> Yeni Token Oluştur
+              </button>
+              <button type="button" id="copy-urls" class="btn btn-info">
+                <i class="fa fa-copy"></i> URL'leri Kopyala
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Notification Logları -->
+    {% if notifications %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> Son Notification'lar</h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Tarih</th>
+                <th>Tip</th>
+                <th>Durum</th>
+                <th>Item ID</th>
+                <th>Mesaj</th>
+                <th>İşlemler</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for notification in notifications %}
+              <tr>
+                <td>{{ notification.date_added }}</td>
+                <td><span class="label label-info">{{ notification.type }}</span></td>
+                <td>
+                  {% if notification.status == 'success' %}
+                    <span class="label label-success">Başarılı</span>
+                  {% else %}
+                    <span class="label label-danger">Hata</span>
+                  {% endif %}
+                </td>
+                <td>{{ notification.item_id }}</td>
+                <td>{{ notification.message|slice(0, 50) }}...</td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-info" onclick="viewNotificationDetails('{{ notification.id }}')">
+                    <i class="fa fa-eye"></i> Detay
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+  </div>
+</div>
+
+<script type="text/javascript">
+// Webhook ayarlarını kaydet
+$('#button-save').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/ebay_webhooks/save&user_token={{ user_token }}',
+        type: 'post',
+        data: $('#form-ebay-webhook').serialize(),
+        dataType: 'json',
+        beforeSend: function() {
+            $('#button-save').button('loading');
+        },
+        complete: function() {
+            $('#button-save').button('reset');
+        },
+        success: function(json) {
+            $('.alert').remove();
+            
+            if (json['error']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+            }
+            
+            if (json['success']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+            }
+        }
+    });
+});
+
+// OAuth yetkilendirme başlat
+$('#authorize-oauth').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/ebay_webhooks/authorizeOAuth&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#authorize-oauth').button('loading');
+        },
+        complete: function() {
+            $('#authorize-oauth').button('reset');
+        },
+        success: function(json) {
+            if (json['error']) {
+                alert('OAuth Hata: ' + json['error']);
+            }
+            
+            if (json['auth_url']) {
+                window.open(json['auth_url'], '_blank');
+                alert('OAuth yetkilendirme sayfası açıldı. Yetkilendirme tamamlandıktan sonra sayfayı yenileyin.');
+            }
+        }
+    });
+});
+
+// Token yenile
+$('#refresh-token').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/module/ebay_webhooks/refreshToken&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#refresh-token').button('loading');
+        },
+        complete: function() {
+            $('#refresh-token').button('reset');
+        },
+        success: function(json) {
+            if (json['error']) {
+                alert('Token Yenileme Hatası: ' + json['error']);
+            }
+            
+            if (json['success']) {
+                alert('Token başarıyla yenilendi!');
+                location.reload();
+            }
+        }
+    });
+});
+
+// Notification test et
+$('#test-notification').on('click', function() {
+    var notificationType = $('#notification-test-type').val();
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/ebay_webhooks/test&user_token={{ user_token }}',
+        type: 'post',
+        data: {notification_type: notificationType},
+        dataType: 'json',
+        beforeSend: function() {
+            $('#test-notification').button('loading');
+        },
+        complete: function() {
+            $('#test-notification').button('reset');
+        },
+        success: function(json) {
+            $('#test-results').show();
+            
+            if (json['error']) {
+                $('#test-output').html('<div class="alert alert-danger">' + json['error'] + '</div>');
+            }
+            
+            if (json['success']) {
+                $('#test-output').html('<div class="alert alert-success">' + json['success'] + '</div>');
+            }
+        }
+    });
+});
+
+// Verification token oluştur
+$('#generate-token').on('click', function() {
+    var newToken = 'ebay_' + Math.random().toString(36).substring(2, 15);
+    $('#verification-token').val(newToken);
+    alert('Yeni verification token oluşturuldu: ' + newToken);
+});
+
+// URL'leri kopyala
+$('#copy-urls').on('click', function() {
+    var urls = 'eBay Webhook URLs:\n\n';
+    urls += 'Orders: {{ webhook_urls.orders }}\n';
+    urls += 'Items: {{ webhook_urls.items }}\n';
+    urls += 'Bidding: {{ webhook_urls.bidding }}\n';
+    urls += 'Feedback: {{ webhook_urls.feedback }}\n';
+    urls += 'Payment: {{ webhook_urls.payment }}\n';
+    urls += '\nVerification Token: ' + $('#verification-token').val();
+    
+    navigator.clipboard.writeText(urls).then(function() {
+        alert('URL\'ler panoya kopyalandı!');
+    });
+});
+
+// Notification detaylarını görüntüle
+function viewNotificationDetails(notificationId) {
+    alert('Notification ID: ' + notificationId + ' detayları gösterilecek');
+}
+</script>
+
+{{ footer }} 

@@ -94,56 +94,55 @@ class __TwigTemplate_b79479562f562b21d281cfb3684641b5 extends Template
   <script type=\"text/javascript\" src=\"view/javascript/jquery/datetimepicker/daterangepicker.js\"></script>
   <link href=\"view/javascript/jquery/datetimepicker/daterangepicker.css\" rel=\"stylesheet\" type=\"text/css\"/>
   <script type=\"text/javascript\" src=\"view/javascript/common.js\"></script>
-  <script type=\"text/javascript\" src=\"view/javascript/menu_fix.js\"></script>
   ";
-        // line 26
+        // line 25
         $context['_parent'] = $context;
         $context['_seq'] = twig_ensure_traversable(($context["styles"] ?? null));
         foreach ($context['_seq'] as $context["_key"] => $context["style"]) {
-            // line 27
+            // line 26
             echo "    <link type=\"text/css\" href=\"";
-            echo twig_get_attribute($this->env, $this->source, $context["style"], "href", [], "any", false, false, false, 27);
+            echo twig_get_attribute($this->env, $this->source, $context["style"], "href", [], "any", false, false, false, 26);
             echo "\" rel=\"";
-            echo twig_get_attribute($this->env, $this->source, $context["style"], "rel", [], "any", false, false, false, 27);
+            echo twig_get_attribute($this->env, $this->source, $context["style"], "rel", [], "any", false, false, false, 26);
             echo "\" media=\"";
-            echo twig_get_attribute($this->env, $this->source, $context["style"], "media", [], "any", false, false, false, 27);
+            echo twig_get_attribute($this->env, $this->source, $context["style"], "media", [], "any", false, false, false, 26);
             echo "\"/>
   ";
         }
         $_parent = $context['_parent'];
         unset($context['_seq'], $context['_iterated'], $context['_key'], $context['style'], $context['_parent'], $context['loop']);
         $context = array_intersect_key($context, $_parent) + $_parent;
-        // line 29
+        // line 28
         echo "  ";
         $context['_parent'] = $context;
         $context['_seq'] = twig_ensure_traversable(($context["links"] ?? null));
         foreach ($context['_seq'] as $context["_key"] => $context["link"]) {
-            // line 30
+            // line 29
             echo "    <link href=\"";
-            echo twig_get_attribute($this->env, $this->source, $context["link"], "href", [], "any", false, false, false, 30);
+            echo twig_get_attribute($this->env, $this->source, $context["link"], "href", [], "any", false, false, false, 29);
             echo "\" rel=\"";
-            echo twig_get_attribute($this->env, $this->source, $context["link"], "rel", [], "any", false, false, false, 30);
+            echo twig_get_attribute($this->env, $this->source, $context["link"], "rel", [], "any", false, false, false, 29);
             echo "\"/>
   ";
         }
         $_parent = $context['_parent'];
         unset($context['_seq'], $context['_iterated'], $context['_key'], $context['link'], $context['_parent'], $context['loop']);
         $context = array_intersect_key($context, $_parent) + $_parent;
-        // line 32
+        // line 31
         echo "  ";
         $context['_parent'] = $context;
         $context['_seq'] = twig_ensure_traversable(($context["scripts"] ?? null));
         foreach ($context['_seq'] as $context["_key"] => $context["script"]) {
-            // line 33
+            // line 32
             echo "    <script type=\"text/javascript\" src=\"";
-            echo twig_get_attribute($this->env, $this->source, $context["script"], "href", [], "any", false, false, false, 33);
+            echo twig_get_attribute($this->env, $this->source, $context["script"], "href", [], "any", false, false, false, 32);
             echo "\"></script>
   ";
         }
         $_parent = $context['_parent'];
         unset($context['_seq'], $context['_iterated'], $context['_key'], $context['script'], $context['_parent'], $context['loop']);
         $context = array_intersect_key($context, $_parent) + $_parent;
-        // line 35
+        // line 34
         echo "</head>
 <body>
 <div id=\"container\">
@@ -151,7 +150,7 @@ class __TwigTemplate_b79479562f562b21d281cfb3684641b5 extends Template
   <header id=\"header\" class=\"navbar navbar-expand navbar-light bg-light\">
     <div class=\"container-fluid\">
       <a href=\"";
-        // line 41
+        // line 40
         echo ($context["home"] ?? null);
         echo "\" class=\"navbar-brand d-none d-lg-block\"><img src=\"view/image/logo.png\" alt=\"";
         echo ($context["heading_title"] ?? null);
@@ -159,14 +158,14 @@ class __TwigTemplate_b79479562f562b21d281cfb3684641b5 extends Template
         echo ($context["heading_title"] ?? null);
         echo "\"/></a>
       ";
-        // line 42
+        // line 41
         if (($context["logged"] ?? null)) {
-            // line 43
+            // line 42
             echo "        <button type=\"button\" id=\"button-menu\" class=\"btn btn-link d-inline-block d-lg-none\"><i class=\"fa-solid fa-bars\"></i></button>
         <ul class=\"nav navbar-nav\">
           <li id=\"nav-notification\" class=\"nav-item dropdown\">
             <a href=\"#\" data-bs-toggle=\"dropdown\" class=\"nav-link dropdown-toggle\"><i class=\"fa-regular fa-bell\"></i>";
-            // line 46
+            // line 45
             if (($context["notification_total"] ?? null)) {
                 echo " <span class=\"badge bg-danger\">";
                 echo ($context["notification_total"] ?? null);
@@ -175,25 +174,25 @@ class __TwigTemplate_b79479562f562b21d281cfb3684641b5 extends Template
             echo "</a>
             <div class=\"dropdown-menu dropdown-menu-end\">
               ";
-            // line 48
+            // line 47
             if (($context["notifications"] ?? null)) {
-                // line 49
+                // line 48
                 echo "                ";
                 $context['_parent'] = $context;
                 $context['_seq'] = twig_ensure_traversable(($context["notifications"] ?? null));
                 foreach ($context['_seq'] as $context["_key"] => $context["notification"]) {
-                    // line 50
+                    // line 49
                     echo "                  <a href=\"";
-                    echo twig_get_attribute($this->env, $this->source, $context["notification"], "href", [], "any", false, false, false, 50);
+                    echo twig_get_attribute($this->env, $this->source, $context["notification"], "href", [], "any", false, false, false, 49);
                     echo "\" data-bs-toggle=\"modal\" class=\"dropdown-item\">";
-                    echo twig_get_attribute($this->env, $this->source, $context["notification"], "title", [], "any", false, false, false, 50);
+                    echo twig_get_attribute($this->env, $this->source, $context["notification"], "title", [], "any", false, false, false, 49);
                     echo "</a>
                 ";
                 }
                 $_parent = $context['_parent'];
                 unset($context['_seq'], $context['_iterated'], $context['_key'], $context['notification'], $context['_parent'], $context['loop']);
                 $context = array_intersect_key($context, $_parent) + $_parent;
-                // line 52
+                // line 51
                 echo "                <a href=\"";
                 echo ($context["notification_all"] ?? null);
                 echo "\" class=\"dropdown-item text-center text-primary\">";
@@ -201,22 +200,22 @@ class __TwigTemplate_b79479562f562b21d281cfb3684641b5 extends Template
                 echo "</a>
               ";
             } else {
-                // line 54
+                // line 53
                 echo "                <span class=\"dropdown-item text-center\">";
                 echo ($context["text_no_results"] ?? null);
                 echo "</span>
               ";
             }
-            // line 56
+            // line 55
             echo "            </div>
           </li>
           <li id=\"nav-language\" class=\"nav-item dropdown\">";
-            // line 58
+            // line 57
             echo ($context["language"] ?? null);
             echo "</li>
           <li id=\"nav-profile\" class=\"nav-item dropdown\">
             <a href=\"#\" data-bs-toggle=\"dropdown\" class=\"nav-link dropdown-toggle\"><img src=\"";
-            // line 60
+            // line 59
             echo ($context["image"] ?? null);
             echo "\" alt=\"";
             echo ($context["firstname"] ?? null);
@@ -231,54 +230,54 @@ class __TwigTemplate_b79479562f562b21d281cfb3684641b5 extends Template
             echo " <i class=\"fa-solid fa-caret-down fa-fw\"></i></span></a>
             <ul class=\"dropdown-menu dropdown-menu-end\">
               <li><a href=\"";
-            // line 62
+            // line 61
             echo ($context["profile"] ?? null);
             echo "\" class=\"dropdown-item\"><i class=\"fa-solid fa-user-circle fa-fw\"></i> ";
             echo ($context["text_profile"] ?? null);
             echo "</a></li>
               <li><hr class=\"dropdown-divider\"></li>
               <li><h6 class=\"dropdown-header\">";
-            // line 64
+            // line 63
             echo ($context["text_store"] ?? null);
             echo "</h6></li>
               ";
-            // line 65
+            // line 64
             $context['_parent'] = $context;
             $context['_seq'] = twig_ensure_traversable(($context["stores"] ?? null));
             foreach ($context['_seq'] as $context["_key"] => $context["store"]) {
-                // line 66
+                // line 65
                 echo "                <a href=\"";
-                echo twig_get_attribute($this->env, $this->source, $context["store"], "href", [], "any", false, false, false, 66);
+                echo twig_get_attribute($this->env, $this->source, $context["store"], "href", [], "any", false, false, false, 65);
                 echo "\" target=\"_blank\" class=\"dropdown-item\">";
-                echo twig_get_attribute($this->env, $this->source, $context["store"], "name", [], "any", false, false, false, 66);
+                echo twig_get_attribute($this->env, $this->source, $context["store"], "name", [], "any", false, false, false, 65);
                 echo "</a>
               ";
             }
             $_parent = $context['_parent'];
             unset($context['_seq'], $context['_iterated'], $context['_key'], $context['store'], $context['_parent'], $context['loop']);
             $context = array_intersect_key($context, $_parent) + $_parent;
-            // line 68
+            // line 67
             echo "              <li><hr class=\"dropdown-divider\"></li>
               <li><h6 class=\"dropdown-header\">";
-            // line 69
+            // line 68
             echo ($context["text_help"] ?? null);
             echo "</h6></li>
               <li><a href=\"https://www.opencart.com\" target=\"_blank\" class=\"dropdown-item\"><i class=\"fa-brands fa-opencart fa-fw\"></i> ";
-            // line 70
+            // line 69
             echo ($context["text_homepage"] ?? null);
             echo "</a></li>
               <li><a href=\"http://docs.opencart.com\" target=\"_blank\" class=\"dropdown-item\"><i class=\"fa-solid fa-file fa-fw\"></i> ";
-            // line 71
+            // line 70
             echo ($context["text_documentation"] ?? null);
             echo "</a></li>
               <li><a href=\"https://forum.opencart.com\" target=\"_blank\" class=\"dropdown-item\"><i class=\"fa-solid fa-comments fa-fw\"></i> ";
-            // line 72
+            // line 71
             echo ($context["text_support"] ?? null);
             echo "</a></li>
             </ul>
           </li>
           <li id=\"nav-logout\" class=\"nav-item\"><a href=\"";
-            // line 75
+            // line 74
             echo ($context["logout"] ?? null);
             echo "\" class=\"nav-link\"><i class=\"fa-solid fa-sign-out\"></i> <span class=\"d-none d-md-inline\">";
             echo ($context["text_logout"] ?? null);
@@ -286,7 +285,7 @@ class __TwigTemplate_b79479562f562b21d281cfb3684641b5 extends Template
         </ul>
       ";
         }
-        // line 78
+        // line 77
         echo "    </div>
   </header>
 ";
@@ -304,11 +303,11 @@ class __TwigTemplate_b79479562f562b21d281cfb3684641b5 extends Template
 
     public function getDebugInfo()
     {
-        return array (  290 => 78,  282 => 75,  276 => 72,  272 => 71,  268 => 70,  264 => 69,  261 => 68,  250 => 66,  246 => 65,  242 => 64,  235 => 62,  220 => 60,  215 => 58,  211 => 56,  205 => 54,  197 => 52,  186 => 50,  181 => 49,  179 => 48,  170 => 46,  165 => 43,  163 => 42,  155 => 41,  147 => 35,  138 => 33,  133 => 32,  122 => 30,  117 => 29,  104 => 27,  100 => 26,  90 => 19,  86 => 18,  82 => 17,  78 => 16,  73 => 13,  67 => 11,  64 => 10,  58 => 8,  56 => 7,  52 => 6,  48 => 5,  40 => 2,  37 => 1,);
+        return array (  289 => 77,  281 => 74,  275 => 71,  271 => 70,  267 => 69,  263 => 68,  260 => 67,  249 => 65,  245 => 64,  241 => 63,  234 => 61,  219 => 59,  214 => 57,  210 => 55,  204 => 53,  196 => 51,  185 => 49,  180 => 48,  178 => 47,  169 => 45,  164 => 42,  162 => 41,  154 => 40,  146 => 34,  137 => 32,  132 => 31,  121 => 29,  116 => 28,  103 => 26,  99 => 25,  90 => 19,  86 => 18,  82 => 17,  78 => 16,  73 => 13,  67 => 11,  64 => 10,  58 => 8,  56 => 7,  52 => 6,  48 => 5,  40 => 2,  37 => 1,);
     }
 
     public function getSourceContext()
     {
-        return new Source("", "admin/view/template/common/header.twig", "/Users/mezbjen/Desktop/meschain-sync-enterprise-1/RESTRUCTURED_UPLOAD/opencart4/admin/view/template/common/header.twig");
+        return new Source("", "admin/view/template/common/header.twig", "/Users/mezbjen/Desktop/meschain-sync-enterprise-1/RESTRUCTURED_UPLOAD/opencart4_clean/admin/view/template/common/header.twig");
     }
 }

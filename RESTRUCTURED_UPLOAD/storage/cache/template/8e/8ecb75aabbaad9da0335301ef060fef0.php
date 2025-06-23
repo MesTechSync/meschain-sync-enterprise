@@ -145,6 +145,6 @@ class __TwigTemplate_e80bb13a3fdd7d1a798b41f3b3043021 extends Template
 
     public function getSourceContext()
     {
-        return new Source("", "catalog/view/template/common/menu.twig", "/Users/mezbjen/Desktop/meschain-sync-enterprise-1/RESTRUCTURED_UPLOAD/opencart4/catalog/view/template/common/menu.twig");
+        return new Source("", "catalog/view/template/common/menu.twig", "/Users/mezbjen/Desktop/meschain-sync-enterprise-1/RESTRUCTURED_UPLOAD/opencart4_clean/catalog/view/template/common/menu.twig");
     }
 }

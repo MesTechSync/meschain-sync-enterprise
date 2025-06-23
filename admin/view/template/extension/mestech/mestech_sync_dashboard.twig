@@ -1,0 +1,369 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }} - {{ text_dashboard }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <!-- Özet İstatistikler -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cubes fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ statistics.total_products }}</div>
+                <div>{{ text_total_products }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ statistics.total_orders }}</div>
+                <div>{{ text_weekly_orders }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-refresh fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ statistics.synced_products.trendyol + statistics.synced_products.amazon + statistics.synced_products.n11 + statistics.synced_products.ebay + statistics.synced_products.hepsiburada + statistics.synced_products.ozon }}</div>
+                <div>{{ text_total_synced }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-support fa-5x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ ((statistics.sync_success_rate.trendyol + statistics.sync_success_rate.amazon + statistics.sync_success_rate.n11 + statistics.sync_success_rate.ebay + statistics.sync_success_rate.hepsiburada + statistics.sync_success_rate.ozon) / 6)|round }}%</div>
+                <div>{{ text_avg_success_rate }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Senkronizasyon Grafikleri -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> {{ text_sync_activity }}</h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="syncChart" width="100%" height="40"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-pie-chart"></i> {{ text_marketplace_distribution }}</h3>
+          </div>
+          <div class="panel-body">
+            <canvas id="distributionChart" width="100%" height="40"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pazaryeri Durumları -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-shopping-bag"></i> {{ text_marketplace_status }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>{{ text_marketplace }}</th>
+                <th>{{ text_synced_products }}</th>
+                <th>{{ text_last_sync }}</th>
+                <th>{{ text_success_rate }}</th>
+                <th>{{ text_status }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>{{ text_trendyol }}</strong></td>
+                <td>{{ statistics.synced_products.trendyol }}</td>
+                <td>{{ statistics.last_sync.trendyol }}</td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ statistics.sync_success_rate.trendyol }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ statistics.sync_success_rate.trendyol }}%">
+                      {{ statistics.sync_success_rate.trendyol }}%
+                    </div>
+                  </div>
+                </td>
+                <td>{% if statistics.sync_success_rate.trendyol > 90 %}<span class="label label-success">{{ text_excellent }}</span>{% elseif statistics.sync_success_rate.trendyol > 70 %}<span class="label label-warning">{{ text_good }}</span>{% else %}<span class="label label-danger">{{ text_needs_attention }}</span>{% endif %}</td>
+              </tr>
+              <tr>
+                <td><strong>{{ text_amazon }}</strong></td>
+                <td>{{ statistics.synced_products.amazon }}</td>
+                <td>{{ statistics.last_sync.amazon }}</td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ statistics.sync_success_rate.amazon }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ statistics.sync_success_rate.amazon }}%">
+                      {{ statistics.sync_success_rate.amazon }}%
+                    </div>
+                  </div>
+                </td>
+                <td>{% if statistics.sync_success_rate.amazon > 90 %}<span class="label label-success">{{ text_excellent }}</span>{% elseif statistics.sync_success_rate.amazon > 70 %}<span class="label label-warning">{{ text_good }}</span>{% else %}<span class="label label-danger">{{ text_needs_attention }}</span>{% endif %}</td>
+              </tr>
+              <tr>
+                <td><strong>{{ text_n11 }}</strong></td>
+                <td>{{ statistics.synced_products.n11 }}</td>
+                <td>{{ statistics.last_sync.n11 }}</td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ statistics.sync_success_rate.n11 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ statistics.sync_success_rate.n11 }}%">
+                      {{ statistics.sync_success_rate.n11 }}%
+                    </div>
+                  </div>
+                </td>
+                <td>{% if statistics.sync_success_rate.n11 > 90 %}<span class="label label-success">{{ text_excellent }}</span>{% elseif statistics.sync_success_rate.n11 > 70 %}<span class="label label-warning">{{ text_good }}</span>{% else %}<span class="label label-danger">{{ text_needs_attention }}</span>{% endif %}</td>
+              </tr>
+              <tr>
+                <td><strong>{{ text_ebay }}</strong></td>
+                <td>{{ statistics.synced_products.ebay }}</td>
+                <td>{{ statistics.last_sync.ebay }}</td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ statistics.sync_success_rate.ebay }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ statistics.sync_success_rate.ebay }}%">
+                      {{ statistics.sync_success_rate.ebay }}%
+                    </div>
+                  </div>
+                </td>
+                <td>{% if statistics.sync_success_rate.ebay > 90 %}<span class="label label-success">{{ text_excellent }}</span>{% elseif statistics.sync_success_rate.ebay > 70 %}<span class="label label-warning">{{ text_good }}</span>{% else %}<span class="label label-danger">{{ text_needs_attention }}</span>{% endif %}</td>
+              </tr>
+              <tr>
+                <td><strong>{{ text_hepsiburada }}</strong></td>
+                <td>{{ statistics.synced_products.hepsiburada }}</td>
+                <td>{{ statistics.last_sync.hepsiburada }}</td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ statistics.sync_success_rate.hepsiburada }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ statistics.sync_success_rate.hepsiburada }}%">
+                      {{ statistics.sync_success_rate.hepsiburada }}%
+                    </div>
+                  </div>
+                </td>
+                <td>{% if statistics.sync_success_rate.hepsiburada > 90 %}<span class="label label-success">{{ text_excellent }}</span>{% elseif statistics.sync_success_rate.hepsiburada > 70 %}<span class="label label-warning">{{ text_good }}</span>{% else %}<span class="label label-danger">{{ text_needs_attention }}</span>{% endif %}</td>
+              </tr>
+              <tr>
+                <td><strong>{{ text_ozon }}</strong></td>
+                <td>{{ statistics.synced_products.ozon }}</td>
+                <td>{{ statistics.last_sync.ozon }}</td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ statistics.sync_success_rate.ozon }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ statistics.sync_success_rate.ozon }}%">
+                      {{ statistics.sync_success_rate.ozon }}%
+                    </div>
+                  </div>
+                </td>
+                <td>{% if statistics.sync_success_rate.ozon > 90 %}<span class="label label-success">{{ text_excellent }}</span>{% elseif statistics.sync_success_rate.ozon > 70 %}<span class="label label-warning">{{ text_good }}</span>{% else %}<span class="label label-danger">{{ text_needs_attention }}</span>{% endif %}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Hızlı Erişim -->
+    <div class="row">
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cog"></i> {{ text_quick_actions }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="list-group">
+              <a href="{{ logs_url }}" class="list-group-item">
+                <i class="fa fa-file-text-o"></i> {{ text_logs }}
+              </a>
+              <a href="{{ help_url }}" class="list-group-item">
+                <i class="fa fa-question-circle"></i> {{ text_help }}
+              </a>
+              <a href="#" class="list-group-item">
+                <i class="fa fa-refresh"></i> {{ text_sync_all }}
+              </a>
+              <a href="#" class="list-group-item">
+                <i class="fa fa-download"></i> {{ text_export_report }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-exclamation-triangle"></i> {{ text_recent_errors }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="alert alert-warning">
+              <i class="fa fa-exclamation-circle"></i> {{ text_sample_error_1 }}
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+            <div class="alert alert-danger">
+              <i class="fa fa-exclamation-circle"></i> {{ text_sample_error_2 }}
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+            <div class="alert alert-info">
+              <i class="fa fa-info-circle"></i> {{ text_sample_notification }}
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+$(document).ready(function() {
+  // Senkronizasyon aktivite grafiği
+  var syncCtx = document.getElementById('syncChart').getContext('2d');
+  var syncChart = new Chart(syncCtx, {
+    type: 'line',
+    data: {
+      labels: {{ chart_data.dates|json_encode()|raw }},
+      datasets: [
+        {
+          label: '{{ text_trendyol }}',
+          data: {{ chart_data.sync_counts.trendyol|json_encode()|raw }},
+          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderWidth: 2,
+          fill: true
+        },
+        {
+          label: '{{ text_amazon }}',
+          data: {{ chart_data.sync_counts.amazon|json_encode()|raw }},
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderWidth: 2,
+          fill: true
+        },
+        {
+          label: '{{ text_n11 }}',
+          data: {{ chart_data.sync_counts.n11|json_encode()|raw }},
+          borderColor: 'rgba(255, 206, 86, 1)',
+          backgroundColor: 'rgba(255, 206, 86, 0.2)',
+          borderWidth: 2,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: '{{ text_daily_sync_activity }}'
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: '{{ text_sync_count }}'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: '{{ text_date }}'
+          }
+        }
+      }
+    }
+  });
+  
+  // Pazaryeri dağılım grafiği
+  var distCtx = document.getElementById('distributionChart').getContext('2d');
+  var distributionChart = new Chart(distCtx, {
+    type: 'pie',
+    data: {
+      labels: [
+        '{{ text_trendyol }}',
+        '{{ text_amazon }}',
+        '{{ text_n11 }}',
+        '{{ text_ebay }}',
+        '{{ text_hepsiburada }}',
+        '{{ text_ozon }}'
+      ],
+      datasets: [{
+        data: [
+          {{ statistics.synced_products.trendyol }},
+          {{ statistics.synced_products.amazon }},
+          {{ statistics.synced_products.n11 }},
+          {{ statistics.synced_products.ebay }},
+          {{ statistics.synced_products.hepsiburada }},
+          {{ statistics.synced_products.ozon }}
+        ],
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.8)',
+          'rgba(54, 162, 235, 0.8)',
+          'rgba(255, 206, 86, 0.8)',
+          'rgba(75, 192, 192, 0.8)',
+          'rgba(153, 102, 255, 0.8)',
+          'rgba(255, 159, 64, 0.8)'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        },
+        title: {
+          display: true,
+          text: '{{ text_synced_products_distribution }}'
+        }
+      }
+    }
+  });
+});
+//--></script>
+{{ footer }} 

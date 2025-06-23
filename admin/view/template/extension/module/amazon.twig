@@ -1,0 +1,799 @@
+{#
+  amazon.twig
+  Amaç: Amazon modülünün OpenCart yönetici paneli arayüz şablonu.
+  Modern: RBAC entegreli, dashboard cards, SP-API support, comprehensive tabs
+  Standart: Her değişiklikte log tutulmalı (amazon_view.log).
+#}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-test-turkey" class="btn btn-info" data-toggle="tooltip" title="Test Turkey Marketplace">
+          <i class="fa fa-globe"></i> Test Turkey
+        </button>
+        <button type="button" id="button-test-connection" class="btn btn-warning" data-toggle="tooltip" title="Test Connection">
+          <i class="fa fa-plug"></i> Test Connection
+        </button>
+        <button type="submit" form="form-amazon" class="btn btn-primary" data-toggle="tooltip" title="{{ button_save }}">
+          <i class="fa fa-save"></i>
+        </button>
+        <a href="{{ cancel }}" class="btn btn-default" data-toggle="tooltip" title="{{ button_cancel }}">
+          <i class="fa fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+{% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+{% endif %}
+    
+{% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <!-- Dashboard Cards -->
+    {% if has_permission and module_status %}
+    <div class="row">
+      <div class="col-md-3">
+        <div class="panel panel-primary">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cloud-upload fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ sp_api_status|default('disconnected') }}</div>
+                <div>{{ dashboard_api_status }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-info">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-cubes fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_products|default(0) }}</div>
+                <div>{{ stat_total_products }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-success">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-shopping-cart fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_orders|default(0) }}</div>
+                <div>{{ stat_total_orders }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="panel panel-warning">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-3">
+                <i class="fa fa-usd fa-3x"></i>
+              </div>
+              <div class="col-xs-9 text-right">
+                <div class="huge">{{ total_revenue|default('$0') }}</div>
+                <div>{{ stat_total_revenue }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Configuration Panel -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-amazon"></i> Amazon Configuration</h3>
+      </div>
+      
+      <div class="panel-body">
+        {% if has_permission %}
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-amazon" class="form-horizontal">
+          
+          <!-- API Configuration Tab -->
+          <ul class="nav nav-tabs" id="amazon-tabs">
+            <li class="active"><a href="#tab-general" data-toggle="tab">General</a></li>
+            <li><a href="#tab-fba" data-toggle="tab">FBA Shipping</a></li>
+            <li><a href="#tab-advertising" data-toggle="tab">Advertising</a></li>
+            <li><a href="#tab-turkey" data-toggle="tab">Turkey Marketplace</a></li>
+            <li><a href="#tab-performance" data-toggle="tab">Performance</a></li>
+          </ul>
+          
+          <div class="tab-content">
+            <!-- General Settings -->
+            <div class="tab-pane active" id="tab-general">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-client-id">Client ID</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_amazon_client_id" value="{{ module_amazon_client_id }}" placeholder="Client ID" id="input-client-id" class="form-control" />
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-client-secret">Client Secret</label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_amazon_client_secret" value="" placeholder="Client Secret" id="input-client-secret" class="form-control" />
+                  <small class="help-block">Leave empty to keep current value</small>
+                </div>
+              </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-refresh-token">Refresh Token</label>
+                <div class="col-sm-10">
+                  <input type="password" name="module_amazon_refresh_token" value="" placeholder="Refresh Token" id="input-refresh-token" class="form-control" />
+                  <small class="help-block">Leave empty to keep current value</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-seller-id">Seller ID</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_amazon_seller_id" value="{{ module_amazon_seller_id }}" placeholder="Seller ID" id="input-seller-id" class="form-control" />
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-region">Region</label>
+                <div class="col-sm-10">
+                  <select name="module_amazon_region" id="input-region" class="form-control">
+                    <option value="us" {% if module_amazon_region == 'us' %}selected="selected"{% endif %}>United States</option>
+                    <option value="eu" {% if module_amazon_region == 'eu' %}selected="selected"{% endif %}>Europe</option>
+                    <option value="fe" {% if module_amazon_region == 'fe' %}selected="selected"{% endif %}>Far East</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Status</label>
+                <div class="col-sm-10">
+                  <label class="radio-inline">
+                    <input type="radio" name="module_amazon_status" value="1" {% if module_amazon_status %}checked="checked"{% endif %} />
+                    Enabled
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" name="module_amazon_status" value="0" {% if not module_amazon_status %}checked="checked"{% endif %} />
+                    Disabled
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- FBA Shipping Tab -->
+            <div class="tab-pane" id="tab-fba">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="panel panel-info">
+                    <div class="panel-heading">
+                      <h4>FBA Inventory Status</h4>
+                    </div>
+                    <div class="panel-body">
+                      <div id="fba-inventory-status">
+                        <i class="fa fa-spinner fa-spin"></i> Loading FBA inventory...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="panel panel-success">
+                    <div class="panel-heading">
+                      <h4>Create FBA Shipment</h4>
+                    </div>
+                    <div class="panel-body">
+                      <form id="fba-shipment-form">
+                        <div class="form-group">
+                          <label>Shipment Name</label>
+                          <input type="text" name="shipment_name" class="form-control" placeholder="Enter shipment name" />
+                        </div>
+                        <div class="form-group">
+                          <label>Destination Country</label>
+                          <select name="ship_to_country" class="form-control">
+                            <option value="TR">Turkey</option>
+                            <option value="US">United States</option>
+                            <option value="DE">Germany</option>
+                          </select>
+                        </div>
+                        <button type="button" id="create-fba-shipment" class="btn btn-success">
+                          <i class="fa fa-truck"></i> Create Shipment
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Advertising Tab -->
+            <div class="tab-pane" id="tab-advertising">
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <h4>Advertising Campaigns</h4>
+                    </div>
+                    <div class="panel-body">
+                      <div id="advertising-campaigns">
+                        <i class="fa fa-spinner fa-spin"></i> Loading campaigns...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-4">
+                  <div class="panel panel-warning">
+                    <div class="panel-heading">
+                      <h4>Create Campaign</h4>
+                    </div>
+                    <div class="panel-body">
+                      <form id="advertising-campaign-form">
+                        <div class="form-group">
+                          <label>Campaign Name</label>
+                          <input type="text" name="campaign_name" class="form-control" placeholder="Enter campaign name" />
+                        </div>
+                        <div class="form-group">
+                          <label>Campaign Type</label>
+                          <select name="campaign_type" class="form-control">
+                            <option value="sponsoredProducts">Sponsored Products</option>
+                            <option value="sponsoredBrands">Sponsored Brands</option>
+                            <option value="sponsoredDisplay">Sponsored Display</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Daily Budget ($)</label>
+                          <input type="number" name="daily_budget" class="form-control" min="1" step="0.01" value="10.00" />
+                        </div>
+                        <div class="form-group">
+                          <label>Marketplace</label>
+                          <select name="marketplace" class="form-control">
+                            <option value="us">United States</option>
+                            <option value="turkey">Turkey</option>
+                            <option value="germany">Germany</option>
+                          </select>
+                        </div>
+                        <button type="button" id="create-advertising-campaign" class="btn btn-warning">
+                          <i class="fa fa-bullhorn"></i> Create Campaign
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Turkey Marketplace Tab -->
+            <div class="tab-pane" id="tab-turkey">
+              <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i> Turkey marketplace specific settings and testing
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4>Turkey Configuration</h4>
+                    </div>
+                    <div class="panel-body">
+                      <div class="form-group">
+                        <label>Marketplace ID</label>
+                        <input type="text" class="form-control" value="A33AVAJ2PDY3EV" readonly />
+                      </div>
+                      <div class="form-group">
+                        <label>Currency</label>
+                        <input type="text" class="form-control" value="TRY (Turkish Lira)" readonly />
+                      </div>
+                      <div class="form-group">
+                        <label>Locale</label>
+                        <input type="text" class="form-control" value="tr-TR" readonly />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="panel panel-success">
+                    <div class="panel-heading">
+                      <h4>Turkey Test Results</h4>
+                    </div>
+                    <div class="panel-body">
+                      <div id="turkey-test-results">
+                        <p class="text-muted">Click "Test Turkey" to run marketplace tests</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Performance Tab -->
+            <div class="tab-pane" id="tab-performance">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="panel panel-info">
+                    <div class="panel-heading">
+                      <h4><i class="fa fa-tachometer"></i> Performance Metrics</h4>
+                    </div>
+                    <div class="panel-body">
+                      <div id="performance-metrics">
+                        <canvas id="performance-chart" width="400" height="200"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        {% else %}
+        <div class="alert alert-warning">
+          <i class="fa fa-exclamation-triangle"></i> {{ error_permission }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <i class="fa fa-spinner fa-spin fa-3x"></i>
+        <p>{{ text_loading }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+// Test Connection
+$('#button-test-connection').on('click', function() {
+    $('#loadingModal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/amazon/testConnection&user_token={{ user_token }}',
+        type: 'post',
+        data: {
+            client_id: $('#input-client-id').val(),
+            client_secret: $('#input-client-secret').val(),
+            refresh_token: $('#input-refresh-token').val(),
+            seller_id: $('#input-seller-id').val()
+        },
+        dataType: 'json',
+        success: function(json) {
+            $('#loadingModal').modal('hide');
+            
+            if (json.success) {
+                $('#test-result').html('<div class="alert alert-success"><i class="fa fa-check"></i> ' + json.success + '</div>');
+            } else if (json.error) {
+                $('#test-result').html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json.error + '</div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            $('#loadingModal').modal('hide');
+            $('#test-result').html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_connection }}</div>');
+        }
+    });
+});
+
+// Sync Products
+$('#button-sync-products').on('click', function() {
+    $('#loadingModal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/amazon/syncProducts&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        success: function(json) {
+            $('#loadingModal').modal('hide');
+            
+            if (json.success) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            } else if (json.error) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            $('#loadingModal').modal('hide');
+            $('.alert').remove();
+            $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_sync_products }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        }
+    });
+});
+
+// Sync Orders
+$('#button-sync-orders').on('click', function() {
+    $('#loadingModal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/amazon/syncOrders&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        success: function(json) {
+            $('#loadingModal').modal('hide');
+            
+            if (json.success) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            } else if (json.error) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            $('#loadingModal').modal('hide');
+            $('.alert').remove();
+            $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_sync_orders }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        }
+    });
+});
+
+// Sync Inventory
+$('#button-sync-inventory').on('click', function() {
+    $('#loadingModal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/amazon/syncInventory&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        success: function(json) {
+            $('#loadingModal').modal('hide');
+            
+            if (json.success) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            } else if (json.error) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        }
+    });
+});
+
+// Clear Logs
+$('#button-clear-logs').on('click', function() {
+    if (confirm('{{ text_confirm_clear_logs }}')) {
+        $.ajax({
+            url: 'index.php?route=extension/module/amazon/clearLogs&user_token={{ user_token }}',
+            type: 'post',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    location.reload();
+                }
+            }
+        });
+    }
+});
+
+// View Logs
+$('#button-view-logs').on('click', function() {
+    window.open('index.php?route=extension/module/amazon/logs&user_token={{ user_token }}', '_blank');
+});
+
+// Generate Report
+$('#button-generate-report').on('click', function() {
+    $('#loadingModal').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/module/amazon/generateReport&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        success: function(json) {
+            $('#loadingModal').modal('hide');
+            
+            if (json.success) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            } else if (json.error) {
+                $('.alert').remove();
+                $('#content .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        }
+    });
+});
+
+// Cross-browser compatible JavaScript
+(function() {
+    'use strict';
+    
+    // Feature detection and polyfills for older browsers
+    if (!Array.prototype.forEach) {
+        Array.prototype.forEach = function(callback, thisArg) {
+            for (var i = 0; i < this.length; i++) {
+                callback.call(thisArg, this[i], i, this);
+            }
+        };
+    }
+    
+    // Cross-browser event handling
+    function addEvent(element, event, handler) {
+        if (element.addEventListener) {
+            element.addEventListener(event, handler, false);
+        } else if (element.attachEvent) {
+            element.attachEvent('on' + event, handler);
+        }
+    }
+    
+    // Performance-optimized AJAX function
+    function makeAjaxRequest(url, data, callback, method) {
+        method = method || 'POST';
+        var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.error('JSON Parse Error:', e);
+                        callback({success: false, error: 'Invalid response'});
+                    }
+                } else {
+                    callback({success: false, error: 'HTTP Error: ' + xhr.status});
+                }
+            }
+        };
+        
+        xhr.open(method, url, true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send(data);
+    }
+    
+    // Initialize when DOM is ready (cross-browser)
+    function domReady(callback) {
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(callback, 1);
+        } else if (document.addEventListener) {
+            document.addEventListener('DOMContentLoaded', callback);
+        } else {
+            document.attachEvent('onreadystatechange', function() {
+                if (document.readyState === 'complete') callback();
+            });
+        }
+    }
+    
+    domReady(function() {
+        // Test Turkey Marketplace
+        var buttonTestTurkey = document.getElementById('button-test-turkey');
+        if (buttonTestTurkey) {
+            addEvent(buttonTestTurkey, 'click', function() {
+                buttonTestTurkey.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Testing...';
+                buttonTestTurkey.disabled = true;
+                
+                makeAjaxRequest('index.php?route=extension/module/amazon/testTurkeyMarketplace&user_token={{ user_token }}', '', function(response) {
+                    buttonTestTurkey.innerHTML = '<i class="fa fa-globe"></i> Test Turkey';
+                    buttonTestTurkey.disabled = false;
+                    
+                    var resultsDiv = document.getElementById('turkey-test-results');
+                    if (response.success) {
+                        resultsDiv.innerHTML = '<div class="alert alert-success"><strong>Success!</strong> Turkey marketplace test passed</div>';
+                    } else {
+                        resultsDiv.innerHTML = '<div class="alert alert-danger"><strong>Error!</strong> ' + (response.error || 'Test failed') + '</div>';
+                    }
+                });
+            });
+        }
+        
+        // Test Connection
+        var buttonTestConnection = document.getElementById('button-test-connection');
+        if (buttonTestConnection) {
+            addEvent(buttonTestConnection, 'click', function() {
+                buttonTestConnection.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Testing...';
+                buttonTestConnection.disabled = true;
+                
+                makeAjaxRequest('index.php?route=extension/module/amazon/test_connection&user_token={{ user_token }}', '', function(response) {
+                    buttonTestConnection.innerHTML = '<i class="fa fa-plug"></i> Test Connection';
+                    buttonTestConnection.disabled = false;
+                    
+                    if (response.success) {
+                        alert('Connection test successful!');
+                    } else {
+                        alert('Connection test failed: ' + (response.error || 'Unknown error'));
+                    }
+                });
+            });
+        }
+        
+        // Load FBA inventory when tab is activated
+        var fbaTab = document.querySelector('a[href="#tab-fba"]');
+        if (fbaTab) {
+            addEvent(fbaTab, 'click', function() {
+                setTimeout(function() {
+                    loadFBAInventory();
+                }, 100);
+            });
+        }
+        
+        // Load advertising campaigns when tab is activated
+        var advertisingTab = document.querySelector('a[href="#tab-advertising"]');
+        if (advertisingTab) {
+            addEvent(advertisingTab, 'click', function() {
+                setTimeout(function() {
+                    loadAdvertisingCampaigns();
+                }, 100);
+            });
+        }
+        
+        // Create FBA Shipment
+        var createFbaShipmentBtn = document.getElementById('create-fba-shipment');
+        if (createFbaShipmentBtn) {
+            addEvent(createFbaShipmentBtn, 'click', function() {
+                var form = document.getElementById('fba-shipment-form');
+                var formData = new FormData(form);
+                var params = [];
+                
+                for (var pair of formData.entries()) {
+                    params.push(encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]));
+                }
+                
+                createFbaShipmentBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Creating...';
+                createFbaShipmentBtn.disabled = true;
+                
+                makeAjaxRequest('index.php?route=extension/module/amazon/manageFBA&user_token={{ user_token }}', 'action=create_shipment&' + params.join('&'), function(response) {
+                    createFbaShipmentBtn.innerHTML = '<i class="fa fa-truck"></i> Create Shipment';
+                    createFbaShipmentBtn.disabled = false;
+                    
+                    if (response.success) {
+                        alert('FBA shipment created successfully! ID: ' + response.shipment_id);
+                        loadFBAInventory();
+                    } else {
+                        alert('Error creating FBA shipment: ' + (response.error || 'Unknown error'));
+                    }
+                });
+            });
+        }
+        
+        // Create Advertising Campaign
+        var createCampaignBtn = document.getElementById('create-advertising-campaign');
+        if (createCampaignBtn) {
+            addEvent(createCampaignBtn, 'click', function() {
+                var form = document.getElementById('advertising-campaign-form');
+                var formData = new FormData(form);
+                var params = [];
+                
+                for (var pair of formData.entries()) {
+                    params.push(encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]));
+                }
+                
+                createCampaignBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Creating...';
+                createCampaignBtn.disabled = true;
+                
+                makeAjaxRequest('index.php?route=extension/module/amazon/manageAdvertising&user_token={{ user_token }}', 'action=create_campaign&' + params.join('&'), function(response) {
+                    createCampaignBtn.innerHTML = '<i class="fa fa-bullhorn"></i> Create Campaign';
+                    createCampaignBtn.disabled = false;
+                    
+                    if (response.success) {
+                        alert('Advertising campaign created successfully! ID: ' + response.campaign_id);
+                        loadAdvertisingCampaigns();
+                    } else {
+                        alert('Error creating campaign: ' + (response.error || 'Unknown error'));
+                    }
+                });
+            });
+        }
+        
+        // Load FBA Inventory function
+        function loadFBAInventory() {
+            var statusDiv = document.getElementById('fba-inventory-status');
+            if (!statusDiv) return;
+            
+            statusDiv.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading FBA inventory...';
+            
+            makeAjaxRequest('index.php?route=extension/module/amazon/manageFBA&user_token={{ user_token }}', 'action=list', function(response) {
+                if (response.success && response.data) {
+                    var html = '<table class="table table-striped"><thead><tr><th>SKU</th><th>Available</th><th>Inbound</th><th>Status</th></tr></thead><tbody>';
+                    response.data.forEach(function(item) {
+                        html += '<tr><td>' + item.sku + '</td><td>' + item.available + '</td><td>' + item.inbound + '</td><td><span class="label label-' + (item.status === 'InStock' ? 'success' : 'warning') + '">' + item.status + '</span></td></tr>';
+                    });
+                    html += '</tbody></table>';
+                    statusDiv.innerHTML = html;
+                } else {
+                    statusDiv.innerHTML = '<div class="alert alert-warning">No FBA inventory data available</div>';
+                }
+            });
+        }
+        
+        // Load Advertising Campaigns function
+        function loadAdvertisingCampaigns() {
+            var campaignDiv = document.getElementById('advertising-campaigns');
+            if (!campaignDiv) return;
+            
+            campaignDiv.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading campaigns...';
+            
+            makeAjaxRequest('index.php?route=extension/module/amazon/manageAdvertising&user_token={{ user_token }}', 'action=list_campaigns', function(response) {
+                if (response.success && response.campaigns) {
+                    var html = '<table class="table table-striped"><thead><tr><th>Campaign Name</th><th>Type</th><th>Status</th><th>Budget</th><th>Actions</th></tr></thead><tbody>';
+                    response.campaigns.forEach(function(campaign) {
+                        html += '<tr><td>' + campaign.name + '</td><td>' + campaign.type + '</td><td><span class="label label-' + (campaign.state === 'enabled' ? 'success' : 'default') + '">' + campaign.state + '</span></td><td>$' + campaign.budget + '</td><td><button class="btn btn-xs btn-info">Edit</button></td></tr>';
+                    });
+                    html += '</tbody></table>';
+                    campaignDiv.innerHTML = html;
+                } else {
+                    campaignDiv.innerHTML = '<div class="alert alert-warning">No advertising campaigns found</div>';
+                }
+            });
+        }
+        
+        // Performance monitoring with Chart.js (if available)
+        var performanceTab = document.querySelector('a[href="#tab-performance"]');
+        if (performanceTab) {
+            addEvent(performanceTab, 'click', function() {
+                setTimeout(function() {
+                    loadPerformanceMetrics();
+                }, 100);
+            });
+        }
+        
+        function loadPerformanceMetrics() {
+            var canvas = document.getElementById('performance-chart');
+            if (!canvas || typeof Chart === 'undefined') {
+                document.getElementById('performance-metrics').innerHTML = '<div class="alert alert-info">Performance chart library not loaded</div>';
+                return;
+            }
+            
+            var ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1h ago', '45m ago', '30m ago', '15m ago', 'Now'],
+                    datasets: [{
+                        label: 'API Response Time (ms)',
+                        data: [250, 180, 220, 190, 200],
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    });
+})();
+</script>
+
+{{ footer }} 

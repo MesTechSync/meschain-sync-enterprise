@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  <name>MesTech Sync - Pazaryeri Entegrasyonu</name>
+  <code>mestech_sync</code>
+  <version>1.0.2</version>
+  <author>MesTech</author>
+  <link>https://mestech-sync.com</link>
+  <description>
+    MesTech Sync, OpenCart iÃ§in pazaryeri entegrasyonlarÄ± (Trendyol, n11, Amazon, eBay, Hepsiburada, Ozon) saÄŸlayan, 
+    mavi tonlu yÃ¶netici paneli, HTML duyuru sistemi ve ayrÄ± kullanÄ±cÄ± bilgi depolama ile Ã§oklu kullanÄ±cÄ± yÃ¶netimi sunan bir modÃ¼ldÃ¼r.
+    Versiyon 1.0.2 - 29.05.2025
+  </description>
+  
+  <!-- MesTech bÃ¶lÃ¼mÃ¼nÃ¼ OpenCart'a ekle -->
+  <file path="admin/controller/marketplace/extension.php">
+    <operation>
+      <search><![CDATA[$this->load->language('marketplace/extension');]]></search>
+      <add position="after"><![CDATA[
+        // MesTech Eklentileri
+        $this->load->language('extension/mestech/mestech_sync');
+      ]]></add>
+    </operation>
+    
+    <operation>
+      <search><![CDATA[$data['categories'] = array();]]></search>
+      <add position="after"><![CDATA[
+        // MesTech kategorisini ekle
+        $data['categories'][] = array(
+          'code' => 'mestech',
+          'text' => $this->language->get('text_mestech')
+        );
+      ]]></add>
+    </operation>
+  </file>
+  
+  <!-- Admin menÃ¼sÃ¼ne modÃ¼l ekleme -->
+  <file path="admin/controller/common/column_left.php">
+    <operation>
+      <search><![CDATA[// Dashboard]]></search>
+      <add position="after"><![CDATA[
+        // MesTech Sync modÃ¼l menÃ¼sÃ¼
+        $this->load->language('extension/mestech/mestech_sync');
+        $mestech = array();
+        
+        if ($this->user->hasPermission('access', 'extension/mestech/mestech_sync')) {
+          $mestech[] = array(
+            'name'     => $this->language->get('heading_title'),
+            'href'     => $this->url->link('extension/mestech/mestech_sync', 'user_token=' . $this->session->data['user_token'], true),
+            'children' => array()
+          );
+        }
+        
+        if ($mestech) {
+          $data['menus'][] = array(
+            'id'       => 'menu-mestech',
+            'icon'     => 'fa fa-exchange',
+            'name'     => $this->language->get('text_mestech'),
+            'href'     => '',
+            'children' => $mestech
+          );
+        }
+      ]]></add>
+    </operation>
+  </file>
+  
+  <!-- Extension type iÃ§in mestech ekle -->
+  <file path="admin/model/setting/extension.php">
+    <operation>
+      <search><![CDATA[public function getExtensionInstalls($start = 0, $limit = 10) {]]></search>
+      <add position="before"><![CDATA[
+        public function getMestechExtensions($type) {
+          $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "extension WHERE `type` = 'mestech'");
+          return $query->rows;
+        }
+      ]]></add>
+    </operation>
+  </file>
+</modification> 

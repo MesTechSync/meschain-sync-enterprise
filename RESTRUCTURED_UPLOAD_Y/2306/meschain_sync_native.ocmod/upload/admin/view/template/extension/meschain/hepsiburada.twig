@@ -1,0 +1,287 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-hepsiburada" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fas fa-save"></i>
+        </button>
+        <a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light">
+          <i class="fas fa-reply"></i>
+        </a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+      <div class="alert alert-danger alert-dismissible">
+        <i class="fas fa-exclamation-circle"></i> {{ error_warning }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endif %}
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-cog"></i> {{ text_edit }}
+      </div>
+      <div class="card-body">
+        <form id="form-hepsiburada" action="{{ action }}" method="post" data-oc-toggle="ajax">
+          <div class="row mb-3">
+            <label for="input-status" class="col-sm-2 col-form-label">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <div class="form-check form-switch form-switch-lg">
+                <input type="hidden" name="meschain_hepsiburada_status" value="0"/>
+                <input type="checkbox" name="meschain_hepsiburada_status" value="1" id="input-status" class="form-check-input"{% if meschain_hepsiburada_status %} checked{% endif %}/>
+              </div>
+              <div class="form-text">{{ help_status }}</div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-username" class="col-sm-2 col-form-label">{{ entry_username }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="meschain_hepsiburada_username" value="{{ meschain_hepsiburada_username }}" placeholder="{{ entry_username }}" id="input-username" class="form-control"/>
+              <div class="form-text">{{ help_username }}</div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-password" class="col-sm-2 col-form-label">{{ entry_password }}</label>
+            <div class="col-sm-10">
+              <input type="password" name="meschain_hepsiburada_password" value="{{ meschain_hepsiburada_password }}" placeholder="{{ entry_password }}" id="input-password" class="form-control"/>
+              <div class="form-text">{{ help_password }}</div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-merchant-id" class="col-sm-2 col-form-label">{{ entry_merchant_id }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="meschain_hepsiburada_merchant_id" value="{{ meschain_hepsiburada_merchant_id }}" placeholder="{{ entry_merchant_id }}" id="input-merchant-id" class="form-control"/>
+              <div class="form-text">{{ help_merchant_id }}</div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label">{{ entry_test_connection }}</label>
+            <div class="col-sm-10">
+              <button type="button" id="button-test" class="btn btn-info">
+                <i class="fas fa-plug"></i> {{ button_test_connection }}
+              </button>
+              <div class="form-text">{{ help_test_connection }}</div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-auto-sync" class="col-sm-2 col-form-label">{{ entry_auto_sync }}</label>
+            <div class="col-sm-10">
+              <div class="form-check form-switch form-switch-lg">
+                <input type="hidden" name="meschain_hepsiburada_auto_sync" value="0"/>
+                <input type="checkbox" name="meschain_hepsiburada_auto_sync" value="1" id="input-auto-sync" class="form-check-input"{% if meschain_hepsiburada_auto_sync %} checked{% endif %}/>
+              </div>
+              <div class="form-text">{{ help_auto_sync }}</div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-sync-interval" class="col-sm-2 col-form-label">{{ entry_sync_interval }}</label>
+            <div class="col-sm-10">
+              <select name="meschain_hepsiburada_sync_interval" id="input-sync-interval" class="form-select">
+                <option value="15"{% if meschain_hepsiburada_sync_interval == '15' %} selected{% endif %}>{{ text_15_minutes }}</option>
+                <option value="30"{% if meschain_hepsiburada_sync_interval == '30' %} selected{% endif %}>{{ text_30_minutes }}</option>
+                <option value="60"{% if meschain_hepsiburada_sync_interval == '60' %} selected{% endif %}>{{ text_1_hour }}</option>
+                <option value="120"{% if meschain_hepsiburada_sync_interval == '120' %} selected{% endif %}>{{ text_2_hours }}</option>
+                <option value="240"{% if meschain_hepsiburada_sync_interval == '240' %} selected{% endif %}>{{ text_4_hours }}</option>
+                <option value="480"{% if meschain_hepsiburada_sync_interval == '480' %} selected{% endif %}>{{ text_8_hours }}</option>
+                <option value="1440"{% if meschain_hepsiburada_sync_interval == '1440' %} selected{% endif %}>{{ text_24_hours }}</option>
+              </select>
+              <div class="form-text">{{ help_sync_interval }}</div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-sync"></i> {{ text_sync_actions }}
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-sm-6">
+            <button type="button" id="button-sync-products" class="btn btn-success btn-lg w-100">
+              <i class="fas fa-upload"></i> {{ button_sync_products }}
+            </button>
+            <div class="form-text text-center">{{ help_sync_products }}</div>
+          </div>
+          <div class="col-sm-6">
+            <button type="button" id="button-sync-orders" class="btn btn-warning btn-lg w-100">
+              <i class="fas fa-download"></i> {{ button_sync_orders }}
+            </button>
+            <div class="form-text text-center">{{ help_sync_orders }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    {% if sync_stats %}
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-chart-bar"></i> {{ text_statistics }}
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="card bg-primary text-white">
+              <div class="card-body text-center">
+                <h4>{{ sync_stats.total_products|default(0) }}</h4>
+                <p>{{ text_total_products }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="card bg-success text-white">
+              <div class="card-body text-center">
+                <h4>{{ sync_stats.active_products|default(0) }}</h4>
+                <p>{{ text_active_products }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="card bg-info text-white">
+              <div class="card-body text-center">
+                <h4>{{ sync_stats.total_orders|default(0) }}</h4>
+                <p>{{ text_total_orders }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="card bg-warning text-white">
+              <div class="card-body text-center">
+                <h4>{{ sync_stats.today_orders|default(0) }}</h4>
+                <p>{{ text_today_orders }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% if sync_stats.last_product_sync %}
+        <div class="row mt-3">
+          <div class="col-sm-6">
+            <strong>{{ text_last_product_sync }}:</strong> {{ sync_stats.last_product_sync }}
+          </div>
+          <div class="col-sm-6">
+            <strong>{{ text_last_order_sync }}:</strong> {{ sync_stats.last_order_sync|default(text_never) }}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script type="text/javascript">
+$('#button-test').on('click', function() {
+    var username = $('#input-username').val();
+    var password = $('#input-password').val();
+    var merchant_id = $('#input-merchant-id').val();
+    
+    if (!username || !password || !merchant_id) {
+        $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> {{ error_credentials }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        return;
+    }
+    
+    $.ajax({
+        url: 'index.php?route=extension/meschain/hepsiburada.testConnection&user_token={{ user_token }}',
+        type: 'post',
+        data: {
+            username: username,
+            password: password,
+            merchant_id: merchant_id
+        },
+        dataType: 'json',
+        beforeSend: function() {
+            $('#button-test').button('loading');
+        },
+        complete: function() {
+            $('#button-test').button('reset');
+        },
+        success: function(json) {
+            $('.alert-dismissible').remove();
+            
+            if (json.error) {
+                $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json.error + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+            
+            if (json.success) {
+                $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json.success + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+
+$('#button-sync-products').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/meschain/hepsiburada.syncProducts&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#button-sync-products').button('loading');
+        },
+        complete: function() {
+            $('#button-sync-products').button('reset');
+        },
+        success: function(json) {
+            $('.alert-dismissible').remove();
+            
+            if (json.error) {
+                $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json.error + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+            
+            if (json.success) {
+                $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json.success + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+
+$('#button-sync-orders').on('click', function() {
+    $.ajax({
+        url: 'index.php?route=extension/meschain/hepsiburada.syncOrders&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#button-sync-orders').button('loading');
+        },
+        complete: function() {
+            $('#button-sync-orders').button('reset');
+        },
+        success: function(json) {
+            $('.alert-dismissible').remove();
+            
+            if (json.error) {
+                $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json.error + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+            
+            if (json.success) {
+                $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json.success + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+</script>
+
+{{ footer }}

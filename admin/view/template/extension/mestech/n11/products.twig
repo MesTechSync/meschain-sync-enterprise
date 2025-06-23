@@ -1,0 +1,787 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" data-toggle="tooltip" title="{{ button_sync_all }}" class="btn btn-success" onclick="syncAllProducts()">
+          <i class="fa fa-refresh"></i>
+        </button>
+        <button type="button" data-toggle="tooltip" title="{{ button_bulk_upload }}" class="btn btn-primary" onclick="openBulkUpload()">
+          <i class="fa fa-upload"></i>
+        </button>
+        <button type="button" data-toggle="tooltip" title="{{ button_filter }}" class="btn btn-default" id="button-filter">
+          <i class="fa fa-filter"></i>
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <!-- Filter Panel -->
+    <div class="panel panel-default" id="filter-panel" style="display: none;">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-filter"></i> {{ text_filter }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-name">{{ entry_name }}</label>
+              <input type="text" name="filter_name" value="{{ filter_name }}" placeholder="{{ entry_name }}" id="input-filter-name" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-sku">{{ entry_sku }}</label>
+              <input type="text" name="filter_sku" value="{{ filter_sku }}" placeholder="{{ entry_sku }}" id="input-filter-sku" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-status">{{ entry_status }}</label>
+              <select name="filter_status" id="input-filter-status" class="form-control">
+                <option value="">{{ text_all_statuses }}</option>
+                <option value="draft" {% if filter_status == 'draft' %}selected="selected"{% endif %}>{{ text_draft }}</option>
+                <option value="active" {% if filter_status == 'active' %}selected="selected"{% endif %}>{{ text_active }}</option>
+                <option value="passive" {% if filter_status == 'passive' %}selected="selected"{% endif %}>{{ text_passive }}</option>
+                <option value="sold_out" {% if filter_status == 'sold_out' %}selected="selected"{% endif %}>{{ text_sold_out }}</option>
+                <option value="rejected" {% if filter_status == 'rejected' %}selected="selected"{% endif %}>{{ text_rejected }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-category">{{ entry_category }}</label>
+              <select name="filter_category" id="input-filter-category" class="form-control">
+                <option value="">{{ text_all_categories }}</option>
+                {% for category in n11_categories %}
+                <option value="{{ category.id }}" {% if filter_category == category.id %}selected="selected"{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-price-min">{{ entry_price_min }}</label>
+              <input type="text" name="filter_price_min" value="{{ filter_price_min }}" placeholder="{{ entry_price_min }}" id="input-filter-price-min" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-price-max">{{ entry_price_max }}</label>
+              <input type="text" name="filter_price_max" value="{{ filter_price_max }}" placeholder="{{ entry_price_max }}" id="input-filter-price-max" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-stock-min">{{ entry_stock_min }}</label>
+              <input type="text" name="filter_stock_min" value="{{ filter_stock_min }}" placeholder="{{ entry_stock_min }}" id="input-filter-stock-min" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-sync-status">{{ entry_sync_status }}</label>
+              <select name="filter_sync_status" id="input-filter-sync-status" class="form-control">
+                <option value="">{{ text_all_sync_statuses }}</option>
+                <option value="synced" {% if filter_sync_status == 'synced' %}selected="selected"{% endif %}>{{ text_synced }}</option>
+                <option value="pending" {% if filter_sync_status == 'pending' %}selected="selected"{% endif %}>{{ text_pending }}</option>
+                <option value="error" {% if filter_sync_status == 'error' %}selected="selected"{% endif %}>{{ text_error }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12 text-right">
+            <button type="button" id="button-filter-apply" class="btn btn-primary">
+              <i class="fa fa-search"></i> {{ button_filter }}
+            </button>
+            <button type="button" id="button-filter-clear" class="btn btn-default">
+              <i class="fa fa-times"></i> {{ button_clear }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Products Panel -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-product">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <td style="width: 1px;" class="text-center">
+                    <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" />
+                  </td>
+                  <td class="text-center">{{ column_image }}</td>
+                  <td>
+                    {% if sort == 'pd.name' %}
+                    <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_name }}</a>
+                    {% else %}
+                    <a href="{{ sort_name }}">{{ column_name }}</a>
+                    {% endif %}
+                  </td>
+                  <td>{{ column_sku }}</td>
+                  <td>
+                    {% if sort == 'p.price' %}
+                    <a href="{{ sort_price }}" class="{{ order|lower }}">{{ column_price }}</a>
+                    {% else %}
+                    <a href="{{ sort_price }}">{{ column_price }}</a>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if sort == 'p.quantity' %}
+                    <a href="{{ sort_quantity }}" class="{{ order|lower }}">{{ column_quantity }}</a>
+                    {% else %}
+                    <a href="{{ sort_quantity }}">{{ column_quantity }}</a>
+                    {% endif %}
+                  </td>
+                  <td>{{ column_n11_status }}</td>
+                  <td>{{ column_approval_status }}</td>
+                  <td>{{ column_commission }}</td>
+                  <td>{{ column_last_sync }}</td>
+                  <td class="text-right">{{ column_action }}</td>
+                </tr>
+              </thead>
+              <tbody>
+                {% if products %}
+                {% for product in products %}
+                <tr>
+                  <td class="text-center">
+                    {% if product.selected %}
+                    <input type="checkbox" name="selected[]" value="{{ product.product_id }}" checked="checked" />
+                    {% else %}
+                    <input type="checkbox" name="selected[]" value="{{ product.product_id }}" />
+                    {% endif %}
+                  </td>
+                  <td class="text-center">
+                    {% if product.image %}
+                    <img src="{{ product.image }}" alt="{{ product.name }}" class="img-thumbnail" style="width: 50px; height: 50px;" />
+                    {% else %}
+                    <span class="img-thumbnail" style="width: 50px; height: 50px; display: inline-block;">
+                      <i class="fa fa-camera fa-2x text-muted"></i>
+                    </span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <strong>{{ product.name }}</strong>
+                    {% if product.n11_product_id %}
+                    <br/><small class="text-muted">N11 ID: {{ product.n11_product_id }}</small>
+                    {% endif %}
+                    {% if product.product_url %}
+                    <br/><a href="{{ product.product_url }}" target="_blank" class="text-info">
+                      <i class="fa fa-external-link"></i> {{ text_view_on_n11 }}
+                    </a>
+                    {% endif %}
+                  </td>
+                  <td>{{ product.sku }}</td>
+                  <td>
+                    <strong>{{ product.price }} {{ product.currency }}</strong>
+                    {% if product.discount_price and product.discount_price != product.price %}
+                    <br/><small class="text-muted">{{ product.discount_price }} {{ product.currency }}</small>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <span class="label {% if product.quantity > 0 %}label-success{% else %}label-danger{% endif %}">
+                      {{ product.quantity }}
+                    </span>
+                  </td>
+                  <td>
+                    {% if product.status == 'active' %}
+                    <span class="label label-success">{{ text_active }}</span>
+                    {% elseif product.status == 'passive' %}
+                    <span class="label label-warning">{{ text_passive }}</span>
+                    {% elseif product.status == 'draft' %}
+                    <span class="label label-default">{{ text_draft }}</span>
+                    {% elseif product.status == 'sold_out' %}
+                    <span class="label label-danger">{{ text_sold_out }}</span>
+                    {% elseif product.status == 'rejected' %}
+                    <span class="label label-danger">{{ text_rejected }}</span>
+                    {% else %}
+                    <span class="label label-default">{{ text_unknown }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if product.approval_status == 'approved' %}
+                    <span class="label label-success">{{ text_approved }}</span>
+                    {% elseif product.approval_status == 'waiting' %}
+                    <span class="label label-warning">{{ text_waiting }}</span>
+                    {% elseif product.approval_status == 'rejected' %}
+                    <span class="label label-danger">{{ text_rejected }}</span>
+                    {% else %}
+                    <span class="label label-default">{{ text_unknown }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if product.commission_rate %}
+                    {{ product.commission_rate }}%
+                    {% if product.commission_amount %}
+                    <br/><small class="text-muted">{{ product.commission_amount }} {{ product.currency }}</small>
+                    {% endif %}
+                    {% else %}
+                    <span class="text-muted">-</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if product.last_sync %}
+                    <small>{{ product.last_sync }}</small>
+                    {% else %}
+                    <span class="text-muted">{{ text_never }}</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-right">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
+                        {{ text_action }} <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-right">
+                        {% if product.n11_product_id %}
+                        <li><a onclick="syncProduct('{{ product.product_id }}')"><i class="fa fa-refresh"></i> {{ text_sync }}</a></li>
+                        <li><a onclick="updateProduct('{{ product.product_id }}')"><i class="fa fa-edit"></i> {{ text_update }}</a></li>
+                        <li><a onclick="viewProduct('{{ product.n11_product_id }}')"><i class="fa fa-eye"></i> {{ text_view }}</a></li>
+                        <li class="divider"></li>
+                        <li><a onclick="removeProduct('{{ product.product_id }}')"><i class="fa fa-trash"></i> {{ text_remove }}</a></li>
+                        {% else %}
+                        <li><a onclick="createProduct('{{ product.product_id }}')"><i class="fa fa-plus"></i> {{ text_create }}</a></li>
+                        {% endif %}
+                        <li class="divider"></li>
+                        <li><a href="{{ product.edit_url }}"><i class="fa fa-pencil"></i> {{ text_edit_opencart }}</a></li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                  <td class="text-center" colspan="11">{{ text_no_results }}</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+        
+        <!-- Pagination -->
+        <div class="row">
+          <div class="col-sm-6 text-left">{{ pagination }}</div>
+          <div class="col-sm-6 text-right">{{ results }}</div>
+        </div>
+        
+        <!-- Bulk Actions -->
+        {% if products %}
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="btn-group">
+              <button type="button" class="btn btn-success" onclick="bulkSync()">
+                <i class="fa fa-refresh"></i> {{ button_bulk_sync }}
+              </button>
+              <button type="button" class="btn btn-warning" onclick="bulkUpdate()">
+                <i class="fa fa-edit"></i> {{ button_bulk_update }}
+              </button>
+              <button type="button" class="btn btn-danger" onclick="bulkDelete()">
+                <i class="fa fa-trash"></i> {{ button_bulk_delete }}
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Statistics Panel -->
+    <div class="row">
+      <div class="col-md-3">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_total_products }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.total_products }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_active_products }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.active_products }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_pending_approval }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.pending_approval }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-danger">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_sync_errors }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.sync_errors }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="modal fade" id="modal-product" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_product_details }}</h4>
+      </div>
+      <div class="modal-body" id="modal-product-body">
+        <!-- Product details will be loaded here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Upload Modal -->
+<div class="modal fade" id="modal-bulk-upload" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_bulk_upload }}</h4>
+      </div>
+      <div class="modal-body">
+        <form id="form-bulk-upload">
+          <div class="form-group">
+            <label>{{ entry_upload_file }}</label>
+            <input type="file" name="bulk_file" class="form-control" accept=".csv,.xlsx" />
+            <small class="help-block">{{ help_bulk_upload }}</small>
+          </div>
+          <div class="form-group">
+            <label>{{ entry_upload_options }}</label>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" name="update_existing" value="1" /> {{ text_update_existing }}
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" name="auto_sync" value="1" checked /> {{ text_auto_sync_after_upload }}
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_cancel }}</button>
+        <button type="button" class="btn btn-primary" onclick="processBulkUpload()">{{ button_upload }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Modal -->
+<div class="modal fade" id="modal-progress" tabindex="-1" role="dialog" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ text_processing }}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: 0%">
+            <span class="sr-only">0% {{ text_complete }}</span>
+          </div>
+        </div>
+        <div id="progress-message">{{ text_please_wait }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Filter toggle
+    $('#button-filter').on('click', function() {
+        $('#filter-panel').slideToggle();
+    });
+    
+    // Filter apply
+    $('#button-filter-apply').on('click', function() {
+        var url = '{{ filter_url }}';
+        var filter = '';
+        
+        $('input[name^="filter_"], select[name^="filter_"]').each(function() {
+            if ($(this).val()) {
+                if (filter) filter += '&';
+                filter += $(this).attr('name') + '=' + encodeURIComponent($(this).val());
+            }
+        });
+        
+        if (filter) {
+            location = url + '&' + filter;
+        } else {
+            location = url;
+        }
+    });
+    
+    // Filter clear
+    $('#button-filter-clear').on('click', function() {
+        $('input[name^="filter_"], select[name^="filter_"]').val('');
+        location = '{{ filter_url }}';
+    });
+});
+
+// Product Actions
+function syncProduct(productId) {
+    if (confirm('{{ text_confirm_sync }}')) {
+        showProgress('{{ text_syncing_product }}');
+        
+        $.ajax({
+            url: '{{ sync_product_url }}',
+            type: 'POST',
+            data: { product_id: productId },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_sync_error }}');
+            }
+        });
+    }
+}
+
+function createProduct(productId) {
+    if (confirm('{{ text_confirm_create }}')) {
+        showProgress('{{ text_creating_product }}');
+        
+        $.ajax({
+            url: '{{ create_product_url }}',
+            type: 'POST',
+            data: { product_id: productId },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_create_error }}');
+            }
+        });
+    }
+}
+
+function updateProduct(productId) {
+    if (confirm('{{ text_confirm_update }}')) {
+        showProgress('{{ text_updating_product }}');
+        
+        $.ajax({
+            url: '{{ update_product_url }}',
+            type: 'POST',
+            data: { product_id: productId },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_update_error }}');
+            }
+        });
+    }
+}
+
+function removeProduct(productId) {
+    if (confirm('{{ text_confirm_remove }}')) {
+        showProgress('{{ text_removing_product }}');
+        
+        $.ajax({
+            url: '{{ remove_product_url }}',
+            type: 'POST',
+            data: { product_id: productId },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_remove_error }}');
+            }
+        });
+    }
+}
+
+function viewProduct(n11ProductId) {
+    $.ajax({
+        url: '{{ view_product_url }}',
+        type: 'POST',
+        data: { n11_product_id: n11ProductId },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                $('#modal-product-body').html(response.html);
+                $('#modal-product').modal('show');
+            } else {
+                showAlert('danger', response.message);
+            }
+        },
+        error: function() {
+            showAlert('danger', '{{ text_view_error }}');
+        }
+    });
+}
+
+// Bulk Actions
+function bulkSync() {
+    var selected = getSelectedProducts();
+    if (selected.length === 0) {
+        showAlert('warning', '{{ text_no_products_selected }}');
+        return;
+    }
+    
+    if (confirm('{{ text_confirm_bulk_sync }}')) {
+        showProgress('{{ text_bulk_syncing }}');
+        
+        $.ajax({
+            url: '{{ bulk_sync_url }}',
+            type: 'POST',
+            data: { selected: selected },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_bulk_sync_error }}');
+            }
+        });
+    }
+}
+
+function bulkUpdate() {
+    var selected = getSelectedProducts();
+    if (selected.length === 0) {
+        showAlert('warning', '{{ text_no_products_selected }}');
+        return;
+    }
+    
+    if (confirm('{{ text_confirm_bulk_update }}')) {
+        showProgress('{{ text_bulk_updating }}');
+        
+        $.ajax({
+            url: '{{ bulk_update_url }}',
+            type: 'POST',
+            data: { selected: selected },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_bulk_update_error }}');
+            }
+        });
+    }
+}
+
+function bulkDelete() {
+    var selected = getSelectedProducts();
+    if (selected.length === 0) {
+        showAlert('warning', '{{ text_no_products_selected }}');
+        return;
+    }
+    
+    if (confirm('{{ text_confirm_bulk_delete }}')) {
+        showProgress('{{ text_bulk_deleting }}');
+        
+        $.ajax({
+            url: '{{ bulk_delete_url }}',
+            type: 'POST',
+            data: { selected: selected },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_bulk_delete_error }}');
+            }
+        });
+    }
+}
+
+function syncAllProducts() {
+    if (confirm('{{ text_confirm_sync_all }}')) {
+        showProgress('{{ text_syncing_all_products }}');
+        
+        $.ajax({
+            url: '{{ sync_all_url }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_sync_all_error }}');
+            }
+        });
+    }
+}
+
+function openBulkUpload() {
+    $('#modal-bulk-upload').modal('show');
+}
+
+function processBulkUpload() {
+    var formData = new FormData($('#form-bulk-upload')[0]);
+    
+    showProgress('{{ text_uploading_file }}');
+    
+    $.ajax({
+        url: '{{ bulk_upload_url }}',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function(response) {
+            hideProgress();
+            $('#modal-bulk-upload').modal('hide');
+            
+            if (response.success) {
+                showAlert('success', response.message);
+                location.reload();
+            } else {
+                showAlert('danger', response.message);
+            }
+        },
+        error: function() {
+            hideProgress();
+            showAlert('danger', '{{ text_upload_error }}');
+        }
+    });
+}
+
+// Helper Functions
+function getSelectedProducts() {
+    var selected = [];
+    $('input[name="selected[]"]:checked').each(function() {
+        selected.push($(this).val());
+    });
+    return selected;
+}
+
+function showProgress(message) {
+    $('#progress-message').text(message);
+    $('#modal-progress').modal('show');
+}
+
+function hideProgress() {
+    $('#modal-progress').modal('hide');
+}
+
+function showAlert(type, message) {
+    var alertHtml = '<div class="alert alert-' + type + ' alert-dismissible">' +
+        '<i class="fa fa-' + (type === 'success' ? 'check' : type === 'warning' ? 'warning' : 'times') + '-circle"></i> ' +
+        message +
+        '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+        '</div>';
+    
+    $('.container-fluid').prepend(alertHtml);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(function() {
+        $('.alert').fadeOut();
+    }, 5000);
+}
+</script>
+
+{{ footer }}
+</rewritten_file>

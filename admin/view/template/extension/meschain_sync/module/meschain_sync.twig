@@ -1,0 +1,176 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-meschain-sync" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+      <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    {% endif %}
+    {% if success %}
+      <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-sync-alt"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-meschain-sync" class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <select name="module_meschain_sync_status" id="input-status" class="form-control">
+                {% if module_meschain_sync_status %}
+                  <option value="1" selected="selected">{{ text_enabled }}</option>
+                  <option value="0">{{ text_disabled }}</option>
+                {% else %}
+                  <option value="1">{{ text_enabled }}</option>
+                  <option value="0" selected="selected">{{ text_disabled }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Marketplace Status Cards -->
+    <div class="row">
+      <div class="col-md-4">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title">Trendyol</h3>
+          </div>
+          <div class="panel-body">
+            Status: {% if trendyol_status %}<span class="text-success">Active</span>{% else %}<span class="text-danger">Inactive</span>{% endif %}<br>
+            Products: {{ trendyol_products|default(0) }}<br>
+            Orders: {{ trendyol_orders|default(0) }}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title">N11</h3>
+          </div>
+          <div class="panel-body">
+            Status: {% if n11_status %}<span class="text-success">Active</span>{% else %}<span class="text-danger">Inactive</span>{% endif %}<br>
+            Products: {{ n11_products|default(0) }}<br>
+            Orders: {{ n11_orders|default(0) }}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h3 class="panel-title">Hepsiburada</h3>
+          </div>
+          <div class="panel-body">
+            Status: {% if hepsiburada_status %}<span class="text-success">Active</span>{% else %}<span class="text-danger">Inactive</span>{% endif %}<br>
+            Products: {{ hepsiburada_products|default(0) }}<br>
+            Orders: {{ hepsiburada_orders|default(0) }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">Amazon</h3>
+          </div>
+          <div class="panel-body">
+            Status: {% if amazon_status %}<span class="text-success">Active</span>{% else %}<span class="text-danger">Inactive</span>{% endif %}<br>
+            Products: {{ amazon_products|default(0) }}<br>
+            Orders: {{ amazon_orders|default(0) }}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-danger">
+          <div class="panel-heading">
+            <h3 class="panel-title">eBay</h3>
+          </div>
+          <div class="panel-body">
+            Status: {% if ebay_status %}<span class="text-success">Active</span>{% else %}<span class="text-danger">Inactive</span>{% endif %}<br>
+            Products: {{ ebay_products|default(0) }}<br>
+            Orders: {{ ebay_orders|default(0) }}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Ozon</h3>
+          </div>
+          <div class="panel-body">
+            Status: {% if ozon_status %}<span class="text-success">Active</span>{% else %}<span class="text-danger">Inactive</span>{% endif %}<br>
+            Products: {{ ozon_products|default(0) }}<br>
+            Orders: {{ ozon_orders|default(0) }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Logs -->
+    {% if recent_logs %}
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title">Recent Activity</h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Marketplace</th>
+                <th>Action</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in recent_logs %}
+              <tr>
+                <td>{{ log.date_added }}</td>
+                <td>{{ log.marketplace }}</td>
+                <td>{{ log.action }}</td>
+                <td>
+                  {% if log.status == 'success' %}
+                    <span class="label label-success">Success</span>
+                  {% elseif log.status == 'error' %}
+                    <span class="label label-danger">Error</span>
+                  {% elseif log.status == 'warning' %}
+                    <span class="label label-warning">Warning</span>
+                  {% else %}
+                    <span class="label label-info">Info</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{{ footer }}

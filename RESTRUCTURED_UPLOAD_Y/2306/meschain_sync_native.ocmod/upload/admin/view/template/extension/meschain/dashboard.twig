@@ -1,0 +1,184 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="button" data-bs-toggle="tooltip" title="{{ button_refresh }}" onclick="refreshDashboard();" class="btn btn-outline-secondary">
+          <i class="fa-solid fa-sync"></i>
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_warning }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa-solid fa-circle-check"></i> {{ success }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+      <div class="col-md-3 col-sm-6">
+        <div class="card bg-info">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-8">
+                <h3 class="text-white">{{ total_products }}</h3>
+                <p class="text-white">{{ text_total_products }}</p>
+              </div>
+              <div class="col-4 text-end">
+                <i class="fa-solid fa-box fa-3x text-white"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 col-sm-6">
+        <div class="card bg-success">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-8">
+                <h3 class="text-white">{{ synced_products }}</h3>
+                <p class="text-white">{{ text_synced_products }}</p>
+              </div>
+              <div class="col-4 text-end">
+                <i class="fa-solid fa-sync fa-3x text-white"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 col-sm-6">
+        <div class="card bg-warning">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-8">
+                <h3 class="text-white">{{ pending_orders }}</h3>
+                <p class="text-white">{{ text_pending_orders }}</p>
+              </div>
+              <div class="col-4 text-end">
+                <i class="fa-solid fa-clock fa-3x text-white"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 col-sm-6">
+        <div class="card bg-danger">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-8">
+                <h3 class="text-white">{{ failed_syncs }}</h3>
+                <p class="text-white">{{ text_failed_syncs }}</p>
+              </div>
+              <div class="col-4 text-end">
+                <i class="fa-solid fa-exclamation-triangle fa-3x text-white"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mt-4">
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">{{ text_marketplace_status }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>{{ column_marketplace }}</th>
+                    <th>{{ column_status }}</th>
+                    <th>{{ column_last_sync }}</th>
+                    <th>{{ column_action }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for marketplace in marketplaces %}
+                  <tr>
+                    <td>{{ marketplace.name }}</td>
+                    <td>
+                      {% if marketplace.status == 'active' %}
+                      <span class="badge bg-success">{{ text_active }}</span>
+                      {% else %}
+                      <span class="badge bg-danger">{{ text_inactive }}</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ marketplace.last_sync }}</td>
+                    <td>
+                      <a href="{{ marketplace.config_url }}" class="btn btn-sm btn-primary">{{ button_configure }}</a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">{{ text_recent_logs }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>{{ column_time }}</th>
+                    <th>{{ column_type }}</th>
+                    <th>{{ column_message }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for log in recent_logs %}
+                  <tr>
+                    <td>{{ log.time }}</td>
+                    <td>
+                      {% if log.type == 'error' %}
+                      <span class="badge bg-danger">{{ text_error }}</span>
+                      {% elseif log.type == 'warning' %}
+                      <span class="badge bg-warning">{{ text_warning }}</span>
+                      {% else %}
+                      <span class="badge bg-info">{{ text_info }}</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ log.message }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+function refreshDashboard() {
+    location.reload();
+}
+</script>
+
+{{ footer }}

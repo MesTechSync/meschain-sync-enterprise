@@ -1,0 +1,535 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" data-toggle="tooltip" title="Yeni Ürün Ekle" class="btn btn-primary" onclick="addProduct()">
+          <i class="fa fa-plus"></i>
+        </button>
+        <button type="button" data-toggle="tooltip" title="Toplu Senkronize Et" class="btn btn-success" onclick="bulkSync()">
+          <i class="fa fa-refresh"></i>
+        </button>
+        <button type="button" data-toggle="tooltip" title="Seçilenleri Sil" class="btn btn-danger" onclick="confirm('Emin misiniz?') ? $('#form-product').submit() : false;">
+          <i class="fa fa-trash-o"></i>
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        <li><a href="{{ home }}">Ana Sayfa</a></li>
+        <li><a href="{{ extension }}">Eklentiler</a></li>
+        <li><a href="{{ hepsiburada }}">Hepsiburada</a></li>
+        <li>Ürünler</li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> Hepsiburada Ürün Listesi</h3>
+      </div>
+      <div class="panel-body">
+        
+        <!-- Filter Section -->
+        <div class="well">
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-name">Ürün Adı:</label>
+                <input type="text" name="filter_name" value="{{ filter_name }}" placeholder="Ürün adı ile ara..." id="input-name" class="form-control" />
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="form-group">
+                <label class="control-label" for="input-status">Durum:</label>
+                <select name="filter_status" id="input-status" class="form-control">
+                  <option value="">Tümü</option>
+                  <option value="active" {% if filter_status == 'active' %}selected{% endif %}>Aktif</option>
+                  <option value="draft" {% if filter_status == 'draft' %}selected{% endif %}>Taslak</option>
+                  <option value="inactive" {% if filter_status == 'inactive' %}selected{% endif %}>Pasif</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="form-group">
+                <label class="control-label" for="input-sync-status">Senkronizasyon:</label>
+                <select name="filter_sync_status" id="input-sync-status" class="form-control">
+                  <option value="">Tümü</option>
+                  <option value="synced" {% if filter_sync_status == 'synced' %}selected{% endif %}>Senkronize</option>
+                  <option value="pending" {% if filter_sync_status == 'pending' %}selected{% endif %}>Bekliyor</option>
+                  <option value="error" {% if filter_sync_status == 'error' %}selected{% endif %}>Hata</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-2">
+              <div class="form-group">
+                <label class="control-label">&nbsp;</label>
+                <button type="button" id="button-filter" class="btn btn-primary btn-block">
+                  <i class="fa fa-search"></i> Filtrele
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Products Table -->
+        <form action="" method="post" enctype="multipart/form-data" id="form-product">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <td style="width: 1px;" class="text-center">
+                    <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" />
+                  </td>
+                  <td>Ürün Adı</td>
+                  <td>SKU</td>
+                  <td>Fiyat</td>
+                  <td>Stok</td>
+                  <td>Durum</td>
+                  <td>Senkronizasyon</td>
+                  <td>Son Senkronizasyon</td>
+                  <td class="text-right">İşlemler</td>
+                </tr>
+              </thead>
+              <tbody>
+                {% if products %}
+                {% for product in products %}
+                <tr>
+                  <td class="text-center">
+                    <input type="checkbox" name="selected[]" value="{{ product.hepsiburada_product_id }}" />
+                  </td>
+                  <td>
+                    <strong>{{ product.title }}</strong>
+                    {% if product.opencart_name %}
+                    <br><small class="text-muted">OpenCart: {{ product.opencart_name }}</small>
+                    {% endif %}
+                  </td>
+                  <td>{{ product.merchant_sku }}</td>
+                  <td>{{ product.price }} ₺</td>
+                  <td>
+                    <span class="badge {% if product.stock_quantity > 0 %}badge-success{% else %}badge-danger{% endif %}">
+                      {{ product.stock_quantity }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="label {% if product.status == 'active' %}label-success{% elseif product.status == 'draft' %}label-warning{% else %}label-default{% endif %}">
+                      {% if product.status == 'active' %}Aktif{% elseif product.status == 'draft' %}Taslak{% else %}Pasif{% endif %}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="label {% if product.sync_status == 'synced' %}label-success{% elseif product.sync_status == 'pending' %}label-warning{% elseif product.sync_status == 'syncing' %}label-info{% else %}label-danger{% endif %}">
+                      {% if product.sync_status == 'synced' %}Senkronize{% elseif product.sync_status == 'pending' %}Bekliyor{% elseif product.sync_status == 'syncing' %}Senkronize Ediliyor{% else %}Hata{% endif %}
+                    </span>
+                  </td>
+                  <td>{{ product.last_sync_date }}</td>
+                  <td class="text-right">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-primary btn-sm" onclick="viewProduct({{ product.hepsiburada_product_id }})" data-toggle="tooltip" title="Görüntüle">
+                        <i class="fa fa-eye"></i>
+                      </button>
+                      <button type="button" class="btn btn-info btn-sm" onclick="editProduct({{ product.hepsiburada_product_id }})" data-toggle="tooltip" title="Düzenle">
+                        <i class="fa fa-pencil"></i>
+                      </button>
+                      <button type="button" class="btn btn-success btn-sm" onclick="syncProduct({{ product.hepsiburada_product_id }})" data-toggle="tooltip" title="Senkronize Et">
+                        <i class="fa fa-refresh"></i>
+                      </button>
+                      <button type="button" class="btn btn-danger btn-sm" onclick="deleteProduct({{ product.hepsiburada_product_id }})" data-toggle="tooltip" title="Sil">
+                        <i class="fa fa-trash-o"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                  <td colspan="9" class="text-center">Ürün bulunamadı.</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+        
+        <!-- Pagination -->
+        <div class="row">
+          <div class="col-sm-6 text-left">{{ pagination }}</div>
+          <div class="col-sm-6 text-right">Sayfa {{ page }} / {{ total_pages }} ({{ total_products }} ürün)</div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product View Modal -->
+<div class="modal fade" id="modal-product-view" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Ürün Detayları</h4>
+      </div>
+      <div class="modal-body" id="product-view-content">
+        <div class="text-center">
+          <i class="fa fa-spinner fa-spin fa-3x"></i>
+          <p>Yükleniyor...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Edit Modal -->
+<div class="modal fade" id="modal-product-edit" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Ürün Düzenle</h4>
+      </div>
+      <div class="modal-body" id="product-edit-content">
+        <div class="text-center">
+          <i class="fa fa-spinner fa-spin fa-3x"></i>
+          <p>Yükleniyor...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="saveProduct()">Kaydet</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">İptal</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Statistics Panel -->
+<div class="row" style="margin-top: 20px;">
+  <div class="col-lg-3 col-md-6">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <div class="row">
+          <div class="col-xs-3">
+            <i class="fa fa-box fa-2x"></i>
+          </div>
+          <div class="col-xs-9 text-right">
+            <div class="huge" id="stat-total">{{ total_products|default(0) }}</div>
+            <div>Toplam Ürün</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-3 col-md-6">
+    <div class="panel panel-success">
+      <div class="panel-heading">
+        <div class="row">
+          <div class="col-xs-3">
+            <i class="fa fa-check fa-2x"></i>
+          </div>
+          <div class="col-xs-9 text-right">
+            <div class="huge" id="stat-active">{{ active_products|default(0) }}</div>
+            <div>Aktif Ürün</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-3 col-md-6">
+    <div class="panel panel-warning">
+      <div class="panel-heading">
+        <div class="row">
+          <div class="col-xs-3">
+            <i class="fa fa-clock-o fa-2x"></i>
+          </div>
+          <div class="col-xs-9 text-right">
+            <div class="huge" id="stat-pending">{{ pending_products|default(0) }}</div>
+            <div>Bekleyen</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-3 col-md-6">
+    <div class="panel panel-danger">
+      <div class="panel-heading">
+        <div class="row">
+          <div class="col-xs-3">
+            <i class="fa fa-exclamation-triangle fa-2x"></i>
+          </div>
+          <div class="col-xs-9 text-right">
+            <div class="huge" id="stat-error">{{ error_products|default(0) }}</div>
+            <div>Hatalı</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Filter functionality
+    $('#button-filter').on('click', function() {
+        var url = 'index.php?route=extension/mestech/hepsiburada/products&user_token={{ user_token }}';
+        
+        var filter_name = $('input[name=\'filter_name\']').val();
+        if (filter_name) {
+            url += '&filter_name=' + encodeURIComponent(filter_name);
+        }
+        
+        var filter_status = $('select[name=\'filter_status\']').val();
+        if (filter_status) {
+            url += '&filter_status=' + encodeURIComponent(filter_status);
+        }
+        
+        var filter_sync_status = $('select[name=\'filter_sync_status\']').val();
+        if (filter_sync_status) {
+            url += '&filter_sync_status=' + encodeURIComponent(filter_sync_status);
+        }
+        
+        location = url;
+    });
+    
+    // Enter key filter
+    $('input[name=\'filter_name\']').on('keydown', function(e) {
+        if (e.keyCode == 13) {
+            $('#button-filter').trigger('click');
+        }
+    });
+});
+
+// View product function
+function viewProduct(productId) {
+    $('#modal-product-view').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/mestech/hepsiburada/getProduct&user_token={{ user_token }}',
+        type: 'POST',
+        data: {product_id: productId},
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                var html = '<div class="row">';
+                html += '<div class="col-md-6">';
+                html += '<h4>Genel Bilgiler</h4>';
+                html += '<table class="table table-striped">';
+                html += '<tr><td><strong>Ürün Adı:</strong></td><td>' + json.product.title + '</td></tr>';
+                html += '<tr><td><strong>SKU:</strong></td><td>' + json.product.merchant_sku + '</td></tr>';
+                html += '<tr><td><strong>Fiyat:</strong></td><td>' + json.product.price + ' ₺</td></tr>';
+                html += '<tr><td><strong>Stok:</strong></td><td>' + json.product.stock_quantity + '</td></tr>';
+                html += '<tr><td><strong>Durum:</strong></td><td>' + json.product.status + '</td></tr>';
+                html += '</table>';
+                html += '</div>';
+                html += '<div class="col-md-6">';
+                html += '<h4>Senkronizasyon</h4>';
+                html += '<table class="table table-striped">';
+                html += '<tr><td><strong>Senkronizasyon Durumu:</strong></td><td>' + json.product.sync_status + '</td></tr>';
+                html += '<tr><td><strong>Son Senkronizasyon:</strong></td><td>' + (json.product.last_sync_date || 'Henüz senkronize edilmedi') + '</td></tr>';
+                html += '<tr><td><strong>Hepsiburada ID:</strong></td><td>' + (json.product.hepsiburada_id || 'Henüz atanmadı') + '</td></tr>';
+                html += '</table>';
+                html += '</div>';
+                html += '</div>';
+                
+                if (json.product.description) {
+                    html += '<div class="row"><div class="col-md-12">';
+                    html += '<h4>Açıklama</h4>';
+                    html += '<div class="well">' + json.product.description + '</div>';
+                    html += '</div></div>';
+                }
+                
+                $('#product-view-content').html(html);
+            } else {
+                $('#product-view-content').html('<div class="alert alert-danger">Ürün bilgileri yüklenemedi: ' + json.error + '</div>');
+            }
+        },
+        error: function() {
+            $('#product-view-content').html('<div class="alert alert-danger">Bir hata oluştu!</div>');
+        }
+    });
+}
+
+// Edit product function
+function editProduct(productId) {
+    $('#modal-product-edit').modal('show');
+    
+    $.ajax({
+        url: 'index.php?route=extension/mestech/hepsiburada/getProductForm&user_token={{ user_token }}',
+        type: 'POST',
+        data: {product_id: productId},
+        success: function(html) {
+            $('#product-edit-content').html(html);
+        },
+        error: function() {
+            $('#product-edit-content').html('<div class="alert alert-danger">Form yüklenemedi!</div>');
+        }
+    });
+}
+
+// Save product function
+function saveProduct() {
+    $.ajax({
+        url: 'index.php?route=extension/mestech/hepsiburada/saveProduct&user_token={{ user_token }}',
+        type: 'POST',
+        data: $('#product-edit-form').serialize(),
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                $('#modal-product-edit').modal('hide');
+                location.reload();
+            } else {
+                alert('Hata: ' + json.error);
+            }
+        },
+        error: function() {
+            alert('Kaydetme hatası!');
+        }
+    });
+}
+
+// Sync product function
+function syncProduct(productId) {
+    if (confirm('Bu ürünü Hepsiburada ile senkronize etmek istediğinizden emin misiniz?')) {
+        $.ajax({
+            url: 'index.php?route=extension/mestech/hepsiburada/syncProduct&user_token={{ user_token }}',
+            type: 'POST',
+            data: {product_id: productId},
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    alert('Ürün başarıyla senkronize edildi!');
+                    location.reload();
+                } else {
+                    alert('Senkronizasyon hatası: ' + json.error);
+                }
+            },
+            error: function() {
+                alert('Senkronizasyon hatası!');
+            }
+        });
+    }
+}
+
+// Delete product function
+function deleteProduct(productId) {
+    if (confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
+        $.ajax({
+            url: 'index.php?route=extension/mestech/hepsiburada/deleteProduct&user_token={{ user_token }}',
+            type: 'POST',
+            data: {product_id: productId},
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    alert('Ürün başarıyla silindi!');
+                    location.reload();
+                } else {
+                    alert('Silme hatası: ' + json.error);
+                }
+            },
+            error: function() {
+                alert('Silme hatası!');
+            }
+        });
+    }
+}
+
+// Bulk sync function
+function bulkSync() {
+    var selected = [];
+    $('input[name*=\'selected\']:checked').each(function() {
+        selected.push($(this).val());
+    });
+    
+    if (selected.length == 0) {
+        alert('Lütfen senkronize edilecek ürünleri seçin!');
+        return;
+    }
+    
+    if (confirm('Seçili ürünleri senkronize etmek istediğinizden emin misiniz?')) {
+        $.ajax({
+            url: 'index.php?route=extension/mestech/hepsiburada/bulkSync&user_token={{ user_token }}',
+            type: 'POST',
+            data: {selected: selected},
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    alert(json.synced_count + ' ürün senkronize edildi!');
+                    location.reload();
+                } else {
+                    alert('Toplu senkronizasyon hatası: ' + json.error);
+                }
+            },
+            error: function() {
+                alert('Toplu senkronizasyon hatası!');
+            }
+        });
+    }
+}
+
+// Add product function
+function addProduct() {
+    location = 'index.php?route=extension/mestech/hepsiburada/addProduct&user_token={{ user_token }}';
+}
+</script>
+
+<style>
+.huge {
+    font-size: 30px;
+}
+
+.panel-heading .fa {
+    color: rgba(255,255,255,0.8);
+}
+
+.badge-success {
+    background-color: #5cb85c;
+}
+
+.badge-danger {
+    background-color: #d9534f;
+}
+
+.label-success {
+    background-color: #5cb85c;
+}
+
+.label-warning {
+    background-color: #f0ad4e;
+}
+
+.label-info {
+    background-color: #5bc0de;
+}
+
+.label-danger {
+    background-color: #d9534f;
+}
+
+.btn-group .btn {
+    margin-right: 2px;
+}
+
+.table > tbody > tr > td {
+    vertical-align: middle;
+}
+</style>
+
+{{ footer }}

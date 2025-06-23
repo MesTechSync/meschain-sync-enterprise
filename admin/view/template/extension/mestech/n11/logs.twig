@@ -1,0 +1,790 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-success" onclick="refreshLogs()">
+          <i class="fa fa-refresh"></i>
+        </button>
+        <button type="button" data-toggle="tooltip" title="{{ button_download }}" class="btn btn-primary" onclick="downloadLogs()">
+          <i class="fa fa-download"></i>
+        </button>
+        <button type="button" data-toggle="tooltip" title="{{ button_clear_logs }}" class="btn btn-danger" onclick="clearLogs()">
+          <i class="fa fa-trash"></i>
+        </button>
+        <button type="button" data-toggle="tooltip" title="{{ button_filter }}" class="btn btn-default" id="button-filter">
+          <i class="fa fa-filter"></i>
+        </button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <!-- Filter Panel -->
+    <div class="panel panel-default" id="filter-panel" style="display: none;">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-filter"></i> {{ text_filter }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-level">{{ entry_log_level }}</label>
+              <select name="filter_level" id="input-filter-level" class="form-control">
+                <option value="">{{ text_all_levels }}</option>
+                <option value="ERROR" {% if filter_level == 'ERROR' %}selected="selected"{% endif %}>{{ text_error }}</option>
+                <option value="WARNING" {% if filter_level == 'WARNING' %}selected="selected"{% endif %}>{{ text_warning }}</option>
+                <option value="INFO" {% if filter_level == 'INFO' %}selected="selected"{% endif %}>{{ text_info }}</option>
+                <option value="DEBUG" {% if filter_level == 'DEBUG' %}selected="selected"{% endif %}>{{ text_debug }}</option>
+                <option value="SUCCESS" {% if filter_level == 'SUCCESS' %}selected="selected"{% endif %}>{{ text_success }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-operation">{{ entry_operation_type }}</label>
+              <select name="filter_operation" id="input-filter-operation" class="form-control">
+                <option value="">{{ text_all_operations }}</option>
+                <option value="product_sync" {% if filter_operation == 'product_sync' %}selected="selected"{% endif %}>{{ text_product_sync }}</option>
+                <option value="order_sync" {% if filter_operation == 'order_sync' %}selected="selected"{% endif %}>{{ text_order_sync }}</option>
+                <option value="category_sync" {% if filter_operation == 'category_sync' %}selected="selected"{% endif %}>{{ text_category_sync }}</option>
+                <option value="api_call" {% if filter_operation == 'api_call' %}selected="selected"{% endif %}>{{ text_api_call }}</option>
+                <option value="webhook" {% if filter_operation == 'webhook' %}selected="selected"{% endif %}>{{ text_webhook }}</option>
+                <option value="authentication" {% if filter_operation == 'authentication' %}selected="selected"{% endif %}>{{ text_authentication }}</option>
+                <option value="batch_process" {% if filter_operation == 'batch_process' %}selected="selected"{% endif %}>{{ text_batch_process }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-message">{{ entry_message }}</label>
+              <input type="text" name="filter_message" value="{{ filter_message }}" placeholder="{{ entry_message }}" id="input-filter-message" class="form-control" />
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-product-id">{{ entry_product_id }}</label>
+              <input type="text" name="filter_product_id" value="{{ filter_product_id }}" placeholder="{{ entry_product_id }}" id="input-filter-product-id" class="form-control" />
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-date-start">{{ entry_date_start }}</label>
+              <div class="input-group date">
+                <input type="text" name="filter_date_start" value="{{ filter_date_start }}" placeholder="{{ entry_date_start }}" id="input-filter-date-start" class="form-control" />
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button"><i class="fa fa-calendar"></i></button>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-date-end">{{ entry_date_end }}</label>
+              <div class="input-group date">
+                <input type="text" name="filter_date_end" value="{{ filter_date_end }}" placeholder="{{ entry_date_end }}" id="input-filter-date-end" class="form-control" />
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button"><i class="fa fa-calendar"></i></button>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-execution-time">{{ entry_execution_time }}</label>
+              <select name="filter_execution_time" id="input-filter-execution-time" class="form-control">
+                <option value="">{{ text_all_execution_times }}</option>
+                <option value="fast" {% if filter_execution_time == 'fast' %}selected="selected"{% endif %}>{{ text_fast }} (&lt; 1s)</option>
+                <option value="normal" {% if filter_execution_time == 'normal' %}selected="selected"{% endif %}>{{ text_normal }} (1-5s)</option>
+                <option value="slow" {% if filter_execution_time == 'slow' %}selected="selected"{% endif %}>{{ text_slow }} (5-10s)</option>
+                <option value="very_slow" {% if filter_execution_time == 'very_slow' %}selected="selected"{% endif %}>{{ text_very_slow }} (&gt; 10s)</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label" for="input-filter-status">{{ entry_status }}</label>
+              <select name="filter_status" id="input-filter-status" class="form-control">
+                <option value="">{{ text_all_statuses }}</option>
+                <option value="success" {% if filter_status == 'success' %}selected="selected"{% endif %}>{{ text_success }}</option>
+                <option value="error" {% if filter_status == 'error' %}selected="selected"{% endif %}>{{ text_error }}</option>
+                <option value="warning" {% if filter_status == 'warning' %}selected="selected"{% endif %}>{{ text_warning }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12 text-right">
+            <button type="button" id="button-filter-apply" class="btn btn-primary">
+              <i class="fa fa-search"></i> {{ button_filter }}
+            </button>
+            <button type="button" id="button-filter-clear" class="btn btn-default">
+              <i class="fa fa-times"></i> {{ button_clear }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Logs Panel -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <td style="width: 1px;" class="text-center">
+                  <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" />
+                </td>
+                <td>
+                  {% if sort == 'level' %}
+                  <a href="{{ sort_level }}" class="{{ order|lower }}">{{ column_level }}</a>
+                  {% else %}
+                  <a href="{{ sort_level }}">{{ column_level }}</a>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if sort == 'operation_type' %}
+                  <a href="{{ sort_operation }}" class="{{ order|lower }}">{{ column_operation }}</a>
+                  {% else %}
+                  <a href="{{ sort_operation }}">{{ column_operation }}</a>
+                  {% endif %}
+                </td>
+                <td>{{ column_message }}</td>
+                <td>{{ column_product_id }}</td>
+                <td>{{ column_execution_time }}</td>
+                <td>
+                  {% if sort == 'created_at' %}
+                  <a href="{{ sort_date }}" class="{{ order|lower }}">{{ column_date }}</a>
+                  {% else %}
+                  <a href="{{ sort_date }}">{{ column_date }}</a>
+                  {% endif %}
+                </td>
+                <td class="text-right">{{ column_action }}</td>
+              </tr>
+            </thead>
+            <tbody>
+              {% if logs %}
+              {% for log in logs %}
+              <tr class="log-row-{{ log.level|lower }}">
+                <td class="text-center">
+                  {% if log.selected %}
+                  <input type="checkbox" name="selected[]" value="{{ log.id }}" checked="checked" />
+                  {% else %}
+                  <input type="checkbox" name="selected[]" value="{{ log.id }}" />
+                  {% endif %}
+                </td>
+                <td>
+                  {% if log.level == 'ERROR' %}
+                  <span class="label label-danger">{{ text_error }}</span>
+                  {% elseif log.level == 'WARNING' %}
+                  <span class="label label-warning">{{ text_warning }}</span>
+                  {% elseif log.level == 'INFO' %}
+                  <span class="label label-info">{{ text_info }}</span>
+                  {% elseif log.level == 'DEBUG' %}
+                  <span class="label label-default">{{ text_debug }}</span>
+                  {% elseif log.level == 'SUCCESS' %}
+                  <span class="label label-success">{{ text_success }}</span>
+                  {% else %}
+                  <span class="label label-default">{{ log.level }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if log.operation_type == 'product_sync' %}
+                  <i class="fa fa-cube text-primary"></i> {{ text_product_sync }}
+                  {% elseif log.operation_type == 'order_sync' %}
+                  <i class="fa fa-shopping-cart text-success"></i> {{ text_order_sync }}
+                  {% elseif log.operation_type == 'category_sync' %}
+                  <i class="fa fa-sitemap text-info"></i> {{ text_category_sync }}
+                  {% elseif log.operation_type == 'api_call' %}
+                  <i class="fa fa-exchange text-warning"></i> {{ text_api_call }}
+                  {% elseif log.operation_type == 'webhook' %}
+                  <i class="fa fa-bolt text-danger"></i> {{ text_webhook }}
+                  {% elseif log.operation_type == 'authentication' %}
+                  <i class="fa fa-key text-muted"></i> {{ text_authentication }}
+                  {% elseif log.operation_type == 'batch_process' %}
+                  <i class="fa fa-tasks text-primary"></i> {{ text_batch_process }}
+                  {% else %}
+                  <i class="fa fa-cog text-default"></i> {{ log.operation_type }}
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="log-message" data-toggle="tooltip" title="{{ log.message }}">
+                    {{ log.message|length > 80 ? log.message|slice(0, 80) ~ '...' : log.message }}
+                  </div>
+                  {% if log.n11_product_id %}
+                  <br/><small class="text-muted">N11 ID: {{ log.n11_product_id }}</small>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if log.product_id %}
+                  <a href="{{ log.product_edit_url }}" target="_blank" class="text-primary">
+                    #{{ log.product_id }}
+                  </a>
+                  {% else %}
+                  <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if log.execution_time %}
+                  {% if log.execution_time < 1 %}
+                  <span class="label label-success">{{ log.execution_time }}s</span>
+                  {% elseif log.execution_time < 5 %}
+                  <span class="label label-info">{{ log.execution_time }}s</span>
+                  {% elseif log.execution_time < 10 %}
+                  <span class="label label-warning">{{ log.execution_time }}s</span>
+                  {% else %}
+                  <span class="label label-danger">{{ log.execution_time }}s</span>
+                  {% endif %}
+                  {% else %}
+                  <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <small>{{ log.created_at }}</small>
+                </td>
+                <td class="text-right">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
+                      {{ text_action }} <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <li><a onclick="viewLogDetails('{{ log.id }}')"><i class="fa fa-eye"></i> {{ text_view_details }}</a></li>
+                      {% if log.response_data %}
+                      <li><a onclick="viewResponseData('{{ log.id }}')"><i class="fa fa-code"></i> {{ text_view_response }}</a></li>
+                      {% endif %}
+                      {% if log.product_id %}
+                      <li><a href="{{ log.product_edit_url }}" target="_blank"><i class="fa fa-cube"></i> {{ text_view_product }}</a></li>
+                      {% endif %}
+                      <li class="divider"></li>
+                      <li><a onclick="deleteLog('{{ log.id }}')"><i class="fa fa-trash"></i> {{ text_delete }}</a></li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              {% else %}
+              <tr>
+                <td class="text-center" colspan="8">{{ text_no_results }}</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="row">
+          <div class="col-sm-6 text-left">{{ pagination }}</div>
+          <div class="col-sm-6 text-right">{{ results }}</div>
+        </div>
+        
+        <!-- Bulk Actions -->
+        {% if logs %}
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="btn-group">
+              <button type="button" class="btn btn-danger" onclick="bulkDelete()">
+                <i class="fa fa-trash"></i> {{ button_bulk_delete }}
+              </button>
+              <button type="button" class="btn btn-info" onclick="bulkExport()">
+                <i class="fa fa-download"></i> {{ button_bulk_export }}
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Statistics Panel -->
+    <div class="row">
+      <div class="col-md-2">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_total_logs }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.total_logs }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-danger">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_error_logs }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.error_logs }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_warning_logs }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.warning_logs }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_info_logs }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.info_logs }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_success_logs }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.success_logs }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_debug_logs }}</h3>
+          </div>
+          <div class="panel-body text-center">
+            <h2>{{ stats.debug_logs }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Performance Panel -->
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-tachometer"></i> {{ text_performance_metrics }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="metric-box">
+              <h4>{{ text_avg_execution_time }}</h4>
+              <span class="metric-value">{{ performance.avg_execution_time }}s</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="metric-box">
+              <h4>{{ text_max_execution_time }}</h4>
+              <span class="metric-value">{{ performance.max_execution_time }}s</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="metric-box">
+              <h4>{{ text_success_rate }}</h4>
+              <span class="metric-value">{{ performance.success_rate }}%</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="metric-box">
+              <h4>{{ text_api_calls_today }}</h4>
+              <span class="metric-value">{{ performance.api_calls_today }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Log Details Modal -->
+<div class="modal fade" id="modal-log-details" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_log_details }}</h4>
+      </div>
+      <div class="modal-body" id="modal-log-details-body">
+        <!-- Log details will be loaded here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Response Data Modal -->
+<div class="modal fade" id="modal-response-data" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ text_response_data }}</h4>
+      </div>
+      <div class="modal-body">
+        <pre id="response-data-content" style="max-height: 400px; overflow-y: auto;"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+        <button type="button" class="btn btn-primary" onclick="copyResponseData()">{{ button_copy }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Modal -->
+<div class="modal fade" id="modal-progress" tabindex="-1" role="dialog" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ text_processing }}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: 0%">
+            <span class="sr-only">0% {{ text_complete }}</span>
+          </div>
+        </div>
+        <div id="progress-message">{{ text_please_wait }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Initialize date pickers
+    $('.date').datetimepicker({
+        language: '{{ language }}',
+        pickTime: false
+    });
+    
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    // Filter toggle
+    $('#button-filter').on('click', function() {
+        $('#filter-panel').slideToggle();
+    });
+    
+    // Filter apply
+    $('#button-filter-apply').on('click', function() {
+        var url = '{{ filter_url }}';
+        var filter = '';
+        
+        $('input[name^="filter_"], select[name^="filter_"]').each(function() {
+            if ($(this).val()) {
+                if (filter) filter += '&';
+                filter += $(this).attr('name') + '=' + encodeURIComponent($(this).val());
+            }
+        });
+        
+        if (filter) {
+            location = url + '&' + filter;
+        } else {
+            location = url;
+        }
+    });
+    
+    // Filter clear
+    $('#button-filter-clear').on('click', function() {
+        $('input[name^="filter_"], select[name^="filter_"]').val('');
+        location = '{{ filter_url }}';
+    });
+    
+    // Auto-refresh every 30 seconds
+    setInterval(function() {
+        if (!$('.modal').hasClass('in')) {
+            refreshLogs();
+        }
+    }, 30000);
+});
+
+// Log Actions
+function viewLogDetails(logId) {
+    $.ajax({
+        url: '{{ view_log_details_url }}',
+        type: 'POST',
+        data: { log_id: logId },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                $('#modal-log-details-body').html(response.html);
+                $('#modal-log-details').modal('show');
+            } else {
+                showAlert('danger', response.message);
+            }
+        },
+        error: function() {
+            showAlert('danger', '{{ text_view_error }}');
+        }
+    });
+}
+
+function viewResponseData(logId) {
+    $.ajax({
+        url: '{{ view_response_data_url }}',
+        type: 'POST',
+        data: { log_id: logId },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                $('#response-data-content').text(JSON.stringify(response.data, null, 2));
+                $('#modal-response-data').modal('show');
+            } else {
+                showAlert('danger', response.message);
+            }
+        },
+        error: function() {
+            showAlert('danger', '{{ text_view_error }}');
+        }
+    });
+}
+
+function deleteLog(logId) {
+    if (confirm('{{ text_confirm_delete }}')) {
+        showProgress('{{ text_deleting_log }}');
+        
+        $.ajax({
+            url: '{{ delete_log_url }}',
+            type: 'POST',
+            data: { log_id: logId },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_delete_error }}');
+            }
+        });
+    }
+}
+
+function refreshLogs() {
+    showProgress('{{ text_refreshing_logs }}');
+    
+    setTimeout(function() {
+        hideProgress();
+        location.reload();
+    }, 1000);
+}
+
+function downloadLogs() {
+    window.open('{{ download_logs_url }}', '_blank');
+}
+
+function clearLogs() {
+    if (confirm('{{ text_confirm_clear_logs }}')) {
+        showProgress('{{ text_clearing_logs }}');
+        
+        $.ajax({
+            url: '{{ clear_logs_url }}',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_clear_error }}');
+            }
+        });
+    }
+}
+
+// Bulk Actions
+function bulkDelete() {
+    var selected = getSelectedLogs();
+    if (selected.length === 0) {
+        showAlert('warning', '{{ text_no_logs_selected }}');
+        return;
+    }
+    
+    if (confirm('{{ text_confirm_bulk_delete }}')) {
+        showProgress('{{ text_bulk_deleting }}');
+        
+        $.ajax({
+            url: '{{ bulk_delete_url }}',
+            type: 'POST',
+            data: { selected: selected },
+            dataType: 'json',
+            success: function(response) {
+                hideProgress();
+                if (response.success) {
+                    showAlert('success', response.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', response.message);
+                }
+            },
+            error: function() {
+                hideProgress();
+                showAlert('danger', '{{ text_bulk_delete_error }}');
+            }
+        });
+    }
+}
+
+function bulkExport() {
+    var selected = getSelectedLogs();
+    if (selected.length === 0) {
+        showAlert('warning', '{{ text_no_logs_selected }}');
+        return;
+    }
+    
+    window.open('{{ bulk_export_url }}&selected=' + selected.join(','), '_blank');
+}
+
+function copyResponseData() {
+    var content = $('#response-data-content').text();
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(content).then(function() {
+            showAlert('success', '{{ text_copied_to_clipboard }}');
+        });
+    } else {
+        // Fallback for older browsers
+        var textArea = document.createElement('textarea');
+        textArea.value = content;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showAlert('success', '{{ text_copied_to_clipboard }}');
+    }
+}
+
+// Helper Functions
+function getSelectedLogs() {
+    var selected = [];
+    $('input[name="selected[]"]:checked').each(function() {
+        selected.push($(this).val());
+    });
+    return selected;
+}
+
+function showProgress(message) {
+    $('#progress-message').text(message);
+    $('#modal-progress').modal('show');
+}
+
+function hideProgress() {
+    $('#modal-progress').modal('hide');
+}
+
+function showAlert(type, message) {
+    var alertHtml = '<div class="alert alert-' + type + ' alert-dismissible">' +
+        '<i class="fa fa-' + (type === 'success' ? 'check' : type === 'warning' ? 'warning' : 'times') + '-circle"></i> ' +
+        message +
+        '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+        '</div>';
+    
+    $('.container-fluid').prepend(alertHtml);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(function() {
+        $('.alert').fadeOut();
+    }, 5000);
+}
+</script>
+
+<style>
+.log-row-error {
+    background-color: #f2dede;
+}
+
+.log-row-warning {
+    background-color: #fcf8e3;
+}
+
+.log-row-success {
+    background-color: #dff0d8;
+}
+
+.log-row-info {
+    background-color: #d9edf7;
+}
+
+.log-row-debug {
+    background-color: #f5f5f5;
+}
+
+.log-message {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.metric-box {
+    text-align: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.metric-box h4 {
+    margin-top: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #337ab7;
+}
+
+#response-data-content {
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+</style>
+
+{{ footer }}
+</rewritten_file>

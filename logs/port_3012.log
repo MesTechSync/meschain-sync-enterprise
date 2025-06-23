@@ -1,0 +1,141 @@
+🛡️ Advanced Rate Limiting System başlatılıyor...
+ChangeWarning: The onLimitReached configuration option is deprecated and has been removed in express-rate-limit v7. See https://express-rate-limit.github.io/WRN_ERL_DEPRECATED_ON_LIMIT_REACHED/ for more information.
+    at Object.onLimitReached (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/node_modules/express-rate-limit/dist/index.cjs:291:13)
+    at wrappedValidations.<computed> [as onLimitReached] (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/node_modules/express-rate-limit/dist/index.cjs:398:22)
+    at parseOptions (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/node_modules/express-rate-limit/dist/index.cjs:634:16)
+    at rateLimit (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/node_modules/express-rate-limit/dist/index.cjs:710:18)
+    at AdvancedRateLimitingSystem.createRateLimiters (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/api_rate_limiting_system.js:101:36)
+    at AdvancedRateLimitingSystem.initializeRateLimiting (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/api_rate_limiting_system.js:78:18)
+    at new AdvancedRateLimitingSystem (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/api_rate_limiting_system.js:67:14)
+    at Object.<anonymous> (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/port_3012_trendyol_seller_server.js:19:22)
+    at Module._compile (node:internal/modules/cjs/loader:1734:14)
+    at Object..js (node:internal/modules/cjs/loader:1899:10) {
+  code: 'WRN_ERL_DEPRECATED_ON_LIMIT_REACHED',
+  help: 'https://express-rate-limit.github.io/WRN_ERL_DEPRECATED_ON_LIMIT_REACHED/'
+}
+ExpressSlowDownWarning: The behaviour of the 'delayMs' option was changed in express-slow-down v2:
+- For the old behavior, change the delayMs option to:
+
+  delayMs: (used, req) => {
+	  const delayAfter = req.slowDown.limit;
+	  return (used - delayAfter) * 500;
+  },
+
+- For the new behavior, change the delayMs option to:
+
+	delayMs: () => 500,
+
+Or set 'options.validate: {delayMs: false}' to disable this message. See https://express-rate-limit.github.io/WRN_ESD_DELAYMS/ for more information.
+    at slowDown (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/node_modules/express-slow-down/dist/index.cjs:78:18)
+    at AdvancedRateLimitingSystem.createSlowDownLimiters (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/api_rate_limiting_system.js:201:46)
+    at AdvancedRateLimitingSystem.initializeRateLimiting (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/api_rate_limiting_system.js:81:18)
+    at new AdvancedRateLimitingSystem (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/api_rate_limiting_system.js:67:14)
+    at Object.<anonymous> (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/port_3012_trendyol_seller_server.js:19:22)
+    at Module._compile (node:internal/modules/cjs/loader:1734:14)
+    at Object..js (node:internal/modules/cjs/loader:1899:10)
+    at Module.load (node:internal/modules/cjs/loader:1469:32)
+    at Module._load (node:internal/modules/cjs/loader:1286:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  code: 'WRN_ESD_DELAYMS',
+  help: 'https://express-rate-limit.github.io/WRN_ESD_DELAYMS/'
+}
+ExpressSlowDownWarning: The behaviour of the 'delayMs' option was changed in express-slow-down v2:
+- For the old behavior, change the delayMs option to:
+
+  delayMs: (used, req) => {
+	  const delayAfter = req.slowDown.limit;
+	  return (used - delayAfter) * 1000;
+  },
+
+- For the new behavior, change the delayMs option to:
+
+	delayMs: () => 1000,
+
+Or set 'options.validate: {delayMs: false}' to disable this message. See https://express-rate-limit.github.io/WRN_ESD_DELAYMS/ for more information.
+    at slowDown (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/node_modules/express-slow-down/dist/index.cjs:78:18)
+    at AdvancedRateLimitingSystem.createSlowDownLimiters (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/api_rate_limiting_system.js:212:44)
+    at AdvancedRateLimitingSystem.initializeRateLimiting (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/api_rate_limiting_system.js:81:18)
+    at new AdvancedRateLimitingSystem (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/api_rate_limiting_system.js:67:14)
+    at Object.<anonymous> (/Users/mezbjen/Desktop/meschain-sync-enterprise-1/port_3012_trendyol_seller_server.js:19:22)
+    at Module._compile (node:internal/modules/cjs/loader:1734:14)
+    at Object..js (node:internal/modules/cjs/loader:1899:10)
+    at Module.load (node:internal/modules/cjs/loader:1469:32)
+    at Module._load (node:internal/modules/cjs/loader:1286:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  code: 'WRN_ESD_DELAYMS',
+  help: 'https://express-rate-limit.github.io/WRN_ESD_DELAYMS/'
+}
+✅ Rate Limiting System hazır!
+✅ Rate limiting middleware kuruldu
+🔐 Initializing MesChain Auth for Trendyol Seller Hub Server (Port 3012)
+✅ MesChain Auth System detected
+🚀 Trendyol Seller Hub Server running on port 3012
+🔐 Authentication: Priority 3 - Trendyol Integration and Commission Tracking
+📊 Dashboard: http://localhost:3012
+🔑 Login: http://localhost:3012/login
+🌐 API: http://localhost:3012/api/*
+💡 Health: http://localhost:3012/health
+📊 Rate Limiting Stats: {
+  limiters: 19,
+  abuseDetections: 0,
+  activeBans: 0,
+  totalRequests: 0,
+  blockedRequests: 0
+}
+📊 Rate Limiting Stats: {
+  limiters: 19,
+  abuseDetections: 0,
+  activeBans: 0,
+  totalRequests: 0,
+  blockedRequests: 0
+}
+📊 Rate Limiting Stats: {
+  limiters: 19,
+  abuseDetections: 0,
+  activeBans: 0,
+  totalRequests: 0,
+  blockedRequests: 0
+}
+📊 Rate Limiting Stats: {
+  limiters: 19,
+  abuseDetections: 0,
+  activeBans: 0,
+  totalRequests: 0,
+  blockedRequests: 0
+}
+📊 Rate Limiting Stats: {
+  limiters: 19,
+  abuseDetections: 0,
+  activeBans: 0,
+  totalRequests: 0,
+  blockedRequests: 0
+}
+📊 Rate Limiting Stats: {
+  limiters: 19,
+  abuseDetections: 0,
+  activeBans: 0,
+  totalRequests: 0,
+  blockedRequests: 0
+}
+📊 Rate Limiting Stats: {
+  limiters: 19,
+  abuseDetections: 0,
+  activeBans: 0,
+  totalRequests: 0,
+  blockedRequests: 0
+}
+📊 Rate Limiting Stats: {
+  limiters: 19,
+  abuseDetections: 0,
+  activeBans: 0,
+  totalRequests: 0,
+  blockedRequests: 0
+}
+📊 Rate Limiting Stats: {
+  limiters: 19,
+  abuseDetections: 0,
+  activeBans: 0,
+  totalRequests: 0,
+  blockedRequests: 0
+}
+🛑 Trendyol Seller Hub Server shutting down gracefully...

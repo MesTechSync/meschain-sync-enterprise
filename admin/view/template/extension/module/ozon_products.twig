@@ -1,0 +1,328 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ test_connection_url }}" data-toggle="tooltip" title="{{ button_test_connection }}" class="btn btn-info"><i class="fa fa-refresh"></i></a>
+        <button type="button" id="button-sync" data-toggle="tooltip" title="{{ button_sync_products }}" class="btn btn-warning"><i class="fa fa-refresh"></i></button>
+        <button type="button" id="button-update-stock" data-toggle="tooltip" title="{{ button_update_stock }}" class="btn btn-primary"><i class="fa fa-cubes"></i></button>
+        <button type="button" id="button-update-prices" data-toggle="tooltip" title="{{ button_update_prices }}" class="btn btn-success"><i class="fa fa-money"></i></button>
+        <a href="{{ back }}" data-toggle="tooltip" title="{{ button_back }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }} - {{ text_products }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_products }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="well">
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-name">{{ column_name }}</label>
+                <input type="text" name="filter_name" value="{{ filter_name }}" placeholder="{{ column_name }}" id="input-name" class="form-control" />
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-model">{{ column_model }}</label>
+                <input type="text" name="filter_model" value="{{ filter_model }}" placeholder="{{ column_model }}" id="input-model" class="form-control" />
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-status">{{ column_status }}</label>
+                <select name="filter_status" id="input-status" class="form-control">
+                  <option value="*">{{ text_all }}</option>
+                  <option value="1"{% if filter_status == '1' %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                  <option value="0"{% if filter_status == '0' %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                </select>
+              </div>
+              <button type="button" id="button-filter" class="btn btn-primary pull-right"><i class="fa fa-filter"></i> {{ button_filter }}</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
+                <td class="text-center">{{ column_product_id }}</td>
+                <td class="text-left">{{ column_name }}</td>
+                <td class="text-left">{{ column_model }}</td>
+                <td class="text-center">{{ column_ozon_id }}</td>
+                <td class="text-right">{{ column_price }}</td>
+                <td class="text-right">{{ column_quantity }}</td>
+                <td class="text-center">{{ column_status }}</td>
+                <td class="text-right">{{ column_action }}</td>
+              </tr>
+            </thead>
+            <tbody>
+              {% if products %}
+              {% for product in products %}
+              <tr>
+                <td class="text-center">{% if selected and product.product_id in selected %}
+                  <input type="checkbox" name="selected[]" value="{{ product.product_id }}" checked="checked" />
+                  {% else %}
+                  <input type="checkbox" name="selected[]" value="{{ product.product_id }}" />
+                  {% endif %}
+                </td>
+                <td class="text-center">{{ product.product_id }}</td>
+                <td class="text-left">{{ product.name }}</td>
+                <td class="text-left">{{ product.model }}</td>
+                <td class="text-center">{{ product.ozon_id }}</td>
+                <td class="text-right">{{ product.price }}</td>
+                <td class="text-right">{{ product.quantity }}</td>
+                <td class="text-center">
+                  {% if product.status %}
+                  <span class="label label-success">{{ text_enabled }}</span>
+                  {% else %}
+                  <span class="label label-danger">{{ text_disabled }}</span>
+                  {% endif %}
+                </td>
+                <td class="text-right">
+                  <div class="btn-group">
+                    <button type="button" data-product-id="{{ product.product_id }}" class="btn btn-sm btn-primary sync-product"><i class="fa fa-refresh"></i></button>
+                    <button type="button" data-product-id="{{ product.product_id }}" class="btn btn-sm btn-info update-stock"><i class="fa fa-cubes"></i></button>
+                    <button type="button" data-product-id="{{ product.product_id }}" class="btn btn-sm btn-success update-price"><i class="fa fa-money"></i></button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              {% else %}
+              <tr>
+                <td class="text-center" colspan="9">{{ text_no_results }}</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        <div class="row">
+          <div class="col-sm-6 text-left">{{ pagination }}</div>
+          <div class="col-sm-6 text-right">{{ results }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+$('#button-filter').on('click', function() {
+  var url = 'index.php?route=extension/module/ozon/products&user_token={{ user_token }}';
+
+  var filter_name = $('input[name=\'filter_name\']').val();
+  if (filter_name) {
+    url += '&filter_name=' + encodeURIComponent(filter_name);
+  }
+
+  var filter_model = $('input[name=\'filter_model\']').val();
+  if (filter_model) {
+    url += '&filter_model=' + encodeURIComponent(filter_model);
+  }
+
+  var filter_status = $('select[name=\'filter_status\']').val();
+  if (filter_status != '*') {
+    url += '&filter_status=' + encodeURIComponent(filter_status);
+  }
+
+  location = url;
+});
+
+// Button actions
+$('#button-sync').on('click', function() {
+  if (confirm('{{ text_confirm }}')) {
+    $.ajax({
+      url: 'index.php?route=extension/module/ozon/sync_products&user_token={{ user_token }}',
+      dataType: 'json',
+      beforeSend: function() {
+        $('#button-sync').button('loading');
+      },
+      complete: function() {
+        $('#button-sync').button('reset');
+      },
+      success: function(json) {
+        $('.alert-dismissible').remove();
+        
+        if (json.success) {
+          $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        } else if (json.error) {
+          $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        }
+        
+        if (json.redirect) {
+          location = json.redirect;
+        }
+      },
+      error: function(xhr, ajaxOptions, thrownError) {
+        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+      }
+    });
+  }
+});
+
+$('#button-update-stock').on('click', function() {
+  if (confirm('{{ text_confirm }}')) {
+    $.ajax({
+      url: 'index.php?route=extension/module/ozon/update_stock&user_token={{ user_token }}',
+      dataType: 'json',
+      beforeSend: function() {
+        $('#button-update-stock').button('loading');
+      },
+      complete: function() {
+        $('#button-update-stock').button('reset');
+      },
+      success: function(json) {
+        $('.alert-dismissible').remove();
+        
+        if (json.success) {
+          $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        } else if (json.error) {
+          $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        }
+        
+        if (json.redirect) {
+          location = json.redirect;
+        }
+      },
+      error: function(xhr, ajaxOptions, thrownError) {
+        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+      }
+    });
+  }
+});
+
+$('#button-update-prices').on('click', function() {
+  if (confirm('{{ text_confirm }}')) {
+    $.ajax({
+      url: 'index.php?route=extension/module/ozon/update_prices&user_token={{ user_token }}',
+      dataType: 'json',
+      beforeSend: function() {
+        $('#button-update-prices').button('loading');
+      },
+      complete: function() {
+        $('#button-update-prices').button('reset');
+      },
+      success: function(json) {
+        $('.alert-dismissible').remove();
+        
+        if (json.success) {
+          $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        } else if (json.error) {
+          $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+        }
+        
+        if (json.redirect) {
+          location = json.redirect;
+        }
+      },
+      error: function(xhr, ajaxOptions, thrownError) {
+        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+      }
+    });
+  }
+});
+
+// Individual product actions
+$('.sync-product').on('click', function() {
+  var product_id = $(this).data('product-id');
+  
+  $.ajax({
+    url: 'index.php?route=extension/module/ozon/sync_product&user_token={{ user_token }}&product_id=' + product_id,
+    dataType: 'json',
+    beforeSend: function() {
+      $('.sync-product[data-product-id="' + product_id + '"]').button('loading');
+    },
+    complete: function() {
+      $('.sync-product[data-product-id="' + product_id + '"]').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json.success) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      } else if (json.error) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('.update-stock').on('click', function() {
+  var product_id = $(this).data('product-id');
+  
+  $.ajax({
+    url: 'index.php?route=extension/module/ozon/update_product_stock&user_token={{ user_token }}&product_id=' + product_id,
+    dataType: 'json',
+    beforeSend: function() {
+      $('.update-stock[data-product-id="' + product_id + '"]').button('loading');
+    },
+    complete: function() {
+      $('.update-stock[data-product-id="' + product_id + '"]').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json.success) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      } else if (json.error) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('.update-price').on('click', function() {
+  var product_id = $(this).data('product-id');
+  
+  $.ajax({
+    url: 'index.php?route=extension/module/ozon/update_product_price&user_token={{ user_token }}&product_id=' + product_id,
+    dataType: 'json',
+    beforeSend: function() {
+      $('.update-price[data-product-id="' + product_id + '"]').button('loading');
+    },
+    complete: function() {
+      $('.update-price[data-product-id="' + product_id + '"]').button('reset');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json.success) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json.success + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      } else if (json.error) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json.error + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+//--></script>
+
+{{ footer }} 

@@ -1,0 +1,669 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="button" class="btn btn-warning" id="pause-import" onclick="pauseImport()" style="display: none;">
+          <i class="fa-solid fa-pause"></i> {{ text_pause_import }}
+        </button>
+        <button type="button" class="btn btn-success" id="resume-import" onclick="resumeImport()" style="display: none;">
+          <i class="fa-solid fa-play"></i> {{ text_resume_import }}
+        </button>
+        <button type="button" class="btn btn-danger" id="cancel-import" onclick="cancelImport()">
+          <i class="fa-solid fa-stop"></i> {{ text_cancel_import }}
+        </button>
+        <a href="{{ dashboard_url }}" class="btn btn-secondary">
+          <i class="fa-solid fa-arrow-left"></i> {{ text_back_dashboard }}
+        </a>
+      </div>
+      <h1>{{ heading_title }} - {{ text_import_progress }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    
+    <!-- Progress Overview -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fa-solid fa-tasks"></i> 
+              {{ session.session_name }} 
+              <span class="badge" id="status-badge">{{ session.status|title }}</span>
+            </h3>
+            <div class="card-tools">
+              <span class="text-muted">{{ text_started }}: {{ session.start_time }}</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-8">
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>{{ text_overall_progress }}</span>
+                    <span id="progress-percentage">{{ session.progress_percentage }}%</span>
+                  </div>
+                  <div class="progress progress-lg">
+                    <div class="progress-bar" id="progress-bar" role="progressbar" 
+                         style="width: {{ session.progress_percentage }}%" 
+                         aria-valuenow="{{ session.progress_percentage }}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="row text-center">
+                  <div class="col-md-3">
+                    <div class="info-box bg-info">
+                      <span class="info-box-icon"><i class="fa-solid fa-box"></i></span>
+                      <div class="info-box-content">
+                        <span class="info-box-text">{{ text_processed }}</span>
+                        <span class="info-box-number" id="processed-count">{{ session.processed_products }}</span>
+                        <span class="info-box-text">/ {{ session.total_products }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="info-box bg-success">
+                      <span class="info-box-icon"><i class="fa-solid fa-check"></i></span>
+                      <div class="info-box-content">
+                        <span class="info-box-text">{{ text_successful }}</span>
+                        <span class="info-box-number" id="successful-count">{{ session.successful_imports }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="info-box bg-danger">
+                      <span class="info-box-icon"><i class="fa-solid fa-times"></i></span>
+                      <div class="info-box-content">
+                        <span class="info-box-text">{{ text_failed }}</span>
+                        <span class="info-box-number" id="failed-count">{{ session.failed_imports }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="info-box bg-warning">
+                      <span class="info-box-icon"><i class="fa-solid fa-skip-forward"></i></span>
+                      <div class="info-box-content">
+                        <span class="info-box-text">{{ text_skipped }}</span>
+                        <span class="info-box-number" id="skipped-count">{{ session.skipped_imports }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <div class="info-box">
+                  <div class="info-box-content">
+                    <h5>{{ text_time_information }}</h5>
+                    <p><strong>{{ text_elapsed_time }}:</strong> <span id="elapsed-time">{{ elapsed_time }}</span></p>
+                    <p><strong>{{ text_estimated_remaining }}:</strong> <span id="remaining-time">{{ estimated_remaining }}</span></p>
+                    <p><strong>{{ text_current_batch }}:</strong> <span id="current-batch">{{ session.current_batch }}</span> / {{ session.total_batches }}</p>
+                    <p><strong>{{ text_processing_speed }}:</strong> <span id="processing-speed">{{ processing_speed }}</span> products/min</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Real-time Activity Log -->
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-list"></i> {{ text_activity_log }}</h3>
+            <div class="card-tools">
+              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearLog()">
+                <i class="fa-solid fa-trash"></i> {{ text_clear_log }}
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-primary" onclick="downloadLog()">
+                <i class="fa-solid fa-download"></i> {{ text_download_log }}
+              </button>
+            </div>
+          </div>
+          <div class="card-body" style="height: 500px; overflow-y: auto;" id="activity-log">
+            <div class="log-entries" id="log-entries">
+              {% for log in recent_logs %}
+              <div class="log-entry log-{{ log.level }}" data-timestamp="{{ log.created_at }}">
+                <span class="log-time">{{ log.created_at|date('H:i:s') }}</span>
+                <span class="log-level badge badge-{{ log.level }}">{{ log.level|upper }}</span>
+                <span class="log-message">{{ log.message }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Product Details -->
+      <div class="col-lg-4">
+        <div class="card" id="current-product-card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-cog fa-spin"></i> {{ text_current_product }}</h3>
+          </div>
+          <div class="card-body">
+            <div id="current-product-info">
+              {% if current_product %}
+              <div class="product-preview">
+                {% if current_product.image %}
+                <img src="{{ current_product.image }}" class="img-thumbnail mb-2" style="max-width: 100px;">
+                {% endif %}
+                <h6>{{ current_product.title }}</h6>
+                <small class="text-muted">{{ text_barcode }}: {{ current_product.barcode ?: 'N/A' }}</small><br>
+                <small class="text-muted">{{ text_category }}: {{ current_product.category_name ?: 'N/A' }}</small><br>
+                <small class="text-muted">{{ text_price }}: {{ current_product.sale_price ? (current_product.sale_price ~ ' TL') : 'N/A' }}</small>
+              </div>
+              {% else %}
+              <p class="text-muted text-center py-4">{{ text_no_current_product }}</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- System Performance -->
+        <div class="card mt-3">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-chart-line"></i> {{ text_performance }}</h3>
+          </div>
+          <div class="card-body">
+            <div id="performance-metrics">
+              <div class="metric">
+                <span class="metric-label">{{ text_memory_usage }}:</span>
+                <span class="metric-value" id="memory-usage">{{ memory_usage }}MB</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">{{ text_cpu_usage }}:</span>
+                <span class="metric-value" id="cpu-usage">{{ cpu_usage }}%</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">{{ text_api_calls }}:</span>
+                <span class="metric-value" id="api-calls">{{ api_calls_count }}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">{{ text_errors }}:</span>
+                <span class="metric-value" id="error-count">{{ error_count }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card mt-3">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-bolt"></i> {{ text_quick_actions }}</h3>
+          </div>
+          <div class="card-body">
+            <div class="d-grid gap-2">
+              <button type="button" class="btn btn-outline-primary btn-sm" onclick="viewDetailedLog()">
+                <i class="fa-solid fa-search"></i> {{ text_detailed_log }}
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" onclick="exportReport()">
+                <i class="fa-solid fa-file-export"></i> {{ text_export_report }}
+              </button>
+              <button type="button" class="btn btn-outline-info btn-sm" onclick="showStatistics()">
+                <i class="fa-solid fa-chart-bar"></i> {{ text_show_statistics }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Complete Modal -->
+<div class="modal fade" id="complete-modal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title"><i class="fa-solid fa-check-circle"></i> {{ text_import_completed }}</h5>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>{{ text_import_summary }}</h6>
+            <table class="table table-sm">
+              <tr><td>{{ text_total_processed }}:</td><td id="final-processed">-</td></tr>
+              <tr><td>{{ text_successful }}:</td><td id="final-successful">-</td></tr>
+              <tr><td>{{ text_failed }}:</td><td id="final-failed">-</td></tr>
+              <tr><td>{{ text_skipped }}:</td><td id="final-skipped">-</td></tr>
+              <tr><td>{{ text_total_time }}:</td><td id="final-time">-</td></tr>
+            </table>
+          </div>
+          <div class="col-md-6">
+            <h6>{{ text_next_steps }}</h6>
+            <ul class="list-unstyled">
+              <li><i class="fa-solid fa-check text-success"></i> {{ text_check_products }}</li>
+              <li><i class="fa-solid fa-check text-success"></i> {{ text_review_categories }}</li>
+              <li><i class="fa-solid fa-check text-success"></i> {{ text_update_inventory }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="{{ dashboard_url }}" class="btn btn-primary">{{ text_back_dashboard }}</a>
+        <a href="{{ catalog_products_url }}" class="btn btn-success">{{ text_view_products }}</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.info-box {
+  display: block;
+  min-height: 90px;
+  background: #fff;
+  width: 100%;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  border-radius: 2px;
+  margin-bottom: 15px;
+  position: relative;
+  overflow: hidden;
+}
+
+.info-box-icon {
+  border-top-left-radius: 2px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 2px;
+  display: block;
+  float: left;
+  height: 90px;
+  width: 90px;
+  text-align: center;
+  font-size: 45px;
+  line-height: 90px;
+  background: rgba(0,0,0,0.2);
+}
+
+.info-box-content {
+  padding: 5px 10px;
+  margin-left: 90px;
+}
+
+.info-box-number {
+  display: block;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.info-box-text {
+  display: block;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bg-info { background-color: #17a2b8 !important; color: white; }
+.bg-success { background-color: #28a745 !important; color: white; }
+.bg-danger { background-color: #dc3545 !important; color: white; }
+.bg-warning { background-color: #ffc107 !important; color: black; }
+
+.progress-lg {
+  height: 1.5rem;
+}
+
+.log-entries {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.log-entry {
+  padding: 5px;
+  margin-bottom: 2px;
+  border-left: 3px solid #ddd;
+  background: #f8f9fa;
+}
+
+.log-entry.log-error {
+  border-left-color: #dc3545;
+  background: #f8d7da;
+}
+
+.log-entry.log-warning {
+  border-left-color: #ffc107;
+  background: #fff3cd;
+}
+
+.log-entry.log-info {
+  border-left-color: #17a2b8;
+  background: #d1ecf1;
+}
+
+.log-entry.log-debug {
+  border-left-color: #6c757d;
+  background: #f8f9fa;
+}
+
+.log-time {
+  color: #6c757d;
+  margin-right: 10px;
+}
+
+.log-level {
+  margin-right: 10px;
+  font-size: 10px;
+}
+
+.badge-error { background-color: #dc3545; }
+.badge-warning { background-color: #ffc107; color: black; }
+.badge-info { background-color: #17a2b8; }
+.badge-debug { background-color: #6c757d; }
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.metric:last-child {
+  border-bottom: none;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.metric-value {
+  font-weight: bold;
+}
+
+#status-badge.pending { background-color: #6c757d; }
+#status-badge.running { background-color: #007bff; }
+#status-badge.paused { background-color: #ffc107; color: black; }
+#status-badge.completed { background-color: #28a745; }
+#status-badge.failed { background-color: #dc3545; }
+#status-badge.cancelled { background-color: #dc3545; }
+</style>
+
+<script type="text/javascript">
+let sessionId = {{ session.session_id }};
+let refreshInterval;
+let logAutoScroll = true;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeProgressTracking();
+});
+
+function initializeProgressTracking() {
+    // Start real-time updates
+    startRealTimeUpdates();
+    
+    // Handle page visibility change
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            stopRealTimeUpdates();
+        } else {
+            startRealTimeUpdates();
+        }
+    });
+    
+    // Update button states based on current status
+    updateButtonStates('{{ session.status }}');
+}
+
+function startRealTimeUpdates() {
+    refreshInterval = setInterval(updateProgress, 3000); // Update every 3 seconds
+}
+
+function stopRealTimeUpdates() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+}
+
+function updateProgress() {
+    fetch('{{ url("extension/meschain/trendyol_importer/getProgress", "user_token=" ~ user_token) }}&session_id=' + sessionId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateProgressDisplay(data);
+                updateActivityLog(data.recent_logs);
+                updateCurrentProduct(data.current_product);
+                updatePerformanceMetrics(data.performance);
+                
+                // Check if import is complete
+                if (data.session.status === 'completed' || data.session.status === 'failed') {
+                    stopRealTimeUpdates();
+                    
+                    if (data.session.status === 'completed') {
+                        showCompletionModal(data.session);
+                    }
+                }
+                
+                updateButtonStates(data.session.status);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating progress:', error);
+        });
+}
+
+function updateProgressDisplay(data) {
+    const session = data.session;
+    
+    // Update progress bar
+    document.getElementById('progress-bar').style.width = session.progress_percentage + '%';
+    document.getElementById('progress-bar').setAttribute('aria-valuenow', session.progress_percentage);
+    document.getElementById('progress-percentage').textContent = session.progress_percentage + '%';
+    
+    // Update counters
+    document.getElementById('processed-count').textContent = session.processed_products;
+    document.getElementById('successful-count').textContent = session.successful_imports;
+    document.getElementById('failed-count').textContent = session.failed_imports;
+    document.getElementById('skipped-count').textContent = session.skipped_imports;
+    
+    // Update time information
+    document.getElementById('elapsed-time').textContent = data.elapsed_time;
+    document.getElementById('remaining-time').textContent = data.estimated_remaining;
+    document.getElementById('current-batch').textContent = session.current_batch;
+    document.getElementById('processing-speed').textContent = data.processing_speed;
+    
+    // Update status badge
+    const statusBadge = document.getElementById('status-badge');
+    statusBadge.textContent = session.status.charAt(0).toUpperCase() + session.status.slice(1);
+    statusBadge.className = 'badge ' + session.status;
+}
+
+function updateActivityLog(logs) {
+    const logContainer = document.getElementById('log-entries');
+    
+    logs.forEach(log => {
+        const existingEntry = document.querySelector(`[data-timestamp="${log.created_at}"]`);
+        if (!existingEntry) {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${log.level}`;
+            logEntry.setAttribute('data-timestamp', log.created_at);
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'log-time';
+            timeSpan.textContent = new Date(log.created_at).toLocaleTimeString();
+            
+            const levelSpan = document.createElement('span');
+            levelSpan.className = `log-level badge badge-${log.level}`;
+            levelSpan.textContent = log.level.toUpperCase();
+            
+            const messageSpan = document.createElement('span');
+            messageSpan.className = 'log-message';
+            messageSpan.textContent = log.message;
+            
+            logEntry.appendChild(timeSpan);
+            logEntry.appendChild(levelSpan);
+            logEntry.appendChild(messageSpan);
+            
+            logContainer.appendChild(logEntry);
+            
+            // Auto-scroll if enabled
+            if (logAutoScroll) {
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+        }
+    });
+    
+    // Keep only last 100 log entries for performance
+    const entries = logContainer.children;
+    while (entries.length > 100) {
+        logContainer.removeChild(entries[0]);
+    }
+}
+
+function updateCurrentProduct(product) {
+    const container = document.getElementById('current-product-info');
+    
+    if (product) {
+        let html = '<div class="product-preview">';
+        
+        if (product.image) {
+            html += `<img src="${product.image}" class="img-thumbnail mb-2" style="max-width: 100px;">`;
+        }
+        
+        html += `<h6>${product.title}</h6>`;
+        html += `<small class="text-muted">{{ text_barcode }}: ${product.barcode || 'N/A'}</small><br>`;
+        html += `<small class="text-muted">{{ text_category }}: ${product.category_name || 'N/A'}</small><br>`;
+        html += `<small class="text-muted">{{ text_price }}: ${product.sale_price ? (product.sale_price + ' TL') : 'N/A'}</small>`;
+        html += '</div>';
+        
+        container.innerHTML = html;
+    } else {
+        container.innerHTML = '<p class="text-muted text-center py-4">{{ text_no_current_product }}</p>';
+    }
+}
+
+function updatePerformanceMetrics(performance) {
+    if (performance) {
+        document.getElementById('memory-usage').textContent = performance.memory_usage + 'MB';
+        document.getElementById('cpu-usage').textContent = performance.cpu_usage + '%';
+        document.getElementById('api-calls').textContent = performance.api_calls;
+        document.getElementById('error-count').textContent = performance.errors;
+    }
+}
+
+function updateButtonStates(status) {
+    const pauseBtn = document.getElementById('pause-import');
+    const resumeBtn = document.getElementById('resume-import');
+    const cancelBtn = document.getElementById('cancel-import');
+    
+    switch (status) {
+        case 'running':
+            pauseBtn.style.display = 'inline-block';
+            resumeBtn.style.display = 'none';
+            cancelBtn.disabled = false;
+            break;
+        case 'paused':
+            pauseBtn.style.display = 'none';
+            resumeBtn.style.display = 'inline-block';
+            cancelBtn.disabled = false;
+            break;
+        case 'completed':
+        case 'failed':
+        case 'cancelled':
+            pauseBtn.style.display = 'none';
+            resumeBtn.style.display = 'none';
+            cancelBtn.disabled = true;
+            break;
+    }
+}
+
+function pauseImport() {
+    if (confirm('{{ text_confirm_pause }}')) {
+        performImportAction('pause');
+    }
+}
+
+function resumeImport() {
+    performImportAction('resume');
+}
+
+function cancelImport() {
+    if (confirm('{{ text_confirm_cancel }}')) {
+        performImportAction('cancel');
+    }
+}
+
+function performImportAction(action) {
+    fetch('{{ url("extension/meschain/trendyol_importer/controlImport", "user_token=" ~ user_token) }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            session_id: sessionId,
+            action: action
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateProgress(); // Immediate update
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error performing action: ' + error.message);
+    });
+}
+
+function showCompletionModal(session) {
+    document.getElementById('final-processed').textContent = session.processed_products;
+    document.getElementById('final-successful').textContent = session.successful_imports;
+    document.getElementById('final-failed').textContent = session.failed_imports;
+    document.getElementById('final-skipped').textContent = session.skipped_imports;
+    document.getElementById('final-time').textContent = calculateTotalTime(session.start_time, session.end_time);
+    
+    const modal = new bootstrap.Modal(document.getElementById('complete-modal'));
+    modal.show();
+}
+
+function calculateTotalTime(startTime, endTime) {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const diffMs = end - start;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffSecs = Math.floor((diffMs % 60000) / 1000);
+    
+    return diffMins + 'm ' + diffSecs + 's';
+}
+
+function clearLog() {
+    document.getElementById('log-entries').innerHTML = '';
+}
+
+function downloadLog() {
+    window.open('{{ url("extension/meschain/trendyol_importer/downloadLog", "user_token=" ~ user_token) }}&session_id=' + sessionId);
+}
+
+function viewDetailedLog() {
+    window.open('{{ url("extension/meschain/trendyol_importer/detailedLog", "user_token=" ~ user_token) }}&session_id=' + sessionId);
+}
+
+function exportReport() {
+    window.open('{{ url("extension/meschain/trendyol_importer/exportReport", "user_token=" ~ user_token) }}&session_id=' + sessionId);
+}
+
+function showStatistics() {
+    // Open statistics modal or page
+    alert('Statistics feature coming soon!');
+}
+
+// Handle page unload
+window.addEventListener('beforeunload', function() {
+    stopRealTimeUpdates();
+});
+</script>
+
+{{ footer }}

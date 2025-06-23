@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+    bootstrap="vendor/autoload.php"
+    cacheResultFile=".phpunit.result.cache"
+    executionOrder="depends,defects"
+    forceCoversAnnotation="false"
+    beStrictAboutCoversAnnotation="true"
+    beStrictAboutOutputDuringTests="true"
+    beStrictAboutTodoAnnotatedTests="true"
+    failOnRisky="true"
+    failOnWarning="true"
+    verbose="true">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">tests/unit</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory suffix="Test.php">tests/integration</directory>
+        </testsuite>
+        <testsuite name="E2E">
+            <directory suffix="Test.php">tests/e2e</directory>
+        </testsuite>
+        <testsuite name="Performance">
+            <directory suffix="Test.php">tests/performance</directory>
+        </testsuite>
+        <testsuite name="Security">
+            <directory suffix="Test.php">tests/security</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage cacheDirectory=".phpunit.cache/code-coverage"
+        processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory>vendor</directory>
+            <directory>tests</directory>
+        </exclude>
+        <report>
+            <html outputDirectory="reports/coverage" />
+            <text outputFile="reports/coverage.txt" />
+            <clover outputFile="reports/clover.xml" />
+        </report>
+    </coverage>
+
+    <logging>
+        <junit outputFile="reports/junit.xml" />
+        <testdoxHtml outputFile="reports/testdox.html" />
+        <testdoxText outputFile="reports/testdox.txt" />
+    </logging>
+
+    <php>
+        <env name="APP_ENV" value="testing" />
+        <env name="TRENDYOL_API_URL" value="https://api.trendyol.com" />
+        <env name="TRENDYOL_SUPPLIER_ID" value="test_supplier" />
+        <env name="TRENDYOL_API_KEY" value="test_api_key" />
+        <env name="TRENDYOL_API_SECRET" value="test_api_secret" />
+        <env name="DB_HOST" value="localhost" />
+        <env name="DB_NAME" value="test_opencart" />
+        <env name="DB_USER" value="test_user" />
+        <env name="DB_PASS" value="test_pass" />
+    </php>
+</phpunit>

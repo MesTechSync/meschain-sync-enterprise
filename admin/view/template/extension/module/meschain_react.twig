@@ -1,0 +1,168 @@
+{{ header }}{{ column_left }}
+<div class="container-fluid">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" data-toggle="tooltip" title="{{ button_filter }}" onclick="$('#filter-order').toggleClass('hidden-sm hidden-xs');" class="btn btn-default hidden-md hidden-lg"><i class="fa fa-filter"></i></button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid">
+    <!-- React App Mount Point -->
+    <div id="meschain-react-root" class="meschain-react-container">
+      <div class="loading-container" style="text-align: center; padding: 50px;">
+        <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 2s linear infinite; margin: 0 auto;"></div>
+        <p style="margin-top: 20px; color: #666;">MesChain-Sync Yükleniyor...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MesChain Configuration Script -->
+<script type="text/javascript">
+  // Global configuration for React app
+  window.MESCHAIN_CONFIG = {
+    apiBase: '{{ api_base }}',
+    userToken: '{{ user_token }}',
+    userData: {{ user_data|raw }},
+    baseUrl: '{{ base_url }}',
+    language: '{{ language }}',
+    timezone: '{{ timezone }}'
+  };
+  
+  // Initialize React app when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    // Remove loading spinner when React app loads
+    setTimeout(function() {
+      var loadingContainer = document.querySelector('.loading-container');
+      if (loadingContainer) {
+        loadingContainer.style.display = 'none';
+      }
+    }, 2000);
+  });
+</script>
+
+<!-- Custom CSS for React Integration -->
+<style>
+  .meschain-react-container {
+    min-height: 600px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 0;
+    overflow: hidden;
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Hide OpenCart default content when React is loaded */
+  .meschain-react-loaded .container-fluid > .row {
+    display: none;
+  }
+  
+  .meschain-react-loaded .meschain-react-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    background: white;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .meschain-react-container {
+      padding: 10px;
+    }
+  }
+  
+  /* React component overrides */
+  #meschain-react-root {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+  }
+  
+  /* Ensure React app takes full space */
+  #meschain-react-root > div {
+    min-height: 100vh;
+  }
+  
+  /* Custom scrollbar for React app */
+  .meschain-react-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .meschain-react-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .meschain-react-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  .meschain-react-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+</style>
+
+<!-- React Error Boundary -->
+<script type="text/javascript">
+  // Error handling for React app
+  window.addEventListener('error', function(event) {
+    console.error('MesChain React Error:', event.error);
+    
+    // Show error message if React fails to load
+    var reactRoot = document.getElementById('meschain-react-root');
+    if (reactRoot && event.error.message.includes('React')) {
+      reactRoot.innerHTML = `
+        <div style="padding: 50px; text-align: center; color: #dc3545;">
+          <h3>🚨 React Uygulaması Yüklenemedi</h3>
+          <p>Lütfen sayfayı yenileyin veya sistem yöneticisine başvurun.</p>
+          <button onclick="location.reload()" class="btn btn-primary">Sayfayı Yenile</button>
+        </div>
+      `;
+    }
+  });
+  
+  // Check if React is loaded after 5 seconds
+  setTimeout(function() {
+    var reactRoot = document.getElementById('meschain-react-root');
+    var loadingContainer = document.querySelector('.loading-container');
+    
+    if (loadingContainer && loadingContainer.style.display !== 'none') {
+      console.warn('React app loading timeout');
+      reactRoot.innerHTML = `
+        <div style="padding: 50px; text-align: center; color: #ffc107;">
+          <h3>⏳ Yükleme Zaman Aşımı</h3>
+          <p>React uygulaması yüklenirken bir sorun oluştu.</p>
+          <button onclick="location.reload()" class="btn btn-warning">Tekrar Dene</button>
+        </div>
+      `;
+    }
+  }, 10000);
+</script>
+
+{{ footer }} 

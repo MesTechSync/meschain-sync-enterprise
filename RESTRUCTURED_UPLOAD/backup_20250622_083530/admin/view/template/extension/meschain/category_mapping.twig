@@ -1,0 +1,163 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="button" id="button-refresh-trendyol" data-bs-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-info"><i class="fas fa-sync-alt"></i></button>
+        <button type="button" id="button-auto-map" data-bs-toggle="tooltip" title="{{ button_auto_map }}" class="btn btn-warning"><i class="fas fa-magic"></i></button>
+        <button type="submit" form="form-category-mapping" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fas fa-save"></i></button>
+        <a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light"><i class="fas fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fas fa-exchange-alt"></i> {{ text_category_mapping }}</div>
+      <div class="card-body">
+        {% if error_warning %}
+          <div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> {{ error_warning }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endif %}
+        {% if success %}
+          <div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> {{ success }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endif %}
+        
+        <form id="form-category-mapping" action="{{ action }}" method="post" data-oc-toggle="ajax">
+          <div class="alert alert-info"><i class="fas fa-info-circle"></i> {{ text_category_mapping_intro }}</div>
+          
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th class="text-start">{{ column_opencart_category }}</th>
+                  <th class="text-start">{{ column_trendyol_category }}</th>
+                  <th class="text-center">{{ column_mapping_type }}</th>
+                  <th class="text-end">{{ column_confidence }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for category in opencart_categories %}
+                  <tr>
+                    <td>{{ category.name }}</td>
+                    <td>
+                      <select name="category_mapping[{{ category.category_id }}]" class="form-select">
+                        <option value="">{{ text_select }}</option>
+                        {% for trendyol_category in trendyol_categories %}
+                          <option value="{{ trendyol_category.trendyol_category_id }}"
+                            {% for mapping in mappings %}
+                              {% if mapping.opencart_category_id == category.category_id and mapping.trendyol_category_id == trendyol_category.trendyol_category_id %}
+                                selected="selected"
+                              {% endif %}
+                            {% endfor %}
+                          >{{ trendyol_category.path }}</option>
+                        {% endfor %}
+                      </select>
+                    </td>
+                    <td class="text-center">
+                      {% for mapping in mappings %}
+                        {% if mapping.opencart_category_id == category.category_id %}
+                          {% if mapping.mapping_type == 'manual' %}
+                            <span class="badge bg-success">{{ text_manual }}</span>
+                          {% elseif mapping.mapping_type == 'auto' %}
+                            <span class="badge bg-warning">{{ text_auto }}</span>
+                          {% else %}
+                            <span class="badge bg-info">{{ text_ai }}</span>
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td class="text-end">
+                      {% for mapping in mappings %}
+                        {% if mapping.opencart_category_id == category.category_id and mapping.confidence_score %}
+                          <div class="progress" style="height: 5px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ mapping.confidence_score * 100 }}%" aria-valuenow="{{ mapping.confidence_score * 100 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                          <small>{{ (mapping.confidence_score * 100)|round }}%</small>
+                        {% endif %}
+                      {% endfor %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+$('#button-refresh-trendyol').on('click', function() {
+  $.ajax({
+    url: '{{ refresh_trendyol }}',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-refresh-trendyol').prop('disabled', true).addClass('loading');
+    },
+    complete: function() {
+      $('#button-refresh-trendyol').prop('disabled', false).removeClass('loading');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        
+        setTimeout(function() {
+          location.reload();
+        }, 1000);
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('#button-auto-map').on('click', function() {
+  $.ajax({
+    url: '{{ auto_map }}',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-auto-map').prop('disabled', true).addClass('loading');
+    },
+    complete: function() {
+      $('#button-auto-map').prop('disabled', false).removeClass('loading');
+    },
+    success: function(json) {
+      $('.alert-dismissible').remove();
+      
+      if (json['error']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+      }
+      
+      if (json['success']) {
+        $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fas fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        
+        setTimeout(function() {
+          location.reload();
+        }, 1000);
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+//--></script>
+
+{{ footer }}

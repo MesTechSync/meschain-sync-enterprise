@@ -1,0 +1,187 @@
+{#
+  help.twig
+  Amaç: MesChain-Sync yardım ve dokümantasyon sisteminin arayüz şablonu.
+  Standart: Her değişiklikte log tutulmalı.
+#}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ help_url }}" data-toggle="tooltip" title="Ana Sayfa" class="btn btn-default"><i class="fa fa-home"></i></a>
+      </div>
+      <h1>{{ page_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-list"></i> Yardım Konuları</h3>
+          </div>
+          <div class="panel-body">
+            <div class="list-group">
+              {% for cat_key, category in help_categories %}
+                <div class="list-group-item">
+                  <h4 class="list-group-item-heading"><i class="fa {{ category.icon }}"></i> {{ category.name }}</h4>
+                  <div class="list-group">
+                    {% for topic_key, topic in category.topics %}
+                      <a href="{{ help_url }}&category={{ cat_key }}&topic={{ topic_key }}" class="list-group-item {% if selected_category == cat_key and selected_topic == topic_key %}active{% endif %}">
+                        <i class="fa fa-angle-right"></i> {{ topic }}
+                      </a>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-search"></i> Arama</h3>
+          </div>
+          <div class="panel-body">
+            <div class="input-group">
+              <input type="text" id="search-query" class="form-control" placeholder="Arama...">
+              <span class="input-group-btn">
+                <button id="search-button" class="btn btn-primary" type="button"><i class="fa fa-search"></i></button>
+              </span>
+            </div>
+            <div id="search-results" class="list-group" style="margin-top: 10px; display: none;"></div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-envelope"></i> İletişim</h3>
+          </div>
+          <div class="panel-body">
+            <form id="contact-form">
+              <div class="form-group">
+                <label for="name">Adınız</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+              </div>
+              <div class="form-group">
+                <label for="email">E-posta</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+              </div>
+              <div class="form-group">
+                <label for="subject">Konu</label>
+                <input type="text" class="form-control" id="subject" name="subject" required>
+              </div>
+              <div class="form-group">
+                <label for="message">Mesaj</label>
+                <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Gönder</button>
+            </form>
+            <div id="contact-result" style="margin-top: 10px; display: none;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-file-text-o"></i> {{ help_content.title }}</h3>
+          </div>
+          <div class="panel-body">
+            {{ help_content.content|raw }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Arama fonksiyonu
+  $('#search-button').on('click', function() {
+    var query = $('#search-query').val();
+    if (query.length < 3) {
+      alert('Lütfen en az 3 karakter girin.');
+      return;
+    }
+    
+    $.ajax({
+      url: '{{ search_url }}&query=' + encodeURIComponent(query),
+      dataType: 'json',
+      beforeSend: function() {
+        $('#search-button').button('loading');
+      },
+      complete: function() {
+        $('#search-button').button('reset');
+      },
+      success: function(json) {
+        var html = '';
+        
+        if (json.results && json.results.length > 0) {
+          $.each(json.results, function(index, result) {
+            html += '<a href="' + result.url + '" class="list-group-item">';
+            html += '<h4 class="list-group-item-heading">' + result.title + '</h4>';
+            html += '<p class="list-group-item-text">' + result.excerpt + '</p>';
+            html += '</a>';
+          });
+        } else {
+          html += '<div class="list-group-item">';
+          html += '<p class="list-group-item-text">Sonuç bulunamadı.</p>';
+          html += '</div>';
+        }
+        
+        $('#search-results').html(html).show();
+      },
+      error: function(xhr, ajaxOptions, thrownError) {
+        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+      }
+    });
+  });
+  
+  // Enter tuşu ile arama
+  $('#search-query').on('keypress', function(e) {
+    if (e.which == 13) {
+      $('#search-button').trigger('click');
+      e.preventDefault();
+    }
+  });
+  
+  // İletişim formu
+  $('#contact-form').on('submit', function(e) {
+    e.preventDefault();
+    
+    $.ajax({
+      url: '{{ contact_url }}',
+      type: 'post',
+      data: $('#contact-form').serialize(),
+      dataType: 'json',
+      beforeSend: function() {
+        $('#contact-form button[type="submit"]').button('loading');
+      },
+      complete: function() {
+        $('#contact-form button[type="submit"]').button('reset');
+      },
+      success: function(json) {
+        $('#contact-result').removeClass('alert alert-success alert-danger').html('').hide();
+        
+        if (json.error) {
+          $('#contact-result').addClass('alert alert-danger').html(json.error).show();
+        }
+        
+        if (json.success) {
+          $('#contact-result').addClass('alert alert-success').html(json.success).show();
+          $('#contact-form')[0].reset();
+        }
+      },
+      error: function(xhr, ajaxOptions, thrownError) {
+        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+      }
+    });
+  });
+});
+</script>
+
+{{ footer }} 

@@ -1,0 +1,94 @@
+{% if announcement %}
+<!-- MesChain-Sync Announcement Popup -->
+<div id="meschain-announcement-modal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="background: {{ templates[announcement.type].bg|default('#f5f5f5') }}; border-bottom: 2px solid {{ templates[announcement.type].border|default('#ddd') }};">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">
+          {% if templates[announcement.type].icon %}
+            <span style="font-size: 1.2em; margin-right: 8px;">{{ templates[announcement.type].icon|raw }}</span>
+          {% endif %}
+          {{ announcement.title }}
+          {% if announcement.priority == 'urgent' %}
+            <span class="label label-danger">Acil</span>
+          {% elseif announcement.priority == 'high' %}
+            <span class="label label-warning">Yüksek</span>
+          {% endif %}
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div class="announcement-content">
+          {{ announcement.message|nl2br|raw }}
+        </div>
+        {% if announcement.marketplace %}
+        <div class="alert alert-info" style="margin-top: 15px;">
+          <strong>Marketplace:</strong> {{ announcement.marketplace|capitalize }}
+        </div>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+        <button type="button" class="btn btn-primary" onclick="markAnnouncementAsRead({{ announcement.announcement_id }})">Okundu Olarak İşaretle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Auto-show announcement popup
+    $('#meschain-announcement-modal').modal('show');
+    
+    // Auto-mark as read after 30 seconds
+    setTimeout(function() {
+        if ($('#meschain-announcement-modal').hasClass('in')) {
+            markAnnouncementAsRead({{ announcement.announcement_id }});
+        }
+    }, 30000);
+});
+
+function markAnnouncementAsRead(announcementId) {
+    $.ajax({
+        url: 'index.php?route=extension/module/announcement/markAsRead&user_token={{ user_token }}',
+        type: 'POST',
+        data: {
+            announcement_id: announcementId
+        },
+        dataType: 'json',
+        success: function(json) {
+            $('#meschain-announcement-modal').modal('hide');
+        },
+        error: function() {
+            $('#meschain-announcement-modal').modal('hide');
+        }
+    });
+}
+</script>
+
+<style>
+.announcement-content {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.announcement-content p {
+    margin-bottom: 10px;
+}
+
+#meschain-announcement-modal .modal-header {
+    border-radius: 6px 6px 0 0;
+}
+
+#meschain-announcement-modal .modal-title {
+    font-weight: 600;
+}
+
+#meschain-announcement-modal .label {
+    font-size: 0.7em;
+    margin-left: 8px;
+}
+</style>
+{% endif %} 

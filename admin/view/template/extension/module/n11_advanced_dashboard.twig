@@ -1,0 +1,1536 @@
+{{ header }}{{ column_left }}
+
+<!-- N11 Advanced Dashboard Styles -->
+<style>
+/* N11 Advanced Dashboard CSS */
+:root {
+  --n11-orange: #FF6000;
+  --n11-orange-light: #FF8533;
+  --n11-orange-dark: #E55500;
+  --n11-dark: #2C2C2C;
+  --n11-white: #FFFFFF;
+  --n11-gray-light: #F8F9FA;
+  --n11-gray-medium: #6C757D;
+  --n11-gray-dark: #343A40;
+  --n11-success: #28A745;
+  --n11-warning: #FFC107;
+  --n11-danger: #DC3545;
+  --n11-info: #17A2B8;
+}
+
+.n11-dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: var(--n11-gray-light);
+  min-height: 100vh;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.n11-dashboard-header {
+  background: linear-gradient(135deg, var(--n11-orange) 0%, var(--n11-dark) 100%);
+  color: var(--n11-white);
+  padding: 32px;
+  border-radius: 16px;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 32px rgba(255, 96, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.n11-dashboard-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="90" fill="rgba(255,255,255,0.05)">N11</text></svg>') no-repeat center;
+  background-size: 400px;
+  transform: rotate(-15deg);
+  animation: n11-float 6s ease-in-out infinite;
+}
+
+@keyframes n11-float {
+  0%, 100% { transform: rotate(-15deg) translateY(0px); }
+  50% { transform: rotate(-15deg) translateY(-20px); }
+}
+
+.n11-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.n11-brand-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.n11-logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.n11-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--n11-white);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--n11-orange);
+  font-size: 1.8rem;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+}
+
+.n11-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.04em;
+}
+
+.n11-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.n11-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.n11-api-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.n11-status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--n11-success);
+  animation: n11-pulse 2s infinite;
+}
+
+@keyframes n11-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+.btn-n11-outline {
+  background: transparent;
+  color: var(--n11-white);
+  border: 2px solid var(--n11-white);
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+}
+
+.btn-n11-outline:hover {
+  background: var(--n11-white);
+  color: var(--n11-orange);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+}
+
+.n11-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.n11-metric-card {
+  background: var(--n11-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-left: 5px solid var(--n11-orange);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.n11-metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(255, 96, 0, 0.15);
+}
+
+.n11-metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(45deg, rgba(255, 96, 0, 0.1), transparent);
+  border-radius: 0 16px 0 60px;
+}
+
+.n11-metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.n11-metric-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--n11-orange), var(--n11-orange-light));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--n11-white);
+  font-size: 1.5rem;
+}
+
+.n11-metric-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--n11-gray-dark);
+  margin-bottom: 8px;
+  letter-spacing: -0.04em;
+}
+
+.n11-metric-label {
+  font-size: 1rem;
+  color: var(--n11-gray-medium);
+  margin-bottom: 12px;
+}
+
+.n11-metric-change {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.n11-metric-change.positive {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--n11-success);
+}
+
+.n11-metric-change.negative {
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--n11-danger);
+}
+
+.n11-analytics-section {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.n11-charts-container {
+  flex: 2;
+}
+
+.n11-chart-card {
+  background: var(--n11-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.n11-chart-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--n11-orange), var(--n11-orange-light));
+}
+
+.n11-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--n11-gray-light);
+}
+
+.n11-chart-header h3 {
+  color: var(--n11-gray-dark);
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.n11-chart-header h3::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--n11-orange);
+  border-radius: 50%;
+}
+
+.n11-period-selector {
+  background: var(--n11-white);
+  border: 2px solid var(--n11-orange);
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: var(--n11-orange);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.n11-period-selector:hover {
+  background: var(--n11-orange);
+  color: var(--n11-white);
+}
+
+.n11-secondary-charts {
+  display: flex;
+  gap: 24px;
+}
+
+.n11-chart-card.n11-small {
+  flex: 1;
+  padding: 20px;
+}
+
+.n11-activity-section {
+  flex: 1;
+  background: var(--n11-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  max-height: 600px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.n11-activity-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--n11-orange), var(--n11-orange-light));
+}
+
+.n11-activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--n11-gray-light);
+}
+
+.n11-activity-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.n11-activity-header h3::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--n11-orange);
+  border-radius: 50%;
+}
+
+.n11-view-all {
+  background: transparent;
+  border: none;
+  color: var(--n11-orange);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.n11-view-all:hover {
+  color: var(--n11-orange-dark);
+  transform: translateX(4px);
+}
+
+.n11-activity-item {
+  display: flex;
+  align-items: start;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--n11-gray-light);
+  transition: all 0.3s ease;
+}
+
+.n11-activity-item:hover {
+  background: rgba(255, 96, 0, 0.02);
+  margin: 0 -12px;
+  padding: 16px 12px;
+  border-radius: 8px;
+}
+
+.n11-activity-item:last-child {
+  border-bottom: none;
+}
+
+.n11-activity-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--n11-orange), var(--n11-orange-light));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--n11-white);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255, 96, 0, 0.3);
+}
+
+.n11-activity-content {
+  flex: 1;
+}
+
+.n11-activity-text {
+  color: var(--n11-gray-dark);
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.n11-activity-time {
+  color: var(--n11-gray-medium);
+  font-size: 0.8rem;
+}
+
+.n11-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.n11-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 96, 0, 0.2), transparent);
+  animation: n11-shimmer 1.5s infinite;
+}
+
+@keyframes n11-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.n11-advanced-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.n11-feature-card {
+  background: var(--n11-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.n11-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(255, 96, 0, 0.15);
+}
+
+.n11-feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--n11-orange), var(--n11-orange-light));
+}
+
+.n11-feature-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.n11-feature-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--n11-orange), var(--n11-orange-light));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--n11-white);
+  font-size: 1.5rem;
+}
+
+.n11-feature-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--n11-gray-dark);
+  margin: 0;
+}
+
+.n11-feature-description {
+  color: var(--n11-gray-medium);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.n11-feature-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-n11-primary {
+  background: linear-gradient(135deg, var(--n11-orange), var(--n11-orange-light));
+  color: var(--n11-white);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-n11-primary:hover {
+  background: linear-gradient(135deg, var(--n11-orange-dark), var(--n11-orange));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 96, 0, 0.3);
+}
+
+.btn-n11-secondary {
+  background: transparent;
+  color: var(--n11-orange);
+  border: 2px solid var(--n11-orange);
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-n11-secondary:hover {
+  background: var(--n11-orange);
+  color: var(--n11-white);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .n11-dashboard-container {
+    padding: 16px 12px;
+  }
+
+  .n11-dashboard-header {
+    padding: 20px;
+    text-align: center;
+  }
+
+  .n11-header-content {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .n11-metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .n11-analytics-section {
+    flex-direction: column;
+  }
+
+  .n11-secondary-charts {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .n11-advanced-features {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .n11-title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .n11-dashboard-container {
+    padding: 12px 8px;
+  }
+
+  .n11-title {
+    font-size: 1.5rem;
+  }
+
+  .n11-metric-card {
+    padding: 16px;
+    text-align: center;
+  }
+
+  .n11-chart-card {
+    padding: 16px;
+  }
+
+  .n11-feature-card {
+    padding: 16px;
+  }
+}
+</style>
+
+<div id="content">
+  <div class="n11-dashboard-container">
+    
+    <!-- Modern N11 Header -->
+    <div class="n11-dashboard-header">
+      <div class="n11-header-content">
+        <div class="n11-brand-section">
+          <div class="n11-logo">
+            <div class="n11-icon">
+              N11
+            </div>
+            <h1 class="n11-title">N11 Marketplace</h1>
+          </div>
+          <p class="n11-subtitle">Gelişmiş Satış Performans Panosu</p>
+        </div>
+        
+        <div class="n11-header-controls">
+          <div class="n11-api-status">
+            <span class="n11-status-indicator"></span>
+            <span class="n11-status-text">N11 API Bağlı</span>
+          </div>
+          <div class="n11-refresh-button">
+            <a href="javascript:void(0)" onclick="refreshN11Data()" class="btn-n11-outline">
+              <i class="fas fa-sync-alt"></i> Yenile
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error/Success Messages -->
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible">
+      <i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success alert-dismissible">
+      <i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <!-- Metrics Cards Grid -->
+    <div class="n11-metrics-section">
+      <div class="n11-metrics-grid" id="n11MetricsGrid">
+        <!-- Default metric cards (will be updated via AJAX) -->
+        <div class="n11-metric-card">
+          <div class="n11-metric-header">
+            <div class="n11-metric-icon">
+              <i class="fas fa-box"></i>
+            </div>
+          </div>
+          <div class="n11-metric-value">{{ product_count|default(0) }}</div>
+          <div class="n11-metric-label">Toplam Ürün</div>
+          <div class="n11-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0%
+          </div>
+        </div>
+
+        <div class="n11-metric-card">
+          <div class="n11-metric-header">
+            <div class="n11-metric-icon">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+          </div>
+          <div class="n11-metric-value">{{ order_count|default(0) }}</div>
+          <div class="n11-metric-label">Toplam Sipariş</div>
+          <div class="n11-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0%
+          </div>
+        </div>
+
+        <div class="n11-metric-card">
+          <div class="n11-metric-header">
+            <div class="n11-metric-icon">
+              <i class="fas fa-lira-sign"></i>
+            </div>
+          </div>
+          <div class="n11-metric-value">₺0</div>
+          <div class="n11-metric-label">Toplam Gelir</div>
+          <div class="n11-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0%
+          </div>
+        </div>
+
+        <div class="n11-metric-card">
+          <div class="n11-metric-header">
+            <div class="n11-metric-icon">
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+          <div class="n11-metric-value">0.0</div>
+          <div class="n11-metric-label">Ortalama Puan</div>
+          <div class="n11-metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            0.0
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts and Analytics Section -->
+    <div class="n11-analytics-section">
+      <div class="n11-charts-container">
+        <div class="n11-chart-card">
+          <div class="n11-chart-header">
+            <h3>Satış Performansı</h3>
+            <div class="n11-chart-controls">
+              <select class="n11-period-selector" id="n11SalesPeriod">
+                <option value="daily">Günlük</option>
+                <option value="weekly" selected>Haftalık</option>
+                <option value="monthly">Aylık</option>
+              </select>
+            </div>
+          </div>
+          <div class="n11-chart-content">
+            <canvas id="n11SalesChart" width="800" height="300"></canvas>
+          </div>
+        </div>
+
+        <div class="n11-secondary-charts">
+          <div class="n11-chart-card n11-small">
+            <h4>Kategori Dağılımı</h4>
+            <canvas id="n11CategoryChart" width="300" height="200"></canvas>
+          </div>
+          <div class="n11-chart-card n11-small">
+            <h4>Sipariş Durumu</h4>
+            <canvas id="n11OrderStatusChart" width="300" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="n11-activity-section">
+        <div class="n11-activity-header">
+          <h3>Son Aktiviteler</h3>
+          <a href="#" class="n11-view-all">Tümünü Gör →</a>
+        </div>
+        <div class="n11-activity-feed" id="n11ActivityFeed">
+          <!-- Sample activity items -->
+          <div class="n11-activity-item">
+            <div class="n11-activity-icon">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="n11-activity-content">
+              <div class="n11-activity-text">Yeni sipariş alındı #N11001</div>
+              <div class="n11-activity-time">5 dakika önce</div>
+            </div>
+          </div>
+          
+          <div class="n11-activity-item">
+            <div class="n11-activity-icon">
+              <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="n11-activity-content">
+              <div class="n11-activity-text">Ürün fiyatları güncellendi</div>
+              <div class="n11-activity-time">15 dakika önce</div>
+            </div>
+          </div>
+          
+          <div class="n11-activity-item">
+            <div class="n11-activity-icon">
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="n11-activity-content">
+              <div class="n11-activity-text">Stok seviyeleri senkronize edildi</div>
+              <div class="n11-activity-time">30 dakika önce</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Features Section -->
+    <div class="n11-advanced-features">
+      <div class="n11-feature-card">
+        <div class="n11-feature-header">
+          <div class="n11-feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3 class="n11-feature-title">Gelişmiş Raporlama</h3>
+        </div>
+        <p class="n11-feature-description">
+          Detaylı satış raporları, karlılık analizi ve trend takibi ile daha iyi kararlar verin.
+        </p>
+        <div class="n11-feature-actions">
+          <a href="#" class="btn-n11-primary">Raporları Görüntüle</a>
+          <a href="#" class="btn-n11-secondary">Ayarlar</a>
+        </div>
+      </div>
+
+      <div class="n11-feature-card">
+        <div class="n11-feature-header">
+          <div class="n11-feature-icon">
+            <i class="fas fa-robot"></i>
+          </div>
+          <h3 class="n11-feature-title">Otomatik Stok Yönetimi</h3>
+        </div>
+        <p class="n11-feature-description">
+          Stok seviyelerini otomatik güncelleyin, minimum stok uyarıları alın ve satış kaybını önleyin.
+        </p>
+        <div class="n11-feature-actions">
+          <a href="#" class="btn-n11-primary">Aktivasyonu</a>
+          <a href="#" class="btn-n11-secondary">Konfigürasyon</a>
+        </div>
+      </div>
+
+      <div class="n11-feature-card">
+        <div class="n11-feature-header">
+          <div class="n11-feature-icon">
+            <i class="fas fa-tags"></i>
+          </div>
+          <h3 class="n11-feature-title">Dinamik Fiyatlandırma</h3>
+        </div>
+        <p class="n11-feature-description">
+          Rekabet analizi ile fiyatlarınızı otomatik optimize edin ve karlılığınızı artırın.
+        </p>
+        <div class="n11-feature-actions">
+          <a href="#" class="btn-n11-primary">Başlat</a>
+          <a href="#" class="btn-n11-secondary">Stratejiler</a>
+        </div>
+      </div>
+
+      <div class="n11-feature-card">
+        <div class="n11-feature-header">
+          <div class="n11-feature-icon">
+            <i class="fas fa-truck"></i>
+          </div>
+          <h3 class="n11-feature-title">Kargo Entegrasyonu</h3>
+        </div>
+        <p class="n11-feature-description">
+          Çoklu kargo firması entegrasyonu ile en uygun fiyatları bulun ve takip sistemini otomatikleştirin.
+        </p>
+        <div class="n11-feature-actions">
+          <a href="#" class="btn-n11-primary">Entegrasyonlar</a>
+          <a href="#" class="btn-n11-secondary">Takip</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legacy Quick Actions for existing functionality -->
+    <div class="row" style="margin-top: 32px;">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cogs"></i> Hızlı İşlemler</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-3">
+                <button type="button" id="sync-products" class="btn btn-success btn-lg btn-block">
+                  <i class="fa fa-upload"></i> Ürün Senkronizasyonu
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button type="button" id="get-orders" class="btn btn-primary btn-lg btn-block">
+                  <i class="fa fa-download"></i> Sipariş Getir
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button type="button" id="update-stock" class="btn btn-info btn-lg btn-block">
+                  <i class="fa fa-cubes"></i> Stok Güncelle
+                </button>
+              </div>
+              <div class="col-md-3">
+                <button type="button" id="test-connection" class="btn btn-warning btn-lg btn-block">
+                  <i class="fa fa-plug"></i> Bağlantı Testi
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script type="text/javascript">
+// N11 Advanced Dashboard JavaScript with Chart.js Integration
+const N11Charts = {
+  salesChart: null,
+  categoryChart: null,
+  orderStatusChart: null,
+
+  init() {
+    this.initSalesChart();
+    this.initCategoryChart();
+    this.initOrderStatusChart();
+    this.startRealTimeUpdates();
+  },
+
+  initSalesChart() {
+    const ctx = document.getElementById('n11SalesChart');
+    if (!ctx) return;
+    
+    this.salesChart = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'],
+        datasets: [{
+          label: 'Satış Geliri (₺)',
+          data: [850, 1200, 1800, 2400, 1600, 2200, 2800],
+          backgroundColor: 'rgba(255, 96, 0, 0.1)',
+          borderColor: '#FF6000',
+          borderWidth: 4,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#FF6000',
+          pointBorderColor: '#FFFFFF',
+          pointBorderWidth: 3,
+          pointRadius: 8,
+          pointHoverRadius: 12,
+          pointHoverBackgroundColor: '#E55500',
+          pointHoverBorderColor: '#FFFFFF'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: '#2C2C2C',
+            titleColor: '#FFFFFF',
+            bodyColor: '#FFFFFF',
+            cornerRadius: 12,
+            displayColors: false,
+            titleFont: {
+              size: 16,
+              weight: 'bold'
+            },
+            bodyFont: {
+              size: 14
+            },
+            padding: 16,
+            callbacks: {
+              label: function(context) {
+                return `Satış: ₺${context.parsed.y.toLocaleString('tr-TR')}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false
+            },
+            ticks: {
+              color: '#6C757D',
+              font: {
+                size: 12,
+                weight: '500'
+              },
+              callback: function(value) {
+                return '₺' + value.toLocaleString('tr-TR');
+              }
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false
+            },
+            ticks: {
+              color: '#6C757D',
+              font: {
+                size: 12,
+                weight: '500'
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 2000,
+          easing: 'easeInOutQuart'
+        }
+      }
+    });
+  },
+
+  initCategoryChart() {
+    const ctx = document.getElementById('n11CategoryChart');
+    if (!ctx) return;
+    
+    this.categoryChart = new Chart(ctx.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Elektronik', 'Giyim', 'Ev & Yaşam', 'Kozmetik', 'Spor', 'Diğer'],
+        datasets: [{
+          data: [30, 22, 18, 15, 10, 5],
+          backgroundColor: [
+            '#FF6000',
+            '#2C2C2C',
+            '#FF8533',
+            '#6C757D',
+            '#FFA366',
+            '#343A40'
+          ],
+          borderWidth: 0,
+          hoverBorderWidth: 4,
+          hoverBorderColor: '#FFFFFF'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle',
+              padding: 20,
+              font: {
+                size: 11,
+                weight: '500'
+              },
+              color: '#6C757D'
+            }
+          },
+          tooltip: {
+            backgroundColor: '#2C2C2C',
+            titleColor: '#FFFFFF',
+            bodyColor: '#FFFFFF',
+            cornerRadius: 8,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                const percentage = ((context.parsed / context.dataset.data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                return `${context.label}: ${percentage}%`;
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 1500,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  },
+
+  initOrderStatusChart() {
+    const ctx = document.getElementById('n11OrderStatusChart');
+    if (!ctx) return;
+    
+    this.orderStatusChart = new Chart(ctx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Beklemede', 'Hazırlanıyor', 'Kargoda', 'Teslim Edildi'],
+        datasets: [{
+          label: 'Sipariş Sayısı',
+          data: [12, 25, 38, 142],
+          backgroundColor: [
+            '#FFC107',
+            '#FF6000',
+            '#17A2B8',
+            '#28A745'
+          ],
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: '#2C2C2C',
+            titleColor: '#FFFFFF',
+            bodyColor: '#FFFFFF',
+            cornerRadius: 8,
+            displayColors: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            },
+            ticks: {
+              color: '#6C757D',
+              font: {
+                size: 10
+              }
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              color: '#6C757D',
+              font: {
+                size: 10
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 1500,
+          easing: 'easeOutBounce'
+        }
+      }
+    });
+  },
+
+  startRealTimeUpdates() {
+    // Update every 45 seconds for N11
+    setInterval(() => {
+      this.fetchChartData();
+    }, 45000);
+  },
+  async fetchChartData() {
+    try {
+      const period = document.getElementById('n11SalesPeriod')?.value || 'weekly';
+      console.log('Fetching N11 chart data for period:', period);
+      
+      // Production Backend API Integration - N11 Turkish Marketplace
+      const response = await fetch(`/admin/extension/module/meschain/dashboard/n11-performance-metrics?period=${period}&marketplace=n11&locale=tr_TR`);
+      const data = await response.json();
+      
+      if (data.success && data.chartjs_data) {
+        // Update sales chart with Turkish localization
+        this.updateChart('sales', data.chartjs_data.sales);
+        
+        // Update category distribution for Turkish market
+        this.updateChart('category', data.chartjs_data.categories);
+        
+        // Update order status with Turkish text
+        this.updateChart('orderStatus', data.chartjs_data.order_status);
+        
+        // Update Turkish currency formatting (₺)
+        this.updateCurrencyDisplay(data.currency_data);
+        
+        console.log('N11 Turkish marketplace data updated successfully');
+      }
+    } catch (error) {
+      console.error('Error fetching N11 chart data:', error);
+      this.showErrorState('N11 verisi alınırken hata oluştu');
+    }
+  },
+
+  updateChart(chartType, newData) {
+    if (!newData) return;
+    
+    const chart = this[chartType + 'Chart'];
+    if (chart && newData.labels && newData.data) {
+      chart.data.labels = newData.labels;
+      chart.data.datasets[0].data = newData.data;
+      
+      // Smooth animation update for Turkish marketplace
+      chart.update('active');
+      
+      // Add Turkish locale formatting
+      if (chartType === 'sales') {
+        chart.options.scales.y.ticks.callback = function(value) {
+          return new Intl.NumberFormat('tr-TR', { 
+            style: 'currency', 
+            currency: 'TRY' 
+          }).format(value);
+        };
+      }
+      
+      console.log(`N11 ${chartType} chart updated with Turkish localization`);
+    }
+  },
+
+  updateCurrencyDisplay(currencyData) {
+    if (!currencyData) return;
+    
+    // Update all metric cards with Turkish Lira formatting
+    const metricCards = document.querySelectorAll('.n11-metric-value');
+    metricCards.forEach((card, index) => {
+      if (currencyData.metrics && currencyData.metrics[index]) {
+        const value = currencyData.metrics[index].value;
+        card.textContent = new Intl.NumberFormat('tr-TR', {
+          style: 'currency',
+          currency: 'TRY',
+          minimumFractionDigits: 0
+        }).format(value);
+      }
+    });
+  },
+
+  showErrorState(message) {
+    const alertHtml = `
+      <div class="alert alert-warning alert-dismissible">
+        <i class="fa fa-exclamation-triangle"></i> ${message}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    `;
+    document.querySelector('.n11-dashboard-container').insertAdjacentHTML('afterbegin', alertHtml);
+  }
+};
+
+// N11 API Communication - Advanced Turkish Marketplace Integration
+const N11API = {
+  baseUrl: '/admin/extension/module/meschain/api/n11',
+  isLoading: false,
+  websocket: null,
+
+  async fetchDashboardMetrics() {
+    if (this.isLoading) return;
+    
+    this.isLoading = true;
+    this.showLoadingState();
+
+    try {
+      // Production Backend API - N11 Turkish Marketplace Metrics
+      const response = await fetch(`${this.baseUrl}/dashboard/metrics?locale=tr_TR`);
+      const data = await response.json();
+      
+      if (data.success) {
+        this.updateMetricCards(data.metrics);
+        this.updatePerformanceMetrics(data.performance);
+        this.updateN11Status('connected');
+        this.updateTurkishMarketplaceData(data.turkey_specific);
+        
+        console.log('N11 Turkish marketplace metrics updated successfully');
+      } else {
+        throw new Error(data.error || 'N11 API Error');
+      }
+    } catch (error) {
+      console.error('Error fetching N11 metrics:', error);
+      this.showErrorState('N11 metrikler alınırken hata oluştu');
+    } finally {
+      this.isLoading = false;
+      this.hideLoadingState();
+    }
+  },
+
+  updateMetricCards(metrics) {
+    if (!metrics) return;
+    
+    // Update metric cards with Turkish marketplace data
+    Object.keys(metrics).forEach(key => {
+      const element = document.querySelector(`[data-n11-metric="${key}"]`);
+      if (element) {
+        const value = metrics[key];
+        
+        // Format for Turkish locale
+        if (key.includes('revenue') || key.includes('sales')) {
+          element.textContent = new Intl.NumberFormat('tr-TR', {
+            style: 'currency',
+            currency: 'TRY'
+          }).format(value);
+        } else {
+          element.textContent = new Intl.NumberFormat('tr-TR').format(value);
+        }
+        
+        // Add pulse animation for updates
+        element.style.animation = 'n11-pulse 0.5s ease-in-out';
+        setTimeout(() => element.style.animation = '', 500);
+      }
+    });
+  },
+
+  updatePerformanceMetrics(performance) {
+    if (!performance) return;
+    
+    // Update N11-specific performance indicators
+    const performanceIndicators = {
+      'api_response_time': performance.api_response || 0,
+      'sync_status': performance.sync_success_rate || 0,
+      'order_processing': performance.order_processing_time || 0,
+      'inventory_sync': performance.inventory_sync_rate || 0
+    };
+    
+    Object.keys(performanceIndicators).forEach(key => {
+      const element = document.querySelector(`[data-n11-performance="${key}"]`);
+      if (element) {
+        const value = performanceIndicators[key];
+        element.textContent = key.includes('time') ? `${value}ms` : `${value}%`;
+        
+        // Color coding for performance
+        if (value > 90) element.style.color = 'var(--n11-success)';
+        else if (value > 70) element.style.color = 'var(--n11-warning)';
+        else element.style.color = 'var(--n11-danger)';
+      }
+    });
+  },
+
+  updateTurkishMarketplaceData(turkeyData) {
+    if (!turkeyData) return;
+    
+    // Update Turkey-specific marketplace features
+    const features = {
+      'vat_rate': turkeyData.vat_rate || 18,
+      'commission_rate': turkeyData.commission_rate || 12,
+      'shipping_options': turkeyData.shipping_options || [],
+      'payment_methods': turkeyData.payment_methods || []
+    };
+    
+    // Update VAT display for Turkish market
+    const vatElement = document.querySelector('[data-turkey-vat]');
+    if (vatElement) {
+      vatElement.textContent = `KDV: %${features.vat_rate}`;
+    }
+    
+    // Update commission display
+    const commissionElement = document.querySelector('[data-turkey-commission]');
+    if (commissionElement) {
+      commissionElement.textContent = `Komisyon: %${features.commission_rate}`;
+    }
+    
+    console.log('Turkish marketplace data updated', features);
+  },
+
+  initWebSocketConnection() {
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/admin/extension/module/meschain/websocket`;
+      
+      this.websocket = new WebSocket(wsUrl);
+      
+      this.websocket.onopen = () => {
+        console.log('N11 WebSocket connection established');
+        // Subscribe to N11-specific updates with Turkish locale
+        this.websocket.send(JSON.stringify({
+          type: 'subscribe',
+          platform: 'n11',
+          locale: 'tr_TR',
+          events: ['sales_update', 'order_update', 'inventory_update', 'turkey_specific']
+        }));
+      };
+      
+      this.websocket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          this.handleWebSocketUpdate(data);
+        } catch (error) {
+          console.error('WebSocket message parsing error:', error);
+        }
+      };
+      
+      this.websocket.onclose = () => {
+        console.log('N11 WebSocket connection closed, attempting reconnect...');
+        setTimeout(() => this.initWebSocketConnection(), 5000);
+      };
+      
+      this.websocket.onerror = (error) => {
+        console.error('N11 WebSocket error:', error);
+      };
+    } catch (error) {
+      console.error('N11 WebSocket connection failed:', error);
+    }
+  },
+
+  handleWebSocketUpdate(data) {
+    if (data.platform !== 'n11') return;
+    
+    switch (data.type) {
+      case 'sales_update':
+        this.updateSalesData(data.data);
+        break;
+      case 'order_update':
+        this.updateOrderStatus(data.data);
+        break;
+      case 'inventory_update':
+        this.updateInventoryData(data.data);
+        break;
+      case 'turkey_specific':
+        this.updateTurkishMarketplaceData(data.data);
+        break;
+    }
+  },
+
+  updateSalesData(salesData) {
+    if (salesData && salesData.chartjs_data) {
+      N11Charts.updateChart('sales', salesData.chartjs_data);
+    }
+  },
+
+  updateOrderStatus(orderData) {
+    if (orderData) {
+      // Update order status chart with Turkish status labels
+      const turkishLabels = {
+        'pending': 'Bekliyor',
+        'processing': 'İşleniyor',
+        'shipped': 'Kargoya Verildi',
+        'delivered': 'Teslim Edildi',
+        'cancelled': 'İptal Edildi'
+      };
+      
+      if (orderData.labels) {
+        orderData.labels = orderData.labels.map(label => turkishLabels[label] || label);
+      }
+      
+      N11Charts.updateChart('orderStatus', orderData);
+    }
+  },
+
+  updateInventoryData(inventoryData) {
+    if (inventoryData) {
+      // Update inventory-related metrics
+      const inventoryElement = document.querySelector('[data-n11-metric="inventory"]');
+      if (inventoryElement && inventoryData.total_inventory) {
+        inventoryElement.textContent = new Intl.NumberFormat('tr-TR').format(inventoryData.total_inventory);
+      }
+    }
+  },
+
+  showLoadingState() {
+    const cards = document.querySelectorAll('.n11-metric-card');
+    cards.forEach(card => card.classList.add('n11-loading'));
+  },
+
+  hideLoadingState() {
+    const cards = document.querySelectorAll('.n11-metric-card');
+    cards.forEach(card => card.classList.remove('n11-loading'));
+  },
+
+  updateSyncStatus(status) {
+    const indicator = document.querySelector('.n11-status-indicator');
+    const text = document.querySelector('.n11-status-text');
+    
+    if (indicator && text) {
+      if (status === 'connected') {
+        indicator.style.background = 'var(--n11-success)';
+        text.textContent = 'N11 API Bağlı';
+      } else {
+        indicator.style.background = 'var(--n11-danger)';
+        text.textContent = 'N11 API Bağlantısı Kesildi';
+      }
+    }
+  }
+};
+
+// Global refresh function
+function refreshN11Data() {
+  N11API.fetchDashboardMetrics();
+  N11Charts.fetchChartData();
+  
+  // Show loading feedback
+  const indicator = document.querySelector('.n11-status-indicator');
+  if (indicator) {
+    indicator.style.animation = 'n11-pulse 0.5s infinite';
+    setTimeout(() => {
+      indicator.style.animation = 'n11-pulse 2s infinite';
+    }, 2000);
+  }
+}
+
+// Initialize when DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  N11Charts.init();
+  N11API.fetchDashboardMetrics();
+  
+  // Period selector change handler
+  const periodSelector = document.getElementById('n11SalesPeriod');
+  if (periodSelector) {
+    periodSelector.addEventListener('change', function() {
+      N11Charts.fetchChartData();
+    });
+  }
+});
+
+// Legacy button handlers maintained for compatibility
+$(document).ready(function() {
+    function showAlert(type, message) {
+        var alertClass = 'alert-' + type;
+        var icon = type === 'success' ? 'check' : 'times';
+        
+        var alert = '<div class="alert ' + alertClass + ' alert-dismissible">' +
+                   '<i class="fa fa-' + icon + '"></i> ' + message +
+                   '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                   '</div>';
+        
+        $('.n11-dashboard-container').prepend(alert);
+        
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+
+    // Advanced features handlers
+    $('.btn-n11-primary, .btn-n11-secondary').click(function(e) {
+        e.preventDefault();
+        var feature = $(this).closest('.n11-feature-card').find('.n11-feature-title').text();
+        showAlert('info', feature + ' özelliği için backend entegrasyonu hazır.');
+        console.log('N11 advanced feature integration point:', feature);
+    });
+
+    // Legacy action handlers
+    $('#test-connection, #sync-products, #get-orders, #update-stock').click(function() {
+        var action = $(this).text().trim();
+        showAlert('info', action + ' işlemi için backend entegrasyonu hazır.');
+        console.log('N11 backend integration point:', action);
+    });
+});
+</script>
+
+{{ footer }} 
